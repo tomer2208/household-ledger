@@ -16,7 +16,8 @@
   - מפתחות VAPID ל-Web Push שמורים ב-Vault. לא צריך לשמור אותם בשום מקום אחר.
 - **האפליקציה:** `apps/mobile` (Expo SDK 57). `sh scripts/build-web.sh` בונה את גרסת הרשת לתיקייה `dist/`.
 - **AI:** הקריאה ל-Claude עצמה עוד לא רצה, כי אין מפתח. יש תקרה של $1 לחודש לכל משק בית.
-- **גיט:** ענף `main` עם 6 commits. אין עדיין ריפו מרוחק.
+- **גיט:** ריפו פרטי [tomer2208/household-ledger](https://github.com/tomer2208/household-ledger), ענף `main`.
+- **אתר חי:** https://household-ledger-wedding-planner-2026.vercel.app (פרויקט Vercel `household-ledger` בצוות "tomer2208's projects"). כל push ל-`main` מעלה גרסה חדשה אוטומטית.
 
 ---
 
@@ -31,8 +32,8 @@
      - Password: סיסמת האפליקציה
      - Sender: אותה כתובת Gmail
    - ב-Templates: להדביק את `supabase/templates/magic_link.html` בתבנית "Magic Link" ואת `supabase/templates/confirm_signup.html` בתבנית "Confirm signup". שורת הנושא (Subject) כתובה בראש כל קובץ.
-2. **B5: לבחור אחסון** (Cloudflare Pages, Netlify או Vercel) ולחבר חשבון. תגיד לי איזה, ואני אעלה.
-3. **B6: כתובת האתר.** אחרי שיש כתובת, להוסיף אותה ב-Supabase תחת Auth → URL Configuration → Site URL.
+2. **B6: כתובת האתר ב-Supabase.** תחת Auth → URL Configuration → Site URL להדביק `https://household-ledger-wedding-planner-2026.vercel.app`.
+
 4. **B7 + C6: בדיקה על אייפון.**
    - להוסיף את האפליקציה למסך הבית ולהיכנס.
    - להפעיל Budget alerts בהגדרות.
@@ -68,7 +69,7 @@
   - `inputMode` (מגיע אוטומטית מ-`keyboardType`)
   - מיפוי אייקונים מלא
   - מצב כהה נבדק
-- [ ] **B5.** פריסה. הבנייה מוכנה (`sh scripts/build-web.sh`). קובצי הפניה מוכנים: `_redirects` ו-`_headers` ל-Netlify ול-Cloudflare, `vercel.json` ל-Vercel. 👤 לבחור ספק.
+- [x] **B5.** פרוס ב-Vercel דרך GitHub. תיקיית השורש היא `apps/mobile`, הבנייה רצה ב-`scripts/build-web.sh`, ומשתני `EXPO_PUBLIC_*` מוגדרים בפרויקט. נבדק: כל הנתיבים מחזירים 200, `sw.js` מוגש עם no-cache, ושדה ה-dev לא נמצא ב-bundle. גרסאות preview מוגנות בהתחברות ל-Vercel, וגרסת ה-production פתוחה לציבור.
 - [ ] 👤 **B6.** Site URL ב-Supabase.
 - [ ] 👤 **B7.** בדיקה על אייפון אמיתי.
 
