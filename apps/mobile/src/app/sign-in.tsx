@@ -77,7 +77,7 @@ export default function SignIn() {
           <View style={[s.logo, { backgroundColor: c.tint }]}>
             <Icon name="chart.pie" size={40} color="#fff" />
           </View>
-          <Text style={[s.title, { color: c.label }]}>Household Ledger</Text>
+          <Text style={[s.title, { color: c.label }]}>FinPace</Text>
           <Text style={[s.subtitle, { color: c.secondaryLabel }]}>Every shekel your household spends, in one place.</Text>
         </View>
 

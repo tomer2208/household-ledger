@@ -82,9 +82,9 @@ self.addEventListener('push', (event) => {
   try {
     data = event.data ? event.data.json() : {};
   } catch {
-    data = { title: 'Household Ledger', body: event.data ? event.data.text() : '' };
+    data = { title: 'FinPace', body: event.data ? event.data.text() : '' };
   }
-  const title = data.title || 'Household Ledger';
+  const title = data.title || 'FinPace';
   event.waitUntil(
     self.registration.showNotification(title, {
       body: data.body || '',

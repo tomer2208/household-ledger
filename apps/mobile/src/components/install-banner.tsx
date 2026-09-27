@@ -28,7 +28,7 @@ export function InstallBanner() {
       onPress={() => router.push('/settings/install')}
       style={[s.banner, { backgroundColor: c.cell }]}
       accessibilityRole="button"
-      accessibilityLabel="Add Household Ledger to your Home Screen">
+      accessibilityLabel="Add FinPace to your Home Screen">
       <Icon name="square.and.arrow.up" size={20} color={c.tint} />
       <View style={{ flex: 1 }}>
         <Text style={[s.title, { color: c.label }]}>Add to your Home Screen</Text>

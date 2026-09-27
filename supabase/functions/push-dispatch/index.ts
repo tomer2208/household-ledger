@@ -61,7 +61,7 @@ async function sendWeb(alerts: Alert[], okByAlert: Map<number, boolean>, dead: s
     console.error("WEB_PUSH_NO_VAPID");
     return;
   }
-  webpush.setVapidDetails("mailto:support@householdledger.app", vapid.public_key, vapid.private_key);
+  webpush.setVapidDetails("mailto:support@finpace.app", vapid.public_key, vapid.private_key);
   await Promise.all(
     alerts.flatMap((a, i) =>
       a.suppressed

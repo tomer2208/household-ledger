@@ -94,7 +94,7 @@ export default function HouseholdScreen() {
             // G3: a link joins in one tap; the code stays visible for typing it in by hand.
             const link = `${APP_URL}/join/${code}`;
             await Clipboard.setStringAsync(link);
-            Share.share({ message: `Join our household in Household Ledger: ${link}` }).catch(() => {});
+            Share.share({ message: `Join our household in FinPace: ${link}` }).catch(() => {});
           }}
           chevron={false}
           last

@@ -31,4 +31,4 @@ export const FUNCTIONS_URL = `${url}/functions/v1`;
 export const APP_URL =
   Platform.OS === 'web' && typeof window !== 'undefined'
     ? window.location.origin
-    : (process.env.EXPO_PUBLIC_APP_URL ?? 'https://householdledger.app');
+    : (process.env.EXPO_PUBLIC_APP_URL ?? 'https://finpace.app');

@@ -39,7 +39,7 @@ export default function JoinLink() {
       <Text style={[s.body, { color: c.secondaryLabel }]}>
         To join another one, leave {hh.data.household.name} first in Settings → Household, then open this link again.
       </Text>
-      <Button title="Open Household Ledger" onPress={() => router.replace('/overview')} style={{ alignSelf: 'stretch' }} />
+      <Button title="Open FinPace" onPress={() => router.replace('/overview')} style={{ alignSelf: 'stretch' }} />
     </View>
   );
 }

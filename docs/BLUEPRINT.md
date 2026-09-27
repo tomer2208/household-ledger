@@ -1,4 +1,4 @@
-# Master Project Blueprint: אפליקציית הוצאות משפחתית
+# Master Project Blueprint: FinPace (אפליקציית הוצאות משפחתית)
 
 > שם עבודה: **Household Ledger**. גרסת מסמך 1.0, 25.09.2026.
 > המסמך הוא מקור האמת לכל סשן קוד. כל סשן מתחיל בקריאת הסעיפים הרלוונטיים כאן, ומסתיים בעדכון המסמך אם החלטה השתנתה.
@@ -89,7 +89,7 @@
 - AC6: הפריט האחרון ברשימה הוא `➕ New category`. בחירה בו פותחת שדה שם. השרת יוצר את הקטגוריה (SF Symbol ברירת מחדל `tag`, בלי תקרה) ומשייך אליה את העסקה ואת הסוחר. אם כבר קיימת קטגוריה באותו שם, בלי הבדל בין אותיות גדולות וקטנות, השרת משתמש בה ולא יוצר כפילות.
 
 **US-C3: כשל רשת לא מאבד עסקה.**
-- AC1: אם הבקשה נכשלה (אין רשת, 5xx או 401), השורטקאט פותח deep link: `householdledger://add?amount=…&currency=…&merchant=…&occurred_at=…`.
+- AC1: אם הבקשה נכשלה (אין רשת, 5xx או 401), השורטקאט פותח deep link: `finpace://add?amount=…&currency=…&merchant=…&occurred_at=…`.
 - AC2: מסך ההוספה נפתח עם הנתונים ממולאים. אם אין רשת, הוא שומר טיוטה מקומית ומציג "Save when online". זו החריגה היחידה ממצב "קריאה בלבד" באופליין, והיא חלה רק על טיוטות, לא על עסקאות מסונכרנות.
 
 **US-C4: שליחה כפולה לא יוצרת כפילות.**
@@ -670,7 +670,7 @@ Content-Type: application/json
 { "type": "INSERT", "table": "budget_alerts", "record": { "category_id": "…", "budget_month": "2026-09-01", "threshold": 90, "spent_minor": 135000, "cap_minor": 150000 } }
 ```
 1. אם `threshold = 90` וקיימת שורה של 100 לאותו מפתח, מסמן `suppressed` ולא שולח (H7).
-2. אחרת, שולח ל-Expo Push API לכל `push_tokens` של חברי משק הבית, עם `data.url = householdledger://category/<id>`.
+2. אחרת, שולח ל-Expo Push API לכל `push_tokens` של חברי משק הבית, עם `data.url = finpace://category/<id>`.
 3. טוקן שחזר עם `DeviceNotRegistered` נמחק. בסוף מעדכן את `push_status`.
 
 #### ה-App עצמו
@@ -736,7 +736,7 @@ app/
   (tabs)/reports/index.tsx       [month].tsx
   (tabs)/settings/index.tsx  categories.tsx  budgets.tsx  recurring/index.tsx  recurring/[id].tsx
                    household.tsx  devices.tsx  notifications.tsx  account.tsx
-  add.tsx          formSheet, also target of householdledger://add?...
+  add.tsx          formSheet, also target of finpace://add?...
   review.tsx       pending_review queue
 ```
 
@@ -768,7 +768,7 @@ Log Expense (input: Transaction from Wallet trigger)
       d. Get Contents of URL POST {Base URL}/functions/v1/capture/confirm
            { transaction_id, <field>: <value>, title: c }
  6. Otherwise (no status → request failed)
-      Open URL householdledger://add?amount=…&merchant=…&occurred_at=…   (US-C3)
+      Open URL finpace://add?amount=…&merchant=…&occurred_at=…   (US-C3)
 ```
 
 השמות המדויקים של שדות הקלט מהטריגר (Amount, Merchant, Card) וההתנהגות של UI בזמן Run Immediately **ייבדקו ב-Phase 0**. התיעוד הזה יתעדכן לפי מה שיימצא.

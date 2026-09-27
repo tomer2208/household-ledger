@@ -1,6 +1,6 @@
 {
-  "name": "Household Ledger",
-  "short_name": "Ledger",
+  "name": "FinPace",
+  "short_name": "FinPace",
   "description": "Shared household budget: capture, categorize and plan together.",
   "id": "/",
   "start_url": "/",

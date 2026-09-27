@@ -1,15 +1,15 @@
 {
   "expo": {
-    "name": "Household Ledger",
+    "name": "FinPace",
     "slug": "household-ledger",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "householdledger",
+    "scheme": "finpace",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.householdledger.app",
+      "bundleIdentifier": "com.finpace.app",
       "usesAppleSignIn": true,
       "supportsTablet": false,
       "infoPlist": {

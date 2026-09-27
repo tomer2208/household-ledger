@@ -17,7 +17,7 @@
 - **האפליקציה:** `apps/mobile` (Expo SDK 57). `sh scripts/build-web.sh` בונה את גרסת הרשת לתיקייה `dist/`.
 - **AI:** הקריאה ל-Claude עצמה עוד לא רצה, כי אין מפתח. יש תקרה של $1 לחודש לכל משק בית.
 - **גיט:** ריפו פרטי [tomer2208/household-ledger](https://github.com/tomer2208/household-ledger), ענף `main`.
-- **אתר חי:** https://household-ledger-wedding-planner-2026.vercel.app (פרויקט Vercel `household-ledger` בצוות "tomer2208's projects"). כל push ל-`main` מעלה גרסה חדשה אוטומטית.
+- **אתר חי:** https://finpace-app.vercel.app (פרויקט Vercel `finpace` בצוות "tomer2208's projects"). כל push ל-`main` מעלה גרסה חדשה אוטומטית.
 
 ---
 
@@ -32,7 +32,7 @@
      - Password: סיסמת האפליקציה
      - Sender: אותה כתובת Gmail
    - ב-Templates: להדביק את `supabase/templates/magic_link.html` בתבנית "Magic Link" ואת `supabase/templates/confirm_signup.html` בתבנית "Confirm signup". שורת הנושא (Subject) כתובה בראש כל קובץ.
-2. **B6: כתובת האתר ב-Supabase.** תחת Auth → URL Configuration → Site URL להדביק `https://household-ledger-wedding-planner-2026.vercel.app`.
+2. **B6: כתובת האתר ב-Supabase.** תחת Auth → URL Configuration → Site URL להדביק `https://finpace-app.vercel.app`.
 3. **B7 + C6: בדיקה על אייפון.**
    - להוסיף את האפליקציה למסך הבית ולהיכנס.
    - להפעיל Budget alerts בהגדרות.

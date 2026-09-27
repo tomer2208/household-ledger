@@ -16,7 +16,7 @@ const DRAFT_KEY = 'hl-add-draft';
 // Opened cold from the Shortcut's deep link there is nothing to go back to.
 const close = () => (router.canGoBack() ? router.back() : router.replace('/overview'));
 
-// US-M4: amount → category → Save. Also the target of householdledger://add?... from the
+// US-M4: amount → category → Save. Also the target of finpace://add?... from the
 // Shortcut's failure path (US-C3), so it keeps a local draft while offline.
 export default function AddExpense() {
   const c = useColors();
