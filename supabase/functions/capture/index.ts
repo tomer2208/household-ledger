@@ -18,6 +18,8 @@ const NEW_CATEGORY_OPTION = "➕ New category";
 const FUZZY_AUTO = 0.75;
 const FUZZY_SUGGEST = 0.45;
 const LLM_CONFIDENT = 0.85;
+// G8: a person taps Apple Pay a few times a day. These only stop a loop or a leaked token.
+const LIMITS = { devicePerMinute: 20, householdPerDay: 300 };
 
 type Device = {
   device_id: string;
@@ -246,6 +248,11 @@ Deno.serve(async (req) => {
   try {
     const dev = await authenticate(req);
     if (!dev) return json({ error: "unauthorized" }, 401);
+    const [perDevice, perHousehold] = await Promise.all([
+      db.rpc("rate_hit", { p_key: `capture:dev:${dev.device_id}`, p_window_seconds: 60, p_max: LIMITS.devicePerMinute }),
+      db.rpc("rate_hit", { p_key: `capture:hh:${dev.household_id}`, p_window_seconds: 86400, p_max: LIMITS.householdPerDay }),
+    ]);
+    if (perDevice.data === false || perHousehold.data === false) return json({ error: "rate_limited" }, 429);
     const path = new URL(req.url).pathname.replace(/\/+$/, "");
     return path.endsWith("/confirm") ? await confirm(req, dev) : await capture(req, dev);
   } catch (e) {

@@ -7,7 +7,7 @@
 
 import type Anthropic from "npm:@anthropic-ai/sdk@^0.128.0";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { addUsage, aiClient, flatten, logRun, MODELS, namesIn, validateText } from "../_shared/ai.ts";
+import { addUsage, aiAllowed, aiClient, flatten, logRun, MODELS, namesIn, validateText } from "../_shared/ai.ts";
 
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
   auth: { persistSession: false },
@@ -34,7 +34,7 @@ type Narrative = {
   extra?: Record<string, unknown>;
 };
 
-const SYSTEM = `You write the monthly spending review for a two-person household.
+const SYSTEM = `You write the monthly spending review for a household that shares its expenses.
 
 All numbers are already computed and live in the metrics object you receive. You never
 calculate, round, compare or restate a number yourself. Whenever you refer to a value,
@@ -222,7 +222,7 @@ export function template(m: Metrics): Narrative {
 
 async function writeWithAI(r: { household_id: string; budget_month: string; metrics: Metrics }) {
   const client = aiClient();
-  if (!client) return null;
+  if (!client || !(await aiAllowed(db, r.household_id))) return null;
   const started = performance.now();
   const usage = { input_tokens: 0, output_tokens: 0 };
   const extra: Record<string, unknown> = {};

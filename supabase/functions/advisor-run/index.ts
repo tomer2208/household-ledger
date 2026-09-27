@@ -6,7 +6,7 @@
 
 import type Anthropic from "npm:@anthropic-ai/sdk@^0.128.0";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { addUsage, aiClient, flatten, logRun, MODELS, namesIn, validateText } from "../_shared/ai.ts";
+import { addUsage, aiAllowed, aiClient, flatten, logRun, MODELS, namesIn, validateText } from "../_shared/ai.ts";
 
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
   auth: { persistSession: false },
@@ -24,7 +24,7 @@ type Candidate = {
 
 type Pick = { candidate: Candidate; priority: number; text: string };
 
-const SYSTEM = `You review candidate suggestions for a two-person household's expense tracker and decide
+const SYSTEM = `You review candidate suggestions for a shared household expense tracker and decide
 which ones are worth showing them this week.
 
 Each candidate already has its exact payload and evidence computed by the system. You never
@@ -176,7 +176,7 @@ async function categoryTrend(householdId: string, categoryId: string) {
 
 async function withAI(householdId: string, cands: Candidate[], limit: number, rejected: unknown[]) {
   const client = aiClient();
-  if (!client) return null;
+  if (!client || !(await aiAllowed(db, householdId))) return null;
   const started = performance.now();
   const usage = { input_tokens: 0, output_tokens: 0 };
   const byId = new Map(cands.map((c) => [c.candidate_id, c]));

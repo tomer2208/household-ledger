@@ -2,7 +2,7 @@
 // so it has a hard time limit and no retries; any failure means "ask the user".
 
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
-import { aiClient, logRun, MODELS } from "../_shared/ai.ts";
+import { aiAllowed, aiClient, logRun, MODELS } from "../_shared/ai.ts";
 
 const TIMEOUT_MS = 1800;
 
@@ -57,7 +57,7 @@ export async function classify(
   },
 ): Promise<Classification | null> {
   const client = aiClient();
-  if (!client) return null;
+  if (!client || !(await aiAllowed(db, input.householdId))) return null;
   const started = performance.now();
 
   try {

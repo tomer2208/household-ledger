@@ -18,6 +18,14 @@ export function aiClient(): Anthropic | null {
   return key ? new Anthropic({ apiKey: key }) : null;
 }
 
+// G6: the household's monthly AI budget (migration 19). Past it, callers take their
+// non-AI path, same as with AI switched off. A failed check errs on the side of no AI.
+export async function aiAllowed(db: SupabaseClient, householdId: string): Promise<boolean> {
+  const { data, error } = await db.rpc("ai_under_cap", { p_household: householdId });
+  if (error) console.warn("AI_CAP_CHECK_FAILED", error.message);
+  return data === true;
+}
+
 export async function logRun(
   db: SupabaseClient,
   row: {

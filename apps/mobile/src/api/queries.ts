@@ -419,6 +419,14 @@ export function useMonthlyReport(month: string) {
 export const useRequestReport = () =>
   useHHMutation((month: string) => must(supabase.rpc('request_monthly_report', { p_month: month })));
 
+// G6: this month's estimated AI cost against the household's cap (USD).
+export function useAiUsage() {
+  return useQuery({
+    queryKey: [HH, 'ai_usage'],
+    queryFn: async () => (await must(supabase.rpc('my_ai_usage'))) as { cost_usd: number; cap_usd: number },
+  });
+}
+
 export function useAgentRuns() {
   return useQuery({
     queryKey: [HH, 'agent_runs'],
