@@ -33,16 +33,15 @@
      - Sender: אותה כתובת Gmail
    - ב-Templates: להדביק את `supabase/templates/magic_link.html` בתבנית "Magic Link" ואת `supabase/templates/confirm_signup.html` בתבנית "Confirm signup". שורת הנושא (Subject) כתובה בראש כל קובץ.
 2. **B6: כתובת האתר ב-Supabase.** תחת Auth → URL Configuration → Site URL להדביק `https://household-ledger-wedding-planner-2026.vercel.app`.
-
-4. **B7 + C6: בדיקה על אייפון.**
+3. **B7 + C6: בדיקה על אייפון.**
    - להוסיף את האפליקציה למסך הבית ולהיכנס.
    - להפעיל Budget alerts בהגדרות.
    - להזמין את אשתך בקישור.
    - לחצות 90% בקטגוריה אחת.
-5. **A2: מפתח Anthropic,** כשתרצה AI אמיתי. שומרים אותו ב-Edge Functions → Secrets בשם `ANTHROPIC_API_KEY`, ולא מדביקים בצ'אט.
-6. **G1: דומיין ו-Resend,** לפני פתיחה לציבור.
-7. **G11: עורך דין** שיעבור על `public/privacy.html` ו-`public/terms.html` וימלא את מה שבסוגריים.
-8. **G7: פרויקט prod,** כשמחליטים לפתוח לציבור.
+4. **A2: מפתח Anthropic,** כשתרצה AI אמיתי. שומרים אותו ב-Edge Functions → Secrets בשם `ANTHROPIC_API_KEY`, ולא מדביקים בצ'אט.
+5. **G1: דומיין ו-Resend,** לפני פתיחה לציבור.
+6. **G11: עורך דין** שיעבור על `public/privacy.html` ו-`public/terms.html` וימלא את מה שבסוגריים.
+7. **G7: פרויקט prod,** כשמחליטים לפתוח לציבור.
 
 ---
 
