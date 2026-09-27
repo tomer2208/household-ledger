@@ -2,6 +2,7 @@ import { router, Stack } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useHousehold, useOverview, useProposals } from '@/api/queries';
+import { InstallBanner } from '@/components/install-banner';
 import { OfflineBanner } from '@/components/offline-banner';
 import { ProposalCard } from '@/components/proposal-card';
 import { Badge, CategoryIcon, Empty, ErrorText, Icon, ProgressBar, Row, Screen, Section } from '@/components/ui';
@@ -35,6 +36,7 @@ export default function OverviewScreen() {
         }}
       />
       <OfflineBanner />
+      <InstallBanner />
       <ErrorText error={overview.error} />
 
       {o ? (

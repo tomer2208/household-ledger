@@ -160,6 +160,10 @@ export default function SettingsScreen() {
         <Row left={<CategoryIcon symbol="list.bullet" />} title="AI Activity" onPress={() => router.push('/settings/ai-activity')} last />
       </Section>
 
+      <Section>
+        <Row left={<CategoryIcon symbol="questionmark.circle" />} title="Set Up Guide" onPress={() => router.push('/settings/install')} last />
+      </Section>
+
       <Section title="Your Data">
         <Row
           left={<CategoryIcon symbol="square.and.arrow.down" />}

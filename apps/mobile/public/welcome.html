@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Household Ledger</title>
+<meta name="description" content="A shared household budget. Apple Pay purchases log themselves, budgets warn you at 90%, and a monthly report tells you what happened." />
+<link rel="icon" href="/icons/icon-192.png" />
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+<link rel="manifest" href="/manifest.json" />
+<link rel="stylesheet" href="/legal.css" />
+<style>
+  .hero { text-align: center; padding: 32px 0 8px; }
+  .hero img { width: 88px; height: 88px; border-radius: 20px; box-shadow: 0 6px 20px rgba(10, 132, 255, .25); }
+  .hero h1 { font-size: 34px; margin: 18px 0 8px; }
+  .hero p { color: var(--muted); font-size: 18px; margin: 0 auto 24px; max-width: 30ch; }
+  .cta { display: inline-block; background: var(--tint); color: #fff; text-decoration: none; font-weight: 600; padding: 14px 28px; border-radius: 12px; font-size: 17px; }
+  .features { display: grid; gap: 12px; margin-top: 32px; }
+  .feature { background: var(--card); border-radius: 14px; padding: 16px 18px; }
+  .feature h2 { font-size: 17px; margin: 0 0 4px; }
+  .feature p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.45; }
+  footer { text-align: center; color: var(--muted); font-size: 14px; margin-top: 32px; }
+  footer a { margin: 0 8px; }
+  @media (min-width: 640px) { .features { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <img src="/icons/icon-192.png" alt="" />
+    <h1>Household Ledger</h1>
+    <p>Every shekel your household spends, in one place.</p>
+    <a class="cta" href="/sign-in">Open the app</a>
+  </section>
+
+  <section class="features">
+    <div class="feature">
+      <h2>Apple Pay logs itself</h2>
+      <p>A Shortcut records each purchase the moment you pay. New places ask for a category once; after that they're silent.</p>
+    </div>
+    <div class="feature">
+      <h2>Shared, for real</h2>
+      <p>Everyone in the household sees the same numbers, live. Invite with a link; equal rights for all.</p>
+    </div>
+    <div class="feature">
+      <h2>Budgets that speak up once</h2>
+      <p>A monthly cap per category, and one alert at 90% and one at 100%. Nothing else.</p>
+    </div>
+    <div class="feature">
+      <h2>A report that reads like a friend</h2>
+      <p>At month end: where the money went, what changed, and one-tap suggestions you approve or skip.</p>
+    </div>
+  </section>
+
+  <footer>
+    <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a>
+  </footer>
+</main>
+</body>
+</html>

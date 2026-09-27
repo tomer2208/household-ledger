@@ -44,7 +44,7 @@ export default function Onboarding() {
               style={[s.segmentItem, mode === m && { backgroundColor: c.cell }]}
               accessibilityRole="button"
               accessibilityState={{ selected: mode === m }}>
-              <Text style={[s.segmentText, { color: c.label }]}>{m === 'create' ? 'Start new' : 'Join partner'}</Text>
+              <Text style={[s.segmentText, { color: c.label }]}>{m === 'create' ? 'Start new' : 'Join existing'}</Text>
             </Pressable>
           ))}
         </View>

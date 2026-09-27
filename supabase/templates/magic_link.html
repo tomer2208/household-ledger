@@ -1,0 +1,10 @@
+<!-- Returning users. Paste into Supabase: Authentication → Emails → Templates → "Magic Link". Subject: Your Household Ledger code: {{ .Token }} -->
+<div style="margin:0;padding:32px 16px;background:#f2f2f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1c1c1e">
+  <div style="max-width:420px;margin:0 auto;background:#ffffff;border-radius:16px;padding:28px 24px;text-align:center">
+    <div style="font-size:15px;font-weight:600;color:#0a84ff;letter-spacing:.2px">Household Ledger</div>
+    <h1 style="font-size:22px;line-height:1.3;margin:12px 0 8px">Your sign-in code</h1>
+    <p style="font-size:15px;line-height:1.5;color:#6c6c70;margin:0 0 20px">Enter this code in the app. It expires in 1 hour.</p>
+    <div style="font-size:34px;font-weight:700;letter-spacing:8px;font-variant-numeric:tabular-nums;background:#f2f2f7;border-radius:12px;padding:14px 0;margin:0 0 20px">{{ .Token }}</div>
+    <p style="font-size:13px;line-height:1.5;color:#8e8e93;margin:0">Didn't ask for this? Ignore this email; nobody can sign in without the code.</p>
+  </div>
+</div>

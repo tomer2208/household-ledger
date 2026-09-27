@@ -74,7 +74,7 @@ function Editor({ t }: { t: Transaction }) {
   }
 
   async function confirmDelete() {
-    if (!(await confirm('Delete this expense?', 'Your partner will see it disappear too.', 'Delete'))) return;
+    if (!(await confirm('Delete this expense?', 'It disappears for everyone in the household.', 'Delete'))) return;
     await del.mutateAsync(t.id);
     router.back();
     // US-M3 AC2: deletion is soft and undoable.
