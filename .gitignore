@@ -1,0 +1,6 @@
+node_modules/
+.DS_Store
+.env*.local
+apps/mobile/.expo/
+apps/mobile/dist/
+supabase/.temp/

@@ -1,0 +1,145 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Haptics from 'expo-haptics';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+
+import { useAddTransaction, useCategories, useHousehold } from '@/api/queries';
+import { CategoryPicker } from '@/components/category-picker';
+import { ErrorText, Field, Section } from '@/components/ui';
+import { CURRENCIES, parseMoneyInput } from '@/lib/money';
+import { useIsOnline } from '@/lib/query';
+import { useColors } from '@/lib/theme';
+
+const DRAFT_KEY = 'hl-add-draft';
+
+// Opened cold from the Shortcut's deep link there is nothing to go back to.
+const close = () => (router.canGoBack() ? router.back() : router.replace('/overview'));
+
+// US-M4: amount → category → Save. Also the target of householdledger://add?... from the
+// Shortcut's failure path (US-C3), so it keeps a local draft while offline.
+export default function AddExpense() {
+  const c = useColors();
+  const params = useLocalSearchParams<{ amount?: string; currency?: string; merchant?: string; occurred_at?: string }>();
+  const hh = useHousehold();
+  const cats = useCategories();
+  const add = useAddTransaction();
+  const online = useIsOnline();
+  const base = hh.data?.household?.base_currency ?? 'ILS';
+
+  const [amount, setAmount] = useState(params.amount ?? '');
+  const [currency, setCurrency] = useState(params.currency?.toUpperCase() ?? base);
+  const [title, setTitle] = useState(params.merchant ?? '');
+  const [note, setNote] = useState('');
+  const [categoryId, setCategoryId] = useState<string | null>(null);
+
+  // Restore a draft saved while offline, unless the deep link brought fresh data.
+  useEffect(() => {
+    if (params.amount || params.merchant) return;
+    AsyncStorage.getItem(DRAFT_KEY).then((raw) => {
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      setAmount(d.amount ?? '');
+      setTitle(d.title ?? '');
+      setCurrency(d.currency ?? base);
+      setCategoryId(d.categoryId ?? null);
+    });
+  }, [params.amount, params.merchant, base]);
+
+  const minor = parseMoneyInput(amount);
+  const canSave = !!minor && !!categoryId && online && !add.isPending;
+  const categoryName = cats.data?.find((x) => x.id === categoryId)?.name;
+
+  async function save() {
+    if (!minor || !categoryId || !hh.data?.household || !hh.data.me) return;
+    await add.mutateAsync({
+      householdId: hh.data.household.id,
+      userId: hh.data.me.user_id,
+      title: title.trim() || categoryName || 'Expense',
+      amountMinor: minor,
+      currency,
+      categoryId,
+      occurredAt: params.occurred_at ? new Date(params.occurred_at).toISOString() : undefined,
+      note: note.trim() || null,
+      rawMerchant: params.merchant ?? null,
+    });
+    await AsyncStorage.removeItem(DRAFT_KEY);
+    if (Platform.OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    close();
+  }
+
+  async function saveDraft() {
+    await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify({ amount, title, currency, categoryId }));
+    close();
+  }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: c.groupedBackground }}>
+      <View style={s.nav}>
+        <Pressable onPress={close} hitSlop={12}>
+          <Text style={[s.navButton, { color: c.tint }]}>Cancel</Text>
+        </Pressable>
+        <Text style={[s.navTitle, { color: c.label }]}>New Expense</Text>
+        <Pressable onPress={online ? save : saveDraft} disabled={online ? !canSave : !minor} hitSlop={12}>
+          <Text style={[s.navButton, { color: c.tint, fontWeight: '600', opacity: (online ? canSave : !!minor) ? 1 : 0.35 }]}>
+            {online ? 'Save' : 'Save Draft'}
+          </Text>
+        </Pressable>
+      </View>
+
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 40 }}>
+        <View style={s.amountWrap}>
+          <TextInput
+            value={amount}
+            onChangeText={setAmount}
+            placeholder="0"
+            placeholderTextColor={c.tertiaryLabel as string}
+            keyboardType="decimal-pad"
+            autoFocus={!params.amount}
+            style={[s.amount, { color: c.label }]}
+            accessibilityLabel="Amount"
+          />
+          <View style={s.currencies}>
+            {CURRENCIES.map((cur) => (
+              <Pressable
+                key={cur}
+                onPress={() => setCurrency(cur)}
+                style={[s.cur, { backgroundColor: currency === cur ? c.tint : c.fill }]}>
+                <Text style={{ color: currency === cur ? '#fff' : c.label, fontWeight: '600', fontSize: 13 }}>{cur}</Text>
+              </Pressable>
+            ))}
+          </View>
+          {currency !== base ? (
+            <Text style={[s.hint, { color: c.secondaryLabel }]}>Converted to {base} at the day’s rate.</Text>
+          ) : null}
+        </View>
+
+        <Text style={[s.label, { color: c.secondaryLabel }]}>CATEGORY</Text>
+        <CategoryPicker categories={cats.data ?? []} value={categoryId} onChange={setCategoryId} />
+
+        <Section title="Details">
+          <Field label="Title" value={title} onChangeText={setTitle} placeholder={categoryName ?? 'Optional'} />
+          <Field label="Note" value={note} onChangeText={setNote} placeholder="Optional" last />
+        </Section>
+        {!online ? (
+          <Text style={[s.hint, { color: c.secondaryLabel, marginTop: 12 }]}>
+            You’re offline. The draft stays on this phone until you save it.
+          </Text>
+        ) : null}
+        <ErrorText error={add.error} />
+      </ScrollView>
+    </View>
+  );
+}
+
+const s = StyleSheet.create({
+  nav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 },
+  navButton: { fontSize: 17 },
+  navTitle: { fontSize: 17, fontWeight: '600' },
+  amountWrap: { alignItems: 'center', paddingVertical: 16, gap: 10 },
+  amount: { fontSize: 52, fontWeight: '700', textAlign: 'center', minWidth: 160, fontVariant: ['tabular-nums'] },
+  currencies: { flexDirection: 'row', gap: 8 },
+  cur: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, minHeight: 32, justifyContent: 'center' },
+  hint: { fontSize: 13, textAlign: 'center', marginHorizontal: 32 },
+  label: { fontSize: 13, marginLeft: 32, marginTop: 8, marginBottom: 8 },
+});
