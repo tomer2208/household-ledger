@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { useCategories, useHousehold, useTransactions } from '@/api/queries';
 import type { Transaction } from '@/api/types';
@@ -41,7 +41,9 @@ export default function TransactionsScreen() {
       <Stack.Screen
         options={{
           title: categoryName ?? 'Expenses',
-          headerSearchBarOptions: { placeholder: 'Search merchants', onChangeText: (e) => setQuery(e.nativeEvent.text) },
+          // The native header search bar doesn't exist on web; WebSearch below stands in.
+          headerSearchBarOptions:
+            Platform.OS === 'web' ? undefined : { placeholder: 'Search merchants', onChangeText: (e) => setQuery(e.nativeEvent.text) },
           headerRight: () => (
             <Pressable onPress={() => router.push('/add')} hitSlop={12} accessibilityLabel="Add expense">
               <Icon name="plus" size={22} />
@@ -65,6 +67,7 @@ export default function TransactionsScreen() {
         onRefresh={() => txs.refetch()}
         ListHeaderComponent={
           <>
+            {Platform.OS === 'web' ? <WebSearch value={query} onChange={setQuery} /> : null}
             <OfflineBanner />
             <ErrorText error={txs.error} />
           </>
@@ -98,7 +101,34 @@ export default function TransactionsScreen() {
   );
 }
 
+function WebSearch({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const c = useColors();
+  return (
+    <View style={[s.search, { backgroundColor: c.fill }]}>
+      <Icon name="magnifyingglass" size={16} color={c.secondaryLabel} />
+      <TextInput
+        value={value}
+        onChangeText={onChange}
+        placeholder="Search merchants"
+        placeholderTextColor={c.secondaryLabel as string}
+        inputMode="search"
+        autoCorrect={false}
+        style={[s.searchInput, { color: c.label }]}
+        accessibilityLabel="Search merchants"
+      />
+      {value ? (
+        <Pressable onPress={() => onChange('')} hitSlop={8} accessibilityLabel="Clear search">
+          <Icon name="xmark.circle.fill" size={16} color={c.tertiaryLabel} />
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
 const s = StyleSheet.create({
+  search: { flexDirection: 'row', alignItems: 'center', gap: 6, marginHorizontal: 16, marginTop: 8, borderRadius: 10, paddingHorizontal: 8, height: 36 },
+  // 16px minimum, or iOS Safari zooms the page when the field is focused.
+  searchInput: { flex: 1, fontSize: 17, paddingVertical: 0, outlineStyle: 'none' } as any,
   header: { fontSize: 13, marginTop: 22, marginBottom: 6, marginLeft: 32 },
   cell: { marginHorizontal: 16, overflow: 'hidden' },
   first: { borderTopLeftRadius: 10, borderTopRightRadius: 10 },

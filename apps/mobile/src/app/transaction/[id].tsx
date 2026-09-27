@@ -16,6 +16,7 @@ import { Button, ErrorText, Field, Row, Screen, Section } from '@/components/ui'
 import { shortDate, timeLabel } from '@/lib/dates';
 import { formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
 import { useIsOnline } from '@/lib/query';
+import { confirm } from '@/lib/confirm';
 import { useColors } from '@/lib/theme';
 
 const METHOD_LABEL: Record<string, string> = {
@@ -69,23 +70,17 @@ function Editor({ t }: { t: Transaction }) {
     });
   }
 
-  function confirmDelete() {
-    const go = async () => {
-      await del.mutateAsync(t.id);
-      router.back();
-      // US-M3 AC2: deletion is soft and undoable.
-      if (Platform.OS !== 'web') {
-        Alert.alert('Expense deleted', undefined, [
-          { text: 'Undo', onPress: () => restore.mutate(t.id) },
-          { text: 'OK', style: 'cancel' },
-        ]);
-      }
-    };
-    if (Platform.OS === 'web') return go();
-    Alert.alert('Delete this expense?', 'Your partner will see it disappear too.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: go },
-    ]);
+  async function confirmDelete() {
+    if (!(await confirm('Delete this expense?', 'Your partner will see it disappear too.', 'Delete'))) return;
+    await del.mutateAsync(t.id);
+    router.back();
+    // US-M3 AC2: deletion is soft and undoable.
+    if (Platform.OS !== 'web') {
+      Alert.alert('Expense deleted', undefined, [
+        { text: 'Undo', onPress: () => restore.mutate(t.id) },
+        { text: 'OK', style: 'cancel' },
+      ]);
+    }
   }
 
   return (

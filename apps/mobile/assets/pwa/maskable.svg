@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2F95FF"/>
+      <stop offset="1" stop-color="#0063D1"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <g transform="translate(102.4 102.4) scale(0.8)"><!-- house -->
+  <path d="M512 214 L812 452 Q828 465 828 486 L828 772 Q828 810 790 810 L234 810 Q196 810 196 772 L196 486 Q196 465 212 452 Z" fill="#FFFFFF"/>
+  <!-- bars -->
+  <rect x="372" y="620" width="68" height="120" rx="20" fill="#0A84FF"/>
+  <rect x="478" y="540" width="68" height="200" rx="20" fill="#0A84FF"/>
+  <rect x="584" y="460" width="68" height="280" rx="20" fill="#0A84FF"/>
+</g></svg>

@@ -1,12 +1,13 @@
 import * as Clipboard from 'expo-clipboard';
 import { Stack } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { useCreateDeviceToken, useDevices, useHousehold, useRevokeDevice } from '@/api/queries';
 import { Button, ErrorText, Field, Row, Screen, Section } from '@/components/ui';
 import { shortDate } from '@/lib/dates';
 import { FUNCTIONS_URL } from '@/lib/supabase';
+import { confirm } from '@/lib/confirm';
 import { useColors } from '@/lib/theme';
 
 // US-C5 + Shortcut setup (BLUEPRINT §3.11). The token is shown exactly once.
@@ -27,12 +28,8 @@ export default function DevicesScreen() {
     setCopied(what);
   }
 
-  function confirmRevoke(id: string, name: string) {
-    if (Platform.OS === 'web') return revoke.mutate(id);
-    Alert.alert(`Revoke ${name}?`, 'Its Shortcut stops logging purchases immediately.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Revoke', style: 'destructive', onPress: () => revoke.mutate(id) },
-    ]);
+  async function confirmRevoke(id: string, name: string) {
+    if (await confirm(`Revoke ${name}?`, 'Its Shortcut stops logging purchases immediately.', 'Revoke')) revoke.mutate(id);
   }
 
   return (

@@ -1,16 +1,19 @@
 import { TabList, TabSlot, TabTrigger, TabTriggerSlotProps, Tabs } from 'expo-router/ui';
 import { Pressable, StyleSheet, Text } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from './ui';
 import { useColors } from '@/lib/theme';
 
-// Web preview only: a bottom bar shaped like the iOS one so layouts can be checked in a browser.
+// Web (installed PWA): a bottom bar shaped like the iOS one. It sits above the home
+// indicator: viewport-fit=cover draws edge to edge, and the inset pads it back.
 export default function AppTabs() {
   const c = useColors();
+  const insets = useSafeAreaInsets();
   return (
     <Tabs>
       <TabSlot style={{ flex: 1 }} />
-      <TabList style={[styles.bar, { backgroundColor: c.cell, borderTopColor: c.separator }]}>
+      <TabList style={[styles.bar, { backgroundColor: c.cell, borderTopColor: c.separator, paddingBottom: Math.max(6, insets.bottom) }]}>
         <TabTrigger name="overview" href="/overview" asChild>
           <TabButton icon="chart.pie">Overview</TabButton>
         </TabTrigger>

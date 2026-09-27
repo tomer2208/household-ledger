@@ -33,6 +33,15 @@ const WEB_ICON: Record<string, string> = {
   'square.and.arrow.up': 'ios_share', 'doc.on.doc': 'content_copy', 'checkmark.circle.fill': 'check_circle',
   'exclamationmark.triangle.fill': 'warning', 'wifi.slash': 'wifi_off', 'sparkles': 'auto_awesome',
   'chevron.right': 'chevron_right', 'person.crop.circle': 'account_circle', 'envelope': 'mail',
+  // category picker (settings/category.tsx) and later screens
+  'cup.and.saucer': 'local_cafe', bus: 'directions_bus', drop: 'water_drop', wifi: 'wifi', pills: 'medication',
+  pawprint: 'pets', tshirt: 'checkroom', gamecontroller: 'sports_esports', dumbbell: 'fitness_center',
+  scissors: 'content_cut', 'wrench.and.screwdriver': 'build', creditcard: 'credit_card',
+  'building.columns': 'account_balance', heart: 'favorite', 'chart.pie.fill': 'pie_chart', 'gearshape.fill': 'settings',
+  magnifyingglass: 'search', bell: 'notifications', 'bell.slash': 'notifications_off', link: 'link', trash: 'delete',
+  'person.badge.minus': 'person_remove', 'rectangle.portrait.and.arrow.right': 'logout',
+  'square.and.arrow.down': 'download', 'questionmark.circle': 'help', 'hand.raised': 'privacy_tip',
+  'xmark.circle.fill': 'cancel',
 };
 
 export function Icon({ name, size = 20, color }: { name: string; size?: number; color?: any }) {
