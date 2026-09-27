@@ -224,16 +224,20 @@ async function confirm(req: Request, dev: Device): Promise<Response> {
   const body = await req.json().catch(() => null);
   if (!body?.transaction_id) return json({ error: "missing_transaction_id" }, 422);
 
-  // Tolerate a Shortcut that sends the option text itself as the category name.
-  const categoryName = body.category_name === NEW_CATEGORY_OPTION ? null : body.category_name ?? null;
+  // A Shortcut sends every field every time, so an empty string means "not given".
+  // The option text itself as the category name means "new category".
+  const text = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
+  const newCategoryName = text(body.new_category_name);
+  const picked = text(body.category_name);
+  const categoryName = newCategoryName || picked === NEW_CATEGORY_OPTION ? null : picked;
 
   const { data, error } = await db.rpc("capture_confirm", {
     p_device_id: dev.device_id,
     p_household: dev.household_id,
     p_transaction_id: body.transaction_id,
     p_category_name: categoryName,
-    p_new_category_name: body.new_category_name ?? null,
-    p_title: body.title ?? null,
+    p_new_category_name: newCategoryName,
+    p_title: text(body.title),
   });
   if (error) {
     if (error.code === "P0002") return json({ error: "not_found", detail: error.message }, 404);
