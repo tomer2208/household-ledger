@@ -66,13 +66,24 @@ function parseOccurredAt(v: unknown): Date {
   return d;
 }
 
-async function authenticate(req: Request): Promise<Device | null> {
-  // Typed by hand into a Shortcut header: forgive a missing or lower-case "Bearer", and any
-  // spaces, line breaks or invisible characters picked up when copying the token.
-  const auth = req.headers.get("authorization") ?? "";
-  const token = auth.replace(/^\s*bearer/i, "").replace(/[\s\u200B-\u200F\u2060\uFEFF]/g, "");
+// The token normally comes in the Authorization header. A Shortcut can also send it as a
+// "token" field in the JSON body, which is easier to get right when building it by hand.
+// Forgive a missing or lower-case "Bearer", and any spaces, line breaks or invisible
+// characters picked up when copying.
+async function authenticate(req: Request, body: Record<string, unknown> | null): Promise<Device | null> {
+  const clean = (v: unknown) =>
+    typeof v === "string" ? v.replace(/^\s*bearer/i, "").replace(/[\s\u200B-\u200F\u2060\uFEFF]/g, "") : "";
+  const token = [req.headers.get("authorization"), req.headers.get("x-device-token"), body?.token]
+    .map(clean)
+    .find((t) => t.length > 0) ?? "";
   if (!/^hl_dev_[0-9a-f]{48}$/.test(token)) {
-    console.warn("CAPTURE_BAD_TOKEN_SHAPE", { length: token.length, prefix: token.slice(0, 7) });
+    // Shape only, never the value: enough to tell "nothing arrived" from "cut short".
+    console.warn("CAPTURE_BAD_TOKEN_SHAPE", {
+      length: token.length,
+      prefix: token.slice(0, 7),
+      headers: [...req.headers.keys()].filter((k) => !k.startsWith("x-forwarded") && !k.startsWith("cf-")),
+      body_keys: body ? Object.keys(body) : null,
+    });
     return null;
   }
   const { data, error } = await db.rpc("capture_auth", { p_token_hash: await sha256Hex(token) });
@@ -80,8 +91,7 @@ async function authenticate(req: Request): Promise<Device | null> {
   return (data as Device[] | null)?.[0] ?? null;
 }
 
-async function capture(req: Request, dev: Device): Promise<Response> {
-  const body = await req.json().catch(() => null);
+async function capture(body: Record<string, any> | null, dev: Device): Promise<Response> {
   const rawMerchant = typeof body?.merchant === "string" ? body.merchant.trim() : "";
   if (!body || !rawMerchant) return json({ error: "missing_merchant" }, 422);
 
@@ -225,8 +235,7 @@ async function capture(req: Request, dev: Device): Promise<Response> {
   });
 }
 
-async function confirm(req: Request, dev: Device): Promise<Response> {
-  const body = await req.json().catch(() => null);
+async function confirm(body: Record<string, any> | null, dev: Device): Promise<Response> {
   if (!body?.transaction_id) return json({ error: "missing_transaction_id" }, 422);
 
   // A Shortcut sends every field every time, so an empty string means "not given".
@@ -255,7 +264,8 @@ async function confirm(req: Request, dev: Device): Promise<Response> {
 Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
   try {
-    const dev = await authenticate(req);
+    const body = await req.json().catch(() => null);
+    const dev = await authenticate(req, body);
     if (!dev) return json({ error: "unauthorized" }, 401);
     const [perDevice, perHousehold] = await Promise.all([
       db.rpc("rate_hit", { p_key: `capture:dev:${dev.device_id}`, p_window_seconds: 60, p_max: LIMITS.devicePerMinute }),
@@ -263,7 +273,7 @@ Deno.serve(async (req) => {
     ]);
     if (perDevice.data === false || perHousehold.data === false) return json({ error: "rate_limited" }, 429);
     const path = new URL(req.url).pathname.replace(/\/+$/, "");
-    return path.endsWith("/confirm") ? await confirm(req, dev) : await capture(req, dev);
+    return path.endsWith("/confirm") ? await confirm(body, dev) : await capture(body, dev);
   } catch (e) {
     console.error("CAPTURE_ERROR", e);
     return json({ error: "server_error" }, 500);
