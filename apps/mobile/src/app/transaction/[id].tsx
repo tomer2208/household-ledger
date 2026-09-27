@@ -6,6 +6,7 @@ import {
   useCategories,
   useDeleteTransaction,
   useHousehold,
+  useMemberNames,
   useRestoreTransaction,
   useTransaction,
   useUpdateTransaction,
@@ -43,6 +44,8 @@ function Editor({ t }: { t: Transaction }) {
   const del = useDeleteTransaction();
   const restore = useRestoreTransaction();
   const online = useIsOnline();
+  const names = useMemberNames();
+  const addedBy = names && t.created_by ? names.get(t.created_by) : undefined;
 
   const [title, setTitle] = useState(t.title);
   const [amount, setAmount] = useState(minorToInput(t.amount_minor));
@@ -108,6 +111,7 @@ function Editor({ t }: { t: Transaction }) {
 
       <Section title="Info">
         <Row title="Date" value={`${shortDate(t.occurred_at)}, ${timeLabel(t.occurred_at)}`} />
+        {addedBy ? <Row title="Added by" value={addedBy} /> : null}
         {t.currency !== base ? (
           <Row title={`In ${base}`} value={`${formatMoney(t.amount_base_minor, base)} (rate ${Number(t.fx_rate).toFixed(4)})`} />
         ) : null}

@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Badge, CategoryIcon } from './ui';
+import { useMemberNames } from '@/api/queries';
 import type { Transaction } from '@/api/types';
 import { isolate, isRtl } from '@/lib/bidi';
 import { timeLabel } from '@/lib/dates';
@@ -13,11 +14,20 @@ const SOURCE_LABEL = { apple_pay: 'Apple Pay', manual: 'Manual', recurring: 'Rec
 export function TransactionRow({ tx, baseCurrency, last }: { tx: Transaction; baseCurrency: string; last?: boolean }) {
   const c = useColors();
   const foreign = tx.currency !== baseCurrency;
+  const names = useMemberNames();
+  const by = names && tx.created_by ? names.get(tx.created_by) : undefined;
   return (
     <Pressable
       onPress={() => router.push({ pathname: '/transaction/[id]', params: { id: tx.id } })}
       style={({ pressed }) => [s.row, pressed && { backgroundColor: c.fill }]}>
-      <CategoryIcon symbol={tx.categories?.sf_symbol ?? 'tag'} />
+      <View>
+        <CategoryIcon symbol={tx.categories?.sf_symbol ?? 'tag'} />
+        {by ? (
+          <View style={[s.who, { backgroundColor: c.tint, borderColor: c.cell }]} accessibilityLabel={`Added by ${by}`}>
+            <Text style={s.whoText}>{by.trim().charAt(0).toUpperCase()}</Text>
+          </View>
+        ) : null}
+      </View>
       <View style={[s.body, !last && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
         <View style={{ flex: 1, gap: 2 }}>
           <Text numberOfLines={1} style={[s.title, { color: c.label }, isRtl(tx.title) && { writingDirection: 'rtl', textAlign: 'left' }]}>
@@ -51,4 +61,9 @@ const s = StyleSheet.create({
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   sub: { fontSize: 13, fontVariant: ['tabular-nums'], flexShrink: 1 },
   amount: { fontSize: 17, fontVariant: ['tabular-nums'] },
+  who: {
+    position: 'absolute', right: -5, bottom: -5, width: 17, height: 17, borderRadius: 9, borderWidth: 2,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  whoText: { color: '#fff', fontSize: 9, fontWeight: '700' },
 });

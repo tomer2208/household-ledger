@@ -40,6 +40,7 @@ function Root() {
     <ThemeProvider value={scheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="join/[code]" options={{ headerShown: false }} />
         <Stack.Protected guard={!signedIn}>
           <Stack.Screen name="sign-in" options={{ headerShown: false }} />
         </Stack.Protected>

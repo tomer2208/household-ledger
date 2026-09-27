@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useCreateHousehold, useJoinHousehold } from '@/api/queries';
 import { Button, ErrorText, Field, Section } from '@/components/ui';
 import { CURRENCIES } from '@/lib/money';
+import { clearPendingInvite, readPendingInvite } from '@/lib/pending-invite';
 import { supabase } from '@/lib/supabase';
 import { useColors } from '@/lib/theme';
 
 // US-M1 AC2: create a household or join the partner's with an invite code.
+// An invite link (G3) opened earlier lands here with the code already filled in.
 export default function Onboarding() {
   const c = useColors();
   const [mode, setMode] = useState<'create' | 'join'>('create');
@@ -20,6 +22,14 @@ export default function Onboarding() {
   const create = useCreateHousehold();
   const join = useJoinHousehold();
   const busy = create.isPending || join.isPending;
+
+  useEffect(() => {
+    readPendingInvite().then((pending) => {
+      if (!pending) return;
+      setMode('join');
+      setCode(pending);
+    });
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.groupedBackground }}>
@@ -40,7 +50,7 @@ export default function Onboarding() {
         </View>
 
         <Section title="You">
-          <Field label="Your name" value={displayName} onChangeText={setDisplayName} placeholder="Tomer" last />
+          <Field label="Your name" value={displayName} onChangeText={setDisplayName} placeholder="First name" last />
         </Section>
 
         {mode === 'create' ? (
@@ -83,7 +93,7 @@ export default function Onboarding() {
           </>
         ) : (
           <>
-            <Section title="Invite code" footer="Ask your partner for the code in Settings → Household. Codes last 72 hours.">
+            <Section title="Invite code" footer="Opened an invite link? The code is already here. Otherwise ask for it in Settings → Household. Codes last 72 hours.">
               <Field label="Code" value={code} onChangeText={setCode} placeholder="ABCD-EFGH" autoCapitalize="characters" last />
             </Section>
             <View style={s.actions}>
@@ -91,7 +101,9 @@ export default function Onboarding() {
                 title="Join Household"
                 loading={busy}
                 disabled={!displayName.trim() || code.replace(/[^A-Za-z0-9]/g, '').length < 8}
-                onPress={() => join.mutate({ code, displayName: displayName.trim() })}
+                onPress={() =>
+                  join.mutate({ code, displayName: displayName.trim() }, { onSuccess: () => clearPendingInvite() })
+                }
               />
             </View>
           </>

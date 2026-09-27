@@ -79,6 +79,14 @@ export function useCategories() {
   });
 }
 
+// G5: who added an expense, once there is more than one person to tell apart.
+// Returns null for a one-person household so rows stay uncluttered.
+export function useMemberNames() {
+  const members = useHousehold().data?.members ?? [];
+  if (members.length < 2) return null;
+  return new Map(members.map((m) => [m.user_id, m.display_name]));
+}
+
 export function useTransactions() {
   return useQuery({
     queryKey: [HH, 'transactions'],
@@ -226,6 +234,14 @@ export const useSetAiConsent = () =>
         .eq('id', v.householdId),
     ),
   );
+
+// G4: equal rights, so any member can remove another; the server revokes their Shortcut.
+export const useRemoveMember = () =>
+  useHHMutation((userId: string) => must(supabase.rpc('remove_member', { p_user_id: userId })));
+
+// The last member leaving deletes the household ('deleted'); otherwise 'left'.
+export const useLeaveHousehold = () =>
+  useHHMutation(() => must(supabase.rpc('leave_household')) as Promise<'left' | 'deleted'>);
 
 export const useCreateInvite = () => useHHMutation(() => must(supabase.rpc('create_invite')) as Promise<string>);
 

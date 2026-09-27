@@ -1,11 +1,12 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
+import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, ErrorText, Field, Icon, Section } from '@/components/ui';
-import { supabase } from '@/lib/supabase';
+import { APP_URL, supabase } from '@/lib/supabase';
 import { useColors } from '@/lib/theme';
 
 // Sign in with Apple first (US-M1 AC1); an emailed 6-digit code as the fallback.
@@ -77,7 +78,7 @@ export default function SignIn() {
             <Icon name="chart.pie" size={40} color="#fff" />
           </View>
           <Text style={[s.title, { color: c.label }]}>Household Ledger</Text>
-          <Text style={[s.subtitle, { color: c.secondaryLabel }]}>Every shekel the two of you spend, in one place.</Text>
+          <Text style={[s.subtitle, { color: c.secondaryLabel }]}>Every shekel your household spends, in one place.</Text>
         </View>
 
         {appleAvailable ? (
@@ -115,6 +116,17 @@ export default function SignIn() {
               <Button title="Send Code" onPress={sendCode} loading={busy && !password} disabled={!email.includes('@')} />
               {__DEV__ && password ? <Button title="Dev sign in" kind="plain" onPress={devPassword} loading={busy} /> : null}
             </View>
+            <Text style={[s.legal, { color: c.secondaryLabel }]}>
+              By continuing you agree to the{' '}
+              <Text style={{ color: c.tint }} onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/terms.html`)}>
+                Terms of Use
+              </Text>{' '}
+              and{' '}
+              <Text style={{ color: c.tint }} onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/privacy.html`)}>
+                Privacy Policy
+              </Text>
+              .
+            </Text>
           </>
         ) : (
           <>
@@ -126,6 +138,7 @@ export default function SignIn() {
                 placeholder="123456"
                 keyboardType="number-pad"
                 textContentType="oneTimeCode"
+                autoComplete="one-time-code"
                 autoFocus
                 maxLength={6}
                 last
@@ -152,4 +165,5 @@ const s = StyleSheet.create({
   apple: { marginHorizontal: 16, marginTop: 16, gap: 12 },
   or: { textAlign: 'center', fontSize: 13 },
   actions: { marginHorizontal: 16, marginTop: 16, gap: 8 },
+  legal: { fontSize: 13, lineHeight: 18, textAlign: 'center', marginHorizontal: 32, marginTop: 16 },
 });

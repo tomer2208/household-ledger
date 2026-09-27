@@ -25,3 +25,10 @@ if (Platform.OS !== 'web') {
 }
 
 export const FUNCTIONS_URL = `${url}/functions/v1`;
+
+// Public address of the web app, for links people share (invites). On web it is simply
+// where the app is running; a native build needs EXPO_PUBLIC_APP_URL.
+export const APP_URL =
+  Platform.OS === 'web' && typeof window !== 'undefined'
+    ? window.location.origin
+    : (process.env.EXPO_PUBLIC_APP_URL ?? 'https://householdledger.app');

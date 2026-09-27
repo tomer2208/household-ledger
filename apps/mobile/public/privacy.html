@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Privacy Policy · Household Ledger</title>
+<link rel="stylesheet" href="/legal.css" />
+</head>
+<body>
+<main>
+<a class="back" href="/">‹ Household Ledger</a>
+<h1>Privacy Policy</h1>
+<p class="meta">Last updated: September 27, 2026 · DRAFT, pending legal review</p>
+
+<p class="note">This is a working draft written for the app as built. Before public launch it must be reviewed against the Israeli Privacy Protection Law (including Amendment 13) and, if EU users are expected, the GDPR. Fill in the operator details marked in brackets.</p>
+
+<h2>Who we are</h2>
+<p>Household Ledger ("the app") is operated by [operator name], [address]. Contact for privacy matters: [privacy contact email].</p>
+
+<h2>What the app collects</h2>
+<div class="card scroll"><table>
+<tr><th>Data</th><th>Why</th></tr>
+<tr><td>Email address</td><td>To sign you in with a one-time code.</td></tr>
+<tr><td>Display name</td><td>So members of your household see who added what.</td></tr>
+<tr><td>Expenses: merchant name as charged, amount, currency, date, card label you type, notes, category</td><td>The core of the app: tracking, budgets and reports.</td></tr>
+<tr><td>Budgets, recurring bills, savings entries</td><td>Budget tracking and monthly close.</td></tr>
+<tr><td>Shortcut device tokens (stored only as a one-way hash)</td><td>So the Apple Pay Shortcut can log purchases for your household.</td></tr>
+<tr><td>Push subscription of your browser or phone</td><td>Only if you turn on budget alerts.</td></tr>
+<tr><td>A change log (who changed which record, when)</td><td>Transparency between household members and fixing mistakes.</td></tr>
+</table></div>
+<p>The app never receives card numbers, bank credentials or account balances. It does not use advertising or analytics trackers.</p>
+
+<h2>Who can see your data</h2>
+<p>Everyone in your household sees all of the household's expenses, budgets and reports. That is the purpose of a shared household. Nobody outside your household can see it.</p>
+
+<h2>Service providers</h2>
+<ul>
+<li><strong>Supabase</strong> (database, sign-in, server functions). Data is stored in the EU (Frankfurt).</li>
+<li><strong>Anthropic</strong> (Claude AI). Only if your household turns on AI suggestions: merchant names, amounts and category names are sent to suggest categories and write the monthly report. No names, emails or card data are sent. Under its commercial terms, Anthropic does not train its models on API data by default.</li>
+<li><strong>Email delivery</strong> ([email provider]) to send sign-in codes.</li>
+<li><strong>Apple, Google or Mozilla push services</strong> to deliver budget alerts, if you turned them on.</li>
+<li><strong>Frankfurter / European Central Bank</strong> for exchange rates. No personal data is sent.</li>
+</ul>
+
+<h2>How long we keep it</h2>
+<p>For as long as your account exists. Deleted expenses are kept hidden for undo and removed with the household.</p>
+
+<h2>Your rights</h2>
+<ul>
+<li><strong>Access and export:</strong> Settings → Export Expenses downloads everything as CSV.</li>
+<li><strong>Correction:</strong> edit any expense, category or budget in the app.</li>
+<li><strong>Deletion:</strong> Settings → Delete Account. Your account is deleted immediately. A household you are alone in is deleted with all its data; a household you share stays with the other members, and your name is removed from it.</li>
+<li><strong>Withdraw AI consent:</strong> Settings → AI suggestions, at any time.</li>
+</ul>
+<p>You can also contact us at [privacy contact email], or complain to the Israeli Privacy Protection Authority (or your local EU supervisory authority).</p>
+
+<h2>Security</h2>
+<p>Access is enforced in the database for every request, so one household can never read another's data. Shortcut tokens and invite codes are stored only as hashes.</p>
+
+<h2>Children</h2>
+<p>The app is not intended for children under 16.</p>
+
+<h2>Changes</h2>
+<p>We will update this page and the date above when this policy changes.</p>
+</main>
+</body>
+</html>
