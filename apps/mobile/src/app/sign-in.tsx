@@ -9,7 +9,8 @@ import { Button, ErrorText, Field, Icon, Section } from '@/components/ui';
 import { APP_URL, supabase } from '@/lib/supabase';
 import { useColors } from '@/lib/theme';
 
-// Sign in with Apple first (US-M1 AC1); an emailed 6-digit code as the fallback.
+// Sign in with Apple first (US-M1 AC1); an emailed one-time code as the fallback.
+// The code length is a Supabase project setting (6–10 digits), so the field accepts any of them.
 // A code rather than a magic link works the same in a dev build, TestFlight and the web preview.
 export default function SignIn() {
   const c = useColors();
@@ -96,7 +97,7 @@ export default function SignIn() {
 
         {step === 'email' ? (
           <>
-            <Section footer="We'll email you a 6-digit code. No password needed.">
+            <Section footer="We'll email you a sign-in code. No password needed.">
               <Field
                 label="Email"
                 value={email}
@@ -134,18 +135,18 @@ export default function SignIn() {
               <Field
                 label="Code"
                 value={code}
-                onChangeText={setCode}
-                placeholder="123456"
+                onChangeText={(v) => setCode(v.replace(/\D/g, ''))}
+                placeholder="Code from the email"
                 keyboardType="number-pad"
                 textContentType="oneTimeCode"
                 autoComplete="one-time-code"
                 autoFocus
-                maxLength={6}
+                maxLength={10}
                 last
               />
             </Section>
             <View style={s.actions}>
-              <Button title="Sign In" onPress={verifyCode} loading={busy} disabled={code.trim().length < 6} />
+              <Button title="Sign In" onPress={verifyCode} loading={busy} disabled={code.length < 6} />
               <Button title="Use a different email" kind="plain" onPress={() => setStep('email')} />
             </View>
           </>
