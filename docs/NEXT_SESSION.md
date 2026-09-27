@@ -23,25 +23,13 @@
 
 ## 👤 מה שנשאר לך (לפי הסדר)
 
-1. **A1: מייל עם קוד.** בלי זה אי אפשר להיכנס.
-   - ב-Gmail: להפעיל אימות דו-שלבי וליצור "סיסמת אפליקציה" ב-myaccount.google.com/apppasswords.
-   - ב-Supabase: Authentication → Emails → SMTP Settings. להפעיל Custom SMTP ולמלא:
-     - Host: `smtp.gmail.com`
-     - Port: `465`
-     - Username: כתובת ה-Gmail
-     - Password: סיסמת האפליקציה
-     - Sender: אותה כתובת Gmail
-   - ב-Templates: להדביק את `supabase/templates/magic_link.html` בתבנית "Magic Link" ואת `supabase/templates/confirm_signup.html` בתבנית "Confirm signup". שורת הנושא (Subject) כתובה בראש כל קובץ.
-2. **B6: כתובת האתר ב-Supabase.** תחת Auth → URL Configuration → Site URL להדביק `https://finpace-app.vercel.app`.
-3. **B7 + C6: בדיקה על אייפון.**
-   - להוסיף את האפליקציה למסך הבית ולהיכנס.
-   - להפעיל Budget alerts בהגדרות.
-   - להזמין את אשתך בקישור.
-   - לחצות 90% בקטגוריה אחת.
-4. **A2: מפתח Anthropic,** כשתרצה AI אמיתי. שומרים אותו ב-Edge Functions → Secrets בשם `ANTHROPIC_API_KEY`, ולא מדביקים בצ'אט.
-5. **G1: דומיין ו-Resend,** לפני פתיחה לציבור.
-6. **G11: עורך דין** שיעבור על `public/privacy.html` ו-`public/terms.html` וימלא את מה שבסוגריים.
-7. **G7: פרויקט prod,** כשמחליטים לפתוח לציבור.
+האפליקציה בשימוש אמיתי מ-27.09.2026: שני אייפונים, סנכרון חי והתראות.
+
+1. **D: השורטקאט של Apple Pay.** כל קנייה נרשמת לבד. זה דורש אייפון, ונעשה את זה יחד.
+2. **A2: מפתח Anthropic,** כשתרצה AI אמיתי. שומרים ב-Edge Functions → Secrets בשם `ANTHROPIC_API_KEY`, ולא מדביקים בצ'אט.
+3. **G1: דומיין ו-Resend,** לפני פתיחה לציבור.
+4. **G11: עורך דין** לטיוטות הפרטיות והתנאים.
+5. **G7: פרויקט prod,** כשמחליטים לפתוח לציבור.
 
 ---
 
@@ -70,7 +58,7 @@
   - מצב כהה נבדק
 - [x] **B5.** פרוס ב-Vercel דרך GitHub. תיקיית השורש היא `apps/mobile`, הבנייה רצה ב-`scripts/build-web.sh`, ומשתני `EXPO_PUBLIC_*` מוגדרים בפרויקט. נבדק: כל הנתיבים מחזירים 200, `sw.js` מוגש עם no-cache, ושדה ה-dev לא נמצא ב-bundle. גרסאות preview מוגנות בהתחברות ל-Vercel, וגרסת ה-production פתוחה לציבור.
 - [x] 👤 **B6.** בוצע: Site URL וגם Redirect URL הוגדרו ל-`https://finpace-app.vercel.app`.
-- [ ] 👤 **B7.** בדיקה על אייפון אמיתי. **בוצע חלקית:** ההתקנה למסך הבית, מסך מלא והכניסה עובדים. נשאר: הצטרפות של בן/בת הזוג וסנכרון בין שני טלפונים.
+- [x] 👤 **B7.** בוצע ב-27.09 על שני אייפונים: התקנה למסך הבית, כניסה, הצטרפות בקישור הזמנה וסנכרון חי.
 
 ### ג. התראות פוש ברשת
 
@@ -79,7 +67,7 @@
 - [x] **C3.** ה-service worker מטפל ב-`push` וב-`notificationclick`, ולחיצה פותחת את הקטגוריה.
 - [x] **C4.** מתג Budget alerts בהגדרות. באייפון שלא הותקן במסך הבית מוצג הסבר.
 - [x] **C5.** `push-dispatch` שולח Web Push (`npm:web-push`). נבדק מול שירות הפוש של Google, שקיבל את ההודעה, וה-handler נבדק ב-service worker.
-- [ ] 👤 **C6.** בדיקה על שני טלפונים. **טלפון אחד עבר:** התראת 90% הגיעה לאייפון דרך Apple Web Push. נשאר: הטלפון השני.
+- [x] 👤 **C6.** בוצע: התראת 90% הגיעה לאייפון דרך Apple Web Push. שני הטלפונים רשומים לפוש.
 
 ### ד. שורטקאט Apple Pay (דורש אייפון)
 
