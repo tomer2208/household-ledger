@@ -53,3 +53,12 @@ export function useNotificationRouting() {
     }
   }, [last]);
 }
+
+// Settings shows a notifications switch only on web (push.web.ts); a native build asks
+// once after onboarding instead, above.
+export type PushState = 'unsupported' | 'install-first' | 'off' | 'on' | 'blocked';
+export const enableNotifications = async (_userId: string): Promise<PushState> => 'unsupported';
+export const disableNotifications = async (): Promise<PushState> => 'unsupported';
+export function usePushState(): { state: PushState | null; setState: (s: PushState) => void; refresh: () => void } {
+  return { state: null, setState: () => {}, refresh: () => {} };
+}

@@ -1,10 +1,20 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Switch } from 'react-native';
 
 import { useDevices, useHousehold, useRecurring, useSetAiConsent } from '@/api/queries';
 import { useSession } from '@/api/session';
-import { CategoryIcon, Row, Screen, Section } from '@/components/ui';
+import { CategoryIcon, ErrorText, Row, Screen, Section } from '@/components/ui';
+import { disableNotifications, enableNotifications, type PushState, usePushState } from '@/lib/push';
 import { supabase } from '@/lib/supabase';
+
+const PUSH_FOOTER: Record<PushState, string> = {
+  on: 'You get an alert when a category reaches 90% and 100% of its budget. Nothing else.',
+  off: 'Get an alert when a category reaches 90% and 100% of its budget. Nothing else.',
+  blocked: 'Notifications are blocked for this app. Allow them in Settings → Notifications on your iPhone, then come back.',
+  'install-first': 'On iPhone, alerts work only in the app on your Home Screen: tap Share → Add to Home Screen, then open it from there.',
+  unsupported: "This browser can't show notifications.",
+};
 
 export default function SettingsScreen() {
   const { session } = useSession();
@@ -14,6 +24,22 @@ export default function SettingsScreen() {
   const consent = useSetAiConsent();
   const household = hh.data?.household;
   const activeDevices = (devices.data ?? []).filter((d) => !d.revoked_at).length;
+  const push = usePushState();
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushError, setPushError] = useState<unknown>(null);
+
+  async function togglePush(on: boolean) {
+    if (!session) return;
+    setPushBusy(true);
+    setPushError(null);
+    try {
+      push.setState(on ? await enableNotifications(session.user.id) : await disableNotifications());
+    } catch (e) {
+      setPushError(e);
+    } finally {
+      setPushBusy(false);
+    }
+  }
 
   return (
     <Screen>
@@ -37,6 +63,25 @@ export default function SettingsScreen() {
           last
         />
       </Section>
+
+      {push.state ? (
+        <Section title="Notifications" footer={PUSH_FOOTER[push.state]}>
+          <Row
+            left={<CategoryIcon symbol="bell" />}
+            title="Budget alerts"
+            chevron={false}
+            right={
+              <Switch
+                value={push.state === 'on'}
+                disabled={pushBusy || (push.state !== 'on' && push.state !== 'off')}
+                onValueChange={togglePush}
+              />
+            }
+            last
+          />
+        </Section>
+      ) : null}
+      <ErrorText error={pushError} />
 
       <Section title="Household">
         <Row

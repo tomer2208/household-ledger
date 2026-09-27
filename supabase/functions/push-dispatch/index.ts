@@ -1,10 +1,12 @@
-// Drains the budget_alerts queue into Expo push notifications (US-S2, BLUEPRINT §3.6).
+// Drains the budget_alerts queue into push notifications (US-S2, BLUEPRINT §3.6):
+// Web Push for the installed web app (VAPID keys in Vault), Expo push for a native build.
 // Woken by a DB trigger on every new alert and by a 5-minute cron backstop.
 //
 // verify_jwt is off on purpose: the request carries no data and grants nothing. The
 // function only ever sends alerts that the database already queued.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import webpush from "npm:web-push@3.6.7";
 
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
   auth: { persistSession: false },
@@ -23,7 +25,10 @@ type Alert = {
   days_left: number;
   suppressed: boolean;
   tokens: string[];
+  web: WebSub[];
 };
+
+type WebSub = { endpoint: string; p256dh: string; auth: string };
 
 type Result = { category_id: string; budget_month: string; threshold: number; status: "sent" | "suppressed" | "failed" };
 
@@ -48,6 +53,44 @@ export function compose(a: Alert) {
   return { title, body };
 }
 
+// Sends to every browser in the household. 404/410 means the subscription is gone for good.
+async function sendWeb(alerts: Alert[], okByAlert: Map<number, boolean>, dead: string[]) {
+  if (!alerts.some((a) => !a.suppressed && a.web.length > 0)) return;
+  const { data: vapid } = await db.rpc("web_push_vapid");
+  if (!vapid?.public_key || !vapid?.private_key) {
+    console.error("WEB_PUSH_NO_VAPID");
+    return;
+  }
+  webpush.setVapidDetails("mailto:support@householdledger.app", vapid.public_key, vapid.private_key);
+  await Promise.all(
+    alerts.flatMap((a, i) =>
+      a.suppressed
+        ? []
+        : a.web.map(async (w) => {
+            const { title, body } = compose(a);
+            const payload = JSON.stringify({
+              title,
+              body,
+              url: `/transactions?category=${a.category_id}`,
+              tag: `budget-${a.category_id}`,
+            });
+            try {
+              await webpush.sendNotification({ endpoint: w.endpoint, keys: { p256dh: w.p256dh, auth: w.auth } }, payload, {
+                TTL: 60 * 60 * 24,
+                urgency: "high",
+              });
+              okByAlert.set(i, true);
+            } catch (e) {
+              const status = (e as { statusCode?: number }).statusCode;
+              if (status === 404 || status === 410) dead.push(w.endpoint);
+              if (!okByAlert.has(i)) okByAlert.set(i, false);
+              console.warn("WEB_PUSH_ERROR", status, (e as Error).message);
+            }
+          }),
+    ),
+  );
+}
+
 const isExpoToken = (t: string) => /^Expo(nent)?PushToken\[.+\]$/.test(t);
 
 Deno.serve(async () => {
@@ -70,7 +113,7 @@ Deno.serve(async () => {
       return;
     }
     const tokens = a.tokens.filter(isExpoToken);
-    if (tokens.length === 0) {
+    if (tokens.length === 0 && a.web.length === 0) {
       // Nobody to notify yet (e.g. permission never granted). The alert still counts as handled.
       results.push({ ...key, status: "sent" });
       return;
@@ -91,6 +134,8 @@ Deno.serve(async () => {
 
   const okByAlert = new Map<number, boolean>();
   const dead: string[] = [];
+  const deadWeb: string[] = [];
+  await sendWeb(alerts, okByAlert, deadWeb);
 
   for (let start = 0; start < messages.length; start += 100) {
     const chunk = messages.slice(start, start + 100);
@@ -128,7 +173,11 @@ Deno.serve(async () => {
     });
   });
 
-  const { error: finishErr } = await db.rpc("finish_push_alerts", { p_results: results, p_dead_tokens: dead });
+  const { error: finishErr } = await db.rpc("finish_push_alerts", {
+    p_results: results,
+    p_dead_tokens: dead,
+    p_dead_endpoints: deadWeb,
+  });
   if (finishErr) console.error("PUSH_FINISH_ERROR", finishErr);
 
   return Response.json({ alerts: alerts.length, messages: messages.length, results });
