@@ -67,9 +67,14 @@ function parseOccurredAt(v: unknown): Date {
 }
 
 async function authenticate(req: Request): Promise<Device | null> {
+  // Typed by hand into a Shortcut header: forgive a missing or lower-case "Bearer", and any
+  // spaces, line breaks or invisible characters picked up when copying the token.
   const auth = req.headers.get("authorization") ?? "";
-  const token = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
-  if (!token.startsWith("hl_dev_")) return null;
+  const token = auth.replace(/^\s*bearer/i, "").replace(/[\s\u200B-\u200F\u2060\uFEFF]/g, "");
+  if (!/^hl_dev_[0-9a-f]{48}$/.test(token)) {
+    console.warn("CAPTURE_BAD_TOKEN_SHAPE", { length: token.length, prefix: token.slice(0, 7) });
+    return null;
+  }
   const { data, error } = await db.rpc("capture_auth", { p_token_hash: await sha256Hex(token) });
   if (error) throw error;
   return (data as Device[] | null)?.[0] ?? null;
