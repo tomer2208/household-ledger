@@ -39,7 +39,7 @@ const WEB_ICON: Record<string, string> = {
   scissors: 'content_cut', 'wrench.and.screwdriver': 'build', creditcard: 'credit_card',
   'building.columns': 'account_balance', heart: 'favorite', 'chart.pie.fill': 'pie_chart', 'gearshape.fill': 'settings',
   magnifyingglass: 'search', bell: 'notifications', 'bell.slash': 'notifications_off', link: 'link', trash: 'delete',
-  'person.badge.minus': 'person_remove', 'rectangle.portrait.and.arrow.right': 'logout',
+  pencil: 'edit', 'person.badge.minus': 'person_remove', 'rectangle.portrait.and.arrow.right': 'logout',
   'square.and.arrow.down': 'download', 'questionmark.circle': 'help', 'hand.raised': 'privacy_tip',
   'xmark.circle.fill': 'cancel', briefcase: 'work',
 };

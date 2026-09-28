@@ -2,9 +2,11 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider, type Theme } from 'expo-
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useHousehold, useRealtimeSync } from '@/api/queries';
 import { SessionProvider, useSession } from '@/api/session';
+import { ToastProvider } from '@/components/toast';
 import { dark, light, type Palette } from '@/lib/colors';
 import { usePushRegistration, useNotificationRouting } from '@/lib/push';
 import { QueryProvider } from '@/lib/query';
@@ -28,11 +30,13 @@ const darkNav = navTheme(DarkTheme, dark);
 
 export default function RootLayout() {
   return (
-    <QueryProvider>
-      <SessionProvider>
-        <Root />
-      </SessionProvider>
-    </QueryProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryProvider>
+        <SessionProvider>
+          <Root />
+        </SessionProvider>
+      </QueryProvider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -54,26 +58,28 @@ function Root() {
   const signedIn = !!session;
   return (
     <ThemeProvider value={scheme === 'dark' ? darkNav : lightNav}>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="join/[code]" options={{ headerShown: false }} />
-        <Stack.Screen name="dev-preview" />
-        <Stack.Protected guard={!signedIn}>
-          <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-        </Stack.Protected>
-        <Stack.Protected guard={signedIn && !household}>
-          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-        </Stack.Protected>
-        <Stack.Protected guard={signedIn && !!household}>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="add"
-            options={{ presentation: 'formSheet', sheetAllowedDetents: [0.92], sheetGrabberVisible: true, headerShown: false }}
-          />
-          <Stack.Screen name="transaction/[id]" options={{ title: 'Expense', headerBackTitle: 'Back' }} />
-          <Stack.Screen name="review" options={{ title: 'To Review', headerBackTitle: 'Back' }} />
-        </Stack.Protected>
-      </Stack>
+      <ToastProvider>
+        <Stack>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="join/[code]" options={{ headerShown: false }} />
+          <Stack.Screen name="dev-preview" />
+          <Stack.Protected guard={!signedIn}>
+            <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+          </Stack.Protected>
+          <Stack.Protected guard={signedIn && !household}>
+            <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+          </Stack.Protected>
+          <Stack.Protected guard={signedIn && !!household}>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="add"
+              options={{ presentation: 'formSheet', sheetAllowedDetents: [0.92], sheetGrabberVisible: true, headerShown: false }}
+            />
+            <Stack.Screen name="transaction/[id]" options={{ title: 'Expense', headerBackTitle: 'Back' }} />
+            <Stack.Screen name="review" options={{ title: 'To Review', headerBackTitle: 'Back' }} />
+          </Stack.Protected>
+        </Stack>
+      </ToastProvider>
     </ThemeProvider>
   );
 }

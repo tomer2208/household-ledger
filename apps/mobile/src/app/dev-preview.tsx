@@ -2,6 +2,8 @@ import { Redirect, Stack } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { BudgetRow } from '@/components/budget-row';
+import { SwipeRow } from '@/components/swipe-row';
+import { useToast } from '@/components/toast';
 import { IncomePlanCard } from '@/components/income-plan';
 import { Badge, Button, CategoryIcon, ProgressBar, Row, Screen, Section } from '@/components/ui';
 import { daysToGo, perDay } from '@/lib/budget';
@@ -22,6 +24,7 @@ const SPENT = SAMPLE.reduce((n, x) => n + x.spent, 0);
 
 export default function DevPreview() {
   const c = useColors();
+  const toast = useToast();
   if (!__DEV__) return <Redirect href="/" />;
   const pace = monthPace();
   return (
@@ -42,7 +45,14 @@ export default function DevPreview() {
       </View>
       <Section title="Budgets">
         {SAMPLE.map((x, i) => (
-          <BudgetRow key={x.name} name={x.name} symbol={x.symbol} cap={x.cap} spent={x.spent} currency="ILS" pace={pace} onPress={() => {}} last={i === SAMPLE.length - 1} />
+          <SwipeRow
+            key={x.name}
+            onEdit={() => toast({ message: `Edit ${x.name}` })}
+            onDelete={() => toast({ message: `${x.name} deleted`, action: { label: 'Undo', onPress: () => {} } })}>
+            {(open) => (
+              <BudgetRow name={x.name} symbol={x.symbol} cap={x.cap} spent={x.spent} currency="ILS" pace={pace} onPress={() => {}} onLongPress={open} last={i === SAMPLE.length - 1} />
+            )}
+          </SwipeRow>
         ))}
       </Section>
       <Section title="Without a budget">

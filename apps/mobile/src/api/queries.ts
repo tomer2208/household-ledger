@@ -309,6 +309,34 @@ export const useSetBudget = () =>
 export const useSetIncome = () =>
   useHHMutation((amountMinor: number) => must(supabase.rpc('set_monthly_income', { p_amount_minor: amountMinor })));
 
+export type DeleteCategoryResult = { action: 'delete' | 'archive' | 'blocked'; transactions: number; recurring: number };
+
+// Swipe → Delete (migration 22). The server decides: a never-used category is deleted, one
+// with history is archived, active recurring rules block it. `preview` asks without changing
+// anything; `hide` drops it from the cached lists while the Undo toast is up.
+export function useCategoryDelete() {
+  const qc = useQueryClient();
+  const call = (id: string, dryRun: boolean) =>
+    must(supabase.rpc('delete_category', { p_category_id: id, p_dry_run: dryRun })) as Promise<DeleteCategoryResult>;
+  return {
+    preview: (id: string) => call(id, true),
+    commit: async (id: string) => {
+      try {
+        return await call(id, false);
+      } finally {
+        await qc.invalidateQueries({ queryKey: [HH] });
+      }
+    },
+    hide: (id: string) => {
+      qc.setQueryData<Category[]>([HH, 'categories'], (old) => old?.filter((x) => x.id !== id));
+      qc.setQueryData<Overview>([HH, 'overview', 'current'], (old) =>
+        old ? { ...old, categories: old.categories.filter((x) => x.id !== id) } : old,
+      );
+    },
+    restore: () => qc.invalidateQueries({ queryKey: [HH] }),
+  };
+}
+
 export const useSaveCategory = () =>
   useHHMutation(
     (v: { id?: string; householdId: string; name: string; sfSymbol: string; archived?: boolean; acknowledge?: boolean }) =>

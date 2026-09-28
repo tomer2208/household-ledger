@@ -22,5 +22,6 @@ export const iosPalette: Palette | null = {
   green: brand('green'),
   orange: brand('orange'),
   red: brand('red'),
+  onRed: brand('onRed'),
   paceMarker: brand('paceMarker'),
 };

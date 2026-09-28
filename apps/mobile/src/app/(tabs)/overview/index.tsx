@@ -6,8 +6,10 @@ import { BudgetRow } from '@/components/budget-row';
 import { InstallBanner } from '@/components/install-banner';
 import { OfflineBanner } from '@/components/offline-banner';
 import { ProposalCard } from '@/components/proposal-card';
+import { SwipeRow } from '@/components/swipe-row';
 import { Badge, CategoryIcon, Empty, ErrorText, Icon, ProgressBar, Row, Screen, Section } from '@/components/ui';
 import { daysToGo, incomePlan, perDay } from '@/lib/budget';
+import { useCategoryActions } from '@/lib/category-actions';
 import { monthLabel, monthPace } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
 import { budgetTone, moneyText, radius, useColors } from '@/lib/theme';
@@ -26,6 +28,7 @@ export default function OverviewScreen() {
   const totalPct = o && o.total_cap > 0 ? Math.round((o.total_spent * 100) / o.total_cap) : null;
   const pace = monthPace();
   const days = daysToGo();
+  const actions = useCategoryActions(hh.data?.household?.id);
   const plan = incomePlan(o?.income, o?.total_cap ?? 0);
 
   return (
@@ -128,17 +131,25 @@ export default function OverviewScreen() {
           {budgeted.length > 0 ? (
             <Section title="Budgets">
               {budgeted.map((cat, i) => (
-                <BudgetRow
-                  key={cat.id}
-                  name={cat.name}
-                  symbol={cat.sf_symbol}
-                  cap={cat.cap}
-                  spent={cat.spent}
-                  currency={cur}
-                  pace={pace}
-                  onPress={() => router.push({ pathname: '/transactions', params: { category: cat.id } })}
-                  last={i === budgeted.length - 1}
-                />
+                <SwipeRow key={cat.id} onEdit={() => actions.edit(cat)} onDelete={() => actions.remove(cat)}>
+                  {(open) => (
+                    <BudgetRow
+                      name={cat.name}
+                      symbol={cat.sf_symbol}
+                      cap={cat.cap}
+                      spent={cat.spent}
+                      currency={cur}
+                      pace={pace}
+                      onPress={() => router.push({ pathname: '/transactions', params: { category: cat.id } })}
+                      onLongPress={open}
+                      actions={[
+                        { name: 'edit', label: 'Edit', run: () => actions.edit(cat) },
+                        { name: 'delete', label: 'Delete', run: () => actions.remove(cat) },
+                      ]}
+                      last={i === budgeted.length - 1}
+                    />
+                  )}
+                </SwipeRow>
               ))}
             </Section>
           ) : null}
@@ -146,16 +157,24 @@ export default function OverviewScreen() {
           {unbudgetedWithSpend.length > 0 ? (
             <Section title="Without a budget" footer="Counted against savings at month end, like a budget of zero.">
               {unbudgetedWithSpend.map((cat, i) => (
-                <BudgetRow
-                  key={cat.id}
-                  name={cat.name}
-                  symbol={cat.sf_symbol}
-                  cap={null}
-                  spent={cat.spent}
-                  currency={cur}
-                  onPress={() => router.push({ pathname: '/transactions', params: { category: cat.id } })}
-                  last={i === unbudgetedWithSpend.length - 1}
-                />
+                <SwipeRow key={cat.id} onEdit={() => actions.edit(cat)} onDelete={() => actions.remove(cat)}>
+                  {(open) => (
+                    <BudgetRow
+                      name={cat.name}
+                      symbol={cat.sf_symbol}
+                      cap={null}
+                      spent={cat.spent}
+                      currency={cur}
+                      onPress={() => router.push({ pathname: '/transactions', params: { category: cat.id } })}
+                      onLongPress={open}
+                      actions={[
+                        { name: 'edit', label: 'Edit', run: () => actions.edit(cat) },
+                        { name: 'delete', label: 'Delete', run: () => actions.remove(cat) },
+                      ]}
+                      last={i === unbudgetedWithSpend.length - 1}
+                    />
+                  )}
+                </SwipeRow>
               ))}
             </Section>
           ) : null}

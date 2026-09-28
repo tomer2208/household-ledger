@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useCategories, useHousehold, useOverview, useSaveCategory, useSetBudget } from '@/api/queries';
 import { Button, CategoryIcon, ErrorText, Field, ProgressBar, Screen, Section } from '@/components/ui';
 import { budgetStatus, incomePlan } from '@/lib/budget';
+import { useCategoryActions } from '@/lib/category-actions';
 import { monthPace } from '@/lib/dates';
 import { formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
 import { budgetTone, moneyText, radius, useColors } from '@/lib/theme';
@@ -31,6 +32,7 @@ function Editor({ id }: { id?: string }) {
   const overview = useOverview();
   const save = useSaveCategory();
   const setBudget = useSetBudget();
+  const actions = useCategoryActions(hh.data?.household?.id);
   const cat = cats.data?.find((x) => x.id === id);
   const current = overview.data?.categories.find((x) => x.id === id);
 
@@ -105,17 +107,30 @@ function Editor({ id }: { id?: string }) {
       <ErrorText error={save.error ?? setBudget.error} />
       <View style={s.actions}>
         <Button title="Save" onPress={onSave} loading={save.isPending || setBudget.isPending} disabled={!name.trim()} />
-        {id && cat ? (
-          <Button
-            title={cat.archived_at ? 'Restore Category' : 'Archive Category'}
-            kind={cat.archived_at ? 'plain' : 'destructive'}
-            onPress={async () => {
-              await save.mutateAsync({ id, householdId: householdId!, name: cat.name, sfSymbol: cat.sf_symbol, archived: !cat.archived_at });
-              router.back();
-            }}
-          />
-        ) : null}
       </View>
+      {/* Kept apart from Save so the destructive action is never a mis-tap away. */}
+      {id && cat ? (
+        <View style={s.danger}>
+          {cat.archived_at ? (
+            <Button
+              title="Restore Category"
+              kind="plain"
+              onPress={async () => {
+                await save.mutateAsync({ id, householdId: householdId!, name: cat.name, sfSymbol: cat.sf_symbol, archived: false });
+                router.back();
+              }}
+            />
+          ) : (
+            <Button
+              title="Delete Category"
+              kind="destructive"
+              onPress={async () => {
+                if (await actions.remove(cat)) router.back();
+              }}
+            />
+          )}
+        </View>
+      ) : null}
     </Screen>
   );
 }
@@ -157,4 +172,5 @@ const s = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: 16, borderRadius: 10, padding: 8 },
   symbol: { width: '16.66%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center', borderRadius: 10 },
   actions: { marginHorizontal: 16, marginTop: 24, gap: 8 },
+  danger: { marginHorizontal: 16, marginTop: 32 },
 });

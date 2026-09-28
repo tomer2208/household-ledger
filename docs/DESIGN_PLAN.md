@@ -178,7 +178,7 @@
   - כרטיס ראשי שמציג "left" ו"ליום".
   - שימוש ב-`BudgetRow` ב-Overview וב-Categories.
   - מצב החודש במסך העריכה.
-- [ ] **שלב 3: החלקה.**
+- [x] **שלב 3: החלקה.** בוצע ב-28.09. migration 22 הוחל על household-ledger-dev, ו-`supabase/tests/delete_category.sql` עבר.
   - migration 21 ו-`delete_category`, עם בדיקה ב-`supabase/tests`.
   - `useDeleteCategory`.
   - `GestureHandlerRootView`.

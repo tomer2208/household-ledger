@@ -16,6 +16,8 @@ export function BudgetRow({
   currency,
   pace,
   onPress,
+  onLongPress,
+  actions,
   last,
 }: {
   name: string;
@@ -26,6 +28,9 @@ export function BudgetRow({
   currency: string;
   pace?: number;
   onPress?: () => void;
+  onLongPress?: () => void;
+  // Offered to VoiceOver/TalkBack as custom actions, so swipe-only actions stay reachable.
+  actions?: { name: string; label: string; run: () => void }[];
   last?: boolean;
 }) {
   const c = useColors();
@@ -39,48 +44,55 @@ export function BudgetRow({
       : `${name}, ${formatMoney(st.amount, currency)} ${st.kind} of ${formatMoney(st.cap, currency)}` +
         (st.kind === 'left' && pace != null ? (ahead ? ', ahead of pace' : ', on pace') : '');
 
+  // Opaque base: the pressed tint is translucent, and swipe actions sit right behind the row.
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={!onPress}
-      accessibilityRole={onPress ? 'button' : undefined}
-      accessibilityLabel={label}
-      style={({ pressed }) => [s.row, pressed && { backgroundColor: c.fill }]}>
-      <CategoryIcon symbol={symbol} />
-      <View style={[s.body, !last && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
-        <View style={s.top}>
-          <Text numberOfLines={1} style={[s.name, { color: c.label }]}>
-            {name}
-          </Text>
+    <View style={{ backgroundColor: c.cell }}>
+      <Pressable
+        onPress={onPress}
+        onLongPress={onLongPress}
+        delayLongPress={350}
+        disabled={!onPress && !onLongPress}
+        accessibilityActions={actions?.map(({ name, label }) => ({ name, label }))}
+        onAccessibilityAction={(e) => actions?.find((x) => x.name === e.nativeEvent.actionName)?.run()}
+        accessibilityRole={onPress ? 'button' : undefined}
+        accessibilityLabel={label}
+        style={({ pressed }) => [s.row, pressed && { backgroundColor: c.fill }]}>
+        <CategoryIcon symbol={symbol} />
+        <View style={[s.body, !last && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+          <View style={s.top}>
+            <Text numberOfLines={1} style={[s.name, { color: c.label }]}>
+              {name}
+            </Text>
+            {st.kind === 'none' ? (
+              <Text style={[s.small, { color: c.secondaryLabel }]}>{formatMoney(spent, currency)} spent</Text>
+            ) : (
+              <View style={s.status}>
+                {st.kind === 'over' ? <Icon name="exclamationmark.triangle.fill" size={15} color={tone} /> : null}
+                <Text style={[s.amount, { color: tone }]}>
+                  {formatMoney(st.amount, currency)} {st.kind}
+                </Text>
+              </View>
+            )}
+          </View>
           {st.kind === 'none' ? (
-            <Text style={[s.small, { color: c.secondaryLabel }]}>{formatMoney(spent, currency)} spent</Text>
+            noBudget ? (
+              <View style={s.badgeRow}>
+                <Badge text="No budget" color={c.orange} />
+              </View>
+            ) : (
+              <Text style={[s.small, { color: c.secondaryLabel }]}>No budget</Text>
+            )
           ) : (
-            <View style={s.status}>
-              {st.kind === 'over' ? <Icon name="exclamationmark.triangle.fill" size={15} color={tone} /> : null}
-              <Text style={[s.amount, { color: tone }]}>
-                {formatMoney(st.amount, currency)} {st.kind}
+            <>
+              <ProgressBar pct={st.pct} color={tone} pace={pace} />
+              <Text style={[s.small, s.of, { color: c.secondaryLabel }]}>
+                {formatMoney(st.spent, currency)} of {formatMoney(st.cap, currency)}
               </Text>
-            </View>
+            </>
           )}
         </View>
-        {st.kind === 'none' ? (
-          noBudget ? (
-            <View style={s.badgeRow}>
-              <Badge text="No budget" color={c.orange} />
-            </View>
-          ) : (
-            <Text style={[s.small, { color: c.secondaryLabel }]}>No budget</Text>
-          )
-        ) : (
-          <>
-            <ProgressBar pct={st.pct} color={tone} pace={pace} />
-            <Text style={[s.small, s.of, { color: c.secondaryLabel }]}>
-              {formatMoney(st.spent, currency)} of {formatMoney(st.cap, currency)}
-            </Text>
-          </>
-        )}
-      </View>
-    </Pressable>
+      </Pressable>
+    </View>
   );
 }
 

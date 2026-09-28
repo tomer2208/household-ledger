@@ -20,6 +20,8 @@ export type Palette = {
   green: ColorValue;
   orange: ColorValue;
   red: ColorValue;
+  // Text on a red fill (the swipe Delete action).
+  onRed: ColorValue;
   // Where spending "should" be today, drawn across budget bars.
   paceMarker: ColorValue;
 };
@@ -39,6 +41,7 @@ export const light: Palette = {
   green: '#15803D',
   orange: '#B45309',
   red: '#DC2626',
+  onRed: '#FFFFFF',
   paceMarker: 'rgba(15,27,36,0.55)',
 };
 
@@ -57,5 +60,6 @@ export const dark: Palette = {
   green: '#4ADE80',
   orange: '#FBBF24',
   red: '#F87171',
+  onRed: '#2A0808',
   paceMarker: 'rgba(241,245,244,0.55)',
 };
