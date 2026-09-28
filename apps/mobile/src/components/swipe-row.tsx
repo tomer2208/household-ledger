@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import ReanimatedSwipeable, { type SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Animated, { runOnJS, SharedValue, useAnimatedReaction, useAnimatedStyle } from 'react-native-reanimated';
 
@@ -24,12 +24,16 @@ const tap = (kind: 'light' | 'medium') => {
 export function SwipeRow({
   onEdit,
   onDelete,
+  containerStyle,
   children,
 }: {
   onEdit: () => void;
   onDelete: () => void;
+  // For a standalone card: its margins and corner radius, so the actions are clipped to it.
+  containerStyle?: StyleProp<ViewStyle>;
   children: (open: () => void) => ReactNode;
 }) {
+  const c = useColors();
   const ref = useRef<SwipeableMethods>(null);
   const armed = useRef(false);
   // Latched at release: the settle animation crosses back over FULL and would disarm it.
@@ -58,6 +62,9 @@ export function SwipeRow({
       rightThreshold={ACTION / 2}
       overshootRight
       dragOffsetFromRightEdge={12}
+      containerStyle={containerStyle}
+      // Opaque base: pressed tints are translucent, and the actions sit right behind the row.
+      childrenContainerStyle={{ backgroundColor: c.cell }}
       onSwipeableWillOpen={() => {
         if (openRow && openRow !== ref.current) openRow.close();
         openRow = ref.current;

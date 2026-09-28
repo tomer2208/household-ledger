@@ -6,6 +6,7 @@ import { useHousehold, useOverview, useSetIncome } from '@/api/queries';
 import { IncomePlanCard } from '@/components/income-plan';
 import { Button, ErrorText, Field, Screen, Section } from '@/components/ui';
 import { SAVINGS_TARGET_PCT } from '@/lib/budget';
+import { useIncomeActions } from '@/lib/income-actions';
 import { minorToInput, parseMoneyInput } from '@/lib/money';
 
 export default function IncomeScreen() {
@@ -19,6 +20,7 @@ function Editor() {
   const o = useOverview().data!;
   const cur = useHousehold().data?.household?.base_currency ?? o.currency;
   const setIncome = useSetIncome();
+  const actions = useIncomeActions();
   const [text, setText] = useState(o.income ? minorToInput(o.income) : '');
 
   // Empty clears it; anything else must parse to an amount.
@@ -57,10 +59,23 @@ function Editor() {
           }}
         />
       </View>
+      {/* Kept apart from Save so removing is never a mis-tap away. */}
+      {o.income ? (
+        <View style={s.danger}>
+          <Button
+            title="Remove Income"
+            kind="destructive"
+            onPress={async () => {
+              if (await actions.remove()) router.back();
+            }}
+          />
+        </View>
+      ) : null}
     </Screen>
   );
 }
 
 const s = StyleSheet.create({
   actions: { marginHorizontal: 16, marginTop: 24, gap: 8 },
+  danger: { marginHorizontal: 16, marginTop: 32 },
 });

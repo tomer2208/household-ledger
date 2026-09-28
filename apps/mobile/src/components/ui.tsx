@@ -135,6 +135,8 @@ export function Row({
   left,
   right,
   onPress,
+  onLongPress,
+  actions,
   chevron = !!onPress,
   destructive,
   last,
@@ -146,6 +148,9 @@ export function Row({
   left?: ReactNode;
   right?: ReactNode;
   onPress?: () => void;
+  onLongPress?: () => void;
+  // Offered to VoiceOver/TalkBack as custom actions (e.g. the swipe actions).
+  actions?: { name: string; label: string; run: () => void }[];
   chevron?: boolean;
   destructive?: boolean;
   last?: boolean;
@@ -179,9 +184,15 @@ export function Row({
       </View>
     </View>
   );
-  if (!onPress) return content(false);
+  if (!onPress && !onLongPress) return content(false);
   return (
-    <Pressable onPress={onPress} accessibilityRole="button">
+    <Pressable
+      onPress={onPress}
+      onLongPress={onLongPress}
+      delayLongPress={350}
+      accessibilityRole="button"
+      accessibilityActions={actions?.map(({ name, label }) => ({ name, label }))}
+      onAccessibilityAction={(e) => actions?.find((x) => x.name === e.nativeEvent.actionName)?.run()}>
       {({ pressed }) => content(pressed)}
     </Pressable>
   );

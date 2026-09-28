@@ -12,11 +12,19 @@ export function IncomePlanCard({
   budgeted,
   currency,
   onPress,
+  onLongPress,
+  actions,
+  flush,
 }: {
   income: number | null;
   budgeted: number;
   currency: string;
   onPress?: () => void;
+  onLongPress?: () => void;
+  // Offered to VoiceOver/TalkBack as custom actions (the swipe actions).
+  actions?: { name: string; label: string; run: () => void }[];
+  // Inside a SwipeRow, which supplies the margins and corner radius.
+  flush?: boolean;
 }) {
   const c = useColors();
   const p = incomePlan(income, budgeted);
@@ -55,10 +63,14 @@ export function IncomePlanCard({
   return (
     <Pressable
       onPress={onPress}
-      disabled={!onPress}
+      onLongPress={onLongPress}
+      delayLongPress={350}
+      disabled={!onPress && !onLongPress}
       accessibilityRole={onPress ? 'button' : undefined}
       accessibilityLabel={label}
-      style={({ pressed }) => [s.card, { backgroundColor: pressed ? c.fill : c.cell }]}>
+      accessibilityActions={actions?.map(({ name, label: l }) => ({ name, label: l }))}
+      onAccessibilityAction={(e) => actions?.find((x) => x.name === e.nativeEvent.actionName)?.run()}
+      style={({ pressed }) => [s.card, flush && s.flush, { backgroundColor: pressed ? c.fill : c.cell }]}>
       <View style={s.top}>
         <Text style={[s.label, { color: c.secondaryLabel }]}>{headline}</Text>
         {onPress ? <Icon name="chevron.right" size={13} color={c.tertiaryLabel} /> : null}
@@ -101,6 +113,7 @@ function Legend({ color, text, hollow }: { color: any; text: string; hollow?: bo
 
 const s = StyleSheet.create({
   card: { marginHorizontal: 16, marginTop: 16, borderRadius: radius.hero, padding: 16, gap: 8 },
+  flush: { marginHorizontal: 0, marginTop: 0, borderRadius: 0 },
   cta: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   ctaIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   ctaTitle: { fontSize: 17, fontWeight: '600' },

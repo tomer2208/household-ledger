@@ -5,9 +5,11 @@ import { Switch } from 'react-native';
 
 import { useDevices, useHousehold, useOverview, useRecurring, useSetAiConsent } from '@/api/queries';
 import { useSession } from '@/api/session';
+import { SwipeRow } from '@/components/swipe-row';
 import { CategoryIcon, ErrorText, Row, Screen, Section } from '@/components/ui';
 import { confirm } from '@/lib/confirm';
 import { exportExpenses } from '@/lib/export-csv';
+import { useIncomeActions } from '@/lib/income-actions';
 import { formatMoney } from '@/lib/money';
 import { disableNotifications, enableNotifications, type PushState, usePushState } from '@/lib/push';
 import { APP_URL, FUNCTIONS_URL, supabase } from '@/lib/supabase';
@@ -26,6 +28,7 @@ export default function SettingsScreen() {
   const devices = useDevices();
   const recurring = useRecurring();
   const overview = useOverview();
+  const income = useIncomeActions();
   const consent = useSetAiConsent();
   const household = hh.data?.household;
   const activeDevices = (devices.data ?? []).filter((d) => !d.revoked_at).length;
@@ -93,12 +96,31 @@ export default function SettingsScreen() {
   return (
     <Screen>
       <Section title="Budget">
-        <Row
-          left={<CategoryIcon symbol="briefcase" />}
-          title="Monthly Income"
-          value={overview.data ? (overview.data.income ? formatMoney(overview.data.income, overview.data.currency) : 'Not set') : undefined}
-          onPress={() => router.push('/settings/income')}
-        />
+        {overview.data?.income ? (
+          // Set: swipe (or long press) to edit or remove it.
+          <SwipeRow onEdit={income.edit} onDelete={income.remove}>
+            {(open) => (
+              <Row
+                left={<CategoryIcon symbol="briefcase" />}
+                title="Monthly Income"
+                value={formatMoney(overview.data!.income, overview.data!.currency)}
+                onPress={income.edit}
+                onLongPress={open}
+                actions={[
+                  { name: 'edit', label: 'Edit', run: income.edit },
+                  { name: 'delete', label: 'Remove', run: income.remove },
+                ]}
+              />
+            )}
+          </SwipeRow>
+        ) : (
+          <Row
+            left={<CategoryIcon symbol="briefcase" />}
+            title="Monthly Income"
+            value={overview.data ? 'Not set' : undefined}
+            onPress={income.edit}
+          />
+        )}
         <Row left={<CategoryIcon symbol="tag" />} title="Categories & Budgets" onPress={() => router.push('/settings/categories')} />
         <Row
           left={<CategoryIcon symbol="calendar.badge.clock" />}

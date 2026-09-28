@@ -62,7 +62,12 @@ export default function DevPreview() {
           <BudgetRow name="Gifts" symbol="gift" cap={null} spent={12000} noBudget currency="ILS" onPress={() => {}} last />
         </Section>
         {/* Income plan: healthy, thin savings, over-assigned, not set */}
-        <IncomePlanCard income={1800000} budgeted={CAP} currency="ILS" onPress={() => {}} />
+        <SwipeRow
+          onEdit={() => toast({ message: 'Edit income' })}
+          onDelete={() => toast({ message: 'Monthly income removed', action: { label: 'Undo', onPress: () => {} } })}
+          containerStyle={s.incomeSwipe}>
+          {(open) => <IncomePlanCard income={1800000} budgeted={CAP} currency="ILS" onPress={() => {}} onLongPress={open} flush />}
+        </SwipeRow>
         <IncomePlanCard income={CAP + 30000} budgeted={CAP} currency="ILS" onPress={() => {}} />
         <IncomePlanCard income={CAP - 60000} budgeted={CAP} currency="ILS" />
         <IncomePlanCard income={null} budgeted={CAP} currency="ILS" onPress={() => {}} />
@@ -92,4 +97,5 @@ const s = StyleSheet.create({
   meta: { fontSize: 14, ...moneyText },
   heroRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', columnGap: 12, rowGap: 2 },
   actions: { marginHorizontal: 16, marginTop: 24, gap: 8 },
+  incomeSwipe: { marginHorizontal: 16, marginTop: 16, borderRadius: radius.hero, overflow: 'hidden' },
 });

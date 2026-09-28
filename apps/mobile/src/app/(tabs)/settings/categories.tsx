@@ -1,5 +1,5 @@
 import { router, Stack } from 'expo-router';
-import { Pressable, Text } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { useCategories, useHousehold, useOverview } from '@/api/queries';
 import { BudgetRow } from '@/components/budget-row';
@@ -7,8 +7,9 @@ import { IncomePlanCard } from '@/components/income-plan';
 import { SwipeRow } from '@/components/swipe-row';
 import { CategoryIcon, Row, Screen, Section } from '@/components/ui';
 import { useCategoryActions } from '@/lib/category-actions';
+import { useIncomeActions } from '@/lib/income-actions';
 import { monthPace } from '@/lib/dates';
-import { useColors } from '@/lib/theme';
+import { radius, useColors } from '@/lib/theme';
 
 export default function CategoriesScreen() {
   const c = useColors();
@@ -22,6 +23,7 @@ export default function CategoriesScreen() {
   const pace = monthPace();
   const edit = (id: string) => router.push({ pathname: '/settings/category', params: { id } });
   const actions = useCategoryActions(household?.id);
+  const income = useIncomeActions();
 
   return (
     <Screen>
@@ -36,13 +38,25 @@ export default function CategoriesScreen() {
           ),
         }}
       />
-      {overview.data ? (
-        <IncomePlanCard
-          income={overview.data.income}
-          budgeted={overview.data.total_cap}
-          currency={cur}
-          onPress={() => router.push('/settings/income')}
-        />
+      {overview.data?.income ? (
+        <SwipeRow onEdit={income.edit} onDelete={income.remove} containerStyle={s.incomeSwipe}>
+          {(open) => (
+            <IncomePlanCard
+              income={overview.data!.income}
+              budgeted={overview.data!.total_cap}
+              currency={cur}
+              onPress={income.edit}
+              onLongPress={open}
+              actions={[
+                { name: 'edit', label: 'Edit income', run: income.edit },
+                { name: 'delete', label: 'Remove income', run: income.remove },
+              ]}
+              flush
+            />
+          )}
+        </SwipeRow>
+      ) : overview.data ? (
+        <IncomePlanCard income={null} budgeted={overview.data.total_cap} currency={cur} onPress={income.edit} />
       ) : null}
       <Section
         title="This month"
@@ -89,3 +103,7 @@ export default function CategoriesScreen() {
     </Screen>
   );
 }
+
+const s = StyleSheet.create({
+  incomeSwipe: { marginHorizontal: 16, marginTop: 16, borderRadius: radius.hero, overflow: 'hidden' },
+});
