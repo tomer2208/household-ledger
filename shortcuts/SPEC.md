@@ -41,15 +41,43 @@
 
 בכל בדיקה חשוב לשים לב: האם האוטומציה רצה מיד בזמן ההקשה, או כמה שניות אחר כך? האם הופיעה התראה או משהו על המסך?
 
-### ממצאים (ימולא אחרי הבדיקות)
+### ממצאים (28.09.2026, iOS, אייפון של תומר)
 
 | שאלה | תשובה |
 |---|---|
-| שמות המאפיינים המדויקים של Shortcut Input | |
-| פורמט `amount` בש"ח (מחרוזת? מספר? עם ₪? תווים נסתרים?) | |
-| פורמט `amount` במט"ח | |
-| מה מגיע ב-`merchant` בעסקה עם שם עברי | |
-| מה מגיע ב-`card` (שם הכרטיס? 4 ספרות?) | |
-| האם הטריגר רץ על עסקאות in-app ואונליין | |
-| זמן מהקשה ועד רישום בשרת | |
-| שינויים נדרשים ב-BLUEPRINT §3.6 ו-§3.11 | |
+| שמות המאפיינים של Shortcut Input | `Transaction`, `Card or Pass`, `Merchant`, `Amount`, `Name` |
+| פורמט `amount` בש"ח | המפרסר קרא את הסכום נכון: ₪167.62 נשמר כ-16762 אגורות. הפורמט הגולמי לא נשמר |
+| פורמט `amount` במט"ח | טרם נבדק |
+| מה מגיע ב-`merchant` | שם באנגלית, **חתוך ל-20 תווים**: `Super Farm Ben Guryo`. שם בעברית טרם נבדק |
+| מה מגיע ב-`card` | שם הכרטיס כפי שמופיע ב-Wallet (`CashCal Pro`), בלי ספרות |
+| טריגר על in-app / אונליין | טרם נבדק |
+| זמן מהקשה עד התפריט | שניות ספורות |
+| שינויים שנדרשו | ראה "לקחים" |
+
+### לקחים מהבנייה
+
+- **הטוקן נשלח בגוף ה-JSON (`token`) ולא בכותרת.** כותרת Authorization שהוזנה ידנית ב-Shortcuts הגיעה ריקה לשרת, בשתי בניות. `capture` מקבל עכשיו את הטוקן מ-`Authorization`, מ-`X-Device-Token` או מ-`body.token`, ומתעלם מרווחים ומ-"Bearer".
+- **האוטומציה נבנתה ישירות ב-Automation → Transaction → New Blank Automation**, בלי קיצור נפרד. כך `Shortcut Input` זמין בלי הגדרות קלט. החיסרון: אין קישור iCloud להפצה, וכל משתמש בונה אותה בעצמו (D4).
+- **ערכים מ-Get Dictionary Value צריכים Type → Text,** אחרת ה-If מציע רק has any value.
+- **כל `Get Dictionary Value` צריך `in: Contents of URL` ידנית,** כי ברירת המחדל היא הפלט של הפעולה שמעליו.
+- **▶ בעורך שולח בקשה בלי קנייה.** השרת עונה `missing_merchant`, וזו בדיקה טובה לטוקן. בשגיאת 4xx, ל-Show Notification לא מגיע גוף התשובה.
+
+### המבנה שנבנה בפועל
+
+```
+Receive transaction as input
+Get contents of …/capture          JSON: merchant, amount, card, name ← Shortcut Input; token
+Get Value for status in Contents of URL          (Type: Text)
+If status is needs_input
+    Get Value transaction_id → Set variable TxId
+    Get Value prompt         → Set variable Prompt
+    Get Value category_names
+    Choose from list (Prompt)
+    If Chosen Item contains "New category"
+        Ask for Text → Set variable NewCategory
+    End If
+    Get contents of …/capture/confirm   JSON: token, transaction_id=TxId, category_name=Chosen Item, new_category_name=NewCategory
+Otherwise
+    If status is not logged → Show notification "FinPace: " + Contents of URL
+End If
+```
