@@ -7,7 +7,7 @@ import { InstallBanner } from '@/components/install-banner';
 import { OfflineBanner } from '@/components/offline-banner';
 import { ProposalCard } from '@/components/proposal-card';
 import { Badge, CategoryIcon, Empty, ErrorText, Icon, ProgressBar, Row, Screen, Section } from '@/components/ui';
-import { daysToGo, perDay } from '@/lib/budget';
+import { daysToGo, incomePlan, perDay } from '@/lib/budget';
 import { monthLabel, monthPace } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
 import { budgetTone, moneyText, radius, useColors } from '@/lib/theme';
@@ -26,6 +26,7 @@ export default function OverviewScreen() {
   const totalPct = o && o.total_cap > 0 ? Math.round((o.total_spent * 100) / o.total_cap) : null;
   const pace = monthPace();
   const days = daysToGo();
+  const plan = incomePlan(o?.income, o?.total_cap ?? 0);
 
   return (
     <Screen onRefresh={() => overview.refetch()} refreshing={overview.isRefetching}>
@@ -63,6 +64,15 @@ export default function OverviewScreen() {
                     {days === 1 ? 'last day' : `${days} days to go`}
                   </Text>
                 </View>
+                {plan.kind !== 'none' ? (
+                  <Pressable onPress={() => router.push('/settings/income')} accessibilityRole="button" hitSlop={6}>
+                    <Text style={[s.heroMeta, { color: plan.health === 'over' ? c.red : plan.health === 'thin' ? c.orange : c.green }]}>
+                      {plan.kind === 'over'
+                        ? `Budgets are ${formatMoney(-plan.unassigned, cur)} over income`
+                        : `${formatMoney(plan.unassigned, cur)} of income unassigned → savings (${plan.savingsPct}%)`}
+                    </Text>
+                  </Pressable>
+                ) : null}
               </>
             ) : (
               <>

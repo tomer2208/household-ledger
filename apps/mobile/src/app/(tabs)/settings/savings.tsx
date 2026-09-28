@@ -8,7 +8,12 @@ import { monthLabel, shortDate } from '@/lib/dates';
 import { formatMoney, parseMoneyInput } from '@/lib/money';
 import { moneyText, useColors } from '@/lib/theme';
 
-const TYPE_LABEL = { month_close: 'Month close', late_adjustment: 'Late change', manual: 'Manual' } as const;
+const TYPE_LABEL = {
+  month_close: 'Month close',
+  late_adjustment: 'Late change',
+  manual: 'Manual',
+  unassigned_income: 'Unassigned income',
+} as const;
 
 // Savings is a ledger, not a number that gets overwritten: every move has a reason (BLUEPRINT §3.3).
 export default function SavingsScreen() {
@@ -22,6 +27,9 @@ export default function SavingsScreen() {
   const [direction, setDirection] = useState<'out' | 'in'>('out');
   const minor = parseMoneyInput(amount);
   const entries = ledger.data ?? [];
+  // What month close will move: what the budgets don't use, plus income never put in a budget.
+  const o = overview.data;
+  const coming = o ? o.net + (o.unassigned ?? 0) : 0;
 
   return (
     <Screen>
@@ -29,10 +37,10 @@ export default function SavingsScreen() {
       <View style={[s.hero, { backgroundColor: c.cell }]}>
         <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>Balance</Text>
         <Text style={[s.heroAmount, { color: c.label }]}>{formatMoney(overview.data?.savings_balance ?? 0, cur)}</Text>
-        {overview.data && overview.data.total_cap > 0 ? (
-          <Text style={[s.heroMeta, { color: overview.data.net >= 0 ? c.green : c.red }]}>
-            {overview.data.net >= 0 ? '+' : '−'}
-            {formatMoney(Math.abs(overview.data.net), cur)} on the way this month
+        {o && (o.total_cap > 0 || o.income != null) ? (
+          <Text style={[s.heroMeta, { color: coming >= 0 ? c.green : c.red }]}>
+            {coming >= 0 ? '+' : '−'}
+            {formatMoney(Math.abs(coming), cur)} on the way this month
           </Text>
         ) : null}
       </View>
@@ -68,7 +76,7 @@ export default function SavingsScreen() {
             <Row
               key={e.id}
               title={e.reason}
-              subtitle={`${TYPE_LABEL[e.entry_type]} · ${e.entry_type === 'month_close' ? monthLabel(e.budget_month) : shortDate(e.created_at)}`}
+              subtitle={`${TYPE_LABEL[e.entry_type]} · ${e.entry_type === 'month_close' || e.entry_type === 'unassigned_income' ? monthLabel(e.budget_month) : shortDate(e.created_at)}`}
               right={
                 <Text style={{ color: e.amount_minor >= 0 ? c.green : c.red, fontSize: 17, ...moneyText }}>
                   {e.amount_minor >= 0 ? '+' : '−'}

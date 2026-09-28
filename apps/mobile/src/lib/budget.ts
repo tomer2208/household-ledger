@@ -23,3 +23,44 @@ export function daysToGo(now = new Date()) {
 export function perDay(left: number, days = daysToGo()) {
   return Math.floor(left / Math.max(1, days) / 100) * 100;
 }
+
+// Zero-based plan: income is the pool, every budget is carved out of it, and what's left
+// unassigned is planned savings. Rule of thumb (50/30/20): keep at least 20% for savings;
+// under 10% is thin.
+export const SAVINGS_TARGET_PCT = 20;
+const SAVINGS_THIN_PCT = 10;
+
+export type IncomePlan =
+  | { kind: 'none'; budgeted: number }
+  | {
+      kind: 'unassigned' | 'balanced' | 'over';
+      income: number;
+      budgeted: number;
+      // income − budgeted; negative when budgets promise more than comes in
+      unassigned: number;
+      budgetedPct: number;
+      savingsPct: number;
+      health: 'good' | 'thin' | 'over';
+    };
+
+export function incomePlan(income: number | null | undefined, budgeted: number): IncomePlan {
+  if (income == null || income <= 0) return { kind: 'none', budgeted };
+  const unassigned = income - budgeted;
+  const budgetedPct = Math.round((budgeted * 100) / income);
+  const savingsPct = Math.round((unassigned * 100) / income);
+  return {
+    kind: unassigned > 0 ? 'unassigned' : unassigned === 0 ? 'balanced' : 'over',
+    income,
+    budgeted,
+    unassigned,
+    budgetedPct,
+    savingsPct,
+    health: unassigned < 0 ? 'over' : savingsPct < SAVINGS_THIN_PCT ? 'thin' : 'good',
+  };
+}
+
+// The amount that brings savings up to the target, for the "trim budgets by" hint.
+export function shortOfTarget(p: IncomePlan) {
+  if (p.kind === 'none') return 0;
+  return Math.max(0, Math.ceil((p.income * SAVINGS_TARGET_PCT) / 100) - p.unassigned);
+}

@@ -3,11 +3,12 @@ import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
 import { Switch } from 'react-native';
 
-import { useDevices, useHousehold, useRecurring, useSetAiConsent } from '@/api/queries';
+import { useDevices, useHousehold, useOverview, useRecurring, useSetAiConsent } from '@/api/queries';
 import { useSession } from '@/api/session';
 import { CategoryIcon, ErrorText, Row, Screen, Section } from '@/components/ui';
 import { confirm } from '@/lib/confirm';
 import { exportExpenses } from '@/lib/export-csv';
+import { formatMoney } from '@/lib/money';
 import { disableNotifications, enableNotifications, type PushState, usePushState } from '@/lib/push';
 import { APP_URL, FUNCTIONS_URL, supabase } from '@/lib/supabase';
 
@@ -24,6 +25,7 @@ export default function SettingsScreen() {
   const hh = useHousehold();
   const devices = useDevices();
   const recurring = useRecurring();
+  const overview = useOverview();
   const consent = useSetAiConsent();
   const household = hh.data?.household;
   const activeDevices = (devices.data ?? []).filter((d) => !d.revoked_at).length;
@@ -91,6 +93,12 @@ export default function SettingsScreen() {
   return (
     <Screen>
       <Section title="Budget">
+        <Row
+          left={<CategoryIcon symbol="briefcase" />}
+          title="Monthly Income"
+          value={overview.data ? (overview.data.income ? formatMoney(overview.data.income, overview.data.currency) : 'Not set') : undefined}
+          onPress={() => router.push('/settings/income')}
+        />
         <Row left={<CategoryIcon symbol="tag" />} title="Categories & Budgets" onPress={() => router.push('/settings/categories')} />
         <Row
           left={<CategoryIcon symbol="calendar.badge.clock" />}

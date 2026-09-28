@@ -41,7 +41,7 @@ const WEB_ICON: Record<string, string> = {
   magnifyingglass: 'search', bell: 'notifications', 'bell.slash': 'notifications_off', link: 'link', trash: 'delete',
   'person.badge.minus': 'person_remove', 'rectangle.portrait.and.arrow.right': 'logout',
   'square.and.arrow.down': 'download', 'questionmark.circle': 'help', 'hand.raised': 'privacy_tip',
-  'xmark.circle.fill': 'cancel',
+  'xmark.circle.fill': 'cancel', briefcase: 'work',
 };
 
 export function Icon({ name, size = 20, color }: { name: string; size?: number; color?: any }) {

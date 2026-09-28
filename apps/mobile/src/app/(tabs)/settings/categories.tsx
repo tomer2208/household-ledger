@@ -3,6 +3,7 @@ import { Pressable, Text } from 'react-native';
 
 import { useCategories, useHousehold, useOverview } from '@/api/queries';
 import { BudgetRow } from '@/components/budget-row';
+import { IncomePlanCard } from '@/components/income-plan';
 import { CategoryIcon, Row, Screen, Section } from '@/components/ui';
 import { monthPace } from '@/lib/dates';
 import { useColors } from '@/lib/theme';
@@ -31,6 +32,14 @@ export default function CategoriesScreen() {
           ),
         }}
       />
+      {overview.data ? (
+        <IncomePlanCard
+          income={overview.data.income}
+          budgeted={overview.data.total_cap}
+          currency={cur}
+          onPress={() => router.push('/settings/income')}
+        />
+      ) : null}
       <Section
         title="This month"
         footer="Budgets are monthly caps. Changing one applies from this month on; closed months keep theirs.">

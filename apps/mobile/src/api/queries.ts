@@ -189,7 +189,7 @@ export function useRealtimeSync(householdId: string | undefined) {
     if (!householdId) return;
     const filter = `household_id=eq.${householdId}`;
     const channel = supabase.channel(`hh:${householdId}`);
-    for (const table of ['transactions', 'categories', 'category_budgets', 'recurring_rules', 'savings_ledger', 'device_tokens', 'agent_proposals', 'monthly_reports']) {
+    for (const table of ['transactions', 'categories', 'category_budgets', 'household_income', 'recurring_rules', 'savings_ledger', 'device_tokens', 'agent_proposals', 'monthly_reports']) {
       channel.on('postgres_changes', { event: '*', schema: 'public', table, filter }, () =>
         qc.invalidateQueries({ queryKey: [HH] }),
       );
@@ -304,6 +304,10 @@ export const useSetBudget = () =>
   useHHMutation((v: { categoryId: string; capMinor: number }) =>
     must(supabase.rpc('set_category_budget', { p_category_id: v.categoryId, p_cap_minor: v.capMinor })),
   );
+
+// 0 clears the income. Applies from the current month on, like a budget change.
+export const useSetIncome = () =>
+  useHHMutation((amountMinor: number) => must(supabase.rpc('set_monthly_income', { p_amount_minor: amountMinor })));
 
 export const useSaveCategory = () =>
   useHHMutation(

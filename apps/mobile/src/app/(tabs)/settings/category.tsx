@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useCategories, useHousehold, useOverview, useSaveCategory, useSetBudget } from '@/api/queries';
 import { Button, CategoryIcon, ErrorText, Field, ProgressBar, Screen, Section } from '@/components/ui';
-import { budgetStatus } from '@/lib/budget';
+import { budgetStatus, incomePlan } from '@/lib/budget';
 import { monthPace } from '@/lib/dates';
 import { formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
 import { budgetTone, moneyText, radius, useColors } from '@/lib/theme';
@@ -40,6 +40,10 @@ function Editor({ id }: { id?: string }) {
 
   const householdId = hh.data?.household?.id;
   const capMinor = cap.trim() === '' ? null : parseMoneyInput(cap) ?? (cap.trim() === '0' ? 0 : null);
+  // The household plan with this budget swapped in: budgets come out of income.
+  const o = overview.data;
+  const plan = incomePlan(o?.income, (o?.total_cap ?? 0) - (current?.cap ?? 0) + (capMinor ?? 0));
+  const cur = hh.data?.household?.base_currency ?? 'ILS';
 
   async function onSave() {
     if (!householdId || !name.trim()) return;
@@ -60,7 +64,7 @@ function Editor({ id }: { id?: string }) {
         <MonthStatus
           cap={capMinor}
           spent={current.spent}
-          currency={hh.data?.household?.base_currency ?? 'ILS'}
+          currency={cur}
           preview={capMinor !== (current.cap ?? null)}
         />
       ) : null}
@@ -70,6 +74,15 @@ function Editor({ id }: { id?: string }) {
           <Field label="Monthly budget" value={cap} onChangeText={setCap} keyboardType="decimal-pad" placeholder="No budget" last />
         ) : null}
       </Section>
+      {id && plan.kind !== 'none' ? (
+        <Text
+          accessibilityLiveRegion="polite"
+          style={[s.hint, { color: plan.health === 'over' ? c.red : plan.health === 'thin' ? c.orange : c.secondaryLabel }]}>
+          {plan.kind === 'over'
+            ? `Budgets would be ${formatMoney(-plan.unassigned, cur)} more than your income of ${formatMoney(plan.income, cur)}.`
+            : `${formatMoney(plan.unassigned, cur)} of ${formatMoney(plan.income, cur)} income left unassigned for savings (${plan.savingsPct}%).`}
+        </Text>
+      ) : null}
       {id && cat && !cat.budget_acknowledged ? (
         <Text style={[s.hint, { color: c.secondaryLabel }]}>
           Created from the Shortcut. Saving marks it as reviewed, with or without a budget.

@@ -2,6 +2,7 @@ import { Redirect, Stack } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { BudgetRow } from '@/components/budget-row';
+import { IncomePlanCard } from '@/components/income-plan';
 import { Badge, Button, CategoryIcon, ProgressBar, Row, Screen, Section } from '@/components/ui';
 import { daysToGo, perDay } from '@/lib/budget';
 import { monthPace } from '@/lib/dates';
@@ -48,6 +49,11 @@ export default function DevPreview() {
         <BudgetRow name="Pets" symbol="pawprint" cap={null} spent={34000} currency="ILS" onPress={() => {}} />
         <BudgetRow name="Gifts" symbol="gift" cap={null} spent={12000} noBudget currency="ILS" onPress={() => {}} last />
       </Section>
+      {/* Income plan: healthy, thin savings, over-assigned, not set */}
+      <IncomePlanCard income={1800000} budgeted={CAP} currency="ILS" onPress={() => {}} />
+      <IncomePlanCard income={CAP + 30000} budgeted={CAP} currency="ILS" onPress={() => {}} />
+      <IncomePlanCard income={CAP - 60000} budgeted={CAP} currency="ILS" />
+      <IncomePlanCard income={null} budgeted={CAP} currency="ILS" onPress={() => {}} />
       <Section title="Rows and badges">
         <Row left={<CategoryIcon symbol="banknote" />} title="Savings" value={formatMoney(1240000, 'ILS')} onPress={() => {}} />
         <Row left={<CategoryIcon symbol="tray.full" />} title="To Review" right={<Badge text="2" color={c.orange} />} onPress={() => {}} last />

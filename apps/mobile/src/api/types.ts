@@ -61,6 +61,9 @@ export type Overview = {
   month: string;
   closed: boolean;
   currency: string;
+  // Combined monthly income, null until set. unassigned = income − total_cap (null without income).
+  income: number | null;
+  unassigned: number | null;
   total_cap: number;
   total_spent: number;
   net: number;
@@ -96,7 +99,7 @@ export type Device = {
 
 export type SavingsEntry = {
   id: string;
-  entry_type: 'month_close' | 'late_adjustment' | 'manual';
+  entry_type: 'month_close' | 'late_adjustment' | 'manual' | 'unassigned_income';
   budget_month: string;
   amount_minor: number;
   reason: string;
