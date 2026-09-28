@@ -70,11 +70,14 @@ export function Screen({
   onRefresh,
   refreshing = false,
   scroll = true,
+  bottomSpace = 0,
 }: {
   children?: ReactNode;
   onRefresh?: () => void;
   refreshing?: boolean;
   scroll?: boolean;
+  // Extra room under the content, e.g. for the floating Add expense button.
+  bottomSpace?: number;
 }) {
   const c = useColors();
   if (!scroll) return <View style={{ flex: 1, backgroundColor: c.groupedBackground }}>{children}</View>;
@@ -82,7 +85,7 @@ export function Screen({
     <ScrollView
       style={{ flex: 1, backgroundColor: c.groupedBackground }}
       contentInsetAdjustmentBehavior="automatic"
-      contentContainerStyle={styles.screenContent}
+      contentContainerStyle={[styles.screenContent, bottomSpace ? { paddingBottom: 48 + bottomSpace } : null]}
       keyboardShouldPersistTaps="handled"
       refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined}>
       {children}
@@ -90,11 +93,35 @@ export function Screen({
   );
 }
 
-export function Section({ title, footer, children }: { title?: string; footer?: string; children: ReactNode }) {
+export function Section({
+  title,
+  footer,
+  action,
+  children,
+}: {
+  title?: string;
+  footer?: string;
+  // A text button at the right of the title, e.g. Budgets → Edit.
+  action?: { label: string; onPress: () => void; accessibilityLabel?: string };
+  children: ReactNode;
+}) {
   const c = useColors();
   return (
     <View style={styles.section}>
-      {title ? <Text style={[styles.sectionTitle, { color: c.secondaryLabel }]}>{title.toUpperCase()}</Text> : null}
+      {title || action ? (
+        <View style={styles.sectionHead}>
+          <Text style={[styles.sectionTitle, { color: c.secondaryLabel }]}>{title?.toUpperCase()}</Text>
+          {action ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={action.accessibilityLabel ?? action.label}
+              onPress={action.onPress}
+              hitSlop={{ top: 12, bottom: 12, left: 16, right: 16 }}>
+              <Text style={[styles.sectionAction, { color: c.tint }]}>{action.label}</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
       <View style={[styles.card, { backgroundColor: c.cell }]}>{children}</View>
       {footer ? <Text style={[styles.sectionFooter, { color: c.secondaryLabel }]}>{footer}</Text> : null}
     </View>
@@ -268,7 +295,9 @@ export function ErrorText({ error }: { error: unknown }) {
 export const styles = StyleSheet.create({
   screenContent: { paddingBottom: 48 },
   section: { marginTop: 22, marginHorizontal: 16 },
-  sectionTitle: { fontSize: 13, marginLeft: 16, marginBottom: 6 },
+  sectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginHorizontal: 16, marginBottom: 6 },
+  sectionTitle: { fontSize: 13 },
+  sectionAction: { fontSize: 15, fontWeight: '500' },
   sectionFooter: { fontSize: 13, marginHorizontal: 16, marginTop: 6, lineHeight: 18 },
   card: { borderRadius: radius.row, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', paddingLeft: 16, minHeight: 44 },

@@ -14,8 +14,9 @@ const ToastContext = createContext<(t: Toast) => void>(() => {});
 export const useToast = () => useContext(ToastContext);
 
 const DURATION = 5000;
-// Clears the tab bar on both the native and web tabs.
+// Clears the tab bar on both the native and web tabs, and the floating Add expense button above it.
 const TAB_BAR = 64;
+const ADD_BUTTON = 76;
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const c = useColors();
@@ -57,7 +58,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           entering={FadeInDown.duration(200)}
           exiting={FadeOut.duration(150)}
           pointerEvents="box-none"
-          style={[s.wrap, { bottom: insets.bottom + TAB_BAR + 12 }]}>
+          style={[s.wrap, { bottom: insets.bottom + TAB_BAR + ADD_BUTTON }]}>
           <View style={[s.toast, { backgroundColor: c.label }]} accessibilityLiveRegion="polite">
             <Text style={[s.message, { color: c.cell }]} numberOfLines={2}>
               {toast.message}

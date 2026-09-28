@@ -1,6 +1,7 @@
 import { Redirect, Stack } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { ADD_BUTTON_SPACE, AddButton } from '@/components/add-button';
 import { BudgetRow } from '@/components/budget-row';
 import { SwipeRow } from '@/components/swipe-row';
 import { useToast } from '@/components/toast';
@@ -28,51 +29,54 @@ export default function DevPreview() {
   if (!__DEV__) return <Redirect href="/" />;
   const pace = monthPace();
   return (
-    <Screen>
-      <Stack.Screen options={{ title: 'Design preview', headerShown: true }} />
-      <View style={[s.hero, { backgroundColor: c.cell }]}>
-        <Text style={{ color: c.secondaryLabel, fontSize: 15 }}>Left this month</Text>
-        <Text style={[s.heroAmount, { color: budgetTone(Math.round((SPENT * 100) / CAP), c, pace) }]}>{formatMoney(CAP - SPENT, 'ILS')}</Text>
-        <ProgressBar pct={Math.round((SPENT * 100) / CAP)} color={budgetTone(Math.round((SPENT * 100) / CAP), c, pace)} pace={pace} />
-        <View style={s.heroRow}>
-          <Text style={[s.meta, { color: c.secondaryLabel }]}>
-            {formatMoney(SPENT, 'ILS')} of {formatMoney(CAP, 'ILS')}
-          </Text>
-          <Text style={[s.meta, { color: c.secondaryLabel }]}>
-            ≈ {formatMoney(perDay(CAP - SPENT), 'ILS')} a day · {daysToGo()} days to go
-          </Text>
+    <View style={{ flex: 1 }}>
+      <Screen bottomSpace={ADD_BUTTON_SPACE}>
+        <Stack.Screen options={{ title: 'Design preview', headerShown: true }} />
+        <View style={[s.hero, { backgroundColor: c.cell }]}>
+          <Text style={{ color: c.secondaryLabel, fontSize: 15 }}>Left this month</Text>
+          <Text style={[s.heroAmount, { color: budgetTone(Math.round((SPENT * 100) / CAP), c, pace) }]}>{formatMoney(CAP - SPENT, 'ILS')}</Text>
+          <ProgressBar pct={Math.round((SPENT * 100) / CAP)} color={budgetTone(Math.round((SPENT * 100) / CAP), c, pace)} pace={pace} />
+          <View style={s.heroRow}>
+            <Text style={[s.meta, { color: c.secondaryLabel }]}>
+              {formatMoney(SPENT, 'ILS')} of {formatMoney(CAP, 'ILS')}
+            </Text>
+            <Text style={[s.meta, { color: c.secondaryLabel }]}>
+              ≈ {formatMoney(perDay(CAP - SPENT), 'ILS')} a day · {daysToGo()} days to go
+            </Text>
+          </View>
         </View>
-      </View>
-      <Section title="Budgets">
-        {SAMPLE.map((x, i) => (
-          <SwipeRow
-            key={x.name}
-            onEdit={() => toast({ message: `Edit ${x.name}` })}
-            onDelete={() => toast({ message: `${x.name} deleted`, action: { label: 'Undo', onPress: () => {} } })}>
-            {(open) => (
-              <BudgetRow name={x.name} symbol={x.symbol} cap={x.cap} spent={x.spent} currency="ILS" pace={pace} onPress={() => {}} onLongPress={open} last={i === SAMPLE.length - 1} />
-            )}
-          </SwipeRow>
-        ))}
-      </Section>
-      <Section title="Without a budget">
-        <BudgetRow name="Pets" symbol="pawprint" cap={null} spent={34000} currency="ILS" onPress={() => {}} />
-        <BudgetRow name="Gifts" symbol="gift" cap={null} spent={12000} noBudget currency="ILS" onPress={() => {}} last />
-      </Section>
-      {/* Income plan: healthy, thin savings, over-assigned, not set */}
-      <IncomePlanCard income={1800000} budgeted={CAP} currency="ILS" onPress={() => {}} />
-      <IncomePlanCard income={CAP + 30000} budgeted={CAP} currency="ILS" onPress={() => {}} />
-      <IncomePlanCard income={CAP - 60000} budgeted={CAP} currency="ILS" />
-      <IncomePlanCard income={null} budgeted={CAP} currency="ILS" onPress={() => {}} />
-      <Section title="Rows and badges">
-        <Row left={<CategoryIcon symbol="banknote" />} title="Savings" value={formatMoney(1240000, 'ILS')} onPress={() => {}} />
-        <Row left={<CategoryIcon symbol="tray.full" />} title="To Review" right={<Badge text="2" color={c.orange} />} onPress={() => {}} last />
-      </Section>
-      <View style={s.actions}>
-        <Button title="Save" onPress={() => {}} />
-        <Button title="Archive Category" kind="destructive" onPress={() => {}} />
-      </View>
-    </Screen>
+        <Section title="Budgets" action={{ label: 'Edit', onPress: () => toast({ message: 'Edit categories' }) }}>
+          {SAMPLE.map((x, i) => (
+            <SwipeRow
+              key={x.name}
+              onEdit={() => toast({ message: `Edit ${x.name}` })}
+              onDelete={() => toast({ message: `${x.name} deleted`, action: { label: 'Undo', onPress: () => {} } })}>
+              {(open) => (
+                <BudgetRow name={x.name} symbol={x.symbol} cap={x.cap} spent={x.spent} currency="ILS" pace={pace} onPress={() => {}} onLongPress={open} last={i === SAMPLE.length - 1} />
+              )}
+            </SwipeRow>
+          ))}
+        </Section>
+        <Section title="Without a budget">
+          <BudgetRow name="Pets" symbol="pawprint" cap={null} spent={34000} currency="ILS" onPress={() => {}} />
+          <BudgetRow name="Gifts" symbol="gift" cap={null} spent={12000} noBudget currency="ILS" onPress={() => {}} last />
+        </Section>
+        {/* Income plan: healthy, thin savings, over-assigned, not set */}
+        <IncomePlanCard income={1800000} budgeted={CAP} currency="ILS" onPress={() => {}} />
+        <IncomePlanCard income={CAP + 30000} budgeted={CAP} currency="ILS" onPress={() => {}} />
+        <IncomePlanCard income={CAP - 60000} budgeted={CAP} currency="ILS" />
+        <IncomePlanCard income={null} budgeted={CAP} currency="ILS" onPress={() => {}} />
+        <Section title="Rows and badges">
+          <Row left={<CategoryIcon symbol="banknote" />} title="Savings" value={formatMoney(1240000, 'ILS')} onPress={() => {}} />
+          <Row left={<CategoryIcon symbol="tray.full" />} title="To Review" right={<Badge text="2" color={c.orange} />} onPress={() => {}} last />
+        </Section>
+        <View style={s.actions}>
+          <Button title="Save" onPress={() => {}} />
+          <Button title="Archive Category" kind="destructive" onPress={() => {}} />
+        </View>
+      </Screen>
+      <AddButton />
+    </View>
   );
 }
 

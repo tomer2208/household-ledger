@@ -4,6 +4,7 @@ import { Platform, Pressable, SectionList, StyleSheet, Text, TextInput, View } f
 
 import { useCategories, useHousehold, useTransactions } from '@/api/queries';
 import type { Transaction } from '@/api/types';
+import { ADD_BUTTON_SPACE, AddButton } from '@/components/add-button';
 import { OfflineBanner } from '@/components/offline-banner';
 import { TransactionRow } from '@/components/transaction-row';
 import { Empty, ErrorText, Icon } from '@/components/ui';
@@ -44,11 +45,6 @@ export default function TransactionsScreen() {
           // The native header search bar doesn't exist on web; WebSearch below stands in.
           headerSearchBarOptions:
             Platform.OS === 'web' ? undefined : { placeholder: 'Search merchants', onChangeText: (e) => setQuery(e.nativeEvent.text) },
-          headerRight: () => (
-            <Pressable onPress={() => router.push('/add')} hitSlop={12} accessibilityLabel="Add expense">
-              <Icon name="plus" size={22} />
-            </Pressable>
-          ),
           headerLeft: categoryFilter
             ? () => (
                 <Pressable onPress={() => router.setParams({ category: undefined })} hitSlop={12}>
@@ -95,8 +91,9 @@ export default function TransactionsScreen() {
             />
           )
         }
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={{ paddingBottom: 40 + ADD_BUTTON_SPACE }}
       />
+      <AddButton />
     </View>
   );
 }

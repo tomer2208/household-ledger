@@ -104,8 +104,11 @@ export default function AddExpense() {
               <Pressable
                 key={cur}
                 onPress={() => setCurrency(cur)}
+                hitSlop={{ top: 4, bottom: 4 }}
+                accessibilityRole="button"
+                accessibilityState={{ selected: currency === cur }}
                 style={[s.cur, { backgroundColor: currency === cur ? c.tint : c.fill }]}>
-                <Text style={{ color: currency === cur ? c.onTint : c.label, fontWeight: '600', fontSize: 13 }}>{cur}</Text>
+                <Text style={{ color: currency === cur ? c.onTint : c.label, fontWeight: '600', fontSize: 15 }}>{cur}</Text>
               </Pressable>
             ))}
           </View>
@@ -139,7 +142,8 @@ const s = StyleSheet.create({
   amountWrap: { alignItems: 'center', paddingVertical: 16, gap: 10 },
   amount: { fontSize: 52, fontWeight: '700', textAlign: 'center', minWidth: 160, ...moneyText },
   currencies: { flexDirection: 'row', gap: 8 },
-  cur: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, minHeight: 32, justifyContent: 'center' },
+  // 36 tall plus 4 of hitSlop each side = a 44pt target; 8 apart so neighbours aren't mis-tapped.
+  cur: { paddingHorizontal: 14, borderRadius: 18, minHeight: 36, minWidth: 56, alignItems: 'center', justifyContent: 'center' },
   hint: { fontSize: 13, textAlign: 'center', marginHorizontal: 32 },
   label: { fontSize: 13, marginLeft: 32, marginTop: 8, marginBottom: 8 },
 });

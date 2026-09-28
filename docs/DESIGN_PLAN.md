@@ -184,7 +184,7 @@
   - `GestureHandlerRootView`.
   - `SwipeRow`, טוסט Undo, לחיצה ארוכה ו-`accessibilityActions`.
   - כפתור Delete במסך העריכה במקום Archive.
-- [ ] **שלב 4: קומפוזיציה.**
+- [x] **שלב 4: קומפוזיציה.** בוצע ב-28.09. הכפתור ב-`components/add-button.tsx`. המיקום שלו מעל סרגל הטאבים של iOS נייטיב לא נבדק, רק ב-PWA.
   - כפתור הוספה צף ב-Overview וב-Expenses.
   - הסרת ה-`+` מהכותרת.
   - סדר חדש ב-Overview.
