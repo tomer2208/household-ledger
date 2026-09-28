@@ -41,7 +41,8 @@ export function AddButton({ href = '/add' }: { href?: Href }) {
 const s = StyleSheet.create({
   wrap: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
   button: {
-    height: HEIGHT,
+    minHeight: HEIGHT,
+    paddingVertical: 12,
     borderRadius: radius.pill,
     paddingHorizontal: 24,
     flexDirection: 'row',

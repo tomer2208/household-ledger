@@ -76,11 +76,16 @@ export default function AddExpense() {
   return (
     <View style={{ flex: 1, backgroundColor: c.groupedBackground }}>
       <View style={s.nav}>
-        <Pressable onPress={close} hitSlop={12}>
+        <Pressable onPress={close} hitSlop={12} accessibilityRole="button">
           <Text style={[s.navButton, { color: c.tint }]}>Cancel</Text>
         </Pressable>
         <Text style={[s.navTitle, { color: c.label }]}>New Expense</Text>
-        <Pressable onPress={online ? save : saveDraft} disabled={online ? !canSave : !minor} hitSlop={12}>
+        <Pressable
+          onPress={online ? save : saveDraft}
+          disabled={online ? !canSave : !minor}
+          hitSlop={12}
+          accessibilityRole="button"
+          accessibilityState={{ disabled: online ? !canSave : !minor }}>
           <Text style={[s.navButton, { color: c.tint, fontWeight: '600', opacity: (online ? canSave : !!minor) ? 1 : 0.35 }]}>
             {online ? 'Save' : 'Save Draft'}
           </Text>

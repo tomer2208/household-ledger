@@ -64,6 +64,9 @@ export default function Onboarding() {
                     <Pressable
                       key={cur}
                       onPress={() => setCurrency(cur)}
+                      hitSlop={{ top: 4, bottom: 4 }}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: currency === cur }}
                       style={[s.chip, { backgroundColor: currency === cur ? c.tint : c.fill }]}>
                       <Text style={{ color: currency === cur ? c.onTint : c.label, fontWeight: '600' }}>{cur}</Text>
                     </Pressable>
@@ -121,7 +124,7 @@ export default function Onboarding() {
 const s = StyleSheet.create({
   title: { fontSize: 34, fontWeight: '700', marginHorizontal: 20, marginTop: 24 },
   segment: { flexDirection: 'row', marginHorizontal: 16, marginTop: 20, borderRadius: 9, padding: 2 },
-  segmentItem: { flex: 1, alignItems: 'center', paddingVertical: 7, borderRadius: 7 },
+  segmentItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 7, borderRadius: 7, minHeight: 36 },
   segmentText: { fontSize: 14, fontWeight: '600' },
   currencyRow: { paddingHorizontal: 16, paddingVertical: 10, gap: 10 },
   currencyLabel: { fontSize: 17 },

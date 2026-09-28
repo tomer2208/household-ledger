@@ -20,7 +20,7 @@ export default function RecurringScreen() {
           title: 'Recurring',
           headerLargeTitle: false,
           headerRight: () => (
-            <Pressable onPress={() => router.push('/settings/recurring-edit')} hitSlop={12}>
+            <Pressable onPress={() => router.push('/settings/recurring-edit')} hitSlop={12} accessibilityRole="button" accessibilityLabel="Add recurring expense">
               <Text style={{ color: c.tint, fontSize: 17 }}>Add</Text>
             </Pressable>
           ),
@@ -31,6 +31,7 @@ export default function RecurringScreen() {
           icon="calendar.badge.clock"
           title="No recurring expenses"
           message="Add standing orders, subscriptions and bills. Variable bills like electricity are logged as an estimate you update when the real amount arrives."
+          action={{ label: 'Add Recurring Expense', onPress: () => router.push('/settings/recurring-edit') }}
         />
       ) : (
         <Section footer="Logged automatically on their day. Estimates count toward the budget until you enter the real amount.">

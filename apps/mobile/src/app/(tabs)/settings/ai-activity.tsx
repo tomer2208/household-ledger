@@ -54,7 +54,7 @@ export default function AiActivity() {
         </Section>
       )}
       {list.some((r) => r.error) ? (
-        <Text style={{ color: c.secondaryLabel, marginHorizontal: 32, marginTop: 8, fontSize: 12 }}>
+        <Text style={{ color: c.secondaryLabel, marginHorizontal: 32, marginTop: 8, fontSize: 13 }}>
           Last error: {list.find((r) => r.error)?.error}
         </Text>
       ) : null}

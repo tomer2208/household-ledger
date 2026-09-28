@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useCategories, useHousehold, usePendingReview, useReviewTransaction } from '@/api/queries';
 import type { Transaction } from '@/api/types';
 import { CategoryPicker } from '@/components/category-picker';
-import { Button, Empty, ErrorText, Screen } from '@/components/ui';
+import { Button, Empty, ErrorText, Icon, Screen } from '@/components/ui';
 import { isolate } from '@/lib/bidi';
 import { dayLabel } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
@@ -65,8 +65,9 @@ function ReviewCard({ tx }: { tx: Transaction }) {
         />
       </View>
       {newCategory === null ? (
-        <Pressable onPress={() => setNewCategory('')} style={s.newCat}>
-          <Text style={{ color: c.tint, fontSize: 15 }}>➕ New category</Text>
+        <Pressable onPress={() => setNewCategory('')} style={s.newCat} accessibilityRole="button">
+          <Icon name="plus" size={16} color={c.tint} />
+          <Text style={{ color: c.tint, fontSize: 15 }}>New category</Text>
         </Pressable>
       ) : (
         <TextInput
@@ -102,5 +103,5 @@ const s = StyleSheet.create({
   when: { fontSize: 13, marginTop: 2 },
   amount: { fontSize: 22, fontWeight: '700', ...moneyText },
   title: { fontSize: 17, borderWidth: StyleSheet.hairlineWidth, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10 },
-  newCat: { alignSelf: 'flex-start', paddingVertical: 6, minHeight: 44, justifyContent: 'center' },
+  newCat: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, minHeight: 44 },
 });

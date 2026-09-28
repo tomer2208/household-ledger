@@ -6,7 +6,7 @@ import { BudgetRow } from '@/components/budget-row';
 import { SwipeRow } from '@/components/swipe-row';
 import { useToast } from '@/components/toast';
 import { IncomePlanCard } from '@/components/income-plan';
-import { Badge, Button, CategoryIcon, ProgressBar, Row, Screen, Section } from '@/components/ui';
+import { Badge, Button, CategoryIcon, Empty, ProgressBar, Row, Screen, Section } from '@/components/ui';
 import { daysToGo, perDay } from '@/lib/budget';
 import { monthPace } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
@@ -70,6 +70,12 @@ export default function DevPreview() {
           <Row left={<CategoryIcon symbol="banknote" />} title="Savings" value={formatMoney(1240000, 'ILS')} onPress={() => {}} />
           <Row left={<CategoryIcon symbol="tray.full" />} title="To Review" right={<Badge text="2" color={c.orange} />} onPress={() => {}} last />
         </Section>
+        <Empty
+          icon="chart.pie"
+          title="Start with your budgets"
+          message="Give each category a monthly budget, and this screen shows what’s left as you spend."
+          action={{ label: 'Set Budgets', kind: 'plain', onPress: () => toast({ message: 'Set budgets' }) }}
+        />
         <View style={s.actions}>
           <Button title="Save" onPress={() => {}} />
           <Button title="Archive Category" kind="destructive" onPress={() => {}} />

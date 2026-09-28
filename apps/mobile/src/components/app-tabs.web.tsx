@@ -35,7 +35,7 @@ function TabButton({ children, isFocused, icon, ...props }: TabTriggerSlotProps 
   const c = useColors();
   const color = isFocused ? c.tint : c.secondaryLabel;
   return (
-    <Pressable {...props} style={styles.button}>
+    <Pressable {...props} accessibilityRole="tab" accessibilityState={{ selected: !!isFocused }} style={styles.button}>
       <Icon name={icon} size={22} color={color} />
       <Text style={[styles.label, { color }]}>{children}</Text>
     </Pressable>

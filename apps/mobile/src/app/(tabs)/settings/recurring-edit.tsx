@@ -124,7 +124,12 @@ function Editor({ id, rule }: { id?: string; rule?: RecurringRule }) {
 function Chip({ label, on, onPress }: { label: string; on: boolean; onPress: () => void }) {
   const c = useColors();
   return (
-    <Pressable onPress={onPress} style={[s.chip, { backgroundColor: on ? c.tint : c.fill }]}>
+    <Pressable
+      onPress={onPress}
+      hitSlop={{ top: 4, bottom: 4 }}
+      accessibilityRole="button"
+      accessibilityState={{ selected: on }}
+      style={[s.chip, { backgroundColor: on ? c.tint : c.fill }]}>
       <Text style={{ color: on ? c.onTint : c.label, fontWeight: '600', fontSize: 14 }}>{label}</Text>
     </Pressable>
   );
@@ -134,7 +139,7 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, minHeight: 50 },
   rowLabel: { fontSize: 17 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16 },
-  chip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 16, minHeight: 34, justifyContent: 'center' },
+  chip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 16, minHeight: 36, justifyContent: 'center' },
   label: { fontSize: 13, marginLeft: 32, marginTop: 22, marginBottom: 8 },
   actions: { marginHorizontal: 16, marginTop: 24, gap: 8 },
 });

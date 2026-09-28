@@ -78,7 +78,9 @@ export default function OverviewScreen() {
                 <>
                   <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>Spent this month</Text>
                   <Text style={[s.heroAmount, { color: c.label }]}>{formatMoney(o.total_spent, cur)}</Text>
-                  <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>Set budgets in Settings to track what’s left.</Text>
+                  <Pressable onPress={() => router.push('/settings/categories')} accessibilityRole="button" hitSlop={8}>
+                  <Text style={[s.heroMeta, { color: c.tint }]}>Set budgets to see what’s left ›</Text>
+                </Pressable>
                 </>
               )}
             </View>
@@ -183,7 +185,12 @@ export default function OverviewScreen() {
             </Section>
 
             {o.total_spent === 0 && budgeted.length === 0 ? (
-              <Empty icon="chart.pie" title="Nothing yet this month" message="Add your first expense below, or set up the Apple Pay Shortcut in Settings." />
+              <Empty
+                icon="chart.pie"
+                title="Start with your budgets"
+                message="Give each category a monthly budget, and this screen shows what’s left as you spend."
+                action={{ label: 'Set Budgets', kind: 'plain', onPress: () => router.push('/settings/categories') }}
+              />
             ) : null}
           </>
         ) : null}

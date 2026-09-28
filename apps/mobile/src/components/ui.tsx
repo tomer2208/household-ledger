@@ -275,13 +275,26 @@ export function Badge({ text, color }: { text: string; color: any }) {
   );
 }
 
-export function Empty({ icon, title, message }: { icon: string; title: string; message?: string }) {
+// An empty screen is an invitation: say what goes here, then offer the next step. Use a plain
+// action where the screen already has a primary button (the floating Add expense).
+export function Empty({
+  icon,
+  title,
+  message,
+  action,
+}: {
+  icon: string;
+  title: string;
+  message?: string;
+  action?: { label: string; onPress: () => void; kind?: 'filled' | 'plain' };
+}) {
   const c = useColors();
   return (
     <View style={styles.empty}>
       <Icon name={icon} size={44} color={c.tertiaryLabel} />
       <Text style={[styles.emptyTitle, { color: c.label }]}>{title}</Text>
       {message ? <Text style={[styles.emptyMessage, { color: c.secondaryLabel }]}>{message}</Text> : null}
+      {action ? <Button title={action.label} kind={action.kind ?? 'filled'} onPress={action.onPress} style={styles.emptyAction} /> : null}
     </View>
   );
 }
@@ -308,17 +321,19 @@ export const styles = StyleSheet.create({
   rowValue: { fontSize: 17, ...moneyText },
   fieldLabel: { fontSize: 17, width: 110 },
   fieldInput: { flex: 1, fontSize: 17, paddingVertical: 0, textAlign: 'right' },
-  button: { height: 50, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
+  // minHeight, not height: with a large system text size the label grows instead of clipping.
+  button: { minHeight: 50, paddingVertical: 12, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
   buttonText: { fontSize: 17, fontWeight: '600' },
   trackWrap: { justifyContent: 'center' },
   track: { height: 8, borderRadius: 4, overflow: 'hidden' },
   fillBar: { height: 8, borderRadius: 4 },
   pace: { position: 'absolute', width: 2, height: 14, marginLeft: -1, borderRadius: 1 },
   badge: { borderWidth: 1, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 1 },
-  badgeText: { fontSize: 11, fontWeight: '600' },
+  badgeText: { fontSize: 12, fontWeight: '600' },
   catIcon: { alignItems: 'center', justifyContent: 'center' },
   empty: { alignItems: 'center', paddingVertical: 60, paddingHorizontal: 32, gap: 8 },
   emptyTitle: { fontSize: 20, fontWeight: '600', textAlign: 'center' },
   emptyMessage: { fontSize: 15, textAlign: 'center', lineHeight: 21 },
+  emptyAction: { marginTop: 12, alignSelf: 'stretch' },
   error: { fontSize: 14, marginHorizontal: 32, marginTop: 10, textAlign: 'center' },
 });

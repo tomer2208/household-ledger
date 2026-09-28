@@ -48,7 +48,13 @@ export default function SavingsScreen() {
       <Section title="Manual entry" footer="Use this when you actually spend savings (a trip) or top them up.">
         <View style={s.toggle}>
           {(['out', 'in'] as const).map((d) => (
-            <Pressable key={d} onPress={() => setDirection(d)} style={[s.toggleItem, { backgroundColor: direction === d ? c.tint : c.fill }]}>
+            <Pressable
+              key={d}
+              onPress={() => setDirection(d)}
+              hitSlop={{ top: 4, bottom: 4 }}
+              accessibilityRole="button"
+              accessibilityState={{ selected: direction === d }}
+              style={[s.toggleItem, { backgroundColor: direction === d ? c.tint : c.fill }]}>
               <Text style={{ color: direction === d ? c.onTint : c.label, fontWeight: '600' }}>{d === 'out' ? 'Withdraw' : 'Deposit'}</Text>
             </Pressable>
           ))}
@@ -98,6 +104,6 @@ const s = StyleSheet.create({
   heroAmount: { fontSize: 36, fontWeight: '700', ...moneyText },
   heroMeta: { fontSize: 14, fontVariant: ['tabular-nums'] },
   toggle: { flexDirection: 'row', gap: 8, padding: 12 },
-  toggleItem: { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: 8, minHeight: 36 },
+  toggleItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 8, borderRadius: 8, minHeight: 36 },
   actions: { marginHorizontal: 16, marginTop: 16 },
 });

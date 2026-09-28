@@ -91,7 +91,12 @@ function Editor({ t }: { t: Transaction }) {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <Pressable onPress={save} disabled={!dirty || !online || update.isPending} hitSlop={12}>
+            <Pressable
+              onPress={save}
+              disabled={!dirty || !online || update.isPending}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityState={{ disabled: !dirty || !online || update.isPending }}>
               <Text style={{ color: c.tint, fontSize: 17, fontWeight: '600', opacity: dirty && online ? 1 : 0.35 }}>Save</Text>
             </Pressable>
           ),

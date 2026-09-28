@@ -196,5 +196,5 @@ const s = StyleSheet.create({
   swatch: { width: 10, height: 10, borderRadius: 3 },
   legendText: { flex: 1, fontSize: 13 },
   legendPct: { fontSize: 13, fontVariant: ['tabular-nums'] },
-  caption: { fontSize: 12 },
+  caption: { fontSize: 13 },
 });

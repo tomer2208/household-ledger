@@ -133,7 +133,7 @@ const s = StyleSheet.create({
   writing: { flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center', padding: 24 },
   story: { marginHorizontal: 16, marginTop: 16, borderRadius: 14, padding: 18, gap: 10 },
   badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  badge: { fontSize: 12, fontWeight: '600', textTransform: 'uppercase' },
+  badge: { fontSize: 13, fontWeight: '600', textTransform: 'uppercase' },
   headline: { fontSize: 22, fontWeight: '700' },
   summary: { fontSize: 16, lineHeight: 23 },
   highlight: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },

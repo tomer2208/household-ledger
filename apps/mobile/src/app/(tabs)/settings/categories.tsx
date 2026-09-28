@@ -30,7 +30,7 @@ export default function CategoriesScreen() {
           title: 'Categories',
           headerLargeTitle: false,
           headerRight: () => (
-            <Pressable onPress={() => router.push('/settings/category')} hitSlop={12}>
+            <Pressable onPress={() => router.push('/settings/category')} hitSlop={12} accessibilityRole="button" accessibilityLabel="Add category">
               <Text style={{ color: c.tint, fontSize: 17 }}>Add</Text>
             </Pressable>
           ),

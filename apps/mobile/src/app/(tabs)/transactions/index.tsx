@@ -88,6 +88,13 @@ export default function TransactionsScreen() {
               icon="list.bullet"
               title={query || categoryFilter ? 'No matches' : 'No expenses yet'}
               message={query || categoryFilter ? undefined : 'Apple Pay purchases appear here automatically once the Shortcut is set up.'}
+              action={
+                categoryFilter
+                  ? { label: 'Show All Expenses', kind: 'plain', onPress: () => router.setParams({ category: undefined }) }
+                  : query
+                    ? undefined
+                    : { label: 'Set Up the Shortcut', kind: 'plain', onPress: () => router.push('/settings/devices') }
+              }
             />
           )
         }
