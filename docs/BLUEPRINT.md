@@ -767,8 +767,9 @@ Log Expense (input: Transaction from Wallet trigger)
       c. Ask for Input  Text, default: suggested_title, prompt "Name"
       d. Get Contents of URL POST {Base URL}/functions/v1/capture/confirm
            { transaction_id, <field>: <value>, title: c }
- 6. Otherwise (no status → request failed)
-      Open URL finpace://add?amount=…&merchant=…&occurred_at=…   (US-C3)
+ 6. Otherwise, if status ≠ "logged" (request failed)
+      Show Notification "FinPace couldn't log this purchase. Add it in the app."
+      (מעודכן 28.09, D2: ב-PWA קישור עמוק נפתח ב-Safari בלי התחברות, ולכן התראה במקום Open URL)
 ```
 
 השמות המדויקים של שדות הקלט מהטריגר (Amount, Merchant, Card) וההתנהגות של UI בזמן Run Immediately **ייבדקו ב-Phase 0**. התיעוד הזה יתעדכן לפי מה שיימצא.

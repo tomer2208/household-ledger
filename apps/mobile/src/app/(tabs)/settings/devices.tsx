@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import { Stack } from 'expo-router';
 import { useState } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useCreateDeviceToken, useDevices, useHousehold, useRevokeDevice } from '@/api/queries';
 import { Button, ErrorText, Field, Row, Screen, Section } from '@/components/ui';
@@ -10,7 +10,11 @@ import { FUNCTIONS_URL } from '@/lib/supabase';
 import { confirm } from '@/lib/confirm';
 import { useColors } from '@/lib/theme';
 
-// US-C5 + Shortcut setup (BLUEPRINT §3.11). The token is shown exactly once.
+// US-C5 + Shortcut setup (BLUEPRINT §3.11, shortcuts/SPEC.md). The token is shown exactly once.
+// Wallet automations can't be shared by link, so the guide below is how each person builds one.
+const CAPTURE_URL = `${FUNCTIONS_URL}/capture`;
+const CONFIRM_URL = `${FUNCTIONS_URL}/capture/confirm`;
+
 export default function DevicesScreen() {
   const c = useColors();
   const hh = useHousehold();
@@ -37,15 +41,13 @@ export default function DevicesScreen() {
       <Stack.Screen options={{ title: 'Shortcut & Devices', headerLargeTitle: false }} />
 
       {token ? (
-        <Section title="Your new token" footer="Copy it into the Shortcut now. For your security it won't be shown again.">
+        <Section title="Your new token" footer="Copy it now and keep it in Notes until the Shortcut is built. For your security it won't be shown again.">
           <View style={s.tokenBox}>
             <Text selectable style={[s.token, { color: c.label }]}>{token}</Text>
           </View>
-          <Row title={copied === 'token' ? 'Copied ✓' : 'Copy Token'} onPress={() => copy('token', token)} chevron={false} />
           <Row
-            title={copied === 'url' ? 'Copied ✓' : 'Copy Server URL'}
-            subtitle={FUNCTIONS_URL}
-            onPress={() => copy('url', FUNCTIONS_URL)}
+            title={copied === 'token' ? 'Copied ✓' : 'Copy Token'}
+            onPress={() => copy('token', token)}
             chevron={false}
             last
           />
@@ -70,10 +72,27 @@ export default function DevicesScreen() {
       ) : null}
       <ErrorText error={create.error ?? revoke.error} />
 
-      <Section title="Set up the Shortcut" footer="Apple doesn't let apps install automations, so this last step is done once by hand on each iPhone.">
+      <Section
+        title="Build the Apple Pay automation"
+        footer="About 10 minutes, once per iPhone. After that, known places log silently and new ones ask for a category.">
         <Step n={1} text="Create a token above and copy it." />
-        <Step n={2} text={'Install the "Log Expense" Shortcut and paste the token and server URL when it asks.'} />
-        <Step n={3} text="Shortcuts → Automation → + → Transaction. Pick your cards, choose Run Immediately, then run “Log Expense”." last />
+        <Step n={2} text="Shortcuts app → Automation → + → Transaction. Pick your cards, choose Run Immediately, then Next → New Blank Automation." />
+        <Step n={3} text="Add “Get Contents of URL”. Paste the capture address, set Method to POST and Request Body to JSON.">
+          <CopyRow label="Capture address" value={CAPTURE_URL} copied={copied === 'capture'} onCopy={() => copy('capture', CAPTURE_URL)} />
+        </Step>
+        <Step n={4} text="In the JSON body add Text fields: token = your token; merchant, amount, card, name = Shortcut Input › Merchant, Amount, Card or Pass, Name." />
+        <Step n={5} text="Add “Get Dictionary Value”: status in Contents of URL. Tap the result and set Type to Text." />
+        <Step n={6} text="Add “If” → Dictionary Value is needs_input. Inside it: get transaction_id → Set Variable TxId; get prompt → Set Variable Prompt; get category_names → Choose from List with Prompt." />
+        <Step n={7} text="Still inside: If Chosen Item contains “New category” → Ask for Text “New category name” → Set Variable NewCategory." />
+        <Step n={8} text="After that inner If: duplicate the first URL action and change its address to the confirm address. Body: token, transaction_id = TxId, category_name = Chosen Item, new_category_name = NewCategory.">
+          <CopyRow label="Confirm address" value={CONFIRM_URL} copied={copied === 'confirm'} onCopy={() => copy('confirm', CONFIRM_URL)} />
+        </Step>
+        <Step n={9} text="In the main Otherwise: If status is not logged → Show Notification “FinPace couldn't log this purchase. Add it in the app.”" />
+        <Step
+          n={10}
+          text="Tap ▶ to test: without a purchase the server answers “missing merchant”, which means the token works. Your next Apple Pay purchase at a new place shows the category menu."
+          last
+        />
       </Section>
 
       {list.length > 0 ? (
@@ -100,15 +119,31 @@ export default function DevicesScreen() {
   );
 }
 
-function Step({ n, text, last }: { n: number; text: string; last?: boolean }) {
+function Step({ n, text, last, children }: { n: number; text: string; last?: boolean; children?: React.ReactNode }) {
   const c = useColors();
   return (
     <View style={[s.step, !last && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
       <View style={[s.stepNum, { backgroundColor: c.tint }]}>
         <Text style={s.stepNumText}>{n}</Text>
       </View>
-      <Text style={[s.stepText, { color: c.label }]}>{text}</Text>
+      <View style={{ flex: 1, gap: 8 }}>
+        <Text style={[s.stepText, { color: c.label }]}>{text}</Text>
+        {children}
+      </View>
     </View>
+  );
+}
+
+function CopyRow({ label, value, copied, onCopy }: { label: string; value: string; copied: boolean; onCopy: () => void }) {
+  const c = useColors();
+  return (
+    <Pressable onPress={onCopy} style={[s.copy, { backgroundColor: c.fill }]} accessibilityRole="button" accessibilityLabel={`Copy ${label}`}>
+      {/* The path is what tells the two addresses apart; Copy still takes the full URL. */}
+      <Text numberOfLines={1} style={[s.copyValue, { color: c.secondaryLabel }]}>
+        {value.replace(/^https:\/\/[^/]+/, '…')}
+      </Text>
+      <Text style={{ color: c.tint, fontSize: 15, fontWeight: '600' }}>{copied ? 'Copied ✓' : 'Copy'}</Text>
+    </Pressable>
   );
 }
 
@@ -119,5 +154,7 @@ const s = StyleSheet.create({
   step: { flexDirection: 'row', gap: 12, padding: 14, alignItems: 'flex-start' },
   stepNum: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   stepNumText: { color: '#fff', fontWeight: '700', fontSize: 13 },
-  stepText: { flex: 1, fontSize: 15, lineHeight: 21 },
+  stepText: { fontSize: 15, lineHeight: 21 },
+  copy: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8 },
+  copyValue: { flex: 1, fontSize: 13, fontFamily: Platform.select({ ios: 'Menlo', default: 'monospace' }) },
 });

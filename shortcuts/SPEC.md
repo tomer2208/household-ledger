@@ -78,6 +78,6 @@ If status is needs_input
     End If
     Get contents of …/capture/confirm   JSON: token, transaction_id=TxId, category_name=Chosen Item, new_category_name=NewCategory
 Otherwise
-    If status is not logged → Show notification "FinPace: " + Contents of URL
+    If status is not logged → Show notification "FinPace couldn't log this purchase. Add it in the app."   (D2, option 1)
 End If
 ```
