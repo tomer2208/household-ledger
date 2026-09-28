@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useCategories, useHousehold, useOverview, useSaveCategory, useSetBudget } from '@/api/queries';
-import { Button, CategoryIcon, ErrorText, Field, Screen, Section } from '@/components/ui';
-import { minorToInput, parseMoneyInput } from '@/lib/money';
-import { useColors } from '@/lib/theme';
+import { Button, CategoryIcon, ErrorText, Field, ProgressBar, Screen, Section } from '@/components/ui';
+import { budgetStatus } from '@/lib/budget';
+import { monthPace } from '@/lib/dates';
+import { formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
+import { budgetTone, moneyText, radius, useColors } from '@/lib/theme';
 
 const SYMBOLS = [
   'cart', 'fork.knife', 'cup.and.saucer', 'car', 'fuelpump', 'bus', 'house', 'bolt', 'drop', 'wifi',
@@ -54,6 +56,14 @@ function Editor({ id }: { id?: string }) {
       <View style={s.preview}>
         <CategoryIcon symbol={symbol} size={64} />
       </View>
+      {id && current ? (
+        <MonthStatus
+          cap={capMinor}
+          spent={current.spent}
+          currency={hh.data?.household?.base_currency ?? 'ILS'}
+          preview={capMinor !== (current.cap ?? null)}
+        />
+      ) : null}
       <Section>
         <Field label="Name" value={name} onChangeText={setName} maxLength={30} placeholder="Pets" last={!id} />
         {id ? (
@@ -97,7 +107,37 @@ function Editor({ id }: { id?: string }) {
   );
 }
 
+// This month under the budget being typed: the effect of a change is visible before saving.
+function MonthStatus({ cap, spent, currency, preview }: { cap: number | null; spent: number; currency: string; preview: boolean }) {
+  const c = useColors();
+  const pace = monthPace();
+  const st = budgetStatus(cap, spent);
+  const tone = st.kind === 'none' ? c.label : budgetTone(st.pct, c, pace);
+  return (
+    <View style={[s.status, { backgroundColor: c.cell }]} accessibilityLiveRegion="polite">
+      <Text style={[s.statusLabel, { color: c.secondaryLabel }]}>{preview ? 'This month, with the new budget' : 'This month'}</Text>
+      {st.kind === 'none' ? (
+        <Text style={[s.statusAmount, { color: tone }]}>{formatMoney(spent, currency)} spent</Text>
+      ) : (
+        <>
+          <Text style={[s.statusAmount, { color: tone }]}>
+            {formatMoney(st.amount, currency)} {st.kind}
+          </Text>
+          <ProgressBar pct={st.pct} color={tone} pace={pace} />
+          <Text style={[s.statusMeta, { color: c.secondaryLabel }]}>
+            {formatMoney(st.spent, currency)} of {formatMoney(st.cap, currency)}
+          </Text>
+        </>
+      )}
+    </View>
+  );
+}
+
 const s = StyleSheet.create({
+  status: { marginHorizontal: 16, marginTop: 16, borderRadius: radius.hero, padding: 16, gap: 8 },
+  statusLabel: { fontSize: 13 },
+  statusAmount: { fontSize: 28, fontWeight: '700', ...moneyText },
+  statusMeta: { fontSize: 13, ...moneyText },
   preview: { alignItems: 'center', marginTop: 16 },
   hint: { fontSize: 13, marginHorizontal: 32, marginTop: 6 },
   label: { fontSize: 13, marginLeft: 32, marginTop: 22, marginBottom: 6 },

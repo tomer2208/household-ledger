@@ -1,7 +1,9 @@
 import { Redirect, Stack } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { BudgetRow } from '@/components/budget-row';
 import { Badge, Button, CategoryIcon, ProgressBar, Row, Screen, Section } from '@/components/ui';
+import { daysToGo, perDay } from '@/lib/budget';
 import { monthPace } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
 import { budgetTone, moneyText, radius, useColors } from '@/lib/theme';
@@ -14,6 +16,8 @@ const SAMPLE = [
   { name: 'Fuel', symbol: 'fuelpump', spent: 45500, cap: 50000 },
   { name: 'Kids', symbol: 'figure.and.child.holdinghands', spent: 30000, cap: 150000 },
 ];
+const CAP = SAMPLE.reduce((n, x) => n + x.cap, 0);
+const SPENT = SAMPLE.reduce((n, x) => n + x.spent, 0);
 
 export default function DevPreview() {
   const c = useColors();
@@ -23,29 +27,26 @@ export default function DevPreview() {
     <Screen>
       <Stack.Screen options={{ title: 'Design preview', headerShown: true }} />
       <View style={[s.hero, { backgroundColor: c.cell }]}>
-        <Text style={{ color: c.secondaryLabel, fontSize: 15 }}>Spent this month</Text>
-        <Text style={[s.heroAmount, { color: c.label }]}>{formatMoney(302500, 'ILS')}</Text>
-        <ProgressBar pct={63} color={budgetTone(63, c, pace)} pace={pace} />
-        <Text style={[s.meta, { color: c.secondaryLabel }]}>Pace marker at {pace}% of the month</Text>
+        <Text style={{ color: c.secondaryLabel, fontSize: 15 }}>Left this month</Text>
+        <Text style={[s.heroAmount, { color: budgetTone(Math.round((SPENT * 100) / CAP), c, pace) }]}>{formatMoney(CAP - SPENT, 'ILS')}</Text>
+        <ProgressBar pct={Math.round((SPENT * 100) / CAP)} color={budgetTone(Math.round((SPENT * 100) / CAP), c, pace)} pace={pace} />
+        <View style={s.heroRow}>
+          <Text style={[s.meta, { color: c.secondaryLabel }]}>
+            {formatMoney(SPENT, 'ILS')} of {formatMoney(CAP, 'ILS')}
+          </Text>
+          <Text style={[s.meta, { color: c.secondaryLabel }]}>
+            ≈ {formatMoney(perDay(CAP - SPENT), 'ILS')} a day · {daysToGo()} days to go
+          </Text>
+        </View>
       </View>
       <Section title="Budgets">
-        {SAMPLE.map((x, i) => {
-          const pct = Math.round((x.spent * 100) / x.cap);
-          return (
-            <View key={x.name} style={s.budgetRow}>
-              <CategoryIcon symbol={x.symbol} />
-              <View style={[s.budgetBody, i < SAMPLE.length - 1 && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
-                <View style={s.budgetTop}>
-                  <Text style={{ color: c.label, fontSize: 17 }}>{x.name}</Text>
-                  <Text style={[s.meta, { color: c.secondaryLabel }]}>
-                    {formatMoney(x.spent, 'ILS')} / {formatMoney(x.cap, 'ILS')}
-                  </Text>
-                </View>
-                <ProgressBar pct={pct} color={budgetTone(pct, c, pace)} pace={pace} />
-              </View>
-            </View>
-          );
-        })}
+        {SAMPLE.map((x, i) => (
+          <BudgetRow key={x.name} name={x.name} symbol={x.symbol} cap={x.cap} spent={x.spent} currency="ILS" pace={pace} onPress={() => {}} last={i === SAMPLE.length - 1} />
+        ))}
+      </Section>
+      <Section title="Without a budget">
+        <BudgetRow name="Pets" symbol="pawprint" cap={null} spent={34000} currency="ILS" onPress={() => {}} />
+        <BudgetRow name="Gifts" symbol="gift" cap={null} spent={12000} noBudget currency="ILS" onPress={() => {}} last />
       </Section>
       <Section title="Rows and badges">
         <Row left={<CategoryIcon symbol="banknote" />} title="Savings" value={formatMoney(1240000, 'ILS')} onPress={() => {}} />
@@ -63,8 +64,6 @@ const s = StyleSheet.create({
   hero: { marginHorizontal: 16, marginTop: 12, borderRadius: radius.hero, padding: 18, gap: 8 },
   heroAmount: { fontSize: 40, fontWeight: '700', ...moneyText },
   meta: { fontSize: 14, ...moneyText },
-  budgetRow: { flexDirection: 'row', alignItems: 'center', paddingLeft: 16, gap: 12 },
-  budgetBody: { flex: 1, paddingVertical: 12, paddingRight: 16, gap: 8 },
-  budgetTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
+  heroRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', columnGap: 12, rowGap: 2 },
   actions: { marginHorizontal: 16, marginTop: 24, gap: 8 },
 });

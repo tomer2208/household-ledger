@@ -2,11 +2,13 @@ import { router, Stack } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useHousehold, useOverview, useProposals } from '@/api/queries';
+import { BudgetRow } from '@/components/budget-row';
 import { InstallBanner } from '@/components/install-banner';
 import { OfflineBanner } from '@/components/offline-banner';
 import { ProposalCard } from '@/components/proposal-card';
 import { Badge, CategoryIcon, Empty, ErrorText, Icon, ProgressBar, Row, Screen, Section } from '@/components/ui';
-import { daysLeftInMonth, monthLabel, monthPace } from '@/lib/dates';
+import { daysToGo, perDay } from '@/lib/budget';
+import { monthLabel, monthPace } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
 import { budgetTone, moneyText, radius, useColors } from '@/lib/theme';
 
@@ -23,6 +25,7 @@ export default function OverviewScreen() {
   const noBudgetFlags = (o?.categories ?? []).filter((x) => x.no_budget);
   const totalPct = o && o.total_cap > 0 ? Math.round((o.total_spent * 100) / o.total_cap) : null;
   const pace = monthPace();
+  const days = daysToGo();
 
   return (
     <Screen onRefresh={() => overview.refetch()} refreshing={overview.isRefetching}>
@@ -42,23 +45,31 @@ export default function OverviewScreen() {
 
       {o ? (
         <>
-          {/* Hero: where the month stands, all numbers from month_overview() */}
+          {/* Hero: what's left of the month, all numbers from month_overview() */}
           <View style={[s.hero, { backgroundColor: c.cell }]}>
-            <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>Spent this month</Text>
-            <Text style={[s.heroAmount, { color: c.label }]}>{formatMoney(o.total_spent, cur)}</Text>
             {o.total_cap > 0 ? (
               <>
+                <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>{o.net >= 0 ? 'Left this month' : 'Over budget this month'}</Text>
+                <Text style={[s.heroAmount, { color: o.net >= 0 ? budgetTone(totalPct, c, pace) : c.red }]}>
+                  {formatMoney(Math.abs(o.net), cur)}
+                </Text>
                 <ProgressBar pct={totalPct ?? 0} color={budgetTone(totalPct, c, pace)} pace={pace} />
                 <View style={s.heroRow}>
-                  <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>of {formatMoney(o.total_cap, cur)} budget</Text>
-                  <Text style={[s.heroMeta, { color: o.net >= 0 ? c.green : c.red }]}>
-                    {o.net >= 0 ? `${formatMoney(o.net, cur)} left` : `${formatMoney(-o.net, cur)} over`}
+                  <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>
+                    {formatMoney(o.total_spent, cur)} of {formatMoney(o.total_cap, cur)}
+                  </Text>
+                  <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>
+                    {o.net > 0 ? `≈ ${formatMoney(perDay(o.net, days), cur)} a day · ` : ''}
+                    {days === 1 ? 'last day' : `${days} days to go`}
                   </Text>
                 </View>
-                <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>{daysLeftInMonth()} days left in the month</Text>
               </>
             ) : (
-              <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>Set budgets in Settings to track what’s left.</Text>
+              <>
+                <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>Spent this month</Text>
+                <Text style={[s.heroAmount, { color: c.label }]}>{formatMoney(o.total_spent, cur)}</Text>
+                <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>Set budgets in Settings to track what’s left.</Text>
+              </>
             )}
           </View>
 
@@ -107,21 +118,17 @@ export default function OverviewScreen() {
           {budgeted.length > 0 ? (
             <Section title="Budgets">
               {budgeted.map((cat, i) => (
-                <Pressable
+                <BudgetRow
                   key={cat.id}
+                  name={cat.name}
+                  symbol={cat.sf_symbol}
+                  cap={cat.cap}
+                  spent={cat.spent}
+                  currency={cur}
+                  pace={pace}
                   onPress={() => router.push({ pathname: '/transactions', params: { category: cat.id } })}
-                  style={({ pressed }) => [s.budgetRow, pressed && { backgroundColor: c.fill }]}>
-                  <CategoryIcon symbol={cat.sf_symbol} />
-                  <View style={[s.budgetBody, i < budgeted.length - 1 && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
-                    <View style={s.budgetTop}>
-                      <Text style={[s.budgetName, { color: c.label }]}>{cat.name}</Text>
-                      <Text style={[s.budgetNums, { color: c.secondaryLabel }]}>
-                        {formatMoney(cat.spent, cur)} / {formatMoney(cat.cap, cur)}
-                      </Text>
-                    </View>
-                    <ProgressBar pct={cat.pct ?? 0} color={budgetTone(cat.pct, c, pace)} pace={pace} />
-                  </View>
-                </Pressable>
+                  last={i === budgeted.length - 1}
+                />
               ))}
             </Section>
           ) : null}
@@ -129,11 +136,13 @@ export default function OverviewScreen() {
           {unbudgetedWithSpend.length > 0 ? (
             <Section title="Without a budget" footer="Counted against savings at month end, like a budget of zero.">
               {unbudgetedWithSpend.map((cat, i) => (
-                <Row
+                <BudgetRow
                   key={cat.id}
-                  left={<CategoryIcon symbol={cat.sf_symbol} />}
-                  title={cat.name}
-                  value={formatMoney(cat.spent, cur)}
+                  name={cat.name}
+                  symbol={cat.sf_symbol}
+                  cap={null}
+                  spent={cat.spent}
+                  currency={cur}
                   onPress={() => router.push({ pathname: '/transactions', params: { category: cat.id } })}
                   last={i === unbudgetedWithSpend.length - 1}
                 />
@@ -154,11 +163,6 @@ const s = StyleSheet.create({
   hero: { marginHorizontal: 16, marginTop: 12, borderRadius: radius.hero, padding: 18, gap: 8 },
   heroLabel: { fontSize: 15 },
   heroAmount: { fontSize: 40, fontWeight: '700', ...moneyText },
-  heroRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  heroRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', columnGap: 12, rowGap: 2 },
   heroMeta: { fontSize: 14, ...moneyText },
-  budgetRow: { flexDirection: 'row', alignItems: 'center', paddingLeft: 16, gap: 12 },
-  budgetBody: { flex: 1, paddingVertical: 12, paddingRight: 16, gap: 8 },
-  budgetTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  budgetName: { fontSize: 17 },
-  budgetNums: { fontSize: 14, ...moneyText },
 });
