@@ -19,7 +19,7 @@ import {
   ViewStyle,
 } from 'react-native';
 
-import { useColors } from '@/lib/theme';
+import { moneyText, radius, useColors } from '@/lib/theme';
 import { isRtl } from '@/lib/bidi';
 
 // Web has no SF Symbols; a few Material names keep the icons meaningful there.
@@ -59,7 +59,7 @@ export function Icon({ name, size = 20, color }: { name: string; size?: number; 
 export function CategoryIcon({ symbol, size = 30 }: { symbol: string; size?: number }) {
   const c = useColors();
   return (
-    <View style={[styles.catIcon, { width: size, height: size, borderRadius: size * 0.26, backgroundColor: c.fill }]}>
+    <View style={[styles.catIcon, { width: size, height: size, borderRadius: size * 0.26, backgroundColor: c.tintFill }]}>
       <Icon name={symbol} size={size * 0.56} color={c.tint} />
     </View>
   );
@@ -212,19 +212,30 @@ export function Button({
         style,
       ]}>
       {loading ? (
-        <ActivityIndicator color={filled ? '#fff' : (c.tint as string)} />
+        <ActivityIndicator color={(filled ? c.onTint : c.tint) as string} />
       ) : (
-        <Text style={[styles.buttonText, { color: filled ? '#fff' : kind === 'destructive' ? c.red : c.tint }]}>{title}</Text>
+        <Text style={[styles.buttonText, { color: filled ? c.onTint : kind === 'destructive' ? c.red : c.tint }]}>{title}</Text>
       )}
     </Pressable>
   );
 }
 
-export function ProgressBar({ pct, color }: { pct: number; color: any }) {
+// `pace` (0-100) draws the FinPace marker: where spending should be by today.
+export function ProgressBar({ pct, color, pace }: { pct: number; color: any; pace?: number }) {
   const c = useColors();
+  const clamp = (n: number) => Math.min(100, Math.max(0, n));
   return (
-    <View style={[styles.track, { backgroundColor: c.fill }]}>
-      <View style={[styles.fillBar, { width: `${Math.min(100, Math.max(0, pct))}%`, backgroundColor: color }]} />
+    <View style={styles.trackWrap}>
+      <View style={[styles.track, { backgroundColor: c.fill }]}>
+        <View style={[styles.fillBar, { width: `${clamp(pct)}%`, backgroundColor: color }]} />
+      </View>
+      {pace != null ? (
+        <View
+          style={[styles.pace, { left: `${clamp(pace)}%`, backgroundColor: c.paceMarker }]}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        />
+      ) : null}
     </View>
   );
 }
@@ -259,19 +270,21 @@ export const styles = StyleSheet.create({
   section: { marginTop: 22, marginHorizontal: 16 },
   sectionTitle: { fontSize: 13, marginLeft: 16, marginBottom: 6 },
   sectionFooter: { fontSize: 13, marginHorizontal: 16, marginTop: 6, lineHeight: 18 },
-  card: { borderRadius: 10, overflow: 'hidden' },
+  card: { borderRadius: radius.row, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', paddingLeft: 16, minHeight: 44 },
   rowLeft: { marginRight: 12, paddingVertical: 7 },
   rowBody: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingRight: 16, paddingVertical: 11, minHeight: 44 },
   rowTitle: { fontSize: 17 },
   rowSubtitle: { fontSize: 13, marginTop: 2 },
-  rowValue: { fontSize: 17, fontVariant: ['tabular-nums'] },
+  rowValue: { fontSize: 17, ...moneyText },
   fieldLabel: { fontSize: 17, width: 110 },
   fieldInput: { flex: 1, fontSize: 17, paddingVertical: 0, textAlign: 'right' },
   button: { height: 50, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
   buttonText: { fontSize: 17, fontWeight: '600' },
-  track: { height: 6, borderRadius: 3, overflow: 'hidden' },
-  fillBar: { height: 6, borderRadius: 3 },
+  trackWrap: { justifyContent: 'center' },
+  track: { height: 8, borderRadius: 4, overflow: 'hidden' },
+  fillBar: { height: 8, borderRadius: 4 },
+  pace: { position: 'absolute', width: 2, height: 14, marginLeft: -1, borderRadius: 1 },
   badge: { borderWidth: 1, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 1 },
   badgeText: { fontSize: 11, fontWeight: '600' },
   catIcon: { alignItems: 'center', justifyContent: 'center' },

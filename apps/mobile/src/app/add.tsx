@@ -9,7 +9,7 @@ import { CategoryPicker } from '@/components/category-picker';
 import { ErrorText, Field, Section } from '@/components/ui';
 import { CURRENCIES, parseMoneyInput } from '@/lib/money';
 import { useIsOnline } from '@/lib/query';
-import { useColors } from '@/lib/theme';
+import { moneyText, useColors } from '@/lib/theme';
 
 const DRAFT_KEY = 'hl-add-draft';
 
@@ -105,7 +105,7 @@ export default function AddExpense() {
                 key={cur}
                 onPress={() => setCurrency(cur)}
                 style={[s.cur, { backgroundColor: currency === cur ? c.tint : c.fill }]}>
-                <Text style={{ color: currency === cur ? '#fff' : c.label, fontWeight: '600', fontSize: 13 }}>{cur}</Text>
+                <Text style={{ color: currency === cur ? c.onTint : c.label, fontWeight: '600', fontSize: 13 }}>{cur}</Text>
               </Pressable>
             ))}
           </View>
@@ -137,7 +137,7 @@ const s = StyleSheet.create({
   navButton: { fontSize: 17 },
   navTitle: { fontSize: 17, fontWeight: '600' },
   amountWrap: { alignItems: 'center', paddingVertical: 16, gap: 10 },
-  amount: { fontSize: 52, fontWeight: '700', textAlign: 'center', minWidth: 160, fontVariant: ['tabular-nums'] },
+  amount: { fontSize: 52, fontWeight: '700', textAlign: 'center', minWidth: 160, ...moneyText },
   currencies: { flexDirection: 'row', gap: 8 },
   cur: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, minHeight: 32, justifyContent: 'center' },
   hint: { fontSize: 13, textAlign: 'center', marginHorizontal: 32 },

@@ -125,7 +125,7 @@ function Chip({ label, on, onPress }: { label: string; on: boolean; onPress: () 
   const c = useColors();
   return (
     <Pressable onPress={onPress} style={[s.chip, { backgroundColor: on ? c.tint : c.fill }]}>
-      <Text style={{ color: on ? '#fff' : c.label, fontWeight: '600', fontSize: 14 }}>{label}</Text>
+      <Text style={{ color: on ? c.onTint : c.label, fontWeight: '600', fontSize: 14 }}>{label}</Text>
     </Pressable>
   );
 }

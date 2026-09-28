@@ -124,7 +124,7 @@ function Step({ n, text, last, children }: { n: number; text: string; last?: boo
   return (
     <View style={[s.step, !last && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
       <View style={[s.stepNum, { backgroundColor: c.tint }]}>
-        <Text style={s.stepNumText}>{n}</Text>
+        <Text style={[s.stepNumText, { color: c.onTint }]}>{n}</Text>
       </View>
       <View style={{ flex: 1, gap: 8 }}>
         <Text style={[s.stepText, { color: c.label }]}>{text}</Text>
@@ -153,7 +153,7 @@ const s = StyleSheet.create({
   actions: { marginHorizontal: 16, marginTop: 12 },
   step: { flexDirection: 'row', gap: 12, padding: 14, alignItems: 'flex-start' },
   stepNum: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  stepNumText: { color: '#fff', fontWeight: '700', fontSize: 13 },
+  stepNumText: { fontWeight: '700', fontSize: 13 },
   stepText: { fontSize: 15, lineHeight: 21 },
   copy: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8 },
   copyValue: { flex: 1, fontSize: 13, fontFamily: Platform.select({ ios: 'Menlo', default: 'monospace' }) },

@@ -5,7 +5,7 @@ import { useHousehold, useMonthCloses, useOverview } from '@/api/queries';
 import { Empty, ErrorText, Row, Screen, Section } from '@/components/ui';
 import { monthLabel } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
-import { useColors } from '@/lib/theme';
+import { moneyText, useColors } from '@/lib/theme';
 
 // Phase 3 shows each closed month's numbers straight from month_closes. The AI narrative
 // and the four charts (BLUEPRINT US-A1) plug into the month screen in Phase 4.
@@ -45,7 +45,7 @@ export default function ReportsScreen() {
               title={monthLabel(m.budget_month)}
               subtitle={`${formatMoney(m.total_spent_minor, cur)} of ${formatMoney(m.total_cap_minor, cur)}`}
               right={
-                <Text style={{ color: m.net_minor >= 0 ? c.green : c.red, fontSize: 17, fontVariant: ['tabular-nums'] }}>
+                <Text style={{ color: m.net_minor >= 0 ? c.green : c.red, fontSize: 17, ...moneyText }}>
                   {m.net_minor >= 0 ? '+' : '−'}
                   {formatMoney(Math.abs(m.net_minor), cur)}
                 </Text>

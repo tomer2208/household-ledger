@@ -7,7 +7,7 @@ import type { Transaction } from '@/api/types';
 import { isolate, isRtl } from '@/lib/bidi';
 import { timeLabel } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
-import { useColors } from '@/lib/theme';
+import { moneyText, useColors } from '@/lib/theme';
 
 const SOURCE_LABEL = { apple_pay: 'Apple Pay', manual: 'Manual', recurring: 'Recurring' } as const;
 
@@ -24,7 +24,7 @@ export function TransactionRow({ tx, baseCurrency, last }: { tx: Transaction; ba
         <CategoryIcon symbol={tx.categories?.sf_symbol ?? 'tag'} />
         {by ? (
           <View style={[s.who, { backgroundColor: c.tint, borderColor: c.cell }]} accessibilityLabel={`Added by ${by}`}>
-            <Text style={s.whoText}>{by.trim().charAt(0).toUpperCase()}</Text>
+            <Text style={[s.whoText, { color: c.onTint }]}>{by.trim().charAt(0).toUpperCase()}</Text>
           </View>
         ) : null}
       </View>
@@ -60,10 +60,10 @@ const s = StyleSheet.create({
   title: { fontSize: 17 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   sub: { fontSize: 13, fontVariant: ['tabular-nums'], flexShrink: 1 },
-  amount: { fontSize: 17, fontVariant: ['tabular-nums'] },
+  amount: { fontSize: 17, ...moneyText },
   who: {
     position: 'absolute', right: -5, bottom: -5, width: 17, height: 17, borderRadius: 9, borderWidth: 2,
     alignItems: 'center', justifyContent: 'center',
   },
-  whoText: { color: '#fff', fontSize: 9, fontWeight: '700' },
+  whoText: { fontSize: 9, fontWeight: '700' },
 });

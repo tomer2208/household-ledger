@@ -6,9 +6,9 @@ import { InstallBanner } from '@/components/install-banner';
 import { OfflineBanner } from '@/components/offline-banner';
 import { ProposalCard } from '@/components/proposal-card';
 import { Badge, CategoryIcon, Empty, ErrorText, Icon, ProgressBar, Row, Screen, Section } from '@/components/ui';
-import { daysLeftInMonth, monthLabel } from '@/lib/dates';
+import { daysLeftInMonth, monthLabel, monthPace } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
-import { budgetTone, useColors } from '@/lib/theme';
+import { budgetTone, moneyText, radius, useColors } from '@/lib/theme';
 
 export default function OverviewScreen() {
   const c = useColors();
@@ -22,6 +22,7 @@ export default function OverviewScreen() {
   const unbudgetedWithSpend = (o?.categories ?? []).filter((x) => (x.cap == null || x.cap === 0) && x.spent !== 0);
   const noBudgetFlags = (o?.categories ?? []).filter((x) => x.no_budget);
   const totalPct = o && o.total_cap > 0 ? Math.round((o.total_spent * 100) / o.total_cap) : null;
+  const pace = monthPace();
 
   return (
     <Screen onRefresh={() => overview.refetch()} refreshing={overview.isRefetching}>
@@ -47,7 +48,7 @@ export default function OverviewScreen() {
             <Text style={[s.heroAmount, { color: c.label }]}>{formatMoney(o.total_spent, cur)}</Text>
             {o.total_cap > 0 ? (
               <>
-                <ProgressBar pct={totalPct ?? 0} color={budgetTone(totalPct, c)} />
+                <ProgressBar pct={totalPct ?? 0} color={budgetTone(totalPct, c, pace)} pace={pace} />
                 <View style={s.heroRow}>
                   <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>of {formatMoney(o.total_cap, cur)} budget</Text>
                   <Text style={[s.heroMeta, { color: o.net >= 0 ? c.green : c.red }]}>
@@ -118,7 +119,7 @@ export default function OverviewScreen() {
                         {formatMoney(cat.spent, cur)} / {formatMoney(cat.cap, cur)}
                       </Text>
                     </View>
-                    <ProgressBar pct={cat.pct ?? 0} color={budgetTone(cat.pct, c)} />
+                    <ProgressBar pct={cat.pct ?? 0} color={budgetTone(cat.pct, c, pace)} pace={pace} />
                   </View>
                 </Pressable>
               ))}
@@ -150,14 +151,14 @@ export default function OverviewScreen() {
 }
 
 const s = StyleSheet.create({
-  hero: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 18, gap: 8 },
+  hero: { marginHorizontal: 16, marginTop: 12, borderRadius: radius.hero, padding: 18, gap: 8 },
   heroLabel: { fontSize: 15 },
-  heroAmount: { fontSize: 40, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  heroAmount: { fontSize: 40, fontWeight: '700', ...moneyText },
   heroRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  heroMeta: { fontSize: 14, fontVariant: ['tabular-nums'] },
+  heroMeta: { fontSize: 14, ...moneyText },
   budgetRow: { flexDirection: 'row', alignItems: 'center', paddingLeft: 16, gap: 12 },
   budgetBody: { flex: 1, paddingVertical: 12, paddingRight: 16, gap: 8 },
   budgetTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   budgetName: { fontSize: 17 },
-  budgetNums: { fontSize: 14, fontVariant: ['tabular-nums'] },
+  budgetNums: { fontSize: 14, ...moneyText },
 });

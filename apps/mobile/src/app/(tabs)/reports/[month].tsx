@@ -7,7 +7,7 @@ import { Button, ErrorText, Icon, ProgressBar, Screen, Section } from '@/compone
 import { monthLabel } from '@/lib/dates';
 import { fill, flatten } from '@/lib/fill';
 import { formatMoney } from '@/lib/money';
-import { budgetTone, useColors } from '@/lib/theme';
+import { budgetTone, moneyText, useColors } from '@/lib/theme';
 
 const TONE_ICON = { positive: 'checkmark.circle.fill', warning: 'exclamationmark.triangle.fill', neutral: 'sparkles' } as const;
 
@@ -128,7 +128,7 @@ export default function MonthReport() {
 const s = StyleSheet.create({
   hero: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 18, gap: 6 },
   heroLabel: { fontSize: 15 },
-  heroAmount: { fontSize: 36, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  heroAmount: { fontSize: 36, fontWeight: '700', ...moneyText },
   heroMeta: { fontSize: 14, fontVariant: ['tabular-nums'] },
   writing: { flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center', padding: 24 },
   story: { marginHorizontal: 16, marginTop: 16, borderRadius: 14, padding: 18, gap: 10 },

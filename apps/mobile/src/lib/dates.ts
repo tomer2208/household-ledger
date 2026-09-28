@@ -29,3 +29,10 @@ export function daysLeftInMonth() {
   const last = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
   return last - now.getDate();
 }
+
+// How far through the current month we are, 0-100: the pace marker on budget bars.
+export function monthPace() {
+  const now = new Date();
+  const days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  return Math.round((now.getDate() * 100) / days);
+}

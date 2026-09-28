@@ -1,14 +1,30 @@
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider, type Theme } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { useHousehold, useRealtimeSync } from '@/api/queries';
 import { SessionProvider, useSession } from '@/api/session';
+import { dark, light, type Palette } from '@/lib/colors';
 import { usePushRegistration, useNotificationRouting } from '@/lib/push';
 import { QueryProvider } from '@/lib/query';
 
 SplashScreen.preventAutoHideAsync();
+
+// Headers, back buttons and screen backgrounds take the FinPace palette instead of iOS blue.
+const navTheme = (base: Theme, p: Palette): Theme => ({
+  ...base,
+  colors: {
+    ...base.colors,
+    primary: p.tint as string,
+    background: p.groupedBackground as string,
+    card: p.cell as string,
+    text: p.label as string,
+    border: p.separator as string,
+  },
+});
+const lightNav = navTheme(DefaultTheme, light);
+const darkNav = navTheme(DarkTheme, dark);
 
 export default function RootLayout() {
   return (
@@ -37,10 +53,11 @@ function Root() {
 
   const signedIn = !!session;
   return (
-    <ThemeProvider value={scheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={scheme === 'dark' ? darkNav : lightNav}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="join/[code]" options={{ headerShown: false }} />
+        <Stack.Screen name="dev-preview" />
         <Stack.Protected guard={!signedIn}>
           <Stack.Screen name="sign-in" options={{ headerShown: false }} />
         </Stack.Protected>

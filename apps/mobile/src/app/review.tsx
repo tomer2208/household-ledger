@@ -8,7 +8,7 @@ import { Button, Empty, ErrorText, Screen } from '@/components/ui';
 import { isolate } from '@/lib/bidi';
 import { dayLabel } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
-import { useColors } from '@/lib/theme';
+import { moneyText, useColors } from '@/lib/theme';
 
 // US-C2 AC4: purchases whose Shortcut menu was dismissed land here. Confirming teaches the
 // merchant memory exactly like the Shortcut does (review_transaction → confirm_pending).
@@ -100,7 +100,7 @@ const s = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   raw: { fontSize: 13 },
   when: { fontSize: 13, marginTop: 2 },
-  amount: { fontSize: 22, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  amount: { fontSize: 22, fontWeight: '700', ...moneyText },
   title: { fontSize: 17, borderWidth: StyleSheet.hairlineWidth, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10 },
   newCat: { alignSelf: 'flex-start', paddingVertical: 6, minHeight: 44, justifyContent: 'center' },
 });

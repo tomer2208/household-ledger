@@ -6,7 +6,7 @@ import { useAddSavingsEntry, useHousehold, useOverview, useSavingsLedger } from 
 import { Button, ErrorText, Field, Row, Screen, Section } from '@/components/ui';
 import { monthLabel, shortDate } from '@/lib/dates';
 import { formatMoney, parseMoneyInput } from '@/lib/money';
-import { useColors } from '@/lib/theme';
+import { moneyText, useColors } from '@/lib/theme';
 
 const TYPE_LABEL = { month_close: 'Month close', late_adjustment: 'Late change', manual: 'Manual' } as const;
 
@@ -41,7 +41,7 @@ export default function SavingsScreen() {
         <View style={s.toggle}>
           {(['out', 'in'] as const).map((d) => (
             <Pressable key={d} onPress={() => setDirection(d)} style={[s.toggleItem, { backgroundColor: direction === d ? c.tint : c.fill }]}>
-              <Text style={{ color: direction === d ? '#fff' : c.label, fontWeight: '600' }}>{d === 'out' ? 'Withdraw' : 'Deposit'}</Text>
+              <Text style={{ color: direction === d ? c.onTint : c.label, fontWeight: '600' }}>{d === 'out' ? 'Withdraw' : 'Deposit'}</Text>
             </Pressable>
           ))}
         </View>
@@ -70,7 +70,7 @@ export default function SavingsScreen() {
               title={e.reason}
               subtitle={`${TYPE_LABEL[e.entry_type]} · ${e.entry_type === 'month_close' ? monthLabel(e.budget_month) : shortDate(e.created_at)}`}
               right={
-                <Text style={{ color: e.amount_minor >= 0 ? c.green : c.red, fontSize: 17, fontVariant: ['tabular-nums'] }}>
+                <Text style={{ color: e.amount_minor >= 0 ? c.green : c.red, fontSize: 17, ...moneyText }}>
                   {e.amount_minor >= 0 ? '+' : '−'}
                   {formatMoney(Math.abs(e.amount_minor), cur)}
                 </Text>
@@ -87,7 +87,7 @@ export default function SavingsScreen() {
 const s = StyleSheet.create({
   hero: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 18, gap: 4 },
   heroLabel: { fontSize: 15 },
-  heroAmount: { fontSize: 36, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  heroAmount: { fontSize: 36, fontWeight: '700', ...moneyText },
   heroMeta: { fontSize: 14, fontVariant: ['tabular-nums'] },
   toggle: { flexDirection: 'row', gap: 8, padding: 12 },
   toggleItem: { flex: 1, alignItems: 'center', paddingVertical: 8, borderRadius: 8, minHeight: 36 },
