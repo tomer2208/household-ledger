@@ -49,16 +49,6 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <script>
-      // The service worker caches the app shell (offline read-only) and receives Web Push.
-      // Not on the dev server: it would serve stale bundles over hot reload.
-      if ('serviceWorker' in navigator && (location.port !== '8081' || location.search.includes('sw=1'))) {
-        window.addEventListener('load', function () {
-          navigator.serviceWorker.register('/sw.js').catch(function (e) {
-            console.warn('Service worker registration failed', e);
-          });
-        });
-      }
-    </script>
+    <script src="/register-sw.js"></script>
   </body>
 </html>
