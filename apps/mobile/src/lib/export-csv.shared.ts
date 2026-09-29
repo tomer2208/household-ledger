@@ -15,7 +15,7 @@ export async function buildExpensesCsv(names: Map<string, string>): Promise<stri
     rows.push(...(data ?? []));
     if (!data || data.length < 1000) break;
   }
-  const header = ['date', 'title', 'as_charged', 'amount', 'currency', 'amount_in_base', 'category', 'status', 'source', 'added_by', 'note'];
+  const header = ['date', 'type', 'title', 'as_charged', 'amount', 'currency', 'amount_in_base', 'category', 'status', 'source', 'added_by', 'note'];
   const cell = (v: unknown) => {
     const s = v == null ? '' : String(v);
     return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -23,6 +23,7 @@ export async function buildExpensesCsv(names: Map<string, string>): Promise<stri
   const lines = rows.map((r) =>
     [
       r.occurred_at,
+      (r.amount_minor as number) < 0 ? 'refund' : 'expense',
       r.title,
       r.raw_merchant,
       ((r.amount_minor as number) / 100).toFixed(2),

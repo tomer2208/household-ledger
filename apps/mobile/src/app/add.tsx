@@ -7,6 +7,7 @@ import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } fr
 import { useAddTransaction, useCategories, useHousehold } from '@/api/queries';
 import { CategoryPicker } from '@/components/category-picker';
 import { DateField } from '@/components/date-field';
+import { KindToggle } from '@/components/kind-toggle';
 import { ErrorText, Field, Section } from '@/components/ui';
 import { onDay, todayYmd, ymd } from '@/lib/dates';
 import { CURRENCIES, parseMoneyInput } from '@/lib/money';
@@ -34,6 +35,8 @@ export default function AddExpense() {
   const [title, setTitle] = useState(params.merchant ?? '');
   const [note, setNote] = useState('');
   const [categoryId, setCategoryId] = useState<string | null>(null);
+  // R4: a refund is saved as a negative amount and lowers the category's spend.
+  const [refund, setRefund] = useState(false);
   // R3: the calendar day it happened. A deep link brings its own; otherwise today.
   const linked = params.occurred_at && !isNaN(new Date(params.occurred_at).getTime()) ? new Date(params.occurred_at) : null;
   const [day, setDay] = useState(linked ? ymd(linked) : todayYmd());
@@ -49,6 +52,7 @@ export default function AddExpense() {
       setCurrency(d.currency ?? base);
       setCategoryId(d.categoryId ?? null);
       if (d.day && d.day <= todayYmd()) setDay(d.day);
+      setRefund(!!d.refund);
     });
   }, [params.amount, params.merchant, base]);
 
@@ -61,8 +65,8 @@ export default function AddExpense() {
     await add.mutateAsync({
       householdId: hh.data.household.id,
       userId: hh.data.me.user_id,
-      title: title.trim() || categoryName || 'Expense',
-      amountMinor: minor,
+      title: title.trim() || (refund ? `${categoryName ?? 'Refund'} refund` : categoryName) || 'Expense',
+      amountMinor: refund ? -minor : minor,
       currency,
       categoryId,
       // Today: the moment of saving. Another day keeps the time of day (the deep link's, or now).
@@ -76,7 +80,7 @@ export default function AddExpense() {
   }
 
   async function saveDraft() {
-    await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify({ amount, title, currency, categoryId, day }));
+    await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify({ amount, title, currency, categoryId, day, refund }));
     close();
   }
 
@@ -86,7 +90,7 @@ export default function AddExpense() {
         <Pressable onPress={close} hitSlop={12} accessibilityRole="button">
           <Text style={[s.navButton, { color: c.tint }]}>Cancel</Text>
         </Pressable>
-        <Text style={[s.navTitle, { color: c.label }]}>New Expense</Text>
+        <Text style={[s.navTitle, { color: c.label }]}>{refund ? 'New Refund' : 'New Expense'}</Text>
         <Pressable
           onPress={online ? save : saveDraft}
           disabled={online ? !canSave : !minor}
@@ -94,13 +98,14 @@ export default function AddExpense() {
           accessibilityRole="button"
           accessibilityState={{ disabled: online ? !canSave : !minor }}>
           <Text style={[s.navButton, { color: c.tint, fontWeight: '600', opacity: (online ? canSave : !!minor) ? 1 : 0.35 }]}>
-            {online ? 'Save' : 'Save Draft'}
+            {online ? (refund ? 'Save Refund' : 'Save') : 'Save Draft'}
           </Text>
         </Pressable>
       </View>
 
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 40 }}>
         <View style={s.amountWrap}>
+          <KindToggle refund={refund} onChange={setRefund} />
           <TextInput
             value={amount}
             onChangeText={setAmount}
@@ -108,8 +113,8 @@ export default function AddExpense() {
             placeholderTextColor={c.tertiaryLabel as string}
             keyboardType="decimal-pad"
             autoFocus={!params.amount}
-            style={[s.amount, { color: c.label }]}
-            accessibilityLabel="Amount"
+            style={[s.amount, { color: refund ? c.green : c.label }]}
+            accessibilityLabel={refund ? 'Refund amount' : 'Amount'}
           />
           <View style={s.currencies}>
             {CURRENCIES.map((cur) => (

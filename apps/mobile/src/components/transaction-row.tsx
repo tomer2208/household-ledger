@@ -6,7 +6,7 @@ import { useMemberNames } from '@/api/queries';
 import type { Transaction } from '@/api/types';
 import { isolate, isRtl } from '@/lib/bidi';
 import { timeLabel } from '@/lib/dates';
-import { formatMoney } from '@/lib/money';
+import { formatSigned } from '@/lib/money';
 import { moneyText, useColors } from '@/lib/theme';
 
 const SOURCE_LABEL = { apple_pay: 'Apple Pay', manual: 'Manual', recurring: 'Recurring' } as const;
@@ -39,14 +39,15 @@ export function TransactionRow({ tx, baseCurrency, last }: { tx: Transaction; ba
             </Text>
             {tx.status === 'pending_review' ? <Badge text="Review" color={c.orange} /> : null}
             {tx.status === 'estimated' ? <Badge text="Estimate" color={c.secondaryLabel} /> : null}
+            {tx.amount_minor < 0 ? <Badge text="Refund" color={c.green} /> : null}
           </View>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           <Text style={[s.amount, { color: tx.amount_minor < 0 ? c.green : c.label }]}>
-            {formatMoney(tx.amount_minor, tx.currency)}
+            {formatSigned(tx.amount_minor, tx.currency)}
           </Text>
           {foreign ? (
-            <Text style={[s.sub, { color: c.secondaryLabel }]}>{formatMoney(tx.amount_base_minor, baseCurrency)}</Text>
+            <Text style={[s.sub, { color: c.secondaryLabel }]}>{formatSigned(tx.amount_base_minor, baseCurrency)}</Text>
           ) : null}
         </View>
       </View>

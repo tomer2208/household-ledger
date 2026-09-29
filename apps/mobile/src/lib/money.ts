@@ -18,6 +18,11 @@ export function formatMoney(minor: number | null | undefined, currency: string, 
 }
 
 // "45", "45.9", "45,90", "1,234.50" → minor units. Null when it isn't a positive amount.
+// A refund (negative amount, H5) reads as money coming back: "+₪45", never "−₪45".
+export function formatSigned(minor: number, currency: string) {
+  return minor < 0 ? `+${formatMoney(-minor, currency)}` : formatMoney(minor, currency);
+}
+
 export function parseMoneyInput(text: string): number | null {
   const t = text.replace(/[^\d.,]/g, '');
   if (!/\d/.test(t)) return null;

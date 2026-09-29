@@ -15,9 +15,10 @@ import {
 import type { Transaction } from '@/api/types';
 import { CategoryPicker } from '@/components/category-picker';
 import { DateField } from '@/components/date-field';
+import { KindToggle } from '@/components/kind-toggle';
 import { Button, ErrorText, Field, Row, Screen, Section } from '@/components/ui';
 import { monthLabel, monthOfDay, onDay, timeLabel, ymd } from '@/lib/dates';
-import { formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
+import { formatSigned, minorToInput, parseMoneyInput } from '@/lib/money';
 import { useIsOnline } from '@/lib/query';
 import { confirm } from '@/lib/confirm';
 import { useColors } from '@/lib/theme';
@@ -62,7 +63,9 @@ function Editor({ t }: { t: Transaction }) {
   const touchesClosed = movesMonth && closes.some((m) => m.budget_month === newMonth || m.budget_month === t.budget_month);
 
   const minor = parseMoneyInput(amount);
-  const signedMinor = minor == null ? null : t.amount_minor < 0 ? -minor : minor;
+  // R4: expense or refund (negative), switchable in case it was entered the wrong way round.
+  const [refund, setRefund] = useState(t.amount_minor < 0);
+  const signedMinor = minor == null ? null : refund ? -minor : minor;
   const dirty =
     title.trim() !== t.title ||
     signedMinor !== t.amount_minor ||
@@ -116,6 +119,9 @@ function Editor({ t }: { t: Transaction }) {
           ),
         }}
       />
+      <View style={s.kind}>
+        <KindToggle refund={refund} onChange={setRefund} />
+      </View>
       <Section>
         <Field label="Title" value={title} onChangeText={setTitle} />
         <Field label={`Amount (${t.currency})`} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" />
@@ -141,7 +147,7 @@ function Editor({ t }: { t: Transaction }) {
         <Row title="Time" value={timeLabel(t.occurred_at)} />
         {addedBy ? <Row title="Added by" value={addedBy} /> : null}
         {t.currency !== base ? (
-          <Row title={`In ${base}`} value={`${formatMoney(t.amount_base_minor, base)} (rate ${Number(t.fx_rate).toFixed(4)})`} />
+          <Row title={`In ${base}`} value={`${formatSigned(t.amount_base_minor, base)} (rate ${Number(t.fx_rate).toFixed(4)})`} />
         ) : null}
         <Row title="Source" value={t.source === 'apple_pay' ? `Apple Pay${t.card_label ? ` · ${t.card_label}` : ''}` : t.source === 'recurring' ? 'Recurring' : 'Manual'} />
         {t.raw_merchant ? <Row title="As charged" value={t.raw_merchant} /> : null}
@@ -158,6 +164,7 @@ function Editor({ t }: { t: Transaction }) {
 
 const s = StyleSheet.create({
   hint: { fontSize: 13, marginHorizontal: 32, marginTop: 6 },
+  kind: { marginTop: 16 },
   label: { fontSize: 13, marginLeft: 32, marginTop: 22, marginBottom: 8 },
   actions: { marginHorizontal: 16, marginTop: 24 },
 });
