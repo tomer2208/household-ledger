@@ -8,6 +8,7 @@ import { CategoryPicker } from '@/components/category-picker';
 import { Button, ErrorText, Field, Screen, Section } from '@/components/ui';
 import { CURRENCIES, minorToInput, parseMoneyInput } from '@/lib/money';
 import { useColors } from '@/lib/theme';
+import { todayYmd } from '@/lib/dates';
 
 const INTERVALS = [
   { v: 1, label: 'Monthly' },
@@ -16,11 +17,6 @@ const INTERVALS = [
   { v: 6, label: '6 mo' },
   { v: 12, label: 'Yearly' },
 ];
-
-const todayYmd = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
 
 export default function RecurringEdit() {
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -42,7 +38,7 @@ function Editor({ id, rule }: { id?: string; rule?: RecurringRule }) {
   const [currency, setCurrency] = useState(rule?.currency ?? base);
   const [estimated, setEstimated] = useState(rule?.amount_kind === 'estimated');
   const [interval, setInterval] = useState(rule?.interval_months ?? 1);
-  const [day, setDay] = useState(String(rule?.day_of_month ?? new Date().getDate()));
+  const [day, setDay] = useState(String(rule?.day_of_month ?? Number(todayYmd().slice(8))));
   const [startDate, setStartDate] = useState(rule?.start_date ?? todayYmd());
   const [paused, setPaused] = useState(rule?.paused ?? false);
   const [categoryId, setCategoryId] = useState<string | null>(rule?.category_id ?? null);

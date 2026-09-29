@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { DateInput, hasSystemDatePicker } from './date-input';
-import { dayChipLabel, todayYmd, yesterdayYmd } from '@/lib/dates';
+import { addDays, dayChipLabel, todayYmd, yesterdayYmd } from '@/lib/dates';
 import { useColors } from '@/lib/theme';
 
-// When an expense happened: Today and Yesterday are one tap, anything older opens the system
+// When an expense happened, on the household's clock (lib/dates.ts): Today and Yesterday are one tap, anything older opens the system
 // date picker. Future days can't be picked; a budget month is only ever in the past or now.
 export function DateField({ value, onChange }: { value: string; onChange: (day: string) => void }) {
   const c = useColors();
@@ -27,11 +27,7 @@ export function DateField({ value, onChange }: { value: string; onChange: (day: 
   );
 
   // Native fallback: the last two weeks, newest first.
-  const recent = Array.from({ length: 14 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - i - 2);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  });
+  const recent = Array.from({ length: 14 }, (_, i) => addDays(today, -i - 2));
 
   return (
     <View style={s.wrap}>

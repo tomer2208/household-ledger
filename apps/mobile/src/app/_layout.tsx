@@ -8,6 +8,7 @@ import { useHousehold, useRealtimeSync } from '@/api/queries';
 import { SessionProvider, useSession } from '@/api/session';
 import { ToastProvider } from '@/components/toast';
 import { dark, light, type Palette } from '@/lib/colors';
+import { setAppTimeZone } from '@/lib/dates';
 import { usePushRegistration, useNotificationRouting } from '@/lib/push';
 import { QueryProvider } from '@/lib/query';
 
@@ -45,6 +46,9 @@ function Root() {
   const { session, loading } = useSession();
   const hh = useHousehold();
   const household = hh.data?.household ?? null;
+  // R10: dates everywhere follow the household's clock, like budget_month on the server.
+  // Set during render so every screen below reads it on its first render.
+  setAppTimeZone(household?.timezone);
   useRealtimeSync(household?.id);
   usePushRegistration(session?.user.id, !!household);
   useNotificationRouting();
