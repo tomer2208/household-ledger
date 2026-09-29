@@ -1,0 +1,4 @@
+ERROR:  TEST_ROLLBACK tx_before=5 rows_after=0
+ERROR:  TEST_ROLLBACK self_remove_err="use leave_household to leave" leave=deleted households_left=0 active_devices=0
+ERROR:  TEST_ROLLBACK partner_active_after_remove=f leave=left household_exists=1 new_audit_rows=3
+ERROR:  TEST_ROLLBACK shared=left tx_kept=5 alone=deleted household_left=0

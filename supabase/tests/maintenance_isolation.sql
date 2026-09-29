@@ -1,6 +1,7 @@
 -- Checks for migration 23 (R6): a household whose month close fails doesn't stop the others.
 -- One block, ends by raising TEST_ROLLBACK with its findings, so nothing is kept (including the
--- test trigger). Makes its own two households; needs no fixture.
+-- test trigger). Makes its own two households, created on the 2nd of last month so exactly one
+-- month is due to close whatever today's date; needs no fixture.
 -- Expect: run1_failures>=1 a_closed=t b_closed=f b_failure_logged=1 b_recurring_kept=1
 --         run2_b_closed=t b_failure_resolved=t b_report_queued=t
 do $$
@@ -9,9 +10,9 @@ declare
   a_closed boolean; b_closed boolean; b_fail int; b_rec int; b_closed2 boolean; b_resolved boolean; b_report boolean;
 begin
   insert into public.households (name, base_currency, timezone, created_at)
-  values ('T Iso A', 'ILS', 'Asia/Jerusalem', now() - interval '40 days') returning id into a;
+  values ('T Iso A', 'ILS', 'Asia/Jerusalem', (date_trunc('month', now() at time zone 'Asia/Jerusalem') - interval '1 month' + interval '1 day') at time zone 'Asia/Jerusalem') returning id into a;
   insert into public.households (name, base_currency, timezone, created_at)
-  values ('T Iso B', 'ILS', 'Asia/Jerusalem', now() - interval '40 days') returning id into b;
+  values ('T Iso B', 'ILS', 'Asia/Jerusalem', (date_trunc('month', now() at time zone 'Asia/Jerusalem') - interval '1 month' + interval '1 day') at time zone 'Asia/Jerusalem') returning id into b;
   prev := (date_trunc('month', now() at time zone 'Asia/Jerusalem') - interval '1 month')::date;
 
   -- B has a standing order due today: it must be posted even though B's close fails.

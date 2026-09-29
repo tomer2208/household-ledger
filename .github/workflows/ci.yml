@@ -1,0 +1,49 @@
+# Checks every push and pull request before Vercel ships main (T1, docs/PRODUCT_ROADMAP.md).
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    name: App (types, lint, unit tests, web build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/mobile
+    env:
+      # The build only needs these to exist; the real values live in Vercel.
+      EXPO_PUBLIC_SUPABASE_URL: https://example.supabase.co
+      EXPO_PUBLIC_SUPABASE_KEY: sb_publishable_ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/mobile/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npx expo lint
+      - run: npm test
+      - name: Server amount parser
+        run: node --test ../../supabase/functions/capture/amount.test.ts
+      - run: npm run build:web
+
+  db:
+    name: Database (all migrations from scratch, SQL tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start Postgres and apply every migration
+        run: supabase db start
+      - name: SQL tests
+        run: supabase/tests/run.sh

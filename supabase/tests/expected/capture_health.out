@@ -1,0 +1,1 @@
+ERROR:  TEST_ROLLBACK daily_quiet=silent weekly_quiet=ok daily_recent=ok burst_quiet=ok new_2d=setup new_2h=ok revoked=absent daily_median=24.0 weekly_median=168.0 stranger_sees=0 anon_can_call=f

@@ -1,11 +1,11 @@
 -- Checks for migration 25 (R9, capture_health). One block, ends by raising TEST_ROLLBACK with its
 -- findings, so nothing is kept. Makes its own users, household and devices; needs no fixture.
--- Expect: daily_quiet=silent weekly_quiet=ok daily_recent=ok new_2d=setup new_2h=ok revoked=absent
+-- Expect: daily_quiet=silent weekly_quiet=ok daily_recent=ok burst_quiet=ok new_2d=setup new_2h=ok revoked=absent
 --         daily_median=24.0 weekly_median=168.0 stranger_sees=0 anon_can_call=f
 do $$
 declare
   u uuid := gen_random_uuid(); stranger uuid := gen_random_uuid(); h uuid;
-  d_daily uuid; d_weekly uuid; d_recent uuid; d_new2d uuid; d_new2h uuid; d_revoked uuid;
+  d_daily uuid; d_weekly uuid; d_recent uuid; d_burst uuid; d_new2d uuid; d_new2h uuid; d_revoked uuid;
   j jsonb; js jsonb; i int;
   st jsonb;
 begin
@@ -23,6 +23,8 @@ begin
   values (h, u, 'weekly quiet', md5(random()::text), now() - interval '40 days') returning id into d_weekly;
   insert into public.device_tokens (household_id, user_id, label, token_hash, created_at)
   values (h, u, 'daily recent', md5(random()::text), now() - interval '40 days') returning id into d_recent;
+  insert into public.device_tokens (household_id, user_id, label, token_hash, created_at)
+  values (h, u, 'burst quiet',  md5(random()::text), now() - interval '40 days') returning id into d_burst;
   insert into public.device_tokens (household_id, user_id, label, token_hash, created_at)
   values (h, u, 'new 2d',       md5(random()::text), now() - interval '2 days') returning id into d_new2d;
   insert into public.device_tokens (household_id, user_id, label, token_hash, created_at)
@@ -43,6 +45,11 @@ begin
     insert into public.audit_log (household_id, actor_type, actor_id, action, entity, entity_id, at)
     values (h, 'device', d_recent, 'insert', 'transactions', gen_random_uuid(), now() - make_interval(days => i));
   end loop;
+  -- a busy morning (every 2 hours), then 30 quiet hours: the 72-hour floor keeps this "ok"
+  for i in 0..5 loop
+    insert into public.audit_log (household_id, actor_type, actor_id, action, entity, entity_id, at)
+    values (h, 'device', d_burst, 'insert', 'transactions', gen_random_uuid(), now() - make_interval(hours => 30 + 2 * i));
+  end loop;
   insert into public.audit_log (household_id, actor_type, actor_id, action, entity, entity_id, at)
   values (h, 'device', d_revoked, 'insert', 'transactions', gen_random_uuid(), now() - interval '30 days');
 
@@ -59,8 +66,8 @@ begin
   js := public.capture_health();
   reset role;
 
-  raise exception 'TEST_ROLLBACK daily_quiet=% weekly_quiet=% daily_recent=% new_2d=% new_2h=% revoked=% daily_median=% weekly_median=% stranger_sees=% anon_can_call=%',
-    st->'daily quiet'->>'status', st->'weekly quiet'->>'status', st->'daily recent'->>'status',
+  raise exception 'TEST_ROLLBACK daily_quiet=% weekly_quiet=% daily_recent=% burst_quiet=% new_2d=% new_2h=% revoked=% daily_median=% weekly_median=% stranger_sees=% anon_can_call=%',
+    st->'daily quiet'->>'status', st->'weekly quiet'->>'status', st->'daily recent'->>'status', st->'burst quiet'->>'status',
     st->'new 2d'->>'status', st->'new 2h'->>'status', coalesce(st->'revoked'->>'status', 'absent'),
     st->'daily quiet'->>'median_gap_hours', st->'weekly quiet'->>'median_gap_hours',
     jsonb_array_length(js), has_function_privilege('anon', 'public.capture_health()', 'execute');

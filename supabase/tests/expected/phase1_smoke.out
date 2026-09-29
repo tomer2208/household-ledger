@@ -1,0 +1,37 @@
+ERROR:  SMOKE REPORT (rolled back)
+PASS partner joins and sees 16 categories (got 16)
+PASS RLS: stranger sees 0 of A's categories (got 0)
+PASS RLS: stranger updates 0 of A's categories (got 0)
+PASS invite code is single-use
+PASS capture RPCs are closed to app users
+PASS stranger cannot review A's transactions
+PASS alert at exactly 90% (rows 1)
+PASS 100% fires once, later spend adds nothing (rows 2)
+PASS jump past 100% records both thresholds (rows 2)
+PASS app cannot insert apple_pay rows
+PASS Savings category rejects expenses
+PASS currency without a rate is refused
+PASS month_overview totals: spent 225000 (expect 225000), net -25000 (expect -25000)
+PASS base currency locked after first transaction
+PASS partner sees all 5 transactions (got 5)
+PASS $10.00 at 3.7 = ₪37.00 (got 3700)
+PASS close: 150000 cap − 130000 spent = 20000 net (got 20000)
+PASS close is idempotent (second call null, entries 1)
+PASS late adjustment 400→484 posts −8400 (got -8400)
+PASS savings balance 20000 − 8400 = 11600 (got 11600)
+PASS budgets of closed months are locked
+PASS recurring catch-up on day 31: 01-31,02-28,03-31 (expect 01-31,02-28,03-31)
+PASS recurring re-run creates nothing (got 0)
+PASS past start date does not backfill (next run <date>)
+PASS normalize "SHUFERSAL DEAL 123 TLV" → "shufersal deal tlv"
+PASS normalize Hebrew with RLM and בע"מ → "שופרסל"
+PASS normalize "PAZ YELLOW-0442, LTD." → "paz yellow"
+PASS device token authenticates
+PASS unknown merchant: no exact match, fallback = Other
+PASS repeat capture is deduplicated
+PASS new category from the Shortcut: created, flagged No budget
+PASS other branch of the same merchant is now an exact match (Aroma)
+PASS in-app review: "coffee" reuses "Coffee" (created false, count 1)
+PASS in-app review teaches the merchant alias (1)
+PASS capture writes are audited as device (9 rows)
+PASS revoked token no longer authenticates

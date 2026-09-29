@@ -1,0 +1,1 @@
+ERROR:  TEST_ROLLBACK run1_failures=1 a_closed=t b_closed=f b_failure_logged=1 b_recurring_kept=1 run2_b_closed=t b_failure_resolved=t b_report_queued=t run1={"failures": 1, "months_closed": 1, "proposals_expired": 0, "recurring_created": 1} run2={"failures": 0, "months_closed": 1, "proposals_expired": 0, "recurring_created": 0}

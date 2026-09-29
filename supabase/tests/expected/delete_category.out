@@ -1,0 +1,1 @@
+ERROR:  TEST_ROLLBACK dry=delete still_there=1 unused=delete gone=0 used=archive archived=t tx_count=1 blocked=blocked blocked_err="move or pause 1 recurring expense(s) first" savings_err="the Savings category cannot be deleted" other_hh_err="n/a (single household)"

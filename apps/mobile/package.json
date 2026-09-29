@@ -41,9 +41,11 @@
     "react-native-worklets": "0.10.1"
   },
   "devDependencies": {
+    "@types/node": "~26.6",
     "@types/react": "~19.2.2",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~57.0.2",
+    "tsx": "^4.23.15",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -52,7 +54,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "build:web": "sh scripts/build-web.sh"
+    "build:web": "sh scripts/build-web.sh",
+    "test": "for tz in America/New_York Asia/Jerusalem Pacific/Auckland; do TZ=$tz tsx --test 'src/**/*.test.ts' || exit 1; done",
+    "typecheck": "tsc --noEmit"
   },
   "private": true
 }
