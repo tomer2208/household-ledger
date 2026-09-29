@@ -7,6 +7,7 @@ import { useDevices, useHousehold, useOverview, useRecurring, useSetAiConsent } 
 import { useSession } from '@/api/session';
 import { SwipeRow } from '@/components/swipe-row';
 import { CategoryIcon, ErrorText, Row, Screen, Section } from '@/components/ui';
+import { AI_DISCLOSURE } from '@/lib/ai-disclosure';
 import { confirm } from '@/lib/confirm';
 import { exportExpenses } from '@/lib/export-csv';
 import { useIncomeActions } from '@/lib/income-actions';
@@ -78,6 +79,14 @@ export default function SettingsScreen() {
       setAccountError(e);
       setAccountBusy(null);
     }
+  }
+
+  // Turning AI on shares data with a third party, so it asks first with the full disclosure.
+  // Turning it off is immediate: withdrawing consent must be as easy as giving it.
+  async function toggleAi(on: boolean) {
+    if (!household) return;
+    if (on && !(await confirm('Turn on AI suggestions?', `${AI_DISCLOSURE} This applies to everyone in ${household.name}.`, 'Turn On', false))) return;
+    consent.mutate({ householdId: household.id, on });
   }
 
   async function togglePush(on: boolean) {
@@ -172,7 +181,7 @@ export default function SettingsScreen() {
 
       <Section
         title="AI"
-        footer="Sends merchant names, amounts and category names to Anthropic's Claude for category suggestions and the monthly report. No card numbers, names or emails.">
+        footer={AI_DISCLOSURE}>
         <Row
           left={<CategoryIcon symbol="sparkles" />}
           title="AI suggestions"
@@ -181,9 +190,7 @@ export default function SettingsScreen() {
             <Switch
               value={!!household?.ai_consent_at}
               disabled={!household || consent.isPending}
-              onValueChange={(on) => {
-                if (household) consent.mutate({ householdId: household.id, on });
-              }}
+              onValueChange={toggleAi}
             />
           }
         />

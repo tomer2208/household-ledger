@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useCreateHousehold, useJoinHousehold } from '@/api/queries';
 import { Button, ErrorText, Field, Section } from '@/components/ui';
+import { AI_DISCLOSURE } from '@/lib/ai-disclosure';
 import { CURRENCIES } from '@/lib/money';
 import { clearPendingInvite, readPendingInvite } from '@/lib/pending-invite';
 import { supabase } from '@/lib/supabase';
@@ -17,7 +18,8 @@ export default function Onboarding() {
   const [displayName, setDisplayName] = useState('');
   const [householdName, setHouseholdName] = useState('Our Home');
   const [currency, setCurrency] = useState<string>('ILS');
-  const [aiConsent, setAiConsent] = useState(true);
+  // Off until the person turns it on: consent to share data has to be their own act.
+  const [aiConsent, setAiConsent] = useState(false);
   const [code, setCode] = useState('');
   const create = useCreateHousehold();
   const join = useJoinHousehold();
@@ -78,7 +80,7 @@ export default function Onboarding() {
             {/* US-M1 AC5: explicit disclosure before anything is sent to a third-party AI. */}
             <Section
               title="Smart categorization"
-              footer="When on, merchant names, amounts and your category names are sent to Anthropic's Claude to suggest categories and write the monthly report. No card numbers, names or emails are sent. You can turn this off anytime in Settings.">
+              footer={AI_DISCLOSURE}>
               <View style={s.switchRow}>
                 <Text style={[s.switchLabel, { color: c.label }]}>Use AI suggestions</Text>
                 <Switch value={aiConsent} onValueChange={setAiConsent} />
