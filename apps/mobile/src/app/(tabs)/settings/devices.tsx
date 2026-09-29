@@ -3,8 +3,9 @@ import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { useCreateDeviceToken, useDevices, useHousehold, useRevokeDevice } from '@/api/queries';
-import { Button, ErrorText, Field, Row, Screen, Section } from '@/components/ui';
+import { useCaptureHealth, useCreateDeviceToken, useDevices, useHousehold, useRevokeDevice } from '@/api/queries';
+import { silentDays } from '@/components/capture-banner';
+import { Badge, Button, ErrorText, Field, Row, Screen, Section } from '@/components/ui';
 import { shortDate } from '@/lib/dates';
 import { FUNCTIONS_URL } from '@/lib/supabase';
 import { confirm } from '@/lib/confirm';
@@ -26,6 +27,9 @@ export default function DevicesScreen() {
   const [copied, setCopied] = useState<string | null>(null);
   const names = new Map((hh.data?.members ?? []).map((m) => [m.user_id, m.display_name]));
   const list = devices.data ?? [];
+  // R9: a quiet Shortcut gets a badge here and the checklist at the top.
+  const health = new Map((useCaptureHealth().data ?? []).map((h) => [h.device_id, h]));
+  const quiet = [...health.values()].filter((h) => h.status !== 'ok');
 
   async function copy(what: string, value: string) {
     await Clipboard.setStringAsync(value);
@@ -39,6 +43,18 @@ export default function DevicesScreen() {
   return (
     <Screen>
       <Stack.Screen options={{ title: 'Shortcut & Devices', headerLargeTitle: false }} />
+
+      {/* R9: first thing on screen when a banner's Check brings you here. */}
+      {quiet.length > 0 ? (
+        <Section
+          title="If purchases stop logging"
+          footer="Still stuck? Revoke the device below, create a new token and paste it into the Shortcut's token field.">
+          <Step n={1} text="Shortcuts → Automation: the Transaction automation is still there and turned on, with Run Immediately selected." />
+          <Step n={2} text="Open it and tap ▶. “missing merchant” means the token works; “unauthorized” means it was revoked or mistyped." />
+          <Step n={3} text="After an iOS update, open the automation once and check the fields still read Merchant, Amount and Card or Pass." />
+          <Step n={4} text="Make a small Apple Pay purchase. It should appear under Expenses within seconds." last />
+        </Section>
+      ) : null}
 
       {token ? (
         <Section title="Your new token" footer="Copy it now and keep it in Notes until the Shortcut is built. For your security it won't be shown again.">
@@ -95,6 +111,7 @@ export default function DevicesScreen() {
         />
       </Section>
 
+
       {list.length > 0 ? (
         <Section title="Devices">
           {list.map((d, i) => (
@@ -107,6 +124,13 @@ export default function DevicesScreen() {
                   : `${names.get(d.user_id) ?? ''} · ${d.last_used_at ? `last used ${shortDate(d.last_used_at)}` : 'never used'}`
               }
               value={d.revoked_at ? undefined : 'Revoke'}
+              right={
+                health.get(d.id)?.status === 'silent' ? (
+                  <Badge text={`Silent ${silentDays(health.get(d.id)!)} days`} color={c.orange} />
+                ) : health.get(d.id)?.status === 'setup' ? (
+                  <Badge text="No purchases yet" color={c.orange} />
+                ) : undefined
+              }
               onPress={d.revoked_at ? undefined : () => confirmRevoke(d.id, d.label)}
               chevron={false}
               titleStyle={d.revoked_at ? { color: c.secondaryLabel as string } : undefined}

@@ -165,3 +165,16 @@ export type AgentRun = {
   error: string | null;
   created_at: string;
 };
+
+// R9: per active Shortcut device, whether it has gone quiet (public.capture_health()).
+export type CaptureHealth = {
+  device_id: string;
+  label: string;
+  user_id: string;
+  created_at: string;
+  last_capture_at: string | null;
+  captures_30d: number;
+  median_gap_hours: number | null;
+  silent_hours: number | null;
+  status: 'ok' | 'silent' | 'setup';
+};

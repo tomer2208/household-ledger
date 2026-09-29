@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useSession } from './session';
 import type {
   AgentRun,
+  CaptureHealth,
   Category,
   MonthlyReport,
   Proposal,
@@ -151,6 +152,16 @@ export function useDevices() {
           .select('id,user_id,label,created_at,last_used_at,revoked_at')
           .order('created_at', { ascending: false }),
       )) as Device[],
+  });
+}
+
+// R9: which Shortcuts have gone quiet. Refreshed with everything else (Realtime on
+// transactions and device_tokens), and every hour while the app stays open.
+export function useCaptureHealth() {
+  return useQuery({
+    queryKey: [HH, 'capture_health'],
+    queryFn: async () => (await must(supabase.rpc('capture_health'))) as CaptureHealth[],
+    refetchInterval: 3_600_000,
   });
 }
 

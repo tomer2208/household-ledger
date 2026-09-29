@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useHousehold, useOverview, useProposals } from '@/api/queries';
 import { ADD_BUTTON_SPACE, AddButton } from '@/components/add-button';
 import { BudgetRow } from '@/components/budget-row';
+import { CaptureBanner } from '@/components/capture-banner';
 import { InstallBanner } from '@/components/install-banner';
 import { OfflineBanner } from '@/components/offline-banner';
 import { ProposalCard } from '@/components/proposal-card';
@@ -42,6 +43,7 @@ export default function OverviewScreen() {
         />
         <OfflineBanner />
         <InstallBanner />
+        <CaptureBanner />
         <ErrorText error={overview.error} />
 
         {o ? (
