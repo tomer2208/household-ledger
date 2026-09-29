@@ -6,9 +6,11 @@ import { useCategories, useHousehold, useTransactions } from '@/api/queries';
 import type { Transaction } from '@/api/types';
 import { ADD_BUTTON_SPACE, AddButton } from '@/components/add-button';
 import { OfflineBanner } from '@/components/offline-banner';
+import { SwipeRow } from '@/components/swipe-row';
 import { TransactionRow } from '@/components/transaction-row';
 import { Empty, ErrorText, Icon } from '@/components/ui';
 import { dayLabel } from '@/lib/dates';
+import { useTransactionActions } from '@/lib/transaction-actions';
 import { useColors } from '@/lib/theme';
 
 export default function TransactionsScreen() {
@@ -20,6 +22,7 @@ export default function TransactionsScreen() {
   const base = useHousehold().data?.household?.base_currency ?? 'ILS';
   const categoryFilter = params.category ?? null;
   const categoryName = cats.data?.find((x) => x.id === categoryFilter)?.name;
+  const actions = useTransactionActions();
 
   // US-M3 AC1: grouped by day, searchable by title or raw merchant, filterable by category.
   const sections = useMemo(() => {
@@ -79,7 +82,21 @@ export default function TransactionsScreen() {
               index === 0 && s.first,
               index === section.data.length - 1 && s.lastCell,
             ]}>
-            <TransactionRow tx={item} baseCurrency={base} last={index === section.data.length - 1} />
+            {/* R5 / US-M3 AC2: swipe left for Edit and Delete (with Undo). */}
+            <SwipeRow onEdit={() => actions.edit(item)} onDelete={() => actions.remove(item)}>
+              {(open) => (
+                <TransactionRow
+                  tx={item}
+                  baseCurrency={base}
+                  last={index === section.data.length - 1}
+                  onLongPress={open}
+                  actions={[
+                    { name: 'edit', label: 'Edit', run: () => actions.edit(item) },
+                    { name: 'delete', label: 'Delete', run: () => actions.remove(item) },
+                  ]}
+                />
+              )}
+            </SwipeRow>
           </View>
         )}
         ListEmptyComponent={

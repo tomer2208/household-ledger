@@ -11,7 +11,20 @@ import { moneyText, useColors } from '@/lib/theme';
 
 const SOURCE_LABEL = { apple_pay: 'Apple Pay', manual: 'Manual', recurring: 'Recurring' } as const;
 
-export function TransactionRow({ tx, baseCurrency, last }: { tx: Transaction; baseCurrency: string; last?: boolean }) {
+export function TransactionRow({
+  tx,
+  baseCurrency,
+  last,
+  onLongPress,
+  actions,
+}: {
+  tx: Transaction;
+  baseCurrency: string;
+  last?: boolean;
+  // Long press reveals the swipe actions; screen readers get them as custom actions.
+  onLongPress?: () => void;
+  actions?: { name: string; label: string; run: () => void }[];
+}) {
   const c = useColors();
   const foreign = tx.currency !== baseCurrency;
   const names = useMemberNames();
@@ -19,6 +32,11 @@ export function TransactionRow({ tx, baseCurrency, last }: { tx: Transaction; ba
   return (
     <Pressable
       onPress={() => router.push({ pathname: '/transaction/[id]', params: { id: tx.id } })}
+      onLongPress={onLongPress}
+      delayLongPress={350}
+      accessibilityRole="button"
+      accessibilityActions={actions?.map(({ name, label }) => ({ name, label }))}
+      onAccessibilityAction={(e) => actions?.find((x) => x.name === e.nativeEvent.actionName)?.run()}
       style={({ pressed }) => [s.row, pressed && { backgroundColor: c.fill }]}>
       <View>
         <CategoryIcon symbol={tx.categories?.sf_symbol ?? 'tag'} />

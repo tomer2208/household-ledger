@@ -1,14 +1,12 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import {
   useCategories,
-  useDeleteTransaction,
   useHousehold,
   useMemberNames,
   useMonthCloses,
-  useRestoreTransaction,
   useTransaction,
   useUpdateTransaction,
 } from '@/api/queries';
@@ -20,8 +18,8 @@ import { Button, ErrorText, Field, Row, Screen, Section } from '@/components/ui'
 import { monthLabel, monthOfDay, onDay, timeLabel, ymd } from '@/lib/dates';
 import { formatSigned, minorToInput, parseMoneyInput } from '@/lib/money';
 import { useIsOnline } from '@/lib/query';
-import { confirm } from '@/lib/confirm';
 import { useColors } from '@/lib/theme';
+import { useTransactionActions } from '@/lib/transaction-actions';
 
 const METHOD_LABEL: Record<string, string> = {
   alias: 'Known merchant',
@@ -44,8 +42,7 @@ function Editor({ t }: { t: Transaction }) {
   const cats = useCategories();
   const base = useHousehold().data?.household?.base_currency ?? 'ILS';
   const update = useUpdateTransaction();
-  const del = useDeleteTransaction();
-  const restore = useRestoreTransaction();
+  const actions = useTransactionActions();
   const online = useIsOnline();
   const names = useMemberNames();
   const addedBy = names && t.created_by ? names.get(t.created_by) : undefined;
@@ -90,18 +87,11 @@ function Editor({ t }: { t: Transaction }) {
     });
   }
 
-  async function confirmDelete() {
-    if (!(await confirm('Delete this expense?', 'It disappears for everyone in the household.', 'Delete'))) return;
-    await del.mutateAsync(t.id);
-    router.back();
-    // US-M3 AC2: deletion is soft and undoable.
-    if (Platform.OS !== 'web') {
-      Alert.alert('Expense deleted', undefined, [
-        { text: 'Undo', onPress: () => restore.mutate(t.id) },
-        { text: 'OK', style: 'cancel' },
-      ]);
-    }
+  // R5: deletes at once and offers Undo in a toast on every platform (the PWA had none).
+  async function deleteExpense() {
+    if (await actions.remove(t)) router.back();
   }
+
 
   return (
     <Screen>
@@ -154,9 +144,9 @@ function Editor({ t }: { t: Transaction }) {
         <Row title="Category by" value={METHOD_LABEL[t.classification?.method ?? ''] ?? 'You'} last />
       </Section>
 
-      <ErrorText error={update.error ?? del.error} />
+      <ErrorText error={update.error} />
       <View style={s.actions}>
-        <Button title="Delete Expense" kind="destructive" onPress={confirmDelete} disabled={!online} />
+        <Button title="Delete Expense" kind="destructive" onPress={deleteExpense} disabled={!online} />
       </View>
     </Screen>
   );
