@@ -7,14 +7,16 @@ import {
   useDeleteTransaction,
   useHousehold,
   useMemberNames,
+  useMonthCloses,
   useRestoreTransaction,
   useTransaction,
   useUpdateTransaction,
 } from '@/api/queries';
 import type { Transaction } from '@/api/types';
 import { CategoryPicker } from '@/components/category-picker';
+import { DateField } from '@/components/date-field';
 import { Button, ErrorText, Field, Row, Screen, Section } from '@/components/ui';
-import { shortDate, timeLabel } from '@/lib/dates';
+import { monthLabel, monthOfDay, onDay, timeLabel, ymd } from '@/lib/dates';
 import { formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
 import { useIsOnline } from '@/lib/query';
 import { confirm } from '@/lib/confirm';
@@ -33,7 +35,7 @@ export default function TransactionDetail() {
   const tx = useTransaction(id);
   if (!tx.data) return <Screen><ErrorText error={tx.error} /></Screen>;
   // Keyed so a fresh row (e.g. the partner edited it) re-seeds the form.
-  return <Editor key={tx.data.id + tx.data.amount_minor + tx.data.category_id} t={tx.data} />;
+  return <Editor key={tx.data.id + tx.data.amount_minor + tx.data.category_id + tx.data.occurred_at} t={tx.data} />;
 }
 
 function Editor({ t }: { t: Transaction }) {
@@ -51,11 +53,22 @@ function Editor({ t }: { t: Transaction }) {
   const [amount, setAmount] = useState(minorToInput(t.amount_minor));
   const [note, setNote] = useState(t.note ?? '');
   const [categoryId, setCategoryId] = useState<string | null>(t.category_id);
+  // R3: the calendar day, editable; the time of day is kept.
+  const [day, setDay] = useState(ymd(new Date(t.occurred_at)));
+  const dayChanged = day !== ymd(new Date(t.occurred_at));
+  const closes = useMonthCloses().data ?? [];
+  const newMonth = monthOfDay(day);
+  const movesMonth = dayChanged && newMonth !== t.budget_month;
+  const touchesClosed = movesMonth && closes.some((m) => m.budget_month === newMonth || m.budget_month === t.budget_month);
 
   const minor = parseMoneyInput(amount);
   const signedMinor = minor == null ? null : t.amount_minor < 0 ? -minor : minor;
   const dirty =
-    title.trim() !== t.title || signedMinor !== t.amount_minor || (note.trim() || null) !== t.note || categoryId !== t.category_id;
+    title.trim() !== t.title ||
+    signedMinor !== t.amount_minor ||
+    (note.trim() || null) !== t.note ||
+    categoryId !== t.category_id ||
+    dayChanged;
 
   async function save() {
     if (!signedMinor || !categoryId) return;
@@ -66,6 +79,7 @@ function Editor({ t }: { t: Transaction }) {
         amount_minor: signedMinor,
         category_id: categoryId,
         note: note.trim() || null,
+        ...(dayChanged ? { occurred_at: onDay(day, new Date(t.occurred_at)) } : {}),
         // US-R1 AC4: entering the real amount of an estimate confirms it.
         ...(t.status === 'estimated' && signedMinor !== t.amount_minor ? { status: 'confirmed' as const } : {}),
         ...(t.status === 'pending_review' && categoryId !== t.category_id ? { status: 'confirmed' as const } : {}),
@@ -111,11 +125,20 @@ function Editor({ t }: { t: Transaction }) {
         <Text style={[s.hint, { color: c.secondaryLabel }]}>This is an estimate. Enter the real amount when the bill arrives.</Text>
       ) : null}
 
+      <Text style={[s.label, { color: c.secondaryLabel }]}>DATE</Text>
+      <DateField value={day} onChange={setDay} />
+      {movesMonth ? (
+        <Text style={[s.hint, { color: c.secondaryLabel }]}>
+          Moves to {monthLabel(newMonth)}.
+          {touchesClosed ? ' That touches a closed month, so savings change by the difference.' : ''}
+        </Text>
+      ) : null}
+
       <Text style={[s.label, { color: c.secondaryLabel }]}>CATEGORY</Text>
       <CategoryPicker categories={cats.data ?? []} value={categoryId} onChange={setCategoryId} />
 
       <Section title="Info">
-        <Row title="Date" value={`${shortDate(t.occurred_at)}, ${timeLabel(t.occurred_at)}`} />
+        <Row title="Time" value={timeLabel(t.occurred_at)} />
         {addedBy ? <Row title="Added by" value={addedBy} /> : null}
         {t.currency !== base ? (
           <Row title={`In ${base}`} value={`${formatMoney(t.amount_base_minor, base)} (rate ${Number(t.fx_rate).toFixed(4)})`} />

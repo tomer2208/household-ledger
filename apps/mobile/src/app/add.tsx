@@ -6,7 +6,9 @@ import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } fr
 
 import { useAddTransaction, useCategories, useHousehold } from '@/api/queries';
 import { CategoryPicker } from '@/components/category-picker';
+import { DateField } from '@/components/date-field';
 import { ErrorText, Field, Section } from '@/components/ui';
+import { onDay, todayYmd, ymd } from '@/lib/dates';
 import { CURRENCIES, parseMoneyInput } from '@/lib/money';
 import { useIsOnline } from '@/lib/query';
 import { moneyText, useColors } from '@/lib/theme';
@@ -32,6 +34,9 @@ export default function AddExpense() {
   const [title, setTitle] = useState(params.merchant ?? '');
   const [note, setNote] = useState('');
   const [categoryId, setCategoryId] = useState<string | null>(null);
+  // R3: the calendar day it happened. A deep link brings its own; otherwise today.
+  const linked = params.occurred_at && !isNaN(new Date(params.occurred_at).getTime()) ? new Date(params.occurred_at) : null;
+  const [day, setDay] = useState(linked ? ymd(linked) : todayYmd());
 
   // Restore a draft saved while offline, unless the deep link brought fresh data.
   useEffect(() => {
@@ -43,6 +48,7 @@ export default function AddExpense() {
       setTitle(d.title ?? '');
       setCurrency(d.currency ?? base);
       setCategoryId(d.categoryId ?? null);
+      if (d.day && d.day <= todayYmd()) setDay(d.day);
     });
   }, [params.amount, params.merchant, base]);
 
@@ -59,7 +65,8 @@ export default function AddExpense() {
       amountMinor: minor,
       currency,
       categoryId,
-      occurredAt: params.occurred_at ? new Date(params.occurred_at).toISOString() : undefined,
+      // Today: the moment of saving. Another day keeps the time of day (the deep link's, or now).
+      occurredAt: linked && ymd(linked) === day ? linked.toISOString() : day === todayYmd() ? undefined : onDay(day, linked ?? new Date()),
       note: note.trim() || null,
       rawMerchant: params.merchant ?? null,
     });
@@ -69,7 +76,7 @@ export default function AddExpense() {
   }
 
   async function saveDraft() {
-    await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify({ amount, title, currency, categoryId }));
+    await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify({ amount, title, currency, categoryId, day }));
     close();
   }
 
@@ -117,6 +124,7 @@ export default function AddExpense() {
               </Pressable>
             ))}
           </View>
+          <DateField value={day} onChange={setDay} />
           {currency !== base ? (
             <Text style={[s.hint, { color: c.secondaryLabel }]}>Converted to {base} at the day’s rate.</Text>
           ) : null}
