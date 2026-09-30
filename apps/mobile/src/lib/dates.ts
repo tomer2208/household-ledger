@@ -112,3 +112,14 @@ export function monthPace(now = new Date()) {
   const p = parts(now);
   return Math.round((p.d * 100) / daysIn(p.y, p.m));
 }
+
+// P1-5: step a budget month ('YYYY-MM-01') by n months, for Overview's month switcher.
+export function addMonths(month: string, n: number) {
+  const [y, m] = month.split('-').map(Number);
+  const d = new Date(Date.UTC(y, m - 1 + n, 1));
+  return d.toISOString().slice(0, 10);
+}
+
+// The budget month an instant falls in, on the household clock.
+export const monthOfInstant = (t: Date) => monthOfDay(ymd(t));
+export const currentMonth = () => monthOfInstant(new Date());

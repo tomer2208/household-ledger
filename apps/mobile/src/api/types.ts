@@ -7,6 +7,7 @@ export type Household = {
   base_currency: string;
   timezone: string;
   ai_consent_at: string | null;
+  created_at: string;
 };
 
 export type Member = { user_id: string; display_name: string; joined_at: string };

@@ -75,5 +75,5 @@ begin
     n_ikea, n_raw, n_heb, n_pct, n_shop,
     array_length(din, 1), (select count(distinct x) from unnest(din) x),
     (select count(*) from unnest(ids) x where x = del), n_stranger,
-    has_function_privilege('anon', 'public.search_transactions(text, uuid, timestamptz, uuid, int)', 'execute');
+    has_function_privilege('anon', 'public.search_transactions(text, uuid, timestamptz, uuid, int, date)', 'execute');
 end $$;

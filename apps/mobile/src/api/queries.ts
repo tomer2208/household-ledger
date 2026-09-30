@@ -47,7 +47,7 @@ export function useHousehold() {
       const mine = (members as (Member & { household_id: string })[]).find((m) => m.user_id === session!.user.id);
       if (!mine) return { household: null, members: [] as Member[], me: null };
       const household = await must(
-        supabase.from('households').select('id,name,base_currency,timezone,ai_consent_at').eq('id', mine.household_id).single(),
+        supabase.from('households').select('id,name,base_currency,timezone,ai_consent_at,created_at').eq('id', mine.household_id).single(),
       );
       return {
         household: household as Household,
@@ -61,6 +61,8 @@ export function useHousehold() {
 export function useOverview(month?: string) {
   return useQuery({
     queryKey: [HH, 'overview', month ?? 'current'],
+    // Stepping between months keeps the last one on screen until the next arrives.
+    placeholderData: keepPreviousData,
     queryFn: async () => (await must(supabase.rpc('month_overview', month ? { p_month: month } : {}))) as Overview,
   });
 }
@@ -95,9 +97,10 @@ type TxCursor = { at: string; id: string } | null;
 // (search_transactions, migrations 26-28). The next page starts after the last row of the
 // previous one, and a refetch (Realtime, Undo) recomputes each cursor from fresh data, so
 // rows are never repeated or skipped.
-export function useTransactionPages(query: string, categoryId: string | null) {
+// P1-5: `month` ('YYYY-MM-01') limits it to one budget month, e.g. from a past month on Overview.
+export function useTransactionPages(query: string, categoryId: string | null, month: string | null = null) {
   return useInfiniteQuery({
-    queryKey: [HH, 'transactions', query, categoryId],
+    queryKey: [HH, 'transactions', query, categoryId, month],
     initialPageParam: null as TxCursor,
     queryFn: async ({ pageParam }) =>
       (await must(
@@ -107,6 +110,7 @@ export function useTransactionPages(query: string, categoryId: string | null) {
           p_before_at: pageParam?.at ?? null,
           p_before_id: pageParam?.id ?? null,
           p_limit: TX_PAGE,
+          p_month: month,
         }),
       )) as Transaction[],
     getNextPageParam: (last): TxCursor | undefined =>
@@ -114,7 +118,7 @@ export function useTransactionPages(query: string, categoryId: string | null) {
     // While a new search loads, keep showing the previous results rather than an empty list.
     placeholderData: keepPreviousData,
     // Only the plain list is worth keeping offline for a week; searches are short-lived.
-    gcTime: query || categoryId ? 5 * 60_000 : undefined,
+    gcTime: query || categoryId || month ? 5 * 60_000 : undefined,
   });
 }
 

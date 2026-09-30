@@ -9,13 +9,13 @@ import { OfflineBanner } from '@/components/offline-banner';
 import { SwipeRow } from '@/components/swipe-row';
 import { TransactionRow } from '@/components/transaction-row';
 import { Empty, ErrorText, Icon } from '@/components/ui';
-import { dayLabel } from '@/lib/dates';
+import { dayLabel, monthLabel } from '@/lib/dates';
 import { useTransactionActions } from '@/lib/transaction-actions';
 import { useColors } from '@/lib/theme';
 
 export default function TransactionsScreen() {
   const c = useColors();
-  const params = useLocalSearchParams<{ category?: string }>();
+  const params = useLocalSearchParams<{ category?: string; month?: string }>();
   const [query, setQuery] = useState('');
   // R7: the server searches every expense; wait for a pause in typing before asking it.
   const [search, setSearch] = useState('');
@@ -26,7 +26,10 @@ export default function TransactionsScreen() {
   const cats = useCategories();
   const base = useHousehold().data?.household?.base_currency ?? 'ILS';
   const categoryFilter = params.category ?? null;
-  const txs = useTransactionPages(search, categoryFilter);
+  // P1-5: a past month on Overview opens its own expenses only.
+  const monthFilter = params.month && /^\d{4}-\d{2}-\d{2}$/.test(params.month) ? params.month : null;
+  const txs = useTransactionPages(search, categoryFilter, monthFilter);
+  const clearFilters = () => router.setParams({ category: undefined, month: undefined });
   const categoryName = cats.data?.find((x) => x.id === categoryFilter)?.name;
   const actions = useTransactionActions();
 
@@ -55,9 +58,9 @@ export default function TransactionsScreen() {
           // The native header search bar doesn't exist on web; WebSearch below stands in.
           headerSearchBarOptions:
             Platform.OS === 'web' ? undefined : { placeholder: 'Search merchants', onChangeText: (e) => setQuery(e.nativeEvent.text) },
-          headerLeft: categoryFilter
+          headerLeft: categoryFilter || monthFilter
             ? () => (
-                <Pressable onPress={() => router.setParams({ category: undefined })} hitSlop={12}>
+                <Pressable onPress={clearFilters} hitSlop={12}>
                   <Text style={{ color: c.tint, fontSize: 17 }}>All</Text>
                 </Pressable>
               )
@@ -86,6 +89,16 @@ export default function TransactionsScreen() {
         ListHeaderComponent={
           <>
             {Platform.OS === 'web' ? <WebSearch value={query} onChange={setQuery} /> : null}
+            {monthFilter ? (
+              <Pressable
+                onPress={clearFilters}
+                accessibilityRole="button"
+                accessibilityLabel={`Showing ${[categoryName, monthLabel(monthFilter)].filter(Boolean).join(', ')}. Show all expenses`}
+                style={[s.chip, { backgroundColor: c.tintFill }]}>
+                <Text style={[s.chipText, { color: c.tint }]}>{[categoryName, monthLabel(monthFilter)].filter(Boolean).join(' · ')}</Text>
+                <Icon name="xmark.circle.fill" size={16} color={c.tint} />
+              </Pressable>
+            ) : null}
             <OfflineBanner />
             <ErrorText error={txs.error} />
           </>
@@ -122,11 +135,11 @@ export default function TransactionsScreen() {
           txs.isLoading || (query.trim() !== search) ? null : (
             <Empty
               icon="list.bullet"
-              title={query || categoryFilter ? 'No matches' : 'No expenses yet'}
-              message={query || categoryFilter ? undefined : 'Apple Pay purchases appear here automatically once the Shortcut is set up.'}
+              title={query || categoryFilter || monthFilter ? 'No matches' : 'No expenses yet'}
+              message={query || categoryFilter || monthFilter ? undefined : 'Apple Pay purchases appear here automatically once the Shortcut is set up.'}
               action={
-                categoryFilter
-                  ? { label: 'Show All Expenses', kind: 'plain', onPress: () => router.setParams({ category: undefined }) }
+                categoryFilter || monthFilter
+                  ? { label: 'Show All Expenses', kind: 'plain', onPress: clearFilters }
                   : query
                     ? undefined
                     : { label: 'Set Up the Shortcut', kind: 'plain', onPress: () => router.push('/settings/devices') }
@@ -170,6 +183,8 @@ const s = StyleSheet.create({
   // 16px minimum, or iOS Safari zooms the page when the field is focused.
   searchInput: { flex: 1, fontSize: 17, paddingVertical: 0, outlineStyle: 'none' } as any,
   header: { fontSize: 13, marginTop: 22, marginBottom: 6, marginLeft: 32 },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', marginHorizontal: 16, marginTop: 10, minHeight: 32, paddingHorizontal: 12, borderRadius: 16 },
+  chipText: { fontSize: 15, fontWeight: '600' },
   footer: { flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', paddingVertical: 20 },
   footerText: { fontSize: 13, textAlign: 'center' },
   cell: { marginHorizontal: 16, overflow: 'hidden' },

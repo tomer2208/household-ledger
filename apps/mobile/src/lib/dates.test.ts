@@ -50,6 +50,17 @@ test('labels', () => {
   assert.equal(D.dayChipLabel('2026-08-30'), 'Sun, Aug 30');
 });
 
+test('addMonths and monthOfInstant (P1-5)', () => {
+  assert.equal(D.addMonths('2026-09-01', -1), '2026-08-01');
+  assert.equal(D.addMonths('2026-01-01', -1), '2025-12-01');
+  assert.equal(D.addMonths('2026-12-01', 1), '2027-01-01');
+  assert.equal(D.addMonths('2026-03-01', -13), '2025-02-01');
+  onIsrael();
+  // 23:30 on 31.08 in Israel is still August; 00:10 on 1.09 is September
+  assert.equal(D.monthOfInstant(new Date('2026-08-31T20:30:00Z')), '2026-08-01');
+  assert.equal(D.monthOfInstant(new Date('2026-08-31T21:10:00Z')), '2026-09-01');
+});
+
 test('without a household zone it follows the phone', () => {
   assert.equal(D.appTimeZone(), Intl.DateTimeFormat().resolvedOptions().timeZone);
 });
