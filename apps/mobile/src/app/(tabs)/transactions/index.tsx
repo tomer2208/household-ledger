@@ -1,8 +1,8 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { Platform, Pressable, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Platform, Pressable, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { useCategories, useHousehold, useTransactions } from '@/api/queries';
+import { useCategories, useHousehold, useTransactionPages } from '@/api/queries';
 import type { Transaction } from '@/api/types';
 import { ADD_BUTTON_SPACE, AddButton } from '@/components/add-button';
 import { OfflineBanner } from '@/components/offline-banner';
@@ -17,28 +17,35 @@ export default function TransactionsScreen() {
   const c = useColors();
   const params = useLocalSearchParams<{ category?: string }>();
   const [query, setQuery] = useState('');
-  const txs = useTransactions();
+  // R7: the server searches every expense; wait for a pause in typing before asking it.
+  const [search, setSearch] = useState('');
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(query.trim()), 250);
+    return () => clearTimeout(t);
+  }, [query]);
   const cats = useCategories();
   const base = useHousehold().data?.household?.base_currency ?? 'ILS';
   const categoryFilter = params.category ?? null;
+  const txs = useTransactionPages(search, categoryFilter);
   const categoryName = cats.data?.find((x) => x.id === categoryFilter)?.name;
   const actions = useTransactionActions();
 
-  // US-M3 AC1: grouped by day, searchable by title or raw merchant, filterable by category.
+  // US-M3 AC1: grouped by day. Search and category run on the server (R7); a row can only
+  // repeat across pages if it moved while paging, so ids are de-duplicated.
   const sections = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const filtered = (txs.data ?? []).filter(
-      (t) =>
-        (!categoryFilter || t.category_id === categoryFilter) &&
-        (!q || t.title.toLowerCase().includes(q) || (t.raw_merchant ?? '').toLowerCase().includes(q)),
-    );
+    const seen = new Set<string>();
     const groups = new Map<string, Transaction[]>();
-    for (const t of filtered) {
+    for (const t of txs.data?.pages.flat() ?? []) {
+      if (seen.has(t.id)) continue;
+      seen.add(t.id);
       const key = dayLabel(t.occurred_at);
       groups.set(key, [...(groups.get(key) ?? []), t]);
     }
     return [...groups.entries()].map(([title, data]) => ({ title, data }));
-  }, [txs.data, query, categoryFilter]);
+  }, [txs.data]);
+  const loadMore = () => {
+    if (txs.hasNextPage && !txs.isFetchingNextPage) txs.fetchNextPage();
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: c.groupedBackground }}>
@@ -62,8 +69,20 @@ export default function TransactionsScreen() {
         sections={sections}
         keyExtractor={(t) => t.id}
         stickySectionHeadersEnabled={false}
-        refreshing={txs.isRefetching}
+        refreshing={txs.isRefetching && !txs.isFetchingNextPage}
         onRefresh={() => txs.refetch()}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          txs.isFetchingNextPage ? (
+            <View style={s.footer} accessibilityLiveRegion="polite">
+              <ActivityIndicator />
+              <Text style={[s.footerText, { color: c.secondaryLabel }]}>Loading more…</Text>
+            </View>
+          ) : sections.length > 0 && !txs.hasNextPage ? (
+            <Text style={[s.footerText, s.footer, { color: c.tertiaryLabel }]}>That’s everything</Text>
+          ) : null
+        }
         ListHeaderComponent={
           <>
             {Platform.OS === 'web' ? <WebSearch value={query} onChange={setQuery} /> : null}
@@ -100,7 +119,7 @@ export default function TransactionsScreen() {
           </View>
         )}
         ListEmptyComponent={
-          txs.isLoading ? null : (
+          txs.isLoading || (query.trim() !== search) ? null : (
             <Empty
               icon="list.bullet"
               title={query || categoryFilter ? 'No matches' : 'No expenses yet'}
@@ -151,6 +170,8 @@ const s = StyleSheet.create({
   // 16px minimum, or iOS Safari zooms the page when the field is focused.
   searchInput: { flex: 1, fontSize: 17, paddingVertical: 0, outlineStyle: 'none' } as any,
   header: { fontSize: 13, marginTop: 22, marginBottom: 6, marginLeft: 32 },
+  footer: { flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', paddingVertical: 20 },
+  footerText: { fontSize: 13, textAlign: 'center' },
   cell: { marginHorizontal: 16, overflow: 'hidden' },
   first: { borderTopLeftRadius: 10, borderTopRightRadius: 10 },
   lastCell: { borderBottomLeftRadius: 10, borderBottomRightRadius: 10 },

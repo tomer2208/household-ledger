@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
 import { useSession } from './session';
@@ -88,18 +88,33 @@ export function useMemberNames() {
   return new Map(members.map((m) => [m.user_id, m.display_name]));
 }
 
-export function useTransactions() {
-  return useQuery({
-    queryKey: [HH, 'transactions'],
-    queryFn: async () =>
+export const TX_PAGE = 50;
+type TxCursor = { at: string; id: string } | null;
+
+// R7: every expense, a page at a time, searched and filtered on the server
+// (search_transactions, migrations 26-28). The next page starts after the last row of the
+// previous one, and a refetch (Realtime, Undo) recomputes each cursor from fresh data, so
+// rows are never repeated or skipped.
+export function useTransactionPages(query: string, categoryId: string | null) {
+  return useInfiniteQuery({
+    queryKey: [HH, 'transactions', query, categoryId],
+    initialPageParam: null as TxCursor,
+    queryFn: async ({ pageParam }) =>
       (await must(
-        supabase
-          .from('transactions')
-          .select(TX_COLUMNS)
-          .is('deleted_at', null)
-          .order('occurred_at', { ascending: false })
-          .limit(300),
-      )) as unknown as Transaction[],
+        supabase.rpc('search_transactions', {
+          p_query: query || null,
+          p_category: categoryId,
+          p_before_at: pageParam?.at ?? null,
+          p_before_id: pageParam?.id ?? null,
+          p_limit: TX_PAGE,
+        }),
+      )) as Transaction[],
+    getNextPageParam: (last): TxCursor | undefined =>
+      last.length < TX_PAGE ? undefined : { at: last[last.length - 1].occurred_at, id: last[last.length - 1].id },
+    // While a new search loads, keep showing the previous results rather than an empty list.
+    placeholderData: keepPreviousData,
+    // Only the plain list is worth keeping offline for a week; searches are short-lived.
+    gcTime: query || categoryId ? 5 * 60_000 : undefined,
   });
 }
 

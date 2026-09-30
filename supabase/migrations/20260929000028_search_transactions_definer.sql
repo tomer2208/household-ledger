@@ -1,0 +1,51 @@
+-- R7 follow-up: search_transactions was correct but slow at scale. Measured on 20,000 expenses
+-- it took ~24 s for the first page. As a SQL function with SET search_path it is never inlined,
+-- so it was planned without knowing which parameters are null (no index jump to the page), and
+-- row level security ran a function per candidate row in both tables.
+--
+-- Now SECURITY DEFINER, like month_overview: the household comes once from the caller's own
+-- session (app.require_household(), never from the request) and every table is filtered by it
+-- explicitly, which is exactly what RLS would allow. The query runs through EXECUTE ... USING,
+-- so each call is planned with its real values: the (occurred_at, id) condition becomes an
+-- index range, and the text match uses the trigram indexes when it's selective.
+
+create or replace function public.search_transactions(
+  p_query text default null,
+  p_category uuid default null,
+  p_before_at timestamptz default null,
+  p_before_id uuid default null,
+  p_limit int default 50
+) returns jsonb
+language plpgsql stable security definer set search_path = '' as $$
+declare
+  v_household uuid := app.require_household();
+  v_text text := nullif(btrim(p_query), '');
+  v_limit int := least(greatest(coalesce(p_limit, 50), 1), 200);
+  v_result jsonb;
+begin
+  execute format($sql$
+    select coalesce(jsonb_agg(to_jsonb(p) order by p.occurred_at desc, p.id desc), '[]'::jsonb)
+    from (
+      select t.id, t.title, t.raw_merchant, t.amount_minor, t.currency, t.amount_base_minor, t.fx_rate, t.fx_source,
+             t.occurred_at, t.budget_month, t.status, t.source, t.category_id, t.note, t.card_label, t.created_by,
+             t.recurring_rule_id, t.classification,
+             jsonb_build_object('name', c.name, 'sf_symbol', c.sf_symbol) as categories
+      from public.transactions t
+      join public.categories c on c.id = t.category_id and c.household_id = $1
+      where t.household_id = $1 and t.deleted_at is null
+        %s %s %s
+      order by t.occurred_at desc, t.id desc
+      limit $6
+    ) p $sql$,
+    case when p_category is not null then 'and t.category_id = $2' else '' end,
+    case when v_text is not null then 'and (t.title ilike $3 or t.raw_merchant ilike $3)' else '' end,
+    case when p_before_at is not null then 'and (t.occurred_at, t.id) < ($4, $5)' else '' end)
+  into v_result
+  using v_household, p_category,
+        '%' || replace(replace(replace(coalesce(v_text, ''), '\', '\\'), '%', '\%'), '_', '\_') || '%',
+        p_before_at, coalesce(p_before_id, 'ffffffff-ffff-ffff-ffff-ffffffffffff'::uuid), v_limit;
+  return v_result;
+end $$;
+
+revoke execute on function public.search_transactions(text, uuid, timestamptz, uuid, int) from public, anon;
+grant execute on function public.search_transactions(text, uuid, timestamptz, uuid, int) to authenticated;
