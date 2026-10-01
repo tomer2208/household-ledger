@@ -31,7 +31,8 @@ async function must<T>(p: PromiseLike<{ data: T; error: { message: string } | nu
 
 const TX_COLUMNS =
   'id,title,raw_merchant,amount_minor,currency,amount_base_minor,fx_rate,fx_source,occurred_at,budget_month,' +
-  'status,source,category_id,note,card_label,created_by,recurring_rule_id,classification,categories(name,sf_symbol)';
+  'status,source,category_id,note,card_label,created_by,recurring_rule_id,classification,categories(name,sf_symbol),' +
+  'recurring_period,recurring_rules(installment_count,installment_first)';
 
 // ───────── reads ─────────
 
@@ -153,7 +154,7 @@ export function useRecurring() {
         supabase
           .from('recurring_rules')
           .select(
-            'id,title,category_id,amount_minor,currency,amount_kind,interval_months,day_of_month,start_date,end_date,next_run_date,paused,categories(name,sf_symbol)',
+            'id,title,category_id,amount_minor,currency,amount_kind,interval_months,day_of_month,start_date,end_date,next_run_date,paused,categories(name,sf_symbol),installment_count,installment_first',
           )
           .is('deleted_at', null)
           .order('next_run_date'),
@@ -287,6 +288,7 @@ export type NewTransaction = {
   rawMerchant?: string | null;
 };
 
+// Resolves to the new expense's id, so it can be split into installments right after.
 export const useAddTransaction = () =>
   useHHMutation((v: NewTransaction) =>
     must(
@@ -301,8 +303,14 @@ export const useAddTransaction = () =>
         occurred_at: v.occurredAt ?? new Date().toISOString(),
         note: v.note ?? null,
         raw_merchant: v.rawMerchant ?? null,
-      }),
-    ),
+      }).select('id').single(),
+    ).then((row) => (row as { id: string }).id),
+  );
+
+// P1-2: split an expense into monthly installments (migration 33). All or nothing.
+export const useCreateInstallments = () =>
+  useHHMutation((v: { transactionId: string; count: number }) =>
+    must(supabase.rpc('create_installments', { p_transaction_id: v.transactionId, p_count: v.count })),
   );
 
 export const useUpdateTransaction = () =>

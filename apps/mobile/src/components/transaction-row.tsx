@@ -58,6 +58,7 @@ export function TransactionRow({
             {tx.status === 'pending_review' ? <Badge text="Review" color={c.orange} /> : null}
             {tx.status === 'estimated' ? <Badge text="Estimate" color={c.secondaryLabel} /> : null}
             {tx.amount_minor < 0 ? <Badge text="Refund" color={c.green} /> : null}
+            {tx.installment ? <Badge text={`${tx.installment.no}/${tx.installment.count}`} color={c.secondaryLabel} /> : null}
           </View>
         </View>
         <View style={{ alignItems: 'flex-end' }}>

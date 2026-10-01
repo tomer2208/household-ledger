@@ -4,9 +4,11 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { useAddTransaction, useCategories, useExpenseTemplates, useHousehold, useSuggestedCategory } from '@/api/queries';
+import { useAddTransaction, useCategories, useCreateInstallments, useExpenseTemplates, useHousehold, useSuggestedCategory } from '@/api/queries';
 import { CategoryPicker } from '@/components/category-picker';
+import { useToast } from '@/components/toast';
 import { DateField } from '@/components/date-field';
+import { InstallmentPicker } from '@/components/installment-picker';
 import { KindToggle } from '@/components/kind-toggle';
 import { ErrorText, Field, Section } from '@/components/ui';
 import { onDay, todayYmd, ymd } from '@/lib/dates';
@@ -36,6 +38,10 @@ export default function AddExpense() {
   const hh = useHousehold();
   const cats = useCategories();
   const add = useAddTransaction();
+  const split = useCreateInstallments();
+  const toast = useToast();
+  // P1-2: one payment, or the number of monthly installments (expenses only).
+  const [payments, setPayments] = useState(1);
   const online = useIsOnline();
   const base = hh.data?.household?.base_currency ?? 'ILS';
 
@@ -63,6 +69,7 @@ export default function AddExpense() {
       setCategoryId(d.categoryId ?? null);
       if (d.day && d.day <= todayYmd()) setDay(d.day);
       setRefund(!!d.refund);
+      if (Number.isInteger(d.payments) && d.payments >= 1 && d.payments <= 36) setPayments(d.payments);
     });
   }, [params.amount, params.merchant, params.title, base]);
 
@@ -87,12 +94,13 @@ export default function AddExpense() {
   };
 
   const minor = parseMoneyInput(amount);
-  const canSave = !!minor && !!selectedCategory && online && !add.isPending;
+  const count = refund ? 1 : payments;
+  const canSave = !!minor && !!selectedCategory && online && !add.isPending && !split.isPending && (count === 1 || minor >= count);
   const categoryName = cats.data?.find((x) => x.id === selectedCategory)?.name;
 
   async function save() {
     if (!minor || !selectedCategory || !hh.data?.household || !hh.data.me) return;
-    await add.mutateAsync({
+    const id = await add.mutateAsync({
       householdId: hh.data.household.id,
       userId: hh.data.me.user_id,
       title: title.trim() || (refund ? `${categoryName ?? 'Refund'} refund` : categoryName) || 'Expense',
@@ -104,13 +112,21 @@ export default function AddExpense() {
       note: note.trim() || null,
       rawMerchant: params.merchant ?? null,
     });
+    if (count > 1) {
+      try {
+        await split.mutateAsync({ transactionId: id, count });
+      } catch {
+        // The expense is saved; only the split failed, and it can be done from its details.
+        toast({ message: 'Saved as one payment. Open it to split into installments.' });
+      }
+    }
     await AsyncStorage.removeItem(DRAFT_KEY);
     if (Platform.OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     close();
   }
 
   async function saveDraft() {
-    await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify({ amount, title, currency, categoryId: selectedCategory, day, refund }));
+    await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify({ amount, title, currency, categoryId: selectedCategory, day, refund, payments }));
     close();
   }
 
@@ -189,6 +205,13 @@ export default function AddExpense() {
         <Text style={[s.label, { color: c.secondaryLabel }]}>CATEGORY</Text>
         <CategoryPicker categories={cats.data ?? []} value={selectedCategory} onChange={setCategoryId} />
         {autoPicked ? <Text style={[s.hint, s.picked, { color: c.secondaryLabel }]}>Picked from past expenses. Tap another to change it.</Text> : null}
+
+        {!refund ? (
+          <>
+            <Text style={[s.label, { color: c.secondaryLabel }]}>PAYMENTS</Text>
+            <InstallmentPicker value={payments} onChange={setPayments} totalMinor={minor} currency={currency} />
+          </>
+        ) : null}
 
         <Section title="Details">
           <Field label="Title" value={title} onChangeText={setTitle} placeholder={categoryName ?? 'Optional'} />

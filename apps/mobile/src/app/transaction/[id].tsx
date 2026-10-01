@@ -6,6 +6,7 @@ import {
   useCategories,
   useHousehold,
   useMemberNames,
+  useCreateInstallments,
   useMonthCloses,
   useTransaction,
   useUpdateTransaction,
@@ -13,12 +14,14 @@ import {
 import type { Transaction } from '@/api/types';
 import { CategoryPicker } from '@/components/category-picker';
 import { DateField } from '@/components/date-field';
+import { InstallmentPicker } from '@/components/installment-picker';
 import { KindToggle } from '@/components/kind-toggle';
 import { Button, ErrorText, Field, Row, Screen, Section } from '@/components/ui';
 import { monthLabel, monthOfDay, onDay, timeLabel, ymd } from '@/lib/dates';
 import { formatSigned, minorToInput, parseMoneyInput } from '@/lib/money';
 import { useIsOnline } from '@/lib/query';
 import { useColors } from '@/lib/theme';
+import { installmentNo } from '@/lib/installments';
 import { useTransactionActions } from '@/lib/transaction-actions';
 
 const METHOD_LABEL: Record<string, string> = {
@@ -43,6 +46,11 @@ function Editor({ t }: { t: Transaction }) {
   const base = useHousehold().data?.household?.base_currency ?? 'ILS';
   const update = useUpdateTransaction();
   const actions = useTransactionActions();
+  // P1-2: split this expense into monthly installments, or show which payment it is.
+  const createSplit = useCreateInstallments();
+  const [splitCount, setSplitCount] = useState<number | null>(null);
+  const installment = installmentNo(t);
+  const canSplit = t.amount_minor > 0 && t.source !== 'recurring' && !t.recurring_rule_id;
   const online = useIsOnline();
   const names = useMemberNames();
   const addedBy = names && t.created_by ? names.get(t.created_by) : undefined;
@@ -135,6 +143,7 @@ function Editor({ t }: { t: Transaction }) {
 
       <Section title="Info">
         <Row title="Time" value={timeLabel(t.occurred_at)} />
+        {installment ? <Row title="Installment" value={`${installment.no} of ${installment.count}`} /> : null}
         {addedBy ? <Row title="Added by" value={addedBy} /> : null}
         {t.currency !== base ? (
           <Row title={`In ${base}`} value={`${formatSigned(t.amount_base_minor, base)} (rate ${Number(t.fx_rate).toFixed(4)})`} />
@@ -144,7 +153,38 @@ function Editor({ t }: { t: Transaction }) {
         <Row title="Category by" value={METHOD_LABEL[t.classification?.method ?? ''] ?? 'You'} last />
       </Section>
 
-      <ErrorText error={update.error} />
+      {canSplit ? (
+        <Section
+          title="Installments"
+          footer={
+            splitCount && splitCount > 1
+              ? 'This expense becomes the first payment; the rest are added on the same day each month, under Recurring.'
+              : 'Paid in installments (תשלומים)? Spread it over the months it is charged.'
+          }>
+          {splitCount === null ? (
+            <Row title="Split into Installments" onPress={() => setSplitCount(12)} chevron={false} last />
+          ) : (
+            <View style={s.split}>
+              <InstallmentPicker value={splitCount} onChange={setSplitCount} totalMinor={t.amount_minor} currency={t.currency} />
+              <View style={s.splitActions}>
+                <Button
+                  title={splitCount > 1 ? `Split into ${splitCount} Payments` : 'Keep as One Payment'}
+                  loading={createSplit.isPending}
+                  disabled={!online || dirty}
+                  onPress={() =>
+                    splitCount > 1
+                      ? createSplit.mutate({ transactionId: t.id, count: splitCount }, { onSuccess: () => setSplitCount(null) })
+                      : setSplitCount(null)
+                  }
+                />
+                {dirty ? <Text style={[s.hint, { color: c.secondaryLabel }]}>Save your changes first.</Text> : null}
+              </View>
+            </View>
+          )}
+        </Section>
+      ) : null}
+
+      <ErrorText error={update.error ?? createSplit.error} />
       <View style={s.actions}>
         {/* P1-8: the same expense again, dated today: for repeats that aren't recurring rules. */}
         <Button
@@ -172,6 +212,8 @@ function Editor({ t }: { t: Transaction }) {
 const s = StyleSheet.create({
   hint: { fontSize: 13, marginHorizontal: 32, marginTop: 6 },
   kind: { marginTop: 16 },
+  split: { paddingVertical: 12, gap: 12 },
+  splitActions: { marginHorizontal: 16, gap: 6 },
   label: { fontSize: 13, marginLeft: 32, marginTop: 22, marginBottom: 8 },
   actions: { marginHorizontal: 16, marginTop: 24, gap: 8 },
 });

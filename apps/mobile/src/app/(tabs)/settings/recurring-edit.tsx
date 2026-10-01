@@ -9,6 +9,7 @@ import { Button, ErrorText, Field, Screen, Section } from '@/components/ui';
 import { CURRENCIES, minorToInput, parseMoneyInput } from '@/lib/money';
 import { useColors } from '@/lib/theme';
 import { todayYmd } from '@/lib/dates';
+import { confirm } from '@/lib/confirm';
 
 const INTERVALS = [
   { v: 1, label: 'Monthly' },
@@ -104,9 +105,15 @@ function Editor({ id, rule }: { id?: string; rule?: RecurringRule }) {
         <Button title="Save" onPress={onSave} disabled={!valid} loading={save.isPending} />
         {id ? (
           <Button
-            title="Delete Recurring"
+            title={rule?.installment_count ? 'Cancel Remaining Payments' : 'Delete Recurring'}
             kind="destructive"
             onPress={async () => {
+              // Installments: payments already made stay; only the ones still to come stop.
+              if (
+                rule?.installment_count &&
+                !(await confirm('Cancel the remaining payments?', 'Payments already made stay. No more will be added.', 'Cancel Payments'))
+              )
+                return;
               await del.mutateAsync(id);
               router.back();
             }}
