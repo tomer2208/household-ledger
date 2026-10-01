@@ -346,6 +346,29 @@ export const useSetBudgetsBulk = () =>
     ),
   );
 
+// P1-8: the household's most repeated manual expenses (migration 31), offered on Add.
+export type ExpenseTemplate = { title: string; category_id: string; amount_minor: number; currency: string; uses: number };
+export function useExpenseTemplates() {
+  return useQuery({
+    queryKey: [HH, 'templates'],
+    queryFn: async () => (await must(supabase.rpc('recent_expense_templates'))) as ExpenseTemplate[],
+  });
+}
+
+// P1-8: the category a typed title most likely belongs to, from what the household taught
+// the app (learned merchants, past titles), or null. Short-lived: it changes as people type.
+export function useSuggestedCategory(title: string) {
+  const t = title.trim();
+  return useQuery({
+    queryKey: [HH, 'suggest', t.toLowerCase()],
+    enabled: t.length >= 2,
+    staleTime: 60_000,
+    gcTime: 60_000,
+    queryFn: async () =>
+      (await must(supabase.rpc('suggest_category', { p_title: t }))) as { category_id: string; source: string } | null,
+  });
+}
+
 // 0 clears the income. Applies from the current month on, like a budget change.
 export const useSetIncome = () =>
   useHHMutation((amountMinor: number) => must(supabase.rpc('set_monthly_income', { p_amount_minor: amountMinor })));

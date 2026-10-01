@@ -146,6 +146,23 @@ function Editor({ t }: { t: Transaction }) {
 
       <ErrorText error={update.error} />
       <View style={s.actions}>
+        {/* P1-8: the same expense again, dated today: for repeats that aren't recurring rules. */}
+        <Button
+          title="Duplicate"
+          kind="plain"
+          onPress={() =>
+            router.push({
+              pathname: '/add',
+              params: {
+                title: t.title,
+                amount: minorToInput(t.amount_minor),
+                currency: t.currency,
+                category: t.category_id,
+                ...(t.amount_minor < 0 ? { refund: '1' } : {}),
+              },
+            })
+          }
+        />
         <Button title="Delete Expense" kind="destructive" onPress={deleteExpense} disabled={!online} />
       </View>
     </Screen>
@@ -156,5 +173,5 @@ const s = StyleSheet.create({
   hint: { fontSize: 13, marginHorizontal: 32, marginTop: 6 },
   kind: { marginTop: 16 },
   label: { fontSize: 13, marginLeft: 32, marginTop: 22, marginBottom: 8 },
-  actions: { marginHorizontal: 16, marginTop: 24 },
+  actions: { marginHorizontal: 16, marginTop: 24, gap: 8 },
 });
