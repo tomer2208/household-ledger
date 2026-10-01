@@ -3,6 +3,8 @@ import { router } from 'expo-router';
 import { useOverview, useSetIncome } from '@/api/queries';
 import { useToast } from '@/components/toast';
 import { confirm } from '@/lib/confirm';
+import { errorMessage } from '@/lib/errors';
+import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 
 // Edit and Remove for the monthly income, shared by the swipe actions (Settings row, income
@@ -20,21 +22,17 @@ export function useIncomeActions() {
     const o = overview.data;
     if (!o?.income) return false;
     const previous = o.income;
-    const ok = await confirm(
-      'Remove monthly income?',
-      `${formatMoney(previous, o.currency)} stops counting from this month on. Budgets stay as they are, and closed months keep their income.`,
-      'Remove',
-    );
+    const ok = await confirm(t.actions.removeIncomeTitle, t.actions.removeIncomeBody(formatMoney(previous, o.currency)), t.common.remove);
     if (!ok) return false;
     try {
       await setIncome.mutateAsync(0);
     } catch (e) {
-      toast({ message: e instanceof Error ? e.message : String(e) });
+      toast({ message: errorMessage(e) });
       return false;
     }
     toast({
-      message: 'Monthly income removed',
-      action: { label: 'Undo', onPress: () => setIncome.mutate(previous) },
+      message: t.actions.incomeRemoved,
+      action: { label: t.common.undo, onPress: () => setIncome.mutate(previous) },
     });
     return true;
   }

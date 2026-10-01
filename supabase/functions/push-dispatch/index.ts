@@ -25,16 +25,19 @@ type Alert = {
   days_left: number;
   suppressed: boolean;
   tokens: string[];
+  // P1-6 (migration 34): each recipient's language; missing means English.
+  token_lang?: Record<string, Lang>;
   web: WebSub[];
 };
 
-type WebSub = { endpoint: string; p256dh: string; auth: string };
+type Lang = "en" | "he";
+type WebSub = { endpoint: string; p256dh: string; auth: string; lang?: Lang };
 
 type Result = { category_id: string; budget_month: string; threshold: number; status: "sent" | "suppressed" | "failed" };
 
-function money(minor: number, currency: string) {
+function money(minor: number, currency: string, lang: Lang) {
   try {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat(lang === "he" ? "he-IL" : "en-US", {
       style: "currency",
       currency,
       currencyDisplay: "narrowSymbol",
@@ -45,12 +48,20 @@ function money(minor: number, currency: string) {
   }
 }
 
-// Copy per BLUEPRINT US-S2 AC4: what happened, the numbers, and how much month is left.
-export function compose(a: Alert) {
+// Copy per BLUEPRINT US-S2 AC4: what happened, the numbers, and how much month is left,
+// in the recipient's language (P1-6).
+export function compose(a: Alert, lang: Lang = "en") {
+  const spent = money(a.spent_minor, a.currency, lang);
+  const cap = money(a.cap_minor, a.currency, lang);
+  const n = a.days_left;
+  if (lang === "he") {
+    const title = a.threshold >= 100 ? `${a.category_name}: חריגה מהתקציב` : `${a.category_name}: הגעתם ל-90% מהתקציב`;
+    const days = n === 0 ? "היום האחרון בחודש" : n === 1 ? "נשאר יום אחד" : n === 2 ? "נשארו יומיים" : `נשארו ${n} ימים`;
+    return { title, body: `${spent} מתוך ${cap} · ${days}` };
+  }
   const title = a.threshold >= 100 ? `${a.category_name} is over budget` : `${a.category_name} is at 90%`;
-  const days = a.days_left === 1 ? "1 day left" : `${a.days_left} days left`;
-  const body = `${money(a.spent_minor, a.currency)} of ${money(a.cap_minor, a.currency)} · ${days}`;
-  return { title, body };
+  const days = n === 0 ? "last day of the month" : n === 1 ? "1 day left" : `${n} days left`;
+  return { title, body: `${spent} of ${cap} · ${days}` };
 }
 
 // Sends to every browser in the household. 404/410 means the subscription is gone for good.
@@ -67,7 +78,7 @@ async function sendWeb(alerts: Alert[], okByAlert: Map<number, boolean>, dead: s
       a.suppressed
         ? []
         : a.web.map(async (w) => {
-            const { title, body } = compose(a);
+            const { title, body } = compose(a, w.lang ?? "en");
             const payload = JSON.stringify({
               title,
               body,
@@ -118,8 +129,8 @@ Deno.serve(async () => {
       results.push({ ...key, status: "sent" });
       return;
     }
-    const { title, body } = compose(a);
     for (const to of tokens) {
+      const { title, body } = compose(a, a.token_lang?.[to] ?? "en");
       messages.push({
         to,
         title,

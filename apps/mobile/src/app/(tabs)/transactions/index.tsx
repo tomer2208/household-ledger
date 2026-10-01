@@ -10,6 +10,7 @@ import { SwipeRow } from '@/components/swipe-row';
 import { TransactionRow } from '@/components/transaction-row';
 import { Empty, ErrorText, Icon } from '@/components/ui';
 import { dayLabel, monthLabel } from '@/lib/dates';
+import { t } from '@/lib/i18n';
 import { useTransactionActions } from '@/lib/transaction-actions';
 import { useColors } from '@/lib/theme';
 
@@ -20,8 +21,8 @@ export default function TransactionsScreen() {
   // R7: the server searches every expense; wait for a pause in typing before asking it.
   const [search, setSearch] = useState('');
   useEffect(() => {
-    const t = setTimeout(() => setSearch(query.trim()), 250);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setSearch(query.trim()), 250);
+    return () => clearTimeout(timer);
   }, [query]);
   const cats = useCategories();
   const base = useHousehold().data?.household?.base_currency ?? 'ILS';
@@ -38,11 +39,11 @@ export default function TransactionsScreen() {
   const sections = useMemo(() => {
     const seen = new Set<string>();
     const groups = new Map<string, Transaction[]>();
-    for (const t of txs.data?.pages.flat() ?? []) {
-      if (seen.has(t.id)) continue;
-      seen.add(t.id);
-      const key = dayLabel(t.occurred_at);
-      groups.set(key, [...(groups.get(key) ?? []), t]);
+    for (const tx of txs.data?.pages.flat() ?? []) {
+      if (seen.has(tx.id)) continue;
+      seen.add(tx.id);
+      const key = dayLabel(tx.occurred_at);
+      groups.set(key, [...(groups.get(key) ?? []), tx]);
     }
     return [...groups.entries()].map(([title, data]) => ({ title, data }));
   }, [txs.data]);
@@ -54,14 +55,14 @@ export default function TransactionsScreen() {
     <View style={{ flex: 1, backgroundColor: c.groupedBackground }}>
       <Stack.Screen
         options={{
-          title: categoryName ?? 'Expenses',
+          title: categoryName ?? t.tabs.expenses,
           // The native header search bar doesn't exist on web; WebSearch below stands in.
           headerSearchBarOptions:
-            Platform.OS === 'web' ? undefined : { placeholder: 'Search merchants', onChangeText: (e) => setQuery(e.nativeEvent.text) },
+            Platform.OS === 'web' ? undefined : { placeholder: t.expenses.search, onChangeText: (e) => setQuery(e.nativeEvent.text) },
           headerLeft: categoryFilter || monthFilter
             ? () => (
                 <Pressable onPress={clearFilters} hitSlop={12}>
-                  <Text style={{ color: c.tint, fontSize: 17 }}>All</Text>
+                  <Text style={{ color: c.tint, fontSize: 17 }}>{t.common.all}</Text>
                 </Pressable>
               )
             : undefined,
@@ -70,7 +71,7 @@ export default function TransactionsScreen() {
       <SectionList
         contentInsetAdjustmentBehavior="automatic"
         sections={sections}
-        keyExtractor={(t) => t.id}
+        keyExtractor={(tx) => tx.id}
         stickySectionHeadersEnabled={false}
         refreshing={txs.isRefetching && !txs.isFetchingNextPage}
         onRefresh={() => txs.refetch()}
@@ -80,10 +81,10 @@ export default function TransactionsScreen() {
           txs.isFetchingNextPage ? (
             <View style={s.footer} accessibilityLiveRegion="polite">
               <ActivityIndicator />
-              <Text style={[s.footerText, { color: c.secondaryLabel }]}>Loading more…</Text>
+              <Text style={[s.footerText, { color: c.secondaryLabel }]}>{t.expenses.loadingMore}</Text>
             </View>
           ) : sections.length > 0 && !txs.hasNextPage ? (
-            <Text style={[s.footerText, s.footer, { color: c.tertiaryLabel }]}>That’s everything</Text>
+            <Text style={[s.footerText, s.footer, { color: c.tertiaryLabel }]}>{t.expenses.everything}</Text>
           ) : null
         }
         ListHeaderComponent={
@@ -93,7 +94,7 @@ export default function TransactionsScreen() {
               <Pressable
                 onPress={clearFilters}
                 accessibilityRole="button"
-                accessibilityLabel={`Showing ${[categoryName, monthLabel(monthFilter)].filter(Boolean).join(', ')}. Show all expenses`}
+                accessibilityLabel={t.expenses.showingFilter([categoryName, monthLabel(monthFilter)].filter(Boolean).join(', '))}
                 style={[s.chip, { backgroundColor: c.tintFill }]}>
                 <Text style={[s.chipText, { color: c.tint }]}>{[categoryName, monthLabel(monthFilter)].filter(Boolean).join(' · ')}</Text>
                 <Icon name="xmark.circle.fill" size={16} color={c.tint} />
@@ -114,7 +115,7 @@ export default function TransactionsScreen() {
               index === 0 && s.first,
               index === section.data.length - 1 && s.lastCell,
             ]}>
-            {/* R5 / US-M3 AC2: swipe left for Edit and Delete (with Undo). */}
+            {/* R5 / US-M3 AC2: swipe for Edit and Delete (with Undo). */}
             <SwipeRow onEdit={() => actions.edit(item)} onDelete={() => actions.remove(item)}>
               {(open) => (
                 <TransactionRow
@@ -123,8 +124,8 @@ export default function TransactionsScreen() {
                   last={index === section.data.length - 1}
                   onLongPress={open}
                   actions={[
-                    { name: 'edit', label: 'Edit', run: () => actions.edit(item) },
-                    { name: 'delete', label: 'Delete', run: () => actions.remove(item) },
+                    { name: 'edit', label: t.common.edit, run: () => actions.edit(item) },
+                    { name: 'delete', label: t.common.delete, run: () => actions.remove(item) },
                   ]}
                 />
               )}
@@ -135,14 +136,14 @@ export default function TransactionsScreen() {
           txs.isLoading || (query.trim() !== search) ? null : (
             <Empty
               icon="list.bullet"
-              title={query || categoryFilter || monthFilter ? 'No matches' : 'No expenses yet'}
-              message={query || categoryFilter || monthFilter ? undefined : 'Apple Pay purchases appear here automatically once the Shortcut is set up.'}
+              title={query || categoryFilter || monthFilter ? t.expenses.noMatches : t.expenses.emptyTitle}
+              message={query || categoryFilter || monthFilter ? undefined : t.expenses.emptyMessage}
               action={
                 categoryFilter || monthFilter
-                  ? { label: 'Show All Expenses', kind: 'plain', onPress: clearFilters }
+                  ? { label: t.expenses.showAll, kind: 'plain', onPress: clearFilters }
                   : query
                     ? undefined
-                    : { label: 'Set Up the Shortcut', kind: 'plain', onPress: () => router.push('/settings/devices') }
+                    : { label: t.expenses.setUpShortcut, kind: 'plain', onPress: () => router.push('/settings/devices') }
               }
             />
           )
@@ -162,15 +163,15 @@ function WebSearch({ value, onChange }: { value: string; onChange: (v: string) =
       <TextInput
         value={value}
         onChangeText={onChange}
-        placeholder="Search merchants"
+        placeholder={t.expenses.search}
         placeholderTextColor={c.secondaryLabel as string}
         inputMode="search"
         autoCorrect={false}
         style={[s.searchInput, { color: c.label }]}
-        accessibilityLabel="Search merchants"
+        accessibilityLabel={t.expenses.search}
       />
       {value ? (
-        <Pressable onPress={() => onChange('')} hitSlop={8} accessibilityLabel="Clear search">
+        <Pressable onPress={() => onChange('')} hitSlop={8} accessibilityLabel={t.expenses.clearSearch}>
           <Icon name="xmark.circle.fill" size={16} color={c.tertiaryLabel} />
         </Pressable>
       ) : null}
@@ -182,12 +183,12 @@ const s = StyleSheet.create({
   search: { flexDirection: 'row', alignItems: 'center', gap: 6, marginHorizontal: 16, marginTop: 8, borderRadius: 10, paddingHorizontal: 8, height: 36 },
   // 16px minimum, or iOS Safari zooms the page when the field is focused.
   searchInput: { flex: 1, fontSize: 17, paddingVertical: 0, outlineStyle: 'none' } as any,
-  header: { fontSize: 13, marginTop: 22, marginBottom: 6, marginLeft: 32 },
+  header: { fontSize: 13, marginTop: 22, marginBottom: 6, marginStart: 32 },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', marginHorizontal: 16, marginTop: 10, minHeight: 32, paddingHorizontal: 12, borderRadius: 16 },
   chipText: { fontSize: 15, fontWeight: '600' },
   footer: { flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', paddingVertical: 20 },
   footerText: { fontSize: 13, textAlign: 'center' },
   cell: { marginHorizontal: 16, overflow: 'hidden' },
-  first: { borderTopLeftRadius: 10, borderTopRightRadius: 10 },
-  lastCell: { borderBottomLeftRadius: 10, borderBottomRightRadius: 10 },
+  first: { borderTopStartRadius: 10, borderTopEndRadius: 10 },
+  lastCell: { borderBottomStartRadius: 10, borderBottomEndRadius: 10 },
 });

@@ -1,6 +1,7 @@
 // Renders agent text: every number in it is a {{path}} into data computed by SQL
 // (BLUEPRINT §4.1). Must flatten exactly like supabase/functions/_shared/ai.ts.
 
+import { isolate } from './bidi';
 import { formatMoney } from './money';
 
 type Json = null | boolean | number | string | Json[] | { [k: string]: Json };
@@ -36,6 +37,10 @@ function format(path: string, v: unknown, currency: string): string {
   return formatMoney(v, currency);
 }
 
+// Each value is isolated (P1-6), so "114%" or "₪840" keeps its shape inside a Hebrew sentence
+// instead of the % or the sign jumping to the other side.
 export function fill(text: string, values: Record<string, unknown>, currency: string): string {
-  return text.replace(/\{\{\s*([\w.\-]+)\s*\}\}/g, (_, path: string) => (path in values ? format(path, values[path], currency) : '—'));
+  return text.replace(/\{\{\s*([\w.\-]+)\s*\}\}/g, (_, path: string) =>
+    path in values ? isolate(format(path, values[path], currency)) : '—',
+  );
 }

@@ -7,6 +7,7 @@ import { useCreateInvite, useHousehold, useLeaveHousehold, useRemoveMember } fro
 import { ErrorText, Row, Screen, Section } from '@/components/ui';
 import { confirm } from '@/lib/confirm';
 import { shortDate } from '@/lib/dates';
+import { t } from '@/lib/i18n';
 import { APP_URL } from '@/lib/supabase';
 import { useColors } from '@/lib/theme';
 
@@ -19,44 +20,32 @@ export default function HouseholdScreen() {
   const [code, setCode] = useState<string | null>(null);
   const members = hh.data?.members ?? [];
   const meId = hh.data?.me?.user_id;
-  const name = hh.data?.household?.name ?? 'this household';
+  const name = hh.data?.household?.name ?? t.household.thisHousehold;
   const alone = members.length <= 1;
 
   // G4: removing someone stops their Shortcut at once; the expenses they added stay.
   async function confirmRemove(userId: string, displayName: string) {
-    const ok = await confirm(
-      `Remove ${displayName}?`,
-      `${displayName} will lose access to ${name} and their Shortcut stops logging. Expenses they added stay.`,
-      'Remove',
-    );
+    const ok = await confirm(t.household.removeTitle(displayName), t.household.removeBody(displayName, name), t.common.remove);
     if (ok) remove.mutate(userId);
   }
 
   // Leaving sends you back to onboarding (the route guard sees no household).
   async function confirmLeave() {
     const ok = alone
-      ? await confirm(
-          `Delete ${name}?`,
-          'You are the only member, so leaving deletes the household with all its expenses, budgets and reports. This cannot be undone.',
-          'Delete Household',
-        )
-      : await confirm(
-          `Leave ${name}?`,
-          'You lose access to its expenses and your Shortcut stops logging. The others keep everything. You can rejoin with a new invite.',
-          'Leave',
-        );
+      ? await confirm(t.household.deleteTitle(name), t.household.deleteBody, t.household.deleteHousehold)
+      : await confirm(t.household.leaveTitle(name), t.household.leaveBody, t.household.leave);
     if (ok) leave.mutate();
   }
 
   return (
     <Screen>
-      <Stack.Screen options={{ title: hh.data?.household?.name ?? 'Household', headerLargeTitle: false }} />
-      <Section title="Members" footer="Everyone has equal rights and sees everything.">
+      <Stack.Screen options={{ title: hh.data?.household?.name ?? t.settings.household, headerLargeTitle: false }} />
+      <Section title={t.household.members} footer={t.household.membersFooter}>
         {members.map((m, i) => (
           <Row
             key={m.user_id}
-            title={m.display_name + (m.user_id === meId ? ' (you)' : '')}
-            subtitle={`Joined ${shortDate(m.joined_at)}`}
+            title={m.user_id === meId ? t.household.you(m.display_name) : m.display_name}
+            subtitle={t.household.joined(shortDate(m.joined_at))}
             right={
               m.user_id !== meId ? (
                 <Pressable
@@ -64,8 +53,8 @@ export default function HouseholdScreen() {
                   disabled={remove.isPending}
                   hitSlop={8}
                   accessibilityRole="button"
-                  accessibilityLabel={`Remove ${m.display_name}`}>
-                  <Text style={{ color: c.red, fontSize: 15 }}>Remove</Text>
+                  accessibilityLabel={t.household.removeTitle(m.display_name)}>
+                  <Text style={{ color: c.red, fontSize: 15 }}>{t.common.remove}</Text>
                 </Pressable>
               ) : undefined
             }
@@ -74,18 +63,18 @@ export default function HouseholdScreen() {
         ))}
       </Section>
 
-      <Section title="Currency">
-        <Row title="Base currency" value={hh.data?.household?.base_currency} last />
+      <Section title={t.household.currency}>
+        <Row title={t.household.baseCurrency} value={hh.data?.household?.base_currency} last />
       </Section>
 
-      <Section title="Invite" footer="Send the link to whoever you share expenses with. It works once and expires in 72 hours.">
+      <Section title={t.household.invite} footer={t.household.inviteFooter}>
         {code ? (
           <View style={s.codeBox}>
             <Text selectable style={[s.code, { color: c.label }]}>{code}</Text>
           </View>
         ) : null}
         <Row
-          title={code ? 'Share Invite Link' : 'Create Invite'}
+          title={code ? t.household.shareInvite : t.household.createInvite}
           onPress={async () => {
             if (!code) {
               setCode(await invite.mutateAsync());
@@ -94,15 +83,15 @@ export default function HouseholdScreen() {
             // G3: a link joins in one tap; the code stays visible for typing it in by hand.
             const link = `${APP_URL}/join/${code}`;
             await Clipboard.setStringAsync(link);
-            Share.share({ message: `Join our household in FinPace: ${link}` }).catch(() => {});
+            Share.share({ message: t.household.inviteMessage(link) }).catch(() => {});
           }}
           chevron={false}
           last
         />
       </Section>
 
-      <Section footer={alone ? 'You are the only member: leaving deletes the household.' : undefined}>
-        <Row title={alone ? 'Delete Household' : 'Leave Household'} destructive onPress={confirmLeave} chevron={false} last />
+      <Section footer={alone ? t.household.aloneFooter : undefined}>
+        <Row title={alone ? t.household.deleteHousehold : t.household.leaveHousehold} destructive onPress={confirmLeave} chevron={false} last />
       </Section>
       <ErrorText error={invite.error ?? remove.error ?? leave.error} />
     </Screen>

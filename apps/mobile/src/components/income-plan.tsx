@@ -2,7 +2,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from './ui';
 import { incomePlan, SAVINGS_TARGET_PCT, shortOfTarget } from '@/lib/budget';
+import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
+import { forwardIcon } from '@/lib/rtl';
 import { moneyText, radius, useColors } from '@/lib/theme';
 
 // Where the month's income goes: the budgets carved out of it, and what's left unassigned
@@ -40,10 +42,10 @@ export function IncomePlanCard({
           <Icon name="briefcase" size={20} color={c.tint} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={[s.ctaTitle, { color: c.label }]}>Add your monthly income</Text>
-          <Text style={[s.meta, { color: c.secondaryLabel }]}>Budgets are then carved out of it, and what’s left goes to savings.</Text>
+          <Text style={[s.ctaTitle, { color: c.label }]}>{t.income.ctaTitle}</Text>
+          <Text style={[s.meta, { color: c.secondaryLabel }]}>{t.income.ctaBody}</Text>
         </View>
-        {onPress ? <Icon name="chevron.right" size={13} color={c.tertiaryLabel} /> : null}
+        {onPress ? <Icon name={forwardIcon()} size={13} color={c.tertiaryLabel} /> : null}
       </Pressable>
     );
   }
@@ -55,10 +57,10 @@ export function IncomePlanCard({
   const restW = 100 - Math.min(100, budgetW);
   const short = shortOfTarget(p);
 
-  const headline = over ? 'Over-assigned' : p.kind === 'balanced' ? 'Fully assigned' : 'Unassigned → savings';
-  const label =
-    `Income ${formatMoney(p.income, currency)}, budgets ${formatMoney(p.budgeted, currency)}, ` +
-    (over ? `${formatMoney(-p.unassigned, currency)} more than income` : `${formatMoney(p.unassigned, currency)} unassigned`);
+  const headline = over ? t.income.overAssigned : p.kind === 'balanced' ? t.income.fullyAssigned : t.income.unassigned;
+  const label = over
+    ? t.income.a11yOver(formatMoney(p.income, currency), formatMoney(p.budgeted, currency), formatMoney(-p.unassigned, currency))
+    : t.income.a11y(formatMoney(p.income, currency), formatMoney(p.budgeted, currency), formatMoney(p.unassigned, currency));
 
   return (
     <Pressable
@@ -73,11 +75,11 @@ export function IncomePlanCard({
       style={({ pressed }) => [s.card, flush && s.flush, { backgroundColor: pressed ? c.fill : c.cell }]}>
       <View style={s.top}>
         <Text style={[s.label, { color: c.secondaryLabel }]}>{headline}</Text>
-        {onPress ? <Icon name="chevron.right" size={13} color={c.tertiaryLabel} /> : null}
+        {onPress ? <Icon name={forwardIcon()} size={13} color={c.tertiaryLabel} /> : null}
       </View>
       <View style={s.amountRow}>
         <Text style={[s.amount, { color: tone }]}>{formatMoney(Math.abs(p.unassigned), currency)}</Text>
-        <Text style={[s.pct, { color: tone }]}>{over ? 'over income' : `${p.savingsPct}% of income`}</Text>
+        <Text style={[s.pct, { color: tone }]}>{over ? t.income.overIncome : t.income.pctOfIncome(p.savingsPct)}</Text>
       </View>
 
       <View style={[s.track, { backgroundColor: c.fill }]}>
@@ -86,16 +88,16 @@ export function IncomePlanCard({
       </View>
 
       <View style={s.legend}>
-        <Legend color={c.tint} text={`Budgets ${formatMoney(p.budgeted, currency)}`} />
-        <Legend color={c.secondaryLabel} text={`Income ${formatMoney(p.income, currency)}`} hollow />
+        <Legend color={c.tint} text={t.income.budgets(formatMoney(p.budgeted, currency))} />
+        <Legend color={c.secondaryLabel} text={t.income.incomeIs(formatMoney(p.income, currency))} hollow />
       </View>
 
       <Text style={[s.meta, { color: over ? c.red : p.health === 'thin' ? c.orange : c.secondaryLabel }]}>
         {over
-          ? `Budgets promise ${formatMoney(-p.unassigned, currency)} more than comes in. Lower a budget or it comes out of savings.`
+          ? t.income.overHint(formatMoney(-p.unassigned, currency))
           : short > 0
-            ? `Aim to keep ${SAVINGS_TARGET_PCT}% for savings: trim budgets by ${formatMoney(short, currency)}.`
-            : `At least ${SAVINGS_TARGET_PCT}% set aside. It moves to savings at month end, with whatever the budgets don’t use.`}
+            ? t.income.trimHint(SAVINGS_TARGET_PCT, formatMoney(short, currency))
+            : t.income.goodHint(SAVINGS_TARGET_PCT)}
       </Text>
     </Pressable>
   );

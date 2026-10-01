@@ -1,6 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { INSTALLMENT_CHOICES, splitInstallments } from '@/lib/installments';
+import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { moneyText, useColors } from '@/lib/theme';
 
@@ -30,10 +31,10 @@ export function InstallmentPicker({
               accessibilityRole="radio"
               accessibilityState={{ checked: selected }}
               aria-checked={selected}
-              accessibilityLabel={n === 1 ? 'One payment' : `${n} monthly payments`}
+              accessibilityLabel={n === 1 ? t.installments.one : t.installments.monthly(n)}
               hitSlop={{ top: 4, bottom: 4 }}
               style={[s.chip, { backgroundColor: selected ? c.tint : c.fill }]}>
-              <Text style={[s.chipText, { color: selected ? c.onTint : c.label }]}>{n === 1 ? 'One payment' : `${n}×`}</Text>
+              <Text style={[s.chipText, { color: selected ? c.onTint : c.label }]}>{n === 1 ? t.installments.one : t.installments.chip(n)}</Text>
             </Pressable>
           );
         })}
@@ -41,8 +42,8 @@ export function InstallmentPicker({
       {split ? (
         <Text style={[s.summary, { color: c.secondaryLabel }]} accessibilityLiveRegion="polite">
           {split.first === split.share
-            ? `${value} × ${formatMoney(split.share, currency, { cents: split.share % 100 !== 0 })} a month`
-            : `${formatMoney(split.first, currency, { cents: true })} now, then ${value - 1} × ${formatMoney(split.share, currency, { cents: true })} a month`}
+            ? t.installments.even(value, formatMoney(split.share, currency, { cents: split.share % 100 !== 0 }))
+            : t.installments.uneven(formatMoney(split.first, currency, { cents: true }), value - 1, formatMoney(split.share, currency, { cents: true }))}
         </Text>
       ) : null}
     </View>

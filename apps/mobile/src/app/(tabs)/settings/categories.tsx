@@ -9,6 +9,7 @@ import { CategoryIcon, Row, Screen, Section } from '@/components/ui';
 import { useCategoryActions } from '@/lib/category-actions';
 import { useIncomeActions } from '@/lib/income-actions';
 import { monthPace } from '@/lib/dates';
+import { t } from '@/lib/i18n';
 import { radius, useColors } from '@/lib/theme';
 
 export default function CategoriesScreen() {
@@ -29,11 +30,11 @@ export default function CategoriesScreen() {
     <Screen>
       <Stack.Screen
         options={{
-          title: 'Categories',
+          title: t.categories.title,
           headerLargeTitle: false,
           headerRight: () => (
-            <Pressable onPress={() => router.push('/settings/category')} hitSlop={12} accessibilityRole="button" accessibilityLabel="Add category">
-              <Text style={{ color: c.tint, fontSize: 17 }}>Add</Text>
+            <Pressable onPress={() => router.push('/settings/category')} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.categories.addA11y}>
+              <Text style={{ color: c.tint, fontSize: 17 }}>{t.categories.add}</Text>
             </Pressable>
           ),
         }}
@@ -48,8 +49,8 @@ export default function CategoriesScreen() {
               onPress={income.edit}
               onLongPress={open}
               actions={[
-                { name: 'edit', label: 'Edit income', run: income.edit },
-                { name: 'delete', label: 'Remove income', run: income.remove },
+                { name: 'edit', label: t.categories.editIncome, run: income.edit },
+                { name: 'delete', label: t.categories.removeIncome, run: income.remove },
               ]}
               flush
             />
@@ -59,8 +60,8 @@ export default function CategoriesScreen() {
         <IncomePlanCard income={null} budgeted={overview.data.total_cap} currency={cur} onPress={income.edit} />
       ) : null}
       <Section
-        title="This month"
-        footer="Swipe left on a category, or touch and hold, to edit or delete it. Budgets are monthly caps: a change applies from this month on, and closed months keep theirs.">
+        title={t.month.thisMonth}
+        footer={t.categories.footer}>
         {active.map((cat, i) => {
           const o = capById.get(cat.id);
           return (
@@ -77,8 +78,8 @@ export default function CategoriesScreen() {
                   onPress={() => edit(cat.id)}
                   onLongPress={open}
                   actions={[
-                    { name: 'edit', label: 'Edit', run: () => actions.edit(cat) },
-                    { name: 'delete', label: 'Delete', run: () => actions.remove(cat) },
+                    { name: 'edit', label: t.common.edit, run: () => actions.edit(cat) },
+                    { name: 'delete', label: t.common.delete, run: () => actions.remove(cat) },
                   ]}
                   last={i === active.length - 1}
                 />
@@ -88,7 +89,7 @@ export default function CategoriesScreen() {
         })}
       </Section>
       {archived.length > 0 ? (
-        <Section title="Archived">
+        <Section title={t.categories.archived}>
           {archived.map((cat, i) => (
             <Row
               key={cat.id}

@@ -1,0 +1,1 @@
+ERROR:  TEST_ROLLBACK he_lang=he he_cats=16 he_names=סופרמרקט,אוכל בחוץ,אחר,חיסכון he_savings=savings en_lang=en en_names=Groceries,Other,Savings b_set=he a_after_b=he c_after_b=en bad_err="language must be en or he" anon_err="not signed in" auth_lang=he token_lang=he/en web_lang=he/en anon_exec=f

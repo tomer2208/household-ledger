@@ -36,3 +36,23 @@ test('formatSigned: a refund reads as money coming back (R4)', () => {
 test('minorToInput round-trips through parseMoneyInput', () => {
   for (const v of [4500, 4590, 123450, -9000]) assert.equal(parseMoneyInput(minorToInput(v)), Math.abs(v));
 });
+
+test('Hebrew writes money its own way, signs included (P1-6)', async () => {
+  const { applyLang } = await import('./i18n');
+  applyLang('he');
+  try {
+    // Intl adds direction marks and a no-break space; compare the visible text.
+    const plain = (s: string) => s.replace(/[\u200e\u200f\u061c]/g, '').replace(/\s/g, ' ');
+    assert.equal(plain(formatMoney(4500, 'ILS')), '45 ₪');
+    assert.equal(plain(formatMoney(123450, 'ILS')), '1,234.50 ₪');
+    assert.equal(plain(formatSigned(-9000, 'ILS')), '+90 ₪');
+    assert.equal(plain(formatMoney(-4500, 'ILS', { sign: true })), '-45 ₪');
+    // typing stays the same in both languages
+    assert.equal(parseMoneyInput('1,234.50'), 123450);
+    assert.equal(parseMoneyInput(formatMoney(123450, 'ILS')), 123450);
+  } finally {
+    applyLang('en');
+  }
+  assert.equal(formatMoney(4500, 'ILS', { sign: true }), '+₪45');
+  assert.equal(formatMoney(0, 'ILS', { sign: true }), '₪0');
+});

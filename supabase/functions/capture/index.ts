@@ -13,7 +13,11 @@ const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SE
 });
 
 // The option text comes from the server so it can change without re-sharing the Shortcut.
-const NEW_CATEGORY_OPTION = "➕ New category";
+// P1-6: the menu speaks the phone owner's language. The Hebrew option still contains
+// "New category", because the Shortcut's If (step 7 of the guide) looks for those words.
+const NEW_CATEGORY_OPTION = { en: "➕ New category", he: "➕ קטגוריה חדשה (New category)" } as const;
+type Lang = keyof typeof NEW_CATEGORY_OPTION;
+const isNewCategoryOption = (v: string) => Object.values(NEW_CATEGORY_OPTION).includes(v as never);
 // Starting points; calibrated against the eval set in Phase 4 (BLUEPRINT §4.5).
 const FUZZY_AUTO = 0.75;
 const FUZZY_SUGGEST = 0.45;
@@ -27,6 +31,7 @@ type Device = {
   user_id: string;
   base_currency: string;
   ai_enabled: boolean;
+  language?: Lang;
 };
 
 const json = (body: unknown, status = 200) =>
@@ -37,9 +42,9 @@ async function sha256Hex(text: string): Promise<string> {
   return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-function formatMoney(minor: number, currency: string): string {
+function formatMoney(minor: number, currency: string, lang: Lang = "en"): string {
   try {
-    return new Intl.NumberFormat("en-IL", { style: "currency", currency }).format(minor / 100);
+    return new Intl.NumberFormat(lang === "he" ? "he-IL" : "en-IL", { style: "currency", currency }).format(minor / 100);
   } catch {
     return `${(minor / 100).toFixed(2)} ${currency}`;
   }
@@ -207,7 +212,8 @@ async function capture(body: Record<string, any> | null, dev: Device): Promise<R
     throw recErr;
   }
 
-  const amountDisplay = formatMoney(amount.minor, amount.currency);
+  const lang: Lang = dev.language === "he" ? "he" : "en";
+  const amountDisplay = formatMoney(amount.minor, amount.currency, lang);
 
   if (rec.status !== "pending_review") {
     return json({
@@ -223,15 +229,15 @@ async function capture(body: Record<string, any> | null, dev: Device): Promise<R
   const names = [
     ...(suggested ? [suggested.name] : []),
     ...categories.filter((c) => c.id !== rec.category_id).map((c) => c.name),
-    NEW_CATEGORY_OPTION,
+    NEW_CATEGORY_OPTION[lang],
   ];
   return json({
     status: "needs_input",
     transaction_id: rec.transaction_id,
     suggested_title: rec.title,
     category_names: names,
-    new_category_option: NEW_CATEGORY_OPTION,
-    prompt: `New place: ${rec.title} · ${amountDisplay}`,
+    new_category_option: NEW_CATEGORY_OPTION[lang],
+    prompt: lang === "he" ? `מקום חדש: ${rec.title} · ${amountDisplay}` : `New place: ${rec.title} · ${amountDisplay}`,
   });
 }
 
@@ -243,7 +249,7 @@ async function confirm(body: Record<string, any> | null, dev: Device): Promise<R
   const text = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
   const newCategoryName = text(body.new_category_name);
   const picked = text(body.category_name);
-  const categoryName = newCategoryName || picked === NEW_CATEGORY_OPTION ? null : picked;
+  const categoryName = newCategoryName || (picked && isNewCategoryOption(picked)) ? null : picked;
 
   const { data, error } = await db.rpc("capture_confirm", {
     p_device_id: dev.device_id,

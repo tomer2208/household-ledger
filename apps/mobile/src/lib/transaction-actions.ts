@@ -2,6 +2,8 @@ import { router } from 'expo-router';
 
 import { useDeleteTransaction, useRestoreTransaction } from '@/api/queries';
 import { useToast } from '@/components/toast';
+import { errorMessage } from '@/lib/errors';
+import { t } from '@/lib/i18n';
 import { formatSigned } from '@/lib/money';
 import { useIsOnline } from '@/lib/query';
 
@@ -21,21 +23,20 @@ export function useTransactionActions() {
   // Resolves true once the expense is deleted.
   async function remove(tx: Tx): Promise<boolean> {
     if (!online) {
-      toast({ message: 'You’re offline. Delete when you’re back online.' });
+      toast({ message: t.actions.offlineDelete });
       return false;
     }
     try {
       await del.mutateAsync(tx.id);
     } catch (e) {
-      toast({ message: e instanceof Error ? e.message : String(e) });
+      toast({ message: errorMessage(e) });
       return false;
     }
     toast({
-      message: `${tx.title} · ${formatSigned(tx.amount_minor, tx.currency)} deleted`,
+      message: t.actions.deleted(`${tx.title} · ${formatSigned(tx.amount_minor, tx.currency)}`),
       action: {
-        label: 'Undo',
-        onPress: () =>
-          restore.mutate(tx.id, { onError: (e) => toast({ message: `Couldn’t restore it: ${e instanceof Error ? e.message : e}` }) }),
+        label: t.common.undo,
+        onPress: () => restore.mutate(tx.id, { onError: (e) => toast({ message: t.actions.restoreFailed(errorMessage(e)) }) }),
       },
     });
     return true;

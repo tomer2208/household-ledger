@@ -2,48 +2,39 @@ import { router, Stack } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Button, Icon, Screen, Section } from '@/components/ui';
+import { t } from '@/lib/i18n';
 import { isInstalled, isIosBrowser } from '@/lib/install';
 import { useColors } from '@/lib/theme';
 
 type Step = { icon: string; title: string; body: string };
 
-const IPHONE_INSTALL: Step[] = [
-  { icon: 'square.and.arrow.up', title: 'Tap Share', body: 'The square with an arrow, at the bottom of Safari.' },
-  { icon: 'plus', title: 'Add to Home Screen', body: 'Scroll the list a little if you don’t see it. Keep the name and tap Add.' },
-  { icon: 'house', title: 'Open it from the Home Screen', body: 'Sign in once more there: the Home Screen app keeps its own sign-in.' },
-];
-
-const OTHER_INSTALL: Step[] = [
-  { icon: 'ellipsis.circle', title: 'Open the browser menu', body: 'In Chrome it is ⋮ at the top right.' },
-  { icon: 'plus', title: 'Install app / Add to Home screen', body: 'Confirm, then open it from your home screen or app list.' },
-];
-
-const AFTER: Step[] = [
-  { icon: 'bell', title: 'Turn on budget alerts', body: 'Settings → Budget alerts. You’ll hear from the app only at 90% and 100% of a budget.' },
-  { icon: 'person.2', title: 'Invite your household', body: 'Settings → Household → Create Invite, and send the link to whoever shares expenses with you.' },
-  { icon: 'iphone.gen3', title: 'Log Apple Pay automatically', body: 'Settings → Shortcut & Devices: create a token, install the Shortcut and paste it in. Each purchase then logs itself.' },
-];
+// The words come from i18n (guide.*), step for step with these icons.
+const withIcons = (icons: string[], steps: readonly { title: string; body: string }[]): Step[] =>
+  steps.map((st, i) => ({ ...st, icon: icons[i] }));
 
 // G12: setup for people who have never added a web app to their Home Screen.
 export default function InstallGuide() {
   const c = useColors();
   const installed = isInstalled();
-  const steps = isIosBrowser() ? IPHONE_INSTALL : OTHER_INSTALL;
+  const steps = isIosBrowser()
+    ? withIcons(['square.and.arrow.up', 'plus', 'house'], t.guide.iphone)
+    : withIcons(['ellipsis.circle', 'plus'], t.guide.other);
+  const after = withIcons(['bell', 'person.2', 'iphone.gen3'], t.guide.after);
 
   return (
     <Screen>
-      <Stack.Screen options={{ title: 'Set Up', headerLargeTitle: false }} />
+      <Stack.Screen options={{ title: t.guide.title, headerLargeTitle: false }} />
       {installed ? (
         <View style={[s.done, { backgroundColor: c.cell }]}>
           <Icon name="checkmark.circle.fill" size={22} color={c.green} />
-          <Text style={[s.doneText, { color: c.label }]}>Installed. You’re using the Home Screen app.</Text>
+          <Text style={[s.doneText, { color: c.label }]}>{t.guide.installed}</Text>
         </View>
       ) : (
-        <StepList title="1 · Add to your Home Screen" steps={steps} />
+        <StepList title={t.guide.step1} steps={steps} />
       )}
-      <StepList title={installed ? 'Next' : '2 · Then, in the app'} steps={AFTER} />
+      <StepList title={installed ? t.guide.next : t.guide.step2} steps={after} />
       <View style={{ marginHorizontal: 16, marginTop: 24 }}>
-        <Button title="Done" kind="plain" onPress={() => router.back()} />
+        <Button title={t.common.done} kind="plain" onPress={() => router.back()} />
       </View>
     </Screen>
   );

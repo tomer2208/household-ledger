@@ -7,6 +7,7 @@ import { CategoryPicker } from '@/components/category-picker';
 import { Button, Empty, ErrorText, Icon, Screen } from '@/components/ui';
 import { isolate } from '@/lib/bidi';
 import { dayLabel } from '@/lib/dates';
+import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { moneyText, useColors } from '@/lib/theme';
 
@@ -19,7 +20,7 @@ export default function ReviewScreen() {
     <Screen onRefresh={() => pending.refetch()} refreshing={pending.isRefetching}>
       <ErrorText error={pending.error} />
       {items.length === 0 && !pending.isLoading ? (
-        <Empty icon="checkmark.circle.fill" title="All caught up" message="New places you pay at will show up here if you skip the Shortcut menu." />
+        <Empty icon="checkmark.circle.fill" title={t.review.emptyTitle} message={t.review.emptyMessage} />
       ) : null}
       {items.map((tx) => (
         <ReviewCard key={tx.id} tx={tx} />
@@ -51,8 +52,8 @@ function ReviewCard({ tx }: { tx: Transaction }) {
         value={title}
         onChangeText={setTitle}
         style={[s.title, { color: c.label, borderColor: c.separator }]}
-        placeholder="Name"
-        accessibilityLabel="Name"
+        placeholder={t.review.name}
+        accessibilityLabel={t.review.name}
       />
       <View style={{ marginHorizontal: -16 }}>
         <CategoryPicker
@@ -67,7 +68,7 @@ function ReviewCard({ tx }: { tx: Transaction }) {
       {newCategory === null ? (
         <Pressable onPress={() => setNewCategory('')} style={s.newCat} accessibilityRole="button">
           <Icon name="plus" size={16} color={c.tint} />
-          <Text style={{ color: c.tint, fontSize: 15 }}>New category</Text>
+          <Text style={{ color: c.tint, fontSize: 15 }}>{t.review.newCategory}</Text>
         </Pressable>
       ) : (
         <TextInput
@@ -75,13 +76,13 @@ function ReviewCard({ tx }: { tx: Transaction }) {
           onChangeText={setNewCategory}
           autoFocus
           maxLength={30}
-          placeholder="New category name"
+          placeholder={t.review.newCategoryName}
           style={[s.title, { color: c.label, borderColor: c.tint }]}
         />
       )}
       <ErrorText error={review.error} />
       <Button
-        title={newCategory ? `Create “${newCategory.trim()}” and confirm` : `Confirm as ${categoryName ?? '…'}`}
+        title={newCategory ? t.review.createAndConfirm(newCategory.trim()) : t.review.confirmAs(categoryName ?? '…')}
         loading={review.isPending}
         disabled={newCategory !== null && !newCategory.trim()}
         onPress={() =>

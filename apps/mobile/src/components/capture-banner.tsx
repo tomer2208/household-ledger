@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Icon } from './ui';
 import { useCaptureHealth } from '@/api/queries';
 import type { CaptureHealth } from '@/api/types';
+import { t } from '@/lib/i18n';
 import { useColors } from '@/lib/theme';
 
 const SNOOZE_KEY = 'capture-banner-snooze';
@@ -53,10 +54,10 @@ export const silentDays = (d: CaptureHealth) => Math.floor((d.silent_hours ?? 0)
 function Banner({ d, onSnooze }: { d: CaptureHealth; onSnooze: () => void }) {
   const c = useColors();
   const silent = d.status === 'silent';
-  const title = silent ? `${d.label} hasn’t logged a purchase in ${silentDays(d)} days` : `Finish setting up the Shortcut on ${d.label}`;
+  const title = silent ? t.banner.silentTitle(d.label, silentDays(d)) : t.banner.setupTitle(d.label);
   const text = silent
-    ? 'If you paid with Apple Pay since, the Shortcut may have stopped. It takes a minute to check.'
-    : 'Its token was created but no purchase has come through yet.';
+    ? t.banner.silentBody
+    : t.banner.setupBody;
   return (
     <View style={[s.banner, { backgroundColor: c.cell, borderColor: c.orange }]} accessibilityRole="alert">
       <Icon name="exclamationmark.triangle.fill" size={20} color={c.orange} />
@@ -69,18 +70,18 @@ function Banner({ d, onSnooze }: { d: CaptureHealth; onSnooze: () => void }) {
           <Pressable
             onPress={() => router.push('/settings/devices')}
             accessibilityRole="button"
-            accessibilityLabel={`Check the Shortcut on ${d.label}`}
+            accessibilityLabel={t.banner.checkA11y(d.label)}
             hitSlop={8}
             style={[s.button, { backgroundColor: c.tint }]}>
-            <Text style={[s.buttonText, { color: c.onTint }]}>Check</Text>
+            <Text style={[s.buttonText, { color: c.onTint }]}>{t.banner.check}</Text>
           </Pressable>
           <Pressable
             onPress={onSnooze}
             accessibilityRole="button"
-            accessibilityLabel={`Remind me in 3 days about ${d.label}`}
+            accessibilityLabel={t.banner.snoozeA11y(d.label)}
             hitSlop={8}
             style={[s.button, { backgroundColor: c.fill }]}>
-            <Text style={[s.buttonText, { color: c.label }]}>Snooze 3 days</Text>
+            <Text style={[s.buttonText, { color: c.label }]}>{t.banner.snooze}</Text>
           </Pressable>
         </View>
       </View>

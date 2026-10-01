@@ -17,6 +17,7 @@ import { Badge, CategoryIcon, Empty, ErrorText, ProgressBar, Row, Screen, Sectio
 import { daysToGo, incomePlan, perDay } from '@/lib/budget';
 import { useCategoryActions } from '@/lib/category-actions';
 import { currentMonth, monthLabel, monthOfInstant, monthPace } from '@/lib/dates';
+import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { budgetTone, moneyText, radius, useColors } from '@/lib/theme';
 
@@ -64,8 +65,8 @@ export default function OverviewScreen() {
           past
             ? undefined
             : [
-                { name: 'edit', label: 'Edit', run: () => actions.edit(cat) },
-                { name: 'delete', label: 'Delete', run: () => actions.remove(cat) },
+                { name: 'edit', label: t.common.edit, run: () => actions.edit(cat) },
+                { name: 'delete', label: t.common.delete, run: () => actions.remove(cat) },
               ]
         }
         last={last}
@@ -82,7 +83,7 @@ export default function OverviewScreen() {
   return (
     <View style={s.fill}>
       <Screen onRefresh={() => overview.refetch()} refreshing={overview.isRefetching} bottomSpace={ADD_BUTTON_SPACE}>
-        <Stack.Screen options={{ title: 'Overview' }} />
+        <Stack.Screen options={{ title: t.tabs.overview }} />
         <OfflineBanner />
         {!past ? <InstallBanner /> : null}
         {!past ? <CaptureBanner /> : null}
@@ -99,9 +100,9 @@ export default function OverviewScreen() {
                 <>
                   <View style={s.heroRow}>
                     <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>
-                      {o.total_cap > 0 ? (o.net >= 0 ? 'Left unspent' : 'Over budget') : `Spent in ${monthLabel(o.month)}`}
+                      {o.total_cap > 0 ? (o.net >= 0 ? t.overview.leftUnspent : t.overview.overBudget) : t.overview.spentIn(monthLabel(o.month))}
                     </Text>
-                    <Badge text={o.closed ? 'Closed' : 'Not closed yet'} color={o.closed ? c.secondaryLabel : c.orange} />
+                    <Badge text={o.closed ? t.overview.closed : t.overview.notClosed} color={o.closed ? c.secondaryLabel : c.orange} />
                   </View>
                   <Text style={[s.heroAmount, { color: o.total_cap > 0 ? (o.net >= 0 ? c.green : c.red) : c.label }]}>
                     {formatMoney(o.total_cap > 0 ? Math.abs(o.net) : o.total_spent, cur)}
@@ -110,7 +111,7 @@ export default function OverviewScreen() {
                     <>
                       <ProgressBar pct={totalPct ?? 0} color={budgetTone(totalPct, c)} />
                       <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>
-                        {formatMoney(o.total_spent, cur)} of {formatMoney(o.total_cap, cur)}
+                        {t.common.of(formatMoney(o.total_spent, cur), formatMoney(o.total_cap, cur))}
                       </Text>
                     </>
                   ) : null}
@@ -119,43 +120,43 @@ export default function OverviewScreen() {
                       onPress={() => router.push({ pathname: '/reports/[month]', params: { month: o.month } })}
                       accessibilityRole="button"
                       hitSlop={8}>
-                      <Text style={[s.heroMeta, { color: c.tint }]}>{monthLabel(o.month)} report ›</Text>
+                      <Text style={[s.heroMeta, { color: c.tint }]}>{t.overview.reportLink(monthLabel(o.month))}</Text>
                     </Pressable>
                   ) : null}
                 </>
               ) : o.total_cap > 0 ? (
                 <>
-                  <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>{o.net >= 0 ? 'Left this month' : 'Over budget this month'}</Text>
+                  <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>{o.net >= 0 ? t.overview.leftThisMonth : t.overview.overThisMonth}</Text>
                   <Text style={[s.heroAmount, { color: o.net >= 0 ? budgetTone(totalPct, c, pace) : c.red }]}>
                     {formatMoney(Math.abs(o.net), cur)}
                   </Text>
                   <ProgressBar pct={totalPct ?? 0} color={budgetTone(totalPct, c, pace)} pace={pace} />
                   <View style={s.heroRow}>
                     <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>
-                      {formatMoney(o.total_spent, cur)} of {formatMoney(o.total_cap, cur)}
+                      {t.common.of(formatMoney(o.total_spent, cur), formatMoney(o.total_cap, cur))}
                     </Text>
                     <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>
-                      {o.net > 0 ? `≈ ${formatMoney(perDay(o.net, days), cur)} a day · ` : ''}
-                      {days === 1 ? 'last day' : `${days} days to go`}
+                      {o.net > 0 ? `${t.overview.perDay(formatMoney(perDay(o.net, days), cur))} · ` : ''}
+                      {t.overview.daysToGo(days)}
                     </Text>
                   </View>
                   {plan.kind !== 'none' ? (
                     <Pressable onPress={() => router.push('/settings/income')} accessibilityRole="button" hitSlop={6}>
                       <Text style={[s.heroMeta, { color: plan.health === 'over' ? c.red : plan.health === 'thin' ? c.orange : c.green }]}>
                         {plan.kind === 'over'
-                          ? `Budgets are ${formatMoney(-plan.unassigned, cur)} over income`
-                          : `${formatMoney(plan.unassigned, cur)} of income unassigned → savings (${plan.savingsPct}%)`}
+                          ? t.overview.budgetsOverIncome(formatMoney(-plan.unassigned, cur))
+                          : t.overview.unassignedToSavings(formatMoney(plan.unassigned, cur), plan.savingsPct)}
                       </Text>
                     </Pressable>
                   ) : null}
                 </>
               ) : (
                 <>
-                  <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>Spent this month</Text>
+                  <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>{t.overview.spentThisMonth}</Text>
                   <Text style={[s.heroAmount, { color: c.label }]}>{formatMoney(o.total_spent, cur)}</Text>
                   <Pressable onPress={() => router.push('/settings/categories')} accessibilityRole="button" hitSlop={8}>
-                  <Text style={[s.heroMeta, { color: c.tint }]}>Set budgets to see what’s left ›</Text>
-                </Pressable>
+                    <Text style={[s.heroMeta, { color: c.tint }]}>{t.overview.setBudgetsLink}</Text>
+                  </Pressable>
                 </>
               )}
             </View>
@@ -164,8 +165,8 @@ export default function OverviewScreen() {
               <Section>
                 <Row
                   left={<CategoryIcon symbol="tray.full" />}
-                  title="To Review"
-                  subtitle="New places waiting for a category"
+                  title={t.review.title}
+                  subtitle={t.overview.reviewSubtitle}
                   right={<Badge text={String(o.pending_review)} color={c.orange} />}
                   onPress={() => router.push('/review')}
                   last
@@ -181,13 +182,13 @@ export default function OverviewScreen() {
               ))}
 
             {!past && noBudgetFlags.length > 0 ? (
-              <Section footer="Created from the Shortcut. Set a budget, or mark it as fine without one, in Settings → Categories.">
+              <Section footer={t.overview.noBudgetFooter}>
                 {noBudgetFlags.map((cat, i) => (
                   <Row
                     key={cat.id}
                     left={<CategoryIcon symbol={cat.sf_symbol} />}
                     title={cat.name}
-                    right={<Badge text="No budget" color={c.orange} />}
+                    right={<Badge text={t.overview.noBudget} color={c.orange} />}
                     onPress={() => router.push({ pathname: '/settings/category', params: { id: cat.id } })}
                     last={i === noBudgetFlags.length - 1}
                   />
@@ -197,14 +198,16 @@ export default function OverviewScreen() {
 
             {budgeted.length > 0 ? (
               <Section
-                title="Budgets"
-                action={past ? undefined : { label: 'Edit', accessibilityLabel: 'Edit categories and budgets', onPress: () => router.push('/settings/categories') }}>
+                title={t.overview.budgets}
+                action={
+                  past ? undefined : { label: t.common.edit, accessibilityLabel: t.overview.editBudgets, onPress: () => router.push('/settings/categories') }
+                }>
                 {budgeted.map((cat, i) => categoryRow(cat, cat.cap, i === budgeted.length - 1))}
               </Section>
             ) : null}
 
             {unbudgetedWithSpend.length > 0 ? (
-              <Section title="Without a budget" footer={past ? undefined : 'Counted against savings at month end, like a budget of zero.'}>
+              <Section title={t.overview.withoutBudget} footer={past ? undefined : t.overview.withoutBudgetFooter}>
                 {unbudgetedWithSpend.map((cat, i) => categoryRow(cat, null, i === unbudgetedWithSpend.length - 1))}
               </Section>
             ) : null}
@@ -213,7 +216,7 @@ export default function OverviewScreen() {
             <Section>
               <Row
                 left={<CategoryIcon symbol="banknote" />}
-                title="Savings"
+                title={t.overview.savings}
                 value={formatMoney(o.savings_balance, cur)}
                 onPress={() => router.push('/settings/savings')}
                 last
@@ -223,9 +226,9 @@ export default function OverviewScreen() {
             {!past && o.total_spent === 0 && budgeted.length === 0 ? (
               <Empty
                 icon="chart.pie"
-                title="Start with your budgets"
-                message="Give each category a monthly budget, and this screen shows what’s left as you spend."
-                action={{ label: 'Set Budgets', kind: 'plain', onPress: () => router.push('/settings/categories') }}
+                title={t.overview.emptyTitle}
+                message={t.overview.emptyMessage}
+                action={{ label: t.overview.setBudgets, kind: 'plain', onPress: () => router.push('/settings/categories') }}
               />
             ) : null}
           </>

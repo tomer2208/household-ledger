@@ -7,7 +7,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCategories, useCreateInvite, useHousehold, useSetBudgetsBulk } from '@/api/queries';
 import { Button, CategoryIcon, ErrorText, Icon, Section } from '@/components/ui';
 import { SAVINGS_TARGET_PCT, suggestBudgets } from '@/lib/budget';
+import { t } from '@/lib/i18n';
 import { formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
+import { forwardIcon, textEnd } from '@/lib/rtl';
 import { clearSetupPending } from '@/lib/setup';
 import { APP_URL } from '@/lib/supabase';
 import { moneyText, useColors } from '@/lib/theme';
@@ -36,8 +38,8 @@ export default function Setup() {
   const [caps, setCaps] = useState<Record<string, string>>({});
 
   const openBudgets = () => {
-    const suggested = suggestBudgets(income, categories.map((x) => x.name));
-    setCaps(Object.fromEntries(categories.map((x) => [x.id, suggested[x.name] ? minorToInput(suggested[x.name]) : ''])));
+    const suggested = suggestBudgets(income, categories.map((x) => x.sf_symbol));
+    setCaps(Object.fromEntries(categories.map((x) => [x.id, suggested[x.sf_symbol] ? minorToInput(suggested[x.sf_symbol]) : ''])));
     setStep('budgets');
   };
 
@@ -51,7 +53,7 @@ export default function Setup() {
     save.mutate({ budgets, income: income ?? null }, { onSuccess: () => setStep('share') });
 
   const dots = (
-    <View style={s.dots} accessibilityLabel={`Step ${['income', 'budgets', 'share'].indexOf(step) + 1} of 3`}>
+    <View style={s.dots} accessibilityLabel={t.setup.stepOf(['income', 'budgets', 'share'].indexOf(step) + 1, 3)}>
       {(['income', 'budgets', 'share'] as Step[]).map((x) => (
         <View key={x} style={[s.dot, { backgroundColor: x === step ? c.tint : c.fill }]} />
       ))}
@@ -64,9 +66,9 @@ export default function Setup() {
         {dots}
         {step === 'income' ? (
           <>
-            <Text style={[s.title, { color: c.label }]}>What comes in each month?</Text>
+            <Text style={[s.title, { color: c.label }]}>{t.setup.incomeTitle}</Text>
             <Text style={[s.lead, { color: c.secondaryLabel }]}>
-              Your household’s combined take-home pay. Budgets are carved out of it, and what’s left over is your savings.
+              {t.setup.incomeLead}
             </Text>
             <View style={s.amountWrap}>
               <TextInput
@@ -77,31 +79,29 @@ export default function Setup() {
                 keyboardType="decimal-pad"
                 autoFocus
                 style={[s.amount, { color: c.label }]}
-                accessibilityLabel="Monthly income"
+                accessibilityLabel={t.settings.income}
               />
-              <Text style={[s.hint, { color: c.secondaryLabel }]}>{cur} a month</Text>
+              <Text style={[s.hint, { color: c.secondaryLabel }]}>{t.setup.perMonth(cur)}</Text>
             </View>
             <View style={s.actions}>
-              <Button title="Next" onPress={openBudgets} disabled={!income} />
-              <Button title="Skip, I’ll budget without it" kind="plain" onPress={openBudgets} />
+              <Button title={t.setup.next} onPress={openBudgets} disabled={!income} />
+              <Button title={t.setup.skipIncome} kind="plain" onPress={openBudgets} />
             </View>
           </>
         ) : step === 'budgets' ? (
           <>
-            <Text style={[s.title, { color: c.label }]}>Your monthly budgets</Text>
+            <Text style={[s.title, { color: c.label }]}>{t.setup.budgetsTitle}</Text>
             <Text style={[s.lead, { color: c.secondaryLabel }]}>
-              {income
-                ? `A starting point that keeps ${SAVINGS_TARGET_PCT}% for savings. Change any amount, or clear it for no budget.`
-                : 'Give each category a monthly amount, or leave it empty for no budget.'}
+              {income ? t.setup.budgetsLead(SAVINGS_TARGET_PCT) : t.setup.budgetsLeadNoIncome}
             </Text>
             <View style={[s.summary, { backgroundColor: c.cell }]}>
               <View>
-                <Text style={[s.summaryLabel, { color: c.secondaryLabel }]}>Budgeted</Text>
+                <Text style={[s.summaryLabel, { color: c.secondaryLabel }]}>{t.setup.budgeted}</Text>
                 <Text style={[s.summaryValue, { color: c.label }]}>{formatMoney(total, cur)}</Text>
               </View>
               {left != null ? (
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={[s.summaryLabel, { color: c.secondaryLabel }]}>{left >= 0 ? 'Left for savings' : 'Over income'}</Text>
+                  <Text style={[s.summaryLabel, { color: c.secondaryLabel }]}>{left >= 0 ? t.setup.leftForSavings : t.setup.overIncome}</Text>
                   <Text style={[s.summaryValue, { color: left >= 0 ? c.green : c.red }]}>{formatMoney(Math.abs(left), cur)}</Text>
                 </View>
               ) : null}
@@ -118,19 +118,19 @@ export default function Setup() {
                   <TextInput
                     value={caps[x.id] ?? ''}
                     onChangeText={(v) => setCaps((m) => ({ ...m, [x.id]: v }))}
-                    placeholder="No budget"
+                    placeholder={t.overview.noBudget}
                     placeholderTextColor={c.tertiaryLabel as string}
                     keyboardType="decimal-pad"
-                    style={[s.capInput, { color: c.label }]}
-                    accessibilityLabel={`${x.name} monthly budget`}
+                    style={[s.capInput, { color: c.label, textAlign: textEnd() }]}
+                    accessibilityLabel={t.setup.capA11y(x.name)}
                   />
                 </View>
               ))}
             </Section>
             <ErrorText error={save.error} />
             <View style={s.actions}>
-              <Button title={entries.length ? `Save ${entries.length} Budgets` : 'Continue'} loading={save.isPending} onPress={() => saveBudgets(entries)} />
-              <Button title="Back" kind="plain" onPress={() => setStep('income')} />
+              <Button title={entries.length ? t.setup.saveBudgets(entries.length) : t.settings.continue} loading={save.isPending} onPress={() => saveBudgets(entries)} />
+              <Button title={t.common.back} kind="plain" onPress={() => setStep('income')} />
             </View>
           </>
         ) : (
@@ -151,7 +151,7 @@ function ShareStep() {
     setLink(url);
     // The link is also shown on screen, so a refused clipboard (some browsers) isn't fatal.
     await Clipboard.setStringAsync(url).catch(() => {});
-    Share.share({ message: `Join our household in FinPace: ${url}` }).catch(() => {});
+    Share.share({ message: t.household.inviteMessage(url) }).catch(() => {});
   }
 
   const card = (icon: string, title: string, text: string, action: string, onPress: () => void, done?: boolean) => (
@@ -161,17 +161,17 @@ function ShareStep() {
         <Text style={[s.cardTitle, { color: c.label }]}>{title}</Text>
         <Text style={[s.cardText, { color: c.secondaryLabel }]}>{text}</Text>
       </View>
-      <Text style={[s.cardAction, { color: c.tint }]}>{done ? 'Copied ✓' : action}</Text>
-      <Icon name="chevron.right" size={13} color={c.tertiaryLabel} />
+      <Text style={[s.cardAction, { color: c.tint }]}>{done ? t.devices.copied : action}</Text>
+      <Icon name={forwardIcon()} size={13} color={c.tertiaryLabel} />
     </Pressable>
   );
 
   return (
     <>
-      <Text style={[s.title, { color: c.label }]}>Almost there</Text>
-      <Text style={[s.lead, { color: c.secondaryLabel }]}>Two things that make FinPace work on its own. Both can wait.</Text>
-      {card('person.2', 'Invite your partner', 'You both see every expense, live.', 'Share link', shareInvite, !!link)}
-      {card('iphone.gen3', 'Log Apple Pay automatically', 'A Shortcut records each purchase as you pay.', 'Set up', async () => {
+      <Text style={[s.title, { color: c.label }]}>{t.setup.almost}</Text>
+      <Text style={[s.lead, { color: c.secondaryLabel }]}>{t.setup.almostLead}</Text>
+      {card('person.2', t.setup.invite, t.setup.inviteBody, t.setup.shareLink, shareInvite, !!link)}
+      {card('iphone.gen3', t.setup.applePay, t.setup.applePayBody, t.setup.setUp, async () => {
         await clearSetupPending();
         router.replace('/overview');
         router.push('/settings/devices');
@@ -183,7 +183,7 @@ function ShareStep() {
       ) : null}
       <ErrorText error={invite.error} />
       <View style={s.actions}>
-        <Button title="Go to My Budget" onPress={finish} />
+        <Button title={t.setup.go} onPress={finish} />
       </View>
     </>
   );
@@ -204,7 +204,7 @@ const s = StyleSheet.create({
   capRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, minHeight: 52 },
   capName: { flex: 1, fontSize: 17 },
   // 16px or larger, or iOS Safari zooms the page on focus.
-  capInput: { width: 120, fontSize: 17, textAlign: 'right', paddingVertical: 10, outlineStyle: 'none', ...moneyText } as any,
+  capInput: { width: 120, fontSize: 17, paddingVertical: 10, outlineStyle: 'none', ...moneyText } as any,
   card: { flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 16, marginTop: 12, padding: 14, borderRadius: 14, minHeight: 64 },
   cardTitle: { fontSize: 17, fontWeight: '600' },
   cardText: { fontSize: 13, marginTop: 2 },

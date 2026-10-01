@@ -10,7 +10,8 @@ export type Household = {
   created_at: string;
 };
 
-export type Member = { user_id: string; display_name: string; joined_at: string };
+// language: what the server writes this member's alerts and reports in (P1-6).
+export type Member = { user_id: string; display_name: string; joined_at: string; language?: 'en' | 'he' };
 
 export type Category = {
   id: string;
@@ -127,7 +128,8 @@ export type Proposal = {
   id: string;
   kind: 'create_recurring' | 'update_estimate' | 'adjust_budget' | 'recategorize_merchant' | 'flag_duplicate';
   payload: Record<string, unknown>;
-  rationale: { text: string; evidence: Record<string, unknown>; priority?: number };
+  // texts: the same card per language (P1-6); text is the household's main language.
+  rationale: { text: string; texts?: Partial<Record<'en' | 'he', string>>; evidence: Record<string, unknown>; priority?: number };
   status: 'pending' | 'approved' | 'rejected' | 'expired' | 'failed';
   created_at: string;
 };
@@ -158,6 +160,8 @@ export type MonthlyReport = {
   budget_month: string;
   metrics: ReportMetrics;
   narrative: Narrative | null;
+  // P1-6: the same report per member language; `narrative` is the household's main language.
+  narratives?: Partial<Record<'en' | 'he', Narrative>> | null;
   status: 'pending' | 'generating' | 'ready' | 'fallback' | 'failed';
   updated_at: string;
 };

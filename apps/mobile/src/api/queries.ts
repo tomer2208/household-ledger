@@ -17,6 +17,7 @@ import type {
   SavingsEntry,
   Transaction,
 } from './types';
+import { lang, type Lang } from '@/lib/i18n';
 import { supabase } from '@/lib/supabase';
 
 // Every household query key starts with 'hh', so one invalidation refreshes the app
@@ -43,7 +44,7 @@ export function useHousehold() {
     enabled: !!session,
     queryFn: async () => {
       const members = await must(
-        supabase.from('household_members').select('household_id,user_id,display_name,joined_at').is('removed_at', null),
+        supabase.from('household_members').select('household_id,user_id,display_name,joined_at,language').is('removed_at', null),
       );
       const mine = (members as (Member & { household_id: string })[]).find((m) => m.user_id === session!.user.id);
       if (!mine) return { household: null, members: [] as Member[], me: null };
@@ -240,8 +241,15 @@ function useHHMutation<V, R = unknown>(fn: (v: V) => Promise<R>) {
 }
 
 export const useCreateHousehold = () =>
-  useHHMutation((v: { name: string; currency: string; displayName: string; aiConsent: boolean }) =>
-    must(supabase.rpc('create_household', { p_name: v.name, p_base_currency: v.currency, p_display_name: v.displayName })).then(
+  useHHMutation((v: { name: string; currency: string; displayName: string; aiConsent: boolean; language: Lang }) =>
+    must(
+      supabase.rpc('create_household', {
+        p_name: v.name,
+        p_base_currency: v.currency,
+        p_display_name: v.displayName,
+        p_language: v.language,
+      }),
+    ).then(
       async (id) => {
         if (v.aiConsent) {
           await must(supabase.from('households').update({ ai_consent_at: new Date().toISOString() }).eq('id', id as string));
@@ -250,6 +258,20 @@ export const useCreateHousehold = () =>
       },
     ),
   );
+
+// P1-6: the server writes push alerts, Shortcut replies and reports in each member's language,
+// so it learns this phone's language whenever it differs from what it has.
+export function useLanguageSync(me: Member | null | undefined) {
+  const current = lang();
+  const meId = me?.user_id;
+  const stored = me?.language;
+  useEffect(() => {
+    if (!meId || stored === current) return;
+    supabase.rpc('set_my_language', { p_language: current }).then(({ error }) => {
+      if (error) console.warn('Language sync failed', error.message);
+    });
+  }, [meId, stored, current]);
+}
 
 export const useJoinHousehold = () =>
   useHHMutation((v: { code: string; displayName: string }) =>
@@ -511,7 +533,7 @@ export function useMonthlyReport(month: string) {
       (await must(
         supabase
           .from('monthly_reports')
-          .select('id,budget_month,metrics,narrative,status,updated_at')
+          .select('id,budget_month,metrics,narrative,narratives,status,updated_at')
           .eq('budget_month', month)
           .maybeSingle(),
       )) as MonthlyReport | null,

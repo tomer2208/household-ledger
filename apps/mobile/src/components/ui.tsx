@@ -21,6 +21,8 @@ import {
 
 import { moneyText, radius, useColors } from '@/lib/theme';
 import { isRtl } from '@/lib/bidi';
+import { errorMessage } from '@/lib/errors';
+import { forwardIcon, textEnd } from '@/lib/rtl';
 
 // Web has no SF Symbols; a few Material names keep the icons meaningful there.
 const WEB_ICON: Record<string, string> = {
@@ -41,7 +43,7 @@ const WEB_ICON: Record<string, string> = {
   magnifyingglass: 'search', bell: 'notifications', 'bell.slash': 'notifications_off', link: 'link', trash: 'delete',
   pencil: 'edit', 'person.badge.minus': 'person_remove', 'rectangle.portrait.and.arrow.right': 'logout',
   'square.and.arrow.down': 'download', 'questionmark.circle': 'help', 'hand.raised': 'privacy_tip',
-  'xmark.circle.fill': 'cancel', briefcase: 'work',
+  'xmark.circle.fill': 'cancel', briefcase: 'work', checkmark: 'check', globe: 'language',
 };
 
 export function Icon({ name, size = 20, color }: { name: string; size?: number; color?: any }) {
@@ -101,7 +103,7 @@ export function Section({
 }: {
   title?: string;
   footer?: string;
-  // A text button at the right of the title, e.g. Budgets → Edit.
+  // A text button at the end of the title, e.g. Budgets → Edit.
   action?: { label: string; onPress: () => void; accessibilityLabel?: string };
   children: ReactNode;
 }) {
@@ -180,7 +182,7 @@ export function Row({
         </View>
         {value ? <Text style={[styles.rowValue, { color: c.secondaryLabel }]}>{value}</Text> : null}
         {right}
-        {chevron ? <Icon name="chevron.right" size={13} color={c.tertiaryLabel} /> : null}
+        {chevron ? <Icon name={forwardIcon()} size={13} color={c.tertiaryLabel} /> : null}
       </View>
     </View>
   );
@@ -210,7 +212,7 @@ export function Field({
         <Text style={[styles.fieldLabel, { color: c.label }]}>{label}</Text>
         <TextInput
           placeholderTextColor={c.tertiaryLabel as string}
-          style={[styles.fieldInput, { color: c.label }]}
+          style={[styles.fieldInput, { color: c.label, textAlign: textEnd() }]}
           {...props}
         />
       </View>
@@ -269,7 +271,7 @@ export function ProgressBar({ pct, color, pace }: { pct: number; color: any; pac
       </View>
       {pace != null ? (
         <View
-          style={[styles.pace, { left: `${clamp(pace)}%`, backgroundColor: c.paceMarker }]}
+          style={[styles.pace, { start: `${clamp(pace)}%`, backgroundColor: c.paceMarker }]}
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
         />
@@ -313,7 +315,7 @@ export function Empty({
 export function ErrorText({ error }: { error: unknown }) {
   const c = useColors();
   if (!error) return null;
-  return <Text style={[styles.error, { color: c.red }]}>{error instanceof Error ? error.message : String(error)}</Text>;
+  return <Text style={[styles.error, { color: c.red }]}>{errorMessage(error)}</Text>;
 }
 
 export const styles = StyleSheet.create({
@@ -324,21 +326,21 @@ export const styles = StyleSheet.create({
   sectionAction: { fontSize: 15, fontWeight: '500' },
   sectionFooter: { fontSize: 13, marginHorizontal: 16, marginTop: 6, lineHeight: 18 },
   card: { borderRadius: radius.row, overflow: 'hidden' },
-  row: { flexDirection: 'row', alignItems: 'center', paddingLeft: 16, minHeight: 44 },
-  rowLeft: { marginRight: 12, paddingVertical: 7 },
-  rowBody: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingRight: 16, paddingVertical: 11, minHeight: 44 },
+  row: { flexDirection: 'row', alignItems: 'center', paddingStart: 16, minHeight: 44 },
+  rowLeft: { marginEnd: 12, paddingVertical: 7 },
+  rowBody: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingEnd: 16, paddingVertical: 11, minHeight: 44 },
   rowTitle: { fontSize: 17 },
   rowSubtitle: { fontSize: 13, marginTop: 2 },
   rowValue: { fontSize: 17, ...moneyText },
   fieldLabel: { fontSize: 17, width: 110 },
-  fieldInput: { flex: 1, fontSize: 17, paddingVertical: 0, textAlign: 'right' },
+  fieldInput: { flex: 1, fontSize: 17, paddingVertical: 0 },
   // minHeight, not height: with a large system text size the label grows instead of clipping.
   button: { minHeight: 50, paddingVertical: 12, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
   buttonText: { fontSize: 17, fontWeight: '600' },
   trackWrap: { justifyContent: 'center' },
   track: { height: 8, borderRadius: 4, overflow: 'hidden' },
   fillBar: { height: 8, borderRadius: 4 },
-  pace: { position: 'absolute', width: 2, height: 14, marginLeft: -1, borderRadius: 1 },
+  pace: { position: 'absolute', width: 2, height: 14, marginStart: -1, borderRadius: 1 },
   badge: { borderWidth: 1, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 1 },
   badgeText: { fontSize: 12, fontWeight: '600' },
   catIcon: { alignItems: 'center', justifyContent: 'center' },

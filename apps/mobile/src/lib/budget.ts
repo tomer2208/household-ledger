@@ -65,20 +65,35 @@ export function shortOfTarget(p: IncomePlan) {
 
 // P1-7: a starting budget for each default category, as a share of monthly income. The shares
 // add up to 80%, so the 50/30/20 rule's 20% stays unassigned (planned savings). Each amount is
-// rounded down to ₪50, so the total never exceeds the shares. Categories not listed (or
-// renamed) start empty; people edit everything before saving.
+// rounded down to ₪50, so the total never exceeds the shares. Keyed by the default categories'
+// icons (create_household), which are the same in Hebrew and English households; any other
+// category starts empty. People edit everything before saving.
 export const SUGGESTED_SHARE_PCT: Record<string, number> = {
-  Housing: 30, Groceries: 12, Kids: 6, Utilities: 5, Transport: 4, Fuel: 4, Dining: 4, Shopping: 4,
-  Health: 3, Entertainment: 2, Travel: 2, Subscriptions: 1, Gifts: 1, Education: 1, Other: 1,
+  house: 30, // Housing
+  cart: 12, // Groceries
+  'figure.and.child.holdinghands': 6, // Kids
+  bolt: 5, // Utilities
+  car: 4, // Transport
+  fuelpump: 4, // Fuel
+  'fork.knife': 4, // Dining
+  bag: 4, // Shopping
+  'cross.case': 3, // Health
+  popcorn: 2, // Entertainment
+  airplane: 2, // Travel
+  'arrow.triangle.2.circlepath': 1, // Subscriptions
+  gift: 1, // Gifts
+  graduationcap: 1, // Education
+  'ellipsis.circle': 1, // Other
 };
 const STEP = 5000; // ₪50 in minor units
 
-export function suggestBudgets(income: number | null | undefined, names: string[]): Record<string, number> {
+// By icon (sf_symbol): the suggested budget for each default category that has one.
+export function suggestBudgets(income: number | null | undefined, symbols: string[]): Record<string, number> {
   const out: Record<string, number> = {};
   if (income == null || income <= 0) return out;
-  for (const name of names) {
-    const pct = SUGGESTED_SHARE_PCT[name];
-    if (pct) out[name] = Math.floor((income * pct) / 100 / STEP) * STEP;
+  for (const symbol of symbols) {
+    const pct = SUGGESTED_SHARE_PCT[symbol];
+    if (pct) out[symbol] = Math.floor((income * pct) / 100 / STEP) * STEP;
   }
   return out;
 }

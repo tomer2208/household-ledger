@@ -1,14 +1,16 @@
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider, type Theme } from 'expo-router';
+import { DarkTheme, DefaultTheme, LocaleProvider, Stack, ThemeProvider, type Theme } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
+import { useEffect, useState } from 'react';
+import { useColorScheme, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { useHousehold, useRealtimeSync } from '@/api/queries';
+import { useHousehold, useLanguageSync, useRealtimeSync } from '@/api/queries';
 import { SessionProvider, useSession } from '@/api/session';
 import { ToastProvider } from '@/components/toast';
 import { dark, light, type Palette } from '@/lib/colors';
 import { setAppTimeZone } from '@/lib/dates';
+import { isRTL, t } from '@/lib/i18n';
+import { bootLanguage, bootLanguageSync } from '@/lib/lang-store';
 import { usePushRegistration, useNotificationRouting } from '@/lib/push';
 import { QueryProvider } from '@/lib/query';
 
@@ -30,6 +32,13 @@ const lightNav = navTheme(DefaultTheme, light);
 const darkNav = navTheme(DarkTheme, dark);
 
 export default function RootLayout() {
+  // P1-6: the language is known before the first screen renders. The web reads it at once;
+  // a phone reads its storage first, behind the splash screen.
+  const [langReady, setLangReady] = useState(bootLanguageSync);
+  useEffect(() => {
+    if (!langReady) bootLanguage().finally(() => setLangReady(true));
+  }, [langReady]);
+  if (!langReady) return null;
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryProvider>
@@ -50,6 +59,8 @@ function Root() {
   // Set during render so every screen below reads it on its first render.
   setAppTimeZone(household?.timezone);
   useRealtimeSync(household?.id);
+  // The server writes push alerts and reports in each member's language.
+  useLanguageSync(hh.data?.me);
   usePushRegistration(session?.user.id, !!household);
   useNotificationRouting();
 
@@ -60,31 +71,37 @@ function Root() {
   if (!ready) return null;
 
   const signedIn = !!session;
+  const direction = isRTL() ? 'rtl' : 'ltr';
   return (
     <ThemeProvider value={scheme === 'dark' ? darkNav : lightNav}>
-      <ToastProvider>
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="join/[code]" options={{ headerShown: false }} />
-          <Stack.Screen name="dev-preview" />
-          <Stack.Protected guard={!signedIn}>
-            <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-          </Stack.Protected>
-          <Stack.Protected guard={signedIn && !household}>
-            <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-          </Stack.Protected>
-          <Stack.Protected guard={signedIn && !!household}>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="setup" options={{ headerShown: false, gestureEnabled: false }} />
-            <Stack.Screen
-              name="add"
-              options={{ presentation: 'formSheet', sheetAllowedDetents: [0.92], sheetGrabberVisible: true, headerShown: false }}
-            />
-            <Stack.Screen name="transaction/[id]" options={{ title: 'Expense', headerBackTitle: 'Back' }} />
-            <Stack.Screen name="review" options={{ title: 'To Review', headerBackTitle: 'Back' }} />
-          </Stack.Protected>
-        </Stack>
-      </ToastProvider>
+      {/* Headers and back buttons follow the language; `dir` flips every row below on the web. */}
+      <LocaleProvider direction={direction}>
+        <View style={{ flex: 1 }} {...({ dir: direction } as object)}>
+          <ToastProvider>
+            <Stack>
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="join/[code]" options={{ headerShown: false }} />
+              <Stack.Screen name="dev-preview" />
+              <Stack.Protected guard={!signedIn}>
+                <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+              </Stack.Protected>
+              <Stack.Protected guard={signedIn && !household}>
+                <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+              </Stack.Protected>
+              <Stack.Protected guard={signedIn && !!household}>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="setup" options={{ headerShown: false, gestureEnabled: false }} />
+                <Stack.Screen
+                  name="add"
+                  options={{ presentation: 'formSheet', sheetAllowedDetents: [0.92], sheetGrabberVisible: true, headerShown: false }}
+                />
+                <Stack.Screen name="transaction/[id]" options={{ title: t.detail.title, headerBackTitle: t.common.back }} />
+                <Stack.Screen name="review" options={{ title: t.review.title, headerBackTitle: t.common.back }} />
+              </Stack.Protected>
+            </Stack>
+          </ToastProvider>
+        </View>
+      </LocaleProvider>
     </ThemeProvider>
   );
 }

@@ -3,8 +3,10 @@ import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-nat
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useCreateHousehold, useJoinHousehold } from '@/api/queries';
+import { LanguageToggle } from '@/components/language-picker';
 import { Button, ErrorText, Field, Section } from '@/components/ui';
-import { AI_DISCLOSURE } from '@/lib/ai-disclosure';
+import { aiDisclosure } from '@/lib/ai-disclosure';
+import { lang, t } from '@/lib/i18n';
 import { CURRENCIES } from '@/lib/money';
 import { clearPendingInvite, readPendingInvite } from '@/lib/pending-invite';
 import { clearSetupPending, setSetupPending } from '@/lib/setup';
@@ -17,7 +19,7 @@ export default function Onboarding() {
   const c = useColors();
   const [mode, setMode] = useState<'create' | 'join'>('create');
   const [displayName, setDisplayName] = useState('');
-  const [householdName, setHouseholdName] = useState('Our Home');
+  const [householdName, setHouseholdName] = useState(t.onboarding.defaultName);
   const [currency, setCurrency] = useState<string>('ILS');
   // Off until the person turns it on: consent to share data has to be their own act.
   const [aiConsent, setAiConsent] = useState(false);
@@ -37,7 +39,7 @@ export default function Onboarding() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.groupedBackground }}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingBottom: 40 }}>
-        <Text style={[s.title, { color: c.label }]}>Set up your household</Text>
+        <Text style={[s.title, { color: c.label }]}>{t.onboarding.title}</Text>
 
         <View style={[s.segment, { backgroundColor: c.fill }]}>
           {(['create', 'join'] as const).map((m) => (
@@ -47,21 +49,21 @@ export default function Onboarding() {
               style={[s.segmentItem, mode === m && { backgroundColor: c.cell }]}
               accessibilityRole="button"
               accessibilityState={{ selected: mode === m }}>
-              <Text style={[s.segmentText, { color: c.label }]}>{m === 'create' ? 'Start new' : 'Join existing'}</Text>
+              <Text style={[s.segmentText, { color: c.label }]}>{m === 'create' ? t.onboarding.startNew : t.onboarding.joinExisting}</Text>
             </Pressable>
           ))}
         </View>
 
-        <Section title="You">
-          <Field label="Your name" value={displayName} onChangeText={setDisplayName} placeholder="First name" last />
+        <Section title={t.onboarding.you}>
+          <Field label={t.onboarding.yourName} value={displayName} onChangeText={setDisplayName} placeholder={t.onboarding.firstName} last />
         </Section>
 
         {mode === 'create' ? (
           <>
-            <Section title="Household" footer="The base currency is what budgets and reports use. It locks after the first expense.">
-              <Field label="Name" value={householdName} onChangeText={setHouseholdName} />
+            <Section title={t.settings.household} footer={t.onboarding.currencyFooter}>
+              <Field label={t.review.name} value={householdName} onChangeText={setHouseholdName} />
               <View style={s.currencyRow}>
-                <Text style={[s.currencyLabel, { color: c.label }]}>Currency</Text>
+                <Text style={[s.currencyLabel, { color: c.label }]}>{t.household.currency}</Text>
                 <View style={s.currencyChips}>
                   {CURRENCIES.map((cur) => (
                     <Pressable
@@ -79,36 +81,35 @@ export default function Onboarding() {
             </Section>
 
             {/* US-M1 AC5: explicit disclosure before anything is sent to a third-party AI. */}
-            <Section
-              title="Smart categorization"
-              footer={AI_DISCLOSURE}>
+            <Section title={t.onboarding.smart} footer={aiDisclosure()}>
               <View style={s.switchRow}>
-                <Text style={[s.switchLabel, { color: c.label }]}>Use AI suggestions</Text>
+                <Text style={[s.switchLabel, { color: c.label }]}>{t.onboarding.useAi}</Text>
                 <Switch value={aiConsent} onValueChange={setAiConsent} />
               </View>
             </Section>
 
             <View style={s.actions}>
               <Button
-                title="Create Household"
+                title={t.onboarding.create}
                 loading={busy}
                 disabled={!displayName.trim() || !householdName.trim()}
                 onPress={async () => {
                   // P1-7: set before creating, so the route guard's redirect already finds it.
                   await setSetupPending();
-                  create.mutate({ name: householdName.trim(), currency, displayName: displayName.trim(), aiConsent });
+                  // P1-6: a Hebrew household starts with Hebrew category names.
+                  create.mutate({ name: householdName.trim(), currency, displayName: displayName.trim(), aiConsent, language: lang() });
                 }}
               />
             </View>
           </>
         ) : (
           <>
-            <Section title="Invite code" footer="Opened an invite link? The code is already here. Otherwise ask for it in Settings → Household. Codes last 72 hours.">
-              <Field label="Code" value={code} onChangeText={setCode} placeholder="ABCD-EFGH" autoCapitalize="characters" last />
+            <Section title={t.onboarding.inviteCode} footer={t.onboarding.inviteFooter}>
+              <Field label={t.signIn.code} value={code} onChangeText={setCode} placeholder="ABCD-EFGH" autoCapitalize="characters" last />
             </Section>
             <View style={s.actions}>
               <Button
-                title="Join Household"
+                title={t.onboarding.join}
                 loading={busy}
                 disabled={!displayName.trim() || code.replace(/[^A-Za-z0-9]/g, '').length < 8}
                 onPress={() =>
@@ -129,7 +130,8 @@ export default function Onboarding() {
         <ErrorText error={create.error ?? join.error} />
 
         <View style={s.actions}>
-          <Button title="Sign Out" kind="plain" onPress={() => supabase.auth.signOut()} />
+          <Button title={t.settings.signOut} kind="plain" onPress={() => supabase.auth.signOut()} />
+          <LanguageToggle />
         </View>
       </ScrollView>
     </SafeAreaView>

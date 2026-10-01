@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from './ui';
+import { t } from '@/lib/i18n';
 import { useIsOnline } from '@/lib/query';
 import { useColors } from '@/lib/theme';
 
@@ -12,7 +13,7 @@ export function OfflineBanner() {
   return (
     <View style={[s.banner, { backgroundColor: c.fill }]}>
       <Icon name="wifi.slash" size={16} color={c.secondaryLabel} />
-      <Text style={[s.text, { color: c.secondaryLabel }]}>Offline. Showing saved data; changes are paused.</Text>
+      <Text style={[s.text, { color: c.secondaryLabel }]}>{t.banner.offline}</Text>
     </View>
   );
 }

@@ -5,23 +5,18 @@ import { Switch } from 'react-native';
 
 import { useDevices, useHousehold, useOverview, useRecurring, useSetAiConsent } from '@/api/queries';
 import { useSession } from '@/api/session';
+import { LanguageRows } from '@/components/language-picker';
 import { SwipeRow } from '@/components/swipe-row';
 import { CategoryIcon, ErrorText, Row, Screen, Section } from '@/components/ui';
-import { AI_DISCLOSURE } from '@/lib/ai-disclosure';
+import { aiDisclosure } from '@/lib/ai-disclosure';
 import { confirm } from '@/lib/confirm';
 import { exportExpenses } from '@/lib/export-csv';
+import { t } from '@/lib/i18n';
 import { useIncomeActions } from '@/lib/income-actions';
+import { deviceLang } from '@/lib/lang-store';
 import { formatMoney } from '@/lib/money';
-import { disableNotifications, enableNotifications, type PushState, usePushState } from '@/lib/push';
+import { disableNotifications, enableNotifications, usePushState } from '@/lib/push';
 import { APP_URL, FUNCTIONS_URL, supabase } from '@/lib/supabase';
-
-const PUSH_FOOTER: Record<PushState, string> = {
-  on: 'You get an alert when a category reaches 90% and 100% of its budget. Nothing else.',
-  off: 'Get an alert when a category reaches 90% and 100% of its budget. Nothing else.',
-  blocked: 'Notifications are blocked for this app. Allow them in your phone or browser settings, then come back.',
-  'install-first': 'On iPhone, alerts work only in the app on your Home Screen: tap Share → Add to Home Screen, then open it from there.',
-  unsupported: "This browser can't show notifications.",
-};
 
 export default function SettingsScreen() {
   const { session } = useSession();
@@ -57,14 +52,12 @@ export default function SettingsScreen() {
   async function deleteAccount() {
     const alone = (hh.data?.members.length ?? 0) <= 1;
     const first = await confirm(
-      'Delete your account?',
-      alone
-        ? `You are the only member of ${household?.name ?? 'your household'}, so it is deleted too, with all expenses, budgets and reports.`
-        : `You leave ${household?.name ?? 'the household'}. The other members keep its expenses. Your sign-in is deleted.`,
-      'Continue',
+      t.settings.deleteAccountTitle,
+      alone ? t.settings.deleteAlone(household?.name) : t.settings.deleteShared(household?.name),
+      t.settings.continue,
     );
     if (!first) return;
-    const second = await confirm('This cannot be undone', 'Export your expenses first if you want a copy.', 'Delete Account');
+    const second = await confirm(t.settings.cannotUndo, t.settings.exportFirst, t.settings.deleteAccount);
     if (!second || !session) return;
     setAccountBusy('delete');
     setAccountError(null);
@@ -73,7 +66,7 @@ export default function SettingsScreen() {
         method: 'POST',
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
-      if (!res.ok) throw new Error('Could not delete the account. Try again in a minute.');
+      if (!res.ok) throw new Error(t.settings.deleteFailed);
       await supabase.auth.signOut();
     } catch (e) {
       setAccountError(e);
@@ -85,7 +78,7 @@ export default function SettingsScreen() {
   // Turning it off is immediate: withdrawing consent must be as easy as giving it.
   async function toggleAi(on: boolean) {
     if (!household) return;
-    if (on && !(await confirm('Turn on AI suggestions?', `${AI_DISCLOSURE} This applies to everyone in ${household.name}.`, 'Turn On', false))) return;
+    if (on && !(await confirm(t.settings.aiTurnOnTitle, `${aiDisclosure()} ${t.settings.aiAppliesTo(household.name)}`, t.settings.turnOn, false))) return;
     consent.mutate({ householdId: household.id, on });
   }
 
@@ -104,20 +97,20 @@ export default function SettingsScreen() {
 
   return (
     <Screen>
-      <Section title="Budget">
+      <Section title={t.settings.budget}>
         {overview.data?.income ? (
           // Set: swipe (or long press) to edit or remove it.
           <SwipeRow onEdit={income.edit} onDelete={income.remove}>
             {(open) => (
               <Row
                 left={<CategoryIcon symbol="briefcase" />}
-                title="Monthly Income"
+                title={t.settings.income}
                 value={formatMoney(overview.data!.income, overview.data!.currency)}
                 onPress={income.edit}
                 onLongPress={open}
                 actions={[
-                  { name: 'edit', label: 'Edit', run: income.edit },
-                  { name: 'delete', label: 'Remove', run: income.remove },
+                  { name: 'edit', label: t.common.edit, run: income.edit },
+                  { name: 'delete', label: t.common.remove, run: income.remove },
                 ]}
               />
             )}
@@ -125,25 +118,25 @@ export default function SettingsScreen() {
         ) : (
           <Row
             left={<CategoryIcon symbol="briefcase" />}
-            title="Monthly Income"
-            value={overview.data ? 'Not set' : undefined}
+            title={t.settings.income}
+            value={overview.data ? t.settings.notSet : undefined}
             onPress={income.edit}
           />
         )}
-        <Row left={<CategoryIcon symbol="tag" />} title="Categories & Budgets" onPress={() => router.push('/settings/categories')} />
+        <Row left={<CategoryIcon symbol="tag" />} title={t.settings.categories} onPress={() => router.push('/settings/categories')} />
         <Row
           left={<CategoryIcon symbol="calendar.badge.clock" />}
-          title="Recurring"
+          title={t.settings.recurring}
           value={recurring.data ? String(recurring.data.length) : undefined}
           onPress={() => router.push('/settings/recurring')}
         />
-        <Row left={<CategoryIcon symbol="banknote" />} title="Savings" onPress={() => router.push('/settings/savings')} last />
+        <Row left={<CategoryIcon symbol="banknote" />} title={t.overview.savings} onPress={() => router.push('/settings/savings')} last />
       </Section>
 
-      <Section title="Apple Pay" footer="Each iPhone gets its own token for the Shortcut. Revoke it here if a phone is lost.">
+      <Section title="Apple Pay" footer={t.settings.applePayFooter}>
         <Row
           left={<CategoryIcon symbol="iphone.gen3" />}
-          title="Shortcut & Devices"
+          title={t.settings.devices}
           value={devices.data ? String(activeDevices) : undefined}
           onPress={() => router.push('/settings/devices')}
           last
@@ -151,10 +144,10 @@ export default function SettingsScreen() {
       </Section>
 
       {push.state ? (
-        <Section title="Notifications" footer={PUSH_FOOTER[push.state]}>
+        <Section title={t.settings.notifications} footer={t.settings.pushFooter[push.state]}>
           <Row
             left={<CategoryIcon symbol="bell" />}
-            title="Budget alerts"
+            title={t.settings.budgetAlerts}
             chevron={false}
             right={
               <Switch
@@ -169,22 +162,25 @@ export default function SettingsScreen() {
       ) : null}
       <ErrorText error={pushError} />
 
-      <Section title="Household">
+      <Section title={t.settings.household}>
         <Row
           left={<CategoryIcon symbol="person.2" />}
-          title={household?.name ?? 'Household'}
+          title={household?.name ?? t.settings.household}
           subtitle={hh.data?.members.map((m) => m.display_name).join(' & ')}
           onPress={() => router.push('/settings/household')}
           last
         />
       </Section>
 
-      <Section
-        title="AI"
-        footer={AI_DISCLOSURE}>
+      {/* P1-6: Hebrew or English; switching reloads the app in the new language. */}
+      <Section title={t.settings.language} footer={t.settings.languageFooter}>
+        <LanguageRows systemLabel={t.settings.languageSystem(deviceLang() === 'he' ? 'עברית' : 'English')} />
+      </Section>
+
+      <Section title="AI" footer={aiDisclosure()}>
         <Row
           left={<CategoryIcon symbol="sparkles" />}
-          title="AI suggestions"
+          title={t.settings.aiSuggestions}
           chevron={false}
           right={
             <Switch
@@ -194,37 +190,37 @@ export default function SettingsScreen() {
             />
           }
         />
-        <Row left={<CategoryIcon symbol="list.bullet" />} title="AI Activity" onPress={() => router.push('/settings/ai-activity')} last />
+        <Row left={<CategoryIcon symbol="list.bullet" />} title={t.settings.aiActivity} onPress={() => router.push('/settings/ai-activity')} last />
       </Section>
 
       <Section>
-        <Row left={<CategoryIcon symbol="questionmark.circle" />} title="Set Up Guide" onPress={() => router.push('/settings/install')} last />
+        <Row left={<CategoryIcon symbol="questionmark.circle" />} title={t.settings.guide} onPress={() => router.push('/settings/install')} last />
       </Section>
 
-      <Section title="Your Data">
+      <Section title={t.settings.yourData}>
         <Row
           left={<CategoryIcon symbol="square.and.arrow.down" />}
-          title={accountBusy === 'export' ? 'Preparing…' : 'Export Expenses (CSV)'}
+          title={accountBusy === 'export' ? t.settings.preparing : t.settings.export}
           onPress={accountBusy ? undefined : exportCsv}
           chevron={false}
         />
         <Row
           left={<CategoryIcon symbol="hand.raised" />}
-          title="Privacy Policy"
+          title={t.settings.privacy}
           onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/privacy.html`)}
         />
         <Row
           left={<CategoryIcon symbol="doc.text.magnifyingglass" />}
-          title="Terms of Use"
+          title={t.settings.terms}
           onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/terms.html`)}
           last
         />
       </Section>
 
-      <Section title="Account" footer={session?.user.email ?? undefined}>
-        <Row title="Sign Out" onPress={() => supabase.auth.signOut()} chevron={false} />
+      <Section title={t.settings.account} footer={session?.user.email ?? undefined}>
+        <Row title={t.settings.signOut} onPress={() => supabase.auth.signOut()} chevron={false} />
         <Row
-          title={accountBusy === 'delete' ? 'Deleting…' : 'Delete Account'}
+          title={accountBusy === 'delete' ? t.settings.deleting : t.settings.deleteAccount}
           destructive
           onPress={accountBusy ? undefined : deleteAccount}
           chevron={false}

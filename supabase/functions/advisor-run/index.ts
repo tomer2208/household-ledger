@@ -6,7 +6,19 @@
 
 import type Anthropic from "npm:@anthropic-ai/sdk@^0.128.0";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { addUsage, aiAllowed, aiClient, flatten, logRun, MODELS, namesIn, validateText } from "../_shared/ai.ts";
+import {
+  addUsage,
+  aiAllowed,
+  aiClient,
+  flatten,
+  LANGUAGE_RULE,
+  logRun,
+  memberLanguages,
+  MODELS,
+  namesIn,
+  validateText,
+  type Lang,
+} from "../_shared/ai.ts";
 
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
   auth: { persistSession: false },
@@ -36,7 +48,7 @@ Skip anything that looks like noise, a one-off, or something they already reject
 read on a card: why this, in plain words. Cite every number through the candidate's evidence
 as {{evidence.<field>}} (for example {{evidence.new_cap}}); the text must contain no digits
 of its own. Call dismiss_candidate for the ones you skip, with a short reason, so every
-candidate is resolved.`;
+candidate is resolved. {{LANGUAGE}}`;
 
 const TOOLS: Anthropic.Tool[] = [
   {
@@ -105,7 +117,8 @@ function impact(c: Candidate): number {
   }
 }
 
-export function templateText(c: Candidate): string {
+export function templateText(c: Candidate, lang: Lang = "en"): string {
+  if (lang === "he") return templateTextHe(c);
   switch (c.kind) {
     case "create_recurring":
       return "You've entered {{evidence.name}} by hand {{evidence.count}} times, about a month apart, at {{evidence.amount}}. Make it recurring and it will log itself.";
@@ -122,11 +135,29 @@ export function templateText(c: Candidate): string {
   }
 }
 
-function deterministic(cands: Candidate[], limit: number): Pick[] {
+// P1-6: the same cards in Hebrew, for the members who read the app in Hebrew.
+function templateTextHe(c: Candidate): string {
+  switch (c.kind) {
+    case "create_recurring":
+      return "הזנתם את {{evidence.name}} ידנית {{evidence.count}} פעמים, בערך פעם בחודש, ב-{{evidence.amount}}. אם תהפכו אותה להוצאה קבועה, היא תירשם לבד.";
+    case "update_estimate":
+      return "החשבונות האחרונים של {{evidence.name}} עמדו בממוצע על {{evidence.actual_avg}}, אבל ההערכה היא {{evidence.estimate}}. עדכון ישמור על תקציב מדויק.";
+    case "adjust_budget":
+      return c.evidence.direction === "up"
+        ? "{{evidence.name}} חרגה מהתקציב ב-{{evidence.over_months}} מתוך {{evidence.months}} החודשים האחרונים. תקציב של {{evidence.new_cap}} מתאים להוצאות בפועל."
+        : "{{evidence.name}} נשארה הרבה מתחת לתקציב של {{evidence.old_cap}} במשך {{evidence.months}} חודשים. הורדה ל-{{evidence.new_cap}} תשחרר את השאר לחיסכון.";
+    case "recategorize_merchant":
+      return "העברתם את {{evidence.name}} מ{{evidence.from}} ל{{evidence.to}} {{evidence.times}} פעמים. להפוך את {{evidence.to}} לברירת המחדל?";
+    case "flag_duplicate":
+      return "{{evidence.name}} על {{evidence.amount}} נרשמה פעמיים בתוך יום. להסיר את השנייה?";
+  }
+}
+
+function deterministic(cands: Candidate[], limit: number, lang: Lang): Pick[] {
   return [...cands]
     .sort((a, b) => impact(b) - impact(a))
     .slice(0, limit)
-    .map((c, i) => ({ candidate: c, priority: i + 1, text: templateText(c) }));
+    .map((c, i) => ({ candidate: c, priority: i + 1, text: templateText(c, lang) }));
 }
 
 // A purchase entered three times yields two overlapping pairs; one card is enough.
@@ -174,7 +205,7 @@ async function categoryTrend(householdId: string, categoryId: string) {
   });
 }
 
-async function withAI(householdId: string, cands: Candidate[], limit: number, rejected: unknown[]) {
+async function withAI(householdId: string, cands: Candidate[], limit: number, rejected: unknown[], lang: Lang) {
   const client = aiClient();
   if (!client || !(await aiAllowed(db, householdId))) return null;
   const started = performance.now();
@@ -200,7 +231,7 @@ async function withAI(householdId: string, cands: Candidate[], limit: number, re
         max_tokens: 6000,
         thinking: { type: "adaptive" },
         output_config: { effort: "low" },
-        system: SYSTEM.replace("{{LIMIT}}", String(limit)),
+        system: SYSTEM.replace("{{LIMIT}}", String(limit)).replace("{{LANGUAGE}}", LANGUAGE_RULE[lang]),
         tools: TOOLS,
         messages,
       });
@@ -281,8 +312,11 @@ Deno.serve(async () => {
       .order("decided_at", { ascending: false })
       .limit(10);
 
-    const ai = h.ai_consent_at ? await withAI(h.id, cands, limit, rejected ?? []) : null;
-    const picks = ai ? ai.picks : deterministic(cands, limit);
+    // P1-6: the AI (or the template) writes in the household's main language; each other
+    // language a member reads gets the template, in `texts`.
+    const langs = await memberLanguages(db, h.id);
+    const ai = h.ai_consent_at ? await withAI(h.id, cands, limit, rejected ?? [], langs[0]) : null;
+    const picks = ai ? ai.picks : deterministic(cands, limit, langs[0]);
     const runId = ai?.run ?? (await logRun(db, { household_id: h.id, agent: "advisor", status: "fallback", started: performance.now() }));
 
     if (picks.length > 0) {
@@ -291,7 +325,12 @@ Deno.serve(async () => {
           household_id: h.id,
           kind: p.candidate.kind,
           payload: p.candidate.payload,
-          rationale: { text: p.text, evidence: p.candidate.evidence, priority: p.priority },
+          rationale: {
+            text: p.text,
+            texts: Object.fromEntries(langs.map((l, i) => [l, i === 0 ? p.text : templateText(p.candidate, l)])),
+            evidence: p.candidate.evidence,
+            priority: p.priority,
+          },
           dedupe_key: p.candidate.candidate_id,
           agent_run_id: runId,
         })),

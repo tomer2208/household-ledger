@@ -7,6 +7,7 @@ import { useCaptureHealth, useCreateDeviceToken, useDevices, useHousehold, useRe
 import { silentDays } from '@/components/capture-banner';
 import { Badge, Button, ErrorText, Field, Row, Screen, Section } from '@/components/ui';
 import { shortDate } from '@/lib/dates';
+import { t } from '@/lib/i18n';
 import { FUNCTIONS_URL } from '@/lib/supabase';
 import { confirm } from '@/lib/confirm';
 import { useColors } from '@/lib/theme';
@@ -22,7 +23,7 @@ export default function DevicesScreen() {
   const devices = useDevices();
   const create = useCreateDeviceToken();
   const revoke = useRevokeDevice();
-  const [label, setLabel] = useState(`${hh.data?.me?.display_name ?? 'My'}'s iPhone`);
+  const [label, setLabel] = useState(t.devices.defaultName(hh.data?.me?.display_name));
   const [token, setToken] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const names = new Map((hh.data?.members ?? []).map((m) => [m.user_id, m.display_name]));
@@ -37,46 +38,45 @@ export default function DevicesScreen() {
   }
 
   async function confirmRevoke(id: string, name: string) {
-    if (await confirm(`Revoke ${name}?`, 'Its Shortcut stops logging purchases immediately.', 'Revoke')) revoke.mutate(id);
+    if (await confirm(t.devices.revokeTitle(name), t.devices.revokeBody, t.devices.revoke)) revoke.mutate(id);
   }
 
   return (
     <Screen>
-      <Stack.Screen options={{ title: 'Shortcut & Devices', headerLargeTitle: false }} />
+      <Stack.Screen options={{ title: t.settings.devices, headerLargeTitle: false }} />
 
       {/* R9: first thing on screen when a banner's Check brings you here. */}
       {quiet.length > 0 ? (
         <Section
-          title="If purchases stop logging"
-          footer="Still stuck? Revoke the device below, create a new token and paste it into the Shortcut's token field.">
-          <Step n={1} text="Shortcuts → Automation: the Transaction automation is still there and turned on, with Run Immediately selected." />
-          <Step n={2} text="Open it and tap ▶. “missing merchant” means the token works; “unauthorized” means it was revoked or mistyped." />
-          <Step n={3} text="After an iOS update, open the automation once and check the fields still read Merchant, Amount and Card or Pass." />
-          <Step n={4} text="Make a small Apple Pay purchase. It should appear under Expenses within seconds." last />
+          title={t.devices.stuckTitle}
+          footer={t.devices.stuckFooter}>
+          {t.devices.stuck.map((text, i, all) => (
+            <Step key={i} n={i + 1} text={text} last={i === all.length - 1} />
+          ))}
         </Section>
       ) : null}
 
       {token ? (
-        <Section title="Your new token" footer="Copy it now and keep it in Notes until the Shortcut is built. For your security it won't be shown again.">
+        <Section title={t.devices.newToken} footer={t.devices.newTokenFooter}>
           <View style={s.tokenBox}>
             <Text selectable style={[s.token, { color: c.label }]}>{token}</Text>
           </View>
           <Row
-            title={copied === 'token' ? 'Copied ✓' : 'Copy Token'}
+            title={copied === 'token' ? t.devices.copied : t.devices.copyToken}
             onPress={() => copy('token', token)}
             chevron={false}
             last
           />
         </Section>
       ) : (
-        <Section title="Connect this iPhone" footer="Creates a private token for the Apple Pay Shortcut on this phone.">
-          <Field label="Name" value={label} onChangeText={setLabel} maxLength={40} last />
+        <Section title={t.devices.connect} footer={t.devices.connectFooter}>
+          <Field label={t.review.name} value={label} onChangeText={setLabel} maxLength={40} last />
         </Section>
       )}
       {!token ? (
         <View style={s.actions}>
           <Button
-            title="Create Token"
+            title={t.devices.createToken}
             loading={create.isPending}
             disabled={!label.trim()}
             onPress={async () => {
@@ -89,46 +89,36 @@ export default function DevicesScreen() {
       <ErrorText error={create.error ?? revoke.error} />
 
       <Section
-        title="Build the Apple Pay automation"
-        footer="About 10 minutes, once per iPhone. After that, known places log silently and new ones ask for a category.">
-        <Step n={1} text="Create a token above and copy it." />
-        <Step n={2} text="Shortcuts app → Automation → + → Transaction. Pick your cards, choose Run Immediately, then Next → New Blank Automation." />
-        <Step n={3} text="Add “Get Contents of URL”. Paste the capture address, set Method to POST and Request Body to JSON.">
-          <CopyRow label="Capture address" value={CAPTURE_URL} copied={copied === 'capture'} onCopy={() => copy('capture', CAPTURE_URL)} />
-        </Step>
-        <Step n={4} text="In the JSON body add Text fields: token = your token; merchant, amount, card, name = Shortcut Input › Merchant, Amount, Card or Pass, Name." />
-        <Step n={5} text="Add “Get Dictionary Value”: status in Contents of URL. Tap the result and set Type to Text." />
-        <Step n={6} text="Add “If” → Dictionary Value is needs_input. Inside it: get transaction_id → Set Variable TxId; get prompt → Set Variable Prompt; get category_names → Choose from List with Prompt." />
-        <Step n={7} text="Still inside: If Chosen Item contains “New category” → Ask for Text “New category name” → Set Variable NewCategory." />
-        <Step n={8} text="After that inner If: duplicate the first URL action and change its address to the confirm address. Body: token, transaction_id = TxId, category_name = Chosen Item, new_category_name = NewCategory.">
-          <CopyRow label="Confirm address" value={CONFIRM_URL} copied={copied === 'confirm'} onCopy={() => copy('confirm', CONFIRM_URL)} />
-        </Step>
-        <Step n={9} text="In the main Otherwise: If status is not logged → Show Notification “FinPace couldn't log this purchase. Add it in the app.”" />
-        <Step
-          n={10}
-          text="Tap ▶ to test: without a purchase the server answers “missing merchant”, which means the token works. Your next Apple Pay purchase at a new place shows the category menu."
-          last
-        />
+        title={t.devices.buildTitle}
+        footer={t.devices.buildFooter}>
+        {t.devices.build.map((text, i, all) => (
+          <Step key={i} n={i + 1} text={text} last={i === all.length - 1}>
+            {i === 2 ? (
+              <CopyRow label={t.devices.captureAddress} value={CAPTURE_URL} copied={copied === 'capture'} onCopy={() => copy('capture', CAPTURE_URL)} />
+            ) : i === 7 ? (
+              <CopyRow label={t.devices.confirmAddress} value={CONFIRM_URL} copied={copied === 'confirm'} onCopy={() => copy('confirm', CONFIRM_URL)} />
+            ) : null}
+          </Step>
+        ))}
       </Section>
 
-
       {list.length > 0 ? (
-        <Section title="Devices">
+        <Section title={t.devices.devices}>
           {list.map((d, i) => (
             <Row
               key={d.id}
               title={d.label}
               subtitle={
                 d.revoked_at
-                  ? `Revoked ${shortDate(d.revoked_at)}`
-                  : `${names.get(d.user_id) ?? ''} · ${d.last_used_at ? `last used ${shortDate(d.last_used_at)}` : 'never used'}`
+                  ? t.devices.revoked(shortDate(d.revoked_at))
+                  : `${names.get(d.user_id) ?? ''} · ${d.last_used_at ? t.devices.lastUsed(shortDate(d.last_used_at)) : t.devices.neverUsed}`
               }
-              value={d.revoked_at ? undefined : 'Revoke'}
+              value={d.revoked_at ? undefined : t.devices.revoke}
               right={
                 health.get(d.id)?.status === 'silent' ? (
-                  <Badge text={`Silent ${silentDays(health.get(d.id)!)} days`} color={c.orange} />
+                  <Badge text={t.devices.silent(silentDays(health.get(d.id)!))} color={c.orange} />
                 ) : health.get(d.id)?.status === 'setup' ? (
-                  <Badge text="No purchases yet" color={c.orange} />
+                  <Badge text={t.devices.noPurchases} color={c.orange} />
                 ) : undefined
               }
               onPress={d.revoked_at ? undefined : () => confirmRevoke(d.id, d.label)}
@@ -161,12 +151,12 @@ function Step({ n, text, last, children }: { n: number; text: string; last?: boo
 function CopyRow({ label, value, copied, onCopy }: { label: string; value: string; copied: boolean; onCopy: () => void }) {
   const c = useColors();
   return (
-    <Pressable onPress={onCopy} style={[s.copy, { backgroundColor: c.fill }]} accessibilityRole="button" accessibilityLabel={`Copy ${label}`}>
+    <Pressable onPress={onCopy} style={[s.copy, { backgroundColor: c.fill }]} accessibilityRole="button" accessibilityLabel={t.devices.copyA11y(label)}>
       {/* The path is what tells the two addresses apart; Copy still takes the full URL. */}
       <Text numberOfLines={1} style={[s.copyValue, { color: c.secondaryLabel }]}>
         {value.replace(/^https:\/\/[^/]+/, '…')}
       </Text>
-      <Text style={{ color: c.tint, fontSize: 15, fontWeight: '600' }}>{copied ? 'Copied ✓' : 'Copy'}</Text>
+      <Text style={{ color: c.tint, fontSize: 15, fontWeight: '600' }}>{copied ? t.devices.copied : t.devices.copy}</Text>
     </Pressable>
   );
 }

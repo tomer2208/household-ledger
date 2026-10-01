@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from './ui';
+import { t } from '@/lib/i18n';
 import { useColors } from '@/lib/theme';
 
 // Web (installed PWA): a bottom bar shaped like the iOS one. It sits above the home
@@ -15,16 +16,16 @@ export default function AppTabs() {
       <TabSlot style={{ flex: 1 }} />
       <TabList style={[styles.bar, { backgroundColor: c.cell, borderTopColor: c.separator, paddingBottom: Math.max(6, insets.bottom) }]}>
         <TabTrigger name="overview" href="/overview" asChild>
-          <TabButton icon="chart.pie">Overview</TabButton>
+          <TabButton icon="chart.pie">{t.tabs.overview}</TabButton>
         </TabTrigger>
         <TabTrigger name="transactions" href="/transactions" asChild>
-          <TabButton icon="list.bullet">Expenses</TabButton>
+          <TabButton icon="list.bullet">{t.tabs.expenses}</TabButton>
         </TabTrigger>
         <TabTrigger name="reports" href="/reports" asChild>
-          <TabButton icon="doc.text.magnifyingglass">Reports</TabButton>
+          <TabButton icon="doc.text.magnifyingglass">{t.tabs.reports}</TabButton>
         </TabTrigger>
         <TabTrigger name="settings" href="/settings" asChild>
-          <TabButton icon="gearshape">Settings</TabButton>
+          <TabButton icon="gearshape">{t.tabs.settings}</TabButton>
         </TabTrigger>
       </TabList>
     </Tabs>

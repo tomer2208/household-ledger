@@ -6,10 +6,10 @@ import { useMemberNames } from '@/api/queries';
 import type { Transaction } from '@/api/types';
 import { isolate, isRtl } from '@/lib/bidi';
 import { timeLabel } from '@/lib/dates';
+import { t } from '@/lib/i18n';
 import { formatSigned } from '@/lib/money';
+import { appDirText, textStart } from '@/lib/rtl';
 import { moneyText, useColors } from '@/lib/theme';
-
-const SOURCE_LABEL = { apple_pay: 'Apple Pay', manual: 'Manual', recurring: 'Recurring' } as const;
 
 export function TransactionRow({
   tx,
@@ -41,23 +41,24 @@ export function TransactionRow({
       <View>
         <CategoryIcon symbol={tx.categories?.sf_symbol ?? 'tag'} />
         {by ? (
-          <View style={[s.who, { backgroundColor: c.tint, borderColor: c.cell }]} accessibilityLabel={`Added by ${by}`}>
+          <View style={[s.who, { backgroundColor: c.tint, borderColor: c.cell }]} accessibilityLabel={t.tx.addedBy(by)}>
             <Text style={[s.whoText, { color: c.onTint }]}>{by.trim().charAt(0).toUpperCase()}</Text>
           </View>
         ) : null}
       </View>
       <View style={[s.body, !last && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
         <View style={{ flex: 1, gap: 2 }}>
-          <Text numberOfLines={1} style={[s.title, { color: c.label }, isRtl(tx.title) && { writingDirection: 'rtl', textAlign: 'left' }]}>
+          <Text numberOfLines={1} style={[s.title, { color: c.label }, isRtl(tx.title) && { writingDirection: 'rtl', textAlign: textStart() }]}>
             {isolate(tx.title)}
           </Text>
           <View style={s.meta}>
-            <Text numberOfLines={1} style={[s.sub, { color: c.secondaryLabel }]}>
-              {tx.categories?.name} · {SOURCE_LABEL[tx.source]} · {timeLabel(tx.occurred_at)}
+            {/* In the app's direction: a Hebrew category name doesn't flip an English line. */}
+            <Text {...appDirText()} numberOfLines={1} style={[s.sub, { color: c.secondaryLabel }]}>
+              {isolate(tx.categories?.name)} · {t.tx.source[tx.source]} · {timeLabel(tx.occurred_at)}
             </Text>
-            {tx.status === 'pending_review' ? <Badge text="Review" color={c.orange} /> : null}
-            {tx.status === 'estimated' ? <Badge text="Estimate" color={c.secondaryLabel} /> : null}
-            {tx.amount_minor < 0 ? <Badge text="Refund" color={c.green} /> : null}
+            {tx.status === 'pending_review' ? <Badge text={t.tx.review} color={c.orange} /> : null}
+            {tx.status === 'estimated' ? <Badge text={t.tx.estimate} color={c.secondaryLabel} /> : null}
+            {tx.amount_minor < 0 ? <Badge text={t.common.refund} color={c.green} /> : null}
             {tx.installment ? <Badge text={`${tx.installment.no}/${tx.installment.count}`} color={c.secondaryLabel} /> : null}
           </View>
         </View>
@@ -75,14 +76,14 @@ export function TransactionRow({
 }
 
 const s = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', paddingLeft: 16, gap: 12 },
-  body: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, paddingRight: 16, minHeight: 56 },
+  row: { flexDirection: 'row', alignItems: 'center', paddingStart: 16, gap: 12 },
+  body: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, paddingEnd: 16, minHeight: 56 },
   title: { fontSize: 17 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   sub: { fontSize: 13, fontVariant: ['tabular-nums'], flexShrink: 1 },
   amount: { fontSize: 17, ...moneyText },
   who: {
-    position: 'absolute', right: -5, bottom: -5, width: 17, height: 17, borderRadius: 9, borderWidth: 2,
+    position: 'absolute', end: -5, bottom: -5, width: 17, height: 17, borderRadius: 9, borderWidth: 2,
     alignItems: 'center', justifyContent: 'center',
   },
   whoText: { fontSize: 9, fontWeight: '700' },

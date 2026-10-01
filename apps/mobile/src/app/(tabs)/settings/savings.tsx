@@ -5,15 +5,18 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAddSavingsEntry, useHousehold, useOverview, useSavingsLedger } from '@/api/queries';
 import { Button, ErrorText, Field, Row, Screen, Section } from '@/components/ui';
 import { monthLabel, shortDate } from '@/lib/dates';
+import { t } from '@/lib/i18n';
 import { formatMoney, parseMoneyInput } from '@/lib/money';
 import { moneyText, useColors } from '@/lib/theme';
 
-const TYPE_LABEL = {
-  month_close: 'Month close',
-  late_adjustment: 'Late change',
-  manual: 'Manual',
-  unassigned_income: 'Unassigned income',
-} as const;
+// The server writes its own reasons in English ("Month close 2026-09"); entries it made
+// itself are described here instead, in the app's language. Manual ones keep what was typed.
+const LATE = /^Late change: /;
+function reasonOf(e: { entry_type: keyof typeof t.savings.type; reason: string; budget_month: string }) {
+  if (e.entry_type === 'month_close' || e.entry_type === 'unassigned_income') return `${t.savings.type[e.entry_type]} · ${monthLabel(e.budget_month)}`;
+  if (e.entry_type === 'late_adjustment') return t.savings.lateChange(e.reason.replace(LATE, ''));
+  return e.reason;
+}
 
 // Savings is a ledger, not a number that gets overwritten: every move has a reason (BLUEPRINT §3.3).
 export default function SavingsScreen() {
@@ -33,19 +36,18 @@ export default function SavingsScreen() {
 
   return (
     <Screen>
-      <Stack.Screen options={{ title: 'Savings', headerLargeTitle: false }} />
+      <Stack.Screen options={{ title: t.overview.savings, headerLargeTitle: false }} />
       <View style={[s.hero, { backgroundColor: c.cell }]}>
-        <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>Balance</Text>
+        <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>{t.savings.balance}</Text>
         <Text style={[s.heroAmount, { color: c.label }]}>{formatMoney(overview.data?.savings_balance ?? 0, cur)}</Text>
         {o && (o.total_cap > 0 || o.income != null) ? (
           <Text style={[s.heroMeta, { color: coming >= 0 ? c.green : c.red }]}>
-            {coming >= 0 ? '+' : '−'}
-            {formatMoney(Math.abs(coming), cur)} on the way this month
+            {t.savings.onTheWay(formatMoney(coming, cur, { sign: true }))}
           </Text>
         ) : null}
       </View>
 
-      <Section title="Manual entry" footer="Use this when you actually spend savings (a trip) or top them up.">
+      <Section title={t.savings.manual} footer={t.savings.manualFooter}>
         <View style={s.toggle}>
           {(['out', 'in'] as const).map((d) => (
             <Pressable
@@ -55,16 +57,16 @@ export default function SavingsScreen() {
               accessibilityRole="button"
               accessibilityState={{ selected: direction === d }}
               style={[s.toggleItem, { backgroundColor: direction === d ? c.tint : c.fill }]}>
-              <Text style={{ color: direction === d ? c.onTint : c.label, fontWeight: '600' }}>{d === 'out' ? 'Withdraw' : 'Deposit'}</Text>
+              <Text style={{ color: direction === d ? c.onTint : c.label, fontWeight: '600' }}>{d === 'out' ? t.savings.withdraw : t.savings.deposit}</Text>
             </Pressable>
           ))}
         </View>
-        <Field label={`Amount (${cur})`} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0" />
-        <Field label="Reason" value={reason} onChangeText={setReason} placeholder="Summer trip" last />
+        <Field label={t.detail.amount(cur)} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0" />
+        <Field label={t.savings.reason} value={reason} onChangeText={setReason} placeholder={t.savings.reasonPlaceholder} last />
       </Section>
       <View style={s.actions}>
         <Button
-          title={direction === 'out' ? 'Withdraw' : 'Deposit'}
+          title={direction === 'out' ? t.savings.withdraw : t.savings.deposit}
           disabled={!minor || !reason.trim()}
           loading={add.isPending}
           onPress={async () => {
@@ -77,16 +79,15 @@ export default function SavingsScreen() {
       <ErrorText error={add.error} />
 
       {entries.length > 0 ? (
-        <Section title="History">
+        <Section title={t.savings.history}>
           {entries.map((e, i) => (
             <Row
               key={e.id}
-              title={e.reason}
-              subtitle={`${TYPE_LABEL[e.entry_type]} · ${e.entry_type === 'month_close' || e.entry_type === 'unassigned_income' ? monthLabel(e.budget_month) : shortDate(e.created_at)}`}
+              title={reasonOf(e)}
+              subtitle={e.entry_type === 'manual' ? `${t.savings.type.manual} · ${shortDate(e.created_at)}` : shortDate(e.created_at)}
               right={
                 <Text style={{ color: e.amount_minor >= 0 ? c.green : c.red, fontSize: 17, ...moneyText }}>
-                  {e.amount_minor >= 0 ? '+' : '−'}
-                  {formatMoney(Math.abs(e.amount_minor), cur)}
+                  {formatMoney(e.amount_minor, cur, { sign: true })}
                 </Text>
               }
               last={i === entries.length - 1}

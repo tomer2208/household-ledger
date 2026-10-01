@@ -5,7 +5,9 @@ import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { LanguageToggle } from '@/components/language-picker';
 import { Button, ErrorText, Field, Icon, Section } from '@/components/ui';
+import { t } from '@/lib/i18n';
 import { APP_URL, supabase } from '@/lib/supabase';
 import { useColors } from '@/lib/theme';
 
@@ -46,7 +48,7 @@ export default function SignIn() {
         requestedScopes: [AppleAuthentication.AppleAuthenticationScope.EMAIL, AppleAuthentication.AppleAuthenticationScope.FULL_NAME],
         nonce: hashedNonce,
       });
-      if (!cred.identityToken) throw new Error('Apple did not return an identity token');
+      if (!cred.identityToken) throw new Error(t.signIn.appleNoToken);
       const { error } = await supabase.auth.signInWithIdToken({ provider: 'apple', token: cred.identityToken, nonce: rawNonce });
       if (error) throw error;
     });
@@ -79,7 +81,7 @@ export default function SignIn() {
             <Icon name="chart.pie" size={40} color="#fff" />
           </View>
           <Text style={[s.title, { color: c.label }]}>FinPace</Text>
-          <Text style={[s.subtitle, { color: c.secondaryLabel }]}>Every shekel your household spends, in one place.</Text>
+          <Text style={[s.subtitle, { color: c.secondaryLabel }]}>{t.signIn.tagline}</Text>
         </View>
 
         {appleAvailable ? (
@@ -91,15 +93,15 @@ export default function SignIn() {
               style={{ height: 50 }}
               onPress={signInWithApple}
             />
-            <Text style={[s.or, { color: c.secondaryLabel }]}>or use email</Text>
+            <Text style={[s.or, { color: c.secondaryLabel }]}>{t.signIn.orEmail}</Text>
           </View>
         ) : null}
 
         {step === 'email' ? (
           <>
-            <Section footer="We'll email you a sign-in code. No password needed.">
+            <Section footer={t.signIn.emailFooter}>
               <Field
-                label="Email"
+                label={t.signIn.email}
                 value={email}
                 onChangeText={setEmail}
                 placeholder="you@example.com"
@@ -114,29 +116,29 @@ export default function SignIn() {
               ) : null}
             </Section>
             <View style={s.actions}>
-              <Button title="Send Code" onPress={sendCode} loading={busy && !password} disabled={!email.includes('@')} />
+              <Button title={t.signIn.sendCode} onPress={sendCode} loading={busy && !password} disabled={!email.includes('@')} />
               {__DEV__ && password ? <Button title="Dev sign in" kind="plain" onPress={devPassword} loading={busy} /> : null}
             </View>
             <Text style={[s.legal, { color: c.secondaryLabel }]}>
-              By continuing you agree to the{' '}
+              {t.signIn.agreeBefore}
               <Text style={{ color: c.tint }} onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/terms.html`)}>
-                Terms of Use
-              </Text>{' '}
-              and{' '}
-              <Text style={{ color: c.tint }} onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/privacy.html`)}>
-                Privacy Policy
+                {t.settings.terms}
               </Text>
-              .
+              {t.signIn.agreeAnd}
+              <Text style={{ color: c.tint }} onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/privacy.html`)}>
+                {t.settings.privacy}
+              </Text>
+              {t.signIn.agreeAfter}
             </Text>
           </>
         ) : (
           <>
-            <Section footer={`Sent to ${email.trim()}.`}>
+            <Section footer={t.signIn.sentTo(email.trim())}>
               <Field
-                label="Code"
+                label={t.signIn.code}
                 value={code}
                 onChangeText={(v) => setCode(v.replace(/\D/g, ''))}
-                placeholder="Code from the email"
+                placeholder={t.signIn.codePlaceholder}
                 keyboardType="number-pad"
                 textContentType="oneTimeCode"
                 autoComplete="one-time-code"
@@ -146,12 +148,16 @@ export default function SignIn() {
               />
             </Section>
             <View style={s.actions}>
-              <Button title="Sign In" onPress={verifyCode} loading={busy} disabled={code.length < 6} />
-              <Button title="Use a different email" kind="plain" onPress={() => setStep('email')} />
+              <Button title={t.signIn.signIn} onPress={verifyCode} loading={busy} disabled={code.length < 6} />
+              <Button title={t.signIn.differentEmail} kind="plain" onPress={() => setStep('email')} />
             </View>
           </>
         )}
         <ErrorText error={error} />
+        {/* P1-6: the language can be switched before there is a Settings tab. */}
+        <View style={s.language}>
+          <LanguageToggle />
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -167,4 +173,5 @@ const s = StyleSheet.create({
   or: { textAlign: 'center', fontSize: 13 },
   actions: { marginHorizontal: 16, marginTop: 16, gap: 8 },
   legal: { fontSize: 13, lineHeight: 18, textAlign: 'center', marginHorizontal: 32, marginTop: 16 },
+  language: { marginTop: 24 },
 });

@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { DateInput, hasSystemDatePicker } from './date-input';
 import { addDays, dayChipLabel, todayYmd, yesterdayYmd } from '@/lib/dates';
+import { t } from '@/lib/i18n';
 import { useColors } from '@/lib/theme';
 
 // When an expense happened, on the household's clock (lib/dates.ts): Today and Yesterday are one tap, anything older opens the system
@@ -32,16 +33,16 @@ export function DateField({ value, onChange }: { value: string; onChange: (day: 
   return (
     <View style={s.wrap}>
       <View style={s.row}>
-        {chip('Today', value === today, () => onChange(today))}
-        {chip('Yesterday', value === yesterday, () => onChange(yesterday))}
+        {chip(t.dates.today, value === today, () => onChange(today))}
+        {chip(t.dates.yesterday, value === yesterday, () => onChange(yesterday))}
         <View>
           {chip(
-            other ? dayChipLabel(value) : 'Pick date…',
+            other ? dayChipLabel(value) : t.dates.pick,
             other,
             hasSystemDatePicker ? undefined : () => setStrip((x) => !x),
-            other ? `Date: ${dayChipLabel(value)}. Change date` : 'Pick another date',
+            other ? t.dates.changeA11y(dayChipLabel(value)) : t.dates.pickAnother,
           )}
-          {hasSystemDatePicker ? <DateInput value={value} max={today} onChange={onChange} label="Pick another date" /> : null}
+          {hasSystemDatePicker ? <DateInput value={value} max={today} onChange={onChange} label={t.dates.pickAnother} /> : null}
         </View>
       </View>
       {strip ? (

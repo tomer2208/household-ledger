@@ -26,6 +26,25 @@ export async function aiAllowed(db: SupabaseClient, householdId: string): Promis
   return data === true;
 }
 
+// P1-6 (migration 34): the languages spoken in a household, its first member's first. Shared
+// texts (reports, advisor cards) are written once per language; the AI writes the first one.
+export type Lang = "en" | "he";
+export const LANGUAGE_RULE: Record<Lang, string> = {
+  en: "Write in English.",
+  he: "Write in natural, everyday Israeli Hebrew (עברית), gender-neutral where you can (plural or impersonal phrasing).",
+};
+
+export async function memberLanguages(db: SupabaseClient, householdId: string): Promise<Lang[]> {
+  const { data } = await db
+    .from("household_members")
+    .select("language")
+    .eq("household_id", householdId)
+    .is("removed_at", null)
+    .order("joined_at", { ascending: true });
+  const langs = [...new Set((data ?? []).map((m: { language: string }) => (m.language === "he" ? "he" : "en") as Lang))];
+  return langs.length ? langs : ["en"];
+}
+
 export async function logRun(
   db: SupabaseClient,
   row: {

@@ -64,3 +64,23 @@ test('addMonths and monthOfInstant (P1-5)', () => {
 test('without a household zone it follows the phone', () => {
   assert.equal(D.appTimeZone(), Intl.DateTimeFormat().resolvedOptions().timeZone);
 });
+
+test('Hebrew labels, same clock arithmetic (P1-6)', async () => {
+  const { applyLang } = await import('./i18n');
+  onIsrael();
+  applyLang('he');
+  try {
+    assert.equal(D.monthLabel('2026-10-01'), 'אוקטובר 2026');
+    assert.equal(D.shortDate('2026-10-01'), '1 באוק׳ 2026');
+    assert.equal(text(D.timeLabel('2026-09-30T21:30:00Z')), '0:30');
+    assert.equal(D.dayLabel(new Date().toISOString()), 'היום');
+    assert.equal(D.dayLabel(new Date(Date.now() - 86_400_000).toISOString()), 'אתמול');
+    // the arithmetic reads en-US parts, so it gives the same answers in Hebrew
+    assert.equal(D.ymd(new Date('2026-10-01T00:00:00Z')), '2026-10-01');
+    assert.equal(D.onDay('2026-10-26', new Date('2026-10-20T11:00:00Z')), '2026-10-26T12:00:00.000Z');
+    assert.equal(D.monthPace(new Date('2026-10-01T00:00:00Z')), 3);
+  } finally {
+    applyLang('en');
+  }
+  assert.equal(D.monthLabel('2026-10-01'), 'October 2026');
+});

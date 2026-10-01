@@ -3,6 +3,8 @@
 // wrong clock then agrees with the server on which day and month it is. The root layout sets
 // the zone once the household loads; until then (sign-in, onboarding) it is the phone's own.
 
+import { locale, t } from './i18n';
+
 let TZ: string | undefined;
 export function setAppTimeZone(tz: string | null | undefined) {
   TZ = tz || undefined;
@@ -10,11 +12,13 @@ export function setAppTimeZone(tz: string | null | undefined) {
 export const appTimeZone = () => TZ ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 const cache = new Map<string, Intl.DateTimeFormat>();
-function fmt(opts: Intl.DateTimeFormatOptions, utc = false) {
+// P1-6: labels use the app's language (he-IL or en-US); the clock arithmetic below always
+// reads en-US parts, so it never depends on how a language writes numbers.
+function fmt(opts: Intl.DateTimeFormatOptions, utc = false, loc = locale()) {
   const zone = utc ? 'UTC' : appTimeZone();
-  const key = zone + JSON.stringify(opts);
+  const key = loc + zone + JSON.stringify(opts);
   let f = cache.get(key);
-  if (!f) cache.set(key, (f = new Intl.DateTimeFormat('en-US', { ...opts, timeZone: zone })));
+  if (!f) cache.set(key, (f = new Intl.DateTimeFormat(loc, { ...opts, timeZone: zone })));
   return f;
 }
 
@@ -29,7 +33,7 @@ const calendarUtc = (day: string) => {
 // Wall-clock parts of an instant on the household clock.
 function parts(t: Date) {
   const p = Object.fromEntries(
-    fmt({ year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' })
+    fmt({ year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }, false, 'en-US')
       .formatToParts(t)
       .map((x) => [x.type, x.value]),
   );
@@ -78,8 +82,8 @@ export const monthOfDay = (day: string) => `${day.slice(0, 7)}-01`;
 export function dayLabel(iso: string) {
   const day = ymd(new Date(iso));
   const today = todayYmd();
-  if (day === today) return 'Today';
-  if (day === addDays(today, -1)) return 'Yesterday';
+  if (day === today) return t.dates.today;
+  if (day === addDays(today, -1)) return t.dates.yesterday;
   return fmt({ weekday: 'long', month: 'short', day: 'numeric' }, true).format(calendarUtc(day));
 }
 

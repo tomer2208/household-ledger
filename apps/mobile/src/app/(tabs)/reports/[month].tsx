@@ -6,6 +6,7 @@ import { CapBars, CategoryDonut, SavingsLine, TrendLine } from '@/components/cha
 import { Button, ErrorText, Icon, ProgressBar, Screen, Section } from '@/components/ui';
 import { monthLabel } from '@/lib/dates';
 import { fill, flatten } from '@/lib/fill';
+import { lang, t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { budgetTone, moneyText, useColors } from '@/lib/theme';
 
@@ -24,8 +25,13 @@ export default function MonthReport() {
   const writing = r && (r.status === 'pending' || r.status === 'generating');
 
   const m = r?.metrics;
-  const values = m ? flatten({ ...m, extra: r?.narrative?.extra ?? {} }) : {};
-  const t = (s: string) => fill(s, values, m?.currency ?? cur);
+  // P1-6: the report in this member's language when the server wrote one; older reports have one.
+  const mine = r?.narratives?.[lang()];
+  const narrative = mine ?? r?.narrative ?? null;
+  // The AI writes the household's main language; another language's version is the template.
+  const byAi = r?.status === 'ready' && (!mine || mine.headline === r.narrative?.headline);
+  const values = m ? flatten({ ...m, extra: narrative?.extra ?? {} }) : {};
+  const say = (text: string) => fill(text, values, m?.currency ?? cur);
   const catName = (key: string) => m?.categories.find((x) => x.key === key)?.name ?? '';
 
   return (
@@ -35,10 +41,10 @@ export default function MonthReport() {
 
       {close ? (
         <View style={[s.hero, { backgroundColor: c.cell }]}>
-          <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>{close.net_minor >= 0 ? 'Moved to savings' : 'Taken from savings'}</Text>
+          <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>{close.net_minor >= 0 ? t.reports.moved : t.reports.taken}</Text>
           <Text style={[s.heroAmount, { color: close.net_minor >= 0 ? c.green : c.red }]}>{formatMoney(Math.abs(close.net_minor), cur)}</Text>
           <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>
-            {formatMoney(close.total_spent_minor, cur)} spent of {formatMoney(close.total_cap_minor, cur)} budgeted
+            {t.reports.spentOfBudgeted(formatMoney(close.total_spent_minor, cur), formatMoney(close.total_cap_minor, cur))}
           </Text>
         </View>
       ) : null}
@@ -46,22 +52,22 @@ export default function MonthReport() {
       {writing ? (
         <View style={s.writing}>
           <ActivityIndicator />
-          <Text style={{ color: c.secondaryLabel }}>Writing this month’s report…</Text>
+          <Text style={{ color: c.secondaryLabel }}>{t.reports.writing}</Text>
         </View>
       ) : null}
 
-      {r?.narrative && !writing ? (
+      {narrative && !writing ? (
         <View style={[s.story, { backgroundColor: c.cell }]}>
           <View style={s.badgeRow}>
             <Icon name="sparkles" size={14} color={c.secondaryLabel} />
-            <Text style={[s.badge, { color: c.secondaryLabel }]}>{r.status === 'ready' ? 'Written by AI from your numbers' : 'Summary'}</Text>
+            <Text style={[s.badge, { color: c.secondaryLabel }]}>{byAi ? t.reports.byAi : t.reports.summary}</Text>
           </View>
-          <Text style={[s.headline, { color: c.label }]}>{t(r.narrative.headline)}</Text>
-          <Text style={[s.summary, { color: c.label }]}>{t(r.narrative.summary)}</Text>
-          {r.narrative.highlights.map((h, i) => (
+          <Text style={[s.headline, { color: c.label }]}>{say(narrative.headline)}</Text>
+          <Text style={[s.summary, { color: c.label }]}>{say(narrative.summary)}</Text>
+          {narrative.highlights.map((h, i) => (
             <View key={i} style={s.highlight}>
               <Icon name={TONE_ICON[h.tone]} size={16} color={h.tone === 'positive' ? c.green : h.tone === 'warning' ? c.orange : c.tint} />
-              <Text style={[s.highlightText, { color: c.label }]}>{t(h.text)}</Text>
+              <Text style={[s.highlightText, { color: c.label }]}>{say(h.text)}</Text>
             </View>
           ))}
         </View>
@@ -76,29 +82,29 @@ export default function MonthReport() {
         </>
       ) : null}
 
-      {r?.narrative?.category_notes.length ? (
-        <Section title="Category notes">
-          {r.narrative.category_notes.map((n, i) => (
-            <View key={i} style={[s.note, i < r.narrative!.category_notes.length - 1 && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+      {narrative?.category_notes.length ? (
+        <Section title={t.reports.categoryNotes}>
+          {narrative.category_notes.map((n, i) => (
+            <View key={i} style={[s.note, i < narrative.category_notes.length - 1 && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
               <Text style={[s.noteTitle, { color: c.label }]}>{catName(n.category_key)}</Text>
-              <Text style={[s.noteText, { color: c.secondaryLabel }]}>{t(n.text)}</Text>
+              <Text style={[s.noteText, { color: c.secondaryLabel }]}>{say(n.text)}</Text>
             </View>
           ))}
         </Section>
       ) : null}
 
-      {r?.narrative?.recommendations.length ? (
-        <Section title="What to do next">
-          {r.narrative.recommendations.map((n, i) => (
+      {narrative?.recommendations.length ? (
+        <Section title={t.reports.next}>
+          {narrative.recommendations.map((n, i) => (
             <View key={i} style={s.note}>
-              <Text style={[s.noteText, { color: c.label }]}>{t(n.text)}</Text>
+              <Text style={[s.noteText, { color: c.label }]}>{say(n.text)}</Text>
             </View>
           ))}
         </Section>
       ) : null}
 
-      {m && !r?.narrative ? (
-        <Section title="By category">
+      {m && !narrative ? (
+        <Section title={t.reports.byCategory}>
           {m.categories.map((x) => (
             <View key={x.key} style={s.note}>
               <Text style={[s.noteTitle, { color: c.label }]}>{x.name}</Text>
@@ -109,12 +115,12 @@ export default function MonthReport() {
       ) : null}
 
       {!r && !report.isLoading ? (
-        <Text style={[s.hint, { color: c.secondaryLabel }]}>No report for this month yet.</Text>
+        <Text style={[s.hint, { color: c.secondaryLabel }]}>{t.reports.none}</Text>
       ) : null}
 
       <View style={s.actions}>
         <Button
-          title={r ? 'Rewrite Report' : 'Write Report'}
+          title={r ? t.reports.rewrite : t.reports.write}
           kind="plain"
           loading={regenerate.isPending}
           disabled={!!writing}

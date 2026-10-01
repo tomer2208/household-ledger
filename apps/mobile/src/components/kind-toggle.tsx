@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useColors } from '@/lib/theme';
+import { t } from '@/lib/i18n';
 
 // R4: an expense takes money out, a refund puts it back (stored as a negative amount, H5).
 export function KindToggle({ refund, onChange }: { refund: boolean; onChange: (refund: boolean) => void }) {
@@ -18,7 +19,7 @@ export function KindToggle({ refund, onChange }: { refund: boolean; onChange: (r
             aria-checked={selected}
             style={[s.item, selected && { backgroundColor: c.cell }]}>
             <Text style={[s.text, { color: selected ? (isRefund ? c.green : c.label) : c.secondaryLabel }]}>
-              {isRefund ? 'Refund' : 'Expense'}
+              {isRefund ? t.common.refund : t.common.expense}
             </Text>
           </Pressable>
         );

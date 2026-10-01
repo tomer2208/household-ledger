@@ -7,6 +7,7 @@ import { Button, CategoryIcon, ErrorText, Field, ProgressBar, Screen, Section } 
 import { budgetStatus, incomePlan } from '@/lib/budget';
 import { useCategoryActions } from '@/lib/category-actions';
 import { monthPace } from '@/lib/dates';
+import { t } from '@/lib/i18n';
 import { formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
 import { budgetTone, moneyText, radius, useColors } from '@/lib/theme';
 
@@ -58,7 +59,7 @@ function Editor({ id }: { id?: string }) {
 
   return (
     <Screen>
-      <Stack.Screen options={{ title: id ? 'Edit Category' : 'New Category', headerLargeTitle: false }} />
+      <Stack.Screen options={{ title: id ? t.categories.editTitle : t.categories.newTitle, headerLargeTitle: false }} />
       <View style={s.preview}>
         <CategoryIcon symbol={symbol} size={64} />
       </View>
@@ -71,9 +72,9 @@ function Editor({ id }: { id?: string }) {
         />
       ) : null}
       <Section>
-        <Field label="Name" value={name} onChangeText={setName} maxLength={30} placeholder="Pets" last={!id} />
+        <Field label={t.review.name} value={name} onChangeText={setName} maxLength={30} placeholder={t.categories.namePlaceholder} last={!id} />
         {id ? (
-          <Field label="Monthly budget" value={cap} onChangeText={setCap} keyboardType="decimal-pad" placeholder="No budget" last />
+          <Field label={t.categories.monthlyBudget} value={cap} onChangeText={setCap} keyboardType="decimal-pad" placeholder={t.overview.noBudget} last />
         ) : null}
       </Section>
       {id && plan.kind !== 'none' ? (
@@ -81,17 +82,17 @@ function Editor({ id }: { id?: string }) {
           accessibilityLiveRegion="polite"
           style={[s.hint, { color: plan.health === 'over' ? c.red : plan.health === 'thin' ? c.orange : c.secondaryLabel }]}>
           {plan.kind === 'over'
-            ? `Budgets would be ${formatMoney(-plan.unassigned, cur)} more than your income of ${formatMoney(plan.income, cur)}.`
-            : `${formatMoney(plan.unassigned, cur)} of ${formatMoney(plan.income, cur)} income left unassigned for savings (${plan.savingsPct}%).`}
+            ? t.categories.planOver(formatMoney(-plan.unassigned, cur), formatMoney(plan.income, cur))
+            : t.categories.planLeft(formatMoney(plan.unassigned, cur), formatMoney(plan.income, cur), plan.savingsPct)}
         </Text>
       ) : null}
       {id && cat && !cat.budget_acknowledged ? (
         <Text style={[s.hint, { color: c.secondaryLabel }]}>
-          Created from the Shortcut. Saving marks it as reviewed, with or without a budget.
+          {t.categories.fromShortcut}
         </Text>
       ) : null}
 
-      <Text style={[s.label, { color: c.secondaryLabel }]}>ICON</Text>
+      <Text style={[s.label, { color: c.secondaryLabel }]}>{t.categories.icon}</Text>
       <View style={[s.grid, { backgroundColor: c.cell }]}>
         {SYMBOLS.map((sym) => (
           <Pressable
@@ -106,14 +107,14 @@ function Editor({ id }: { id?: string }) {
 
       <ErrorText error={save.error ?? setBudget.error} />
       <View style={s.actions}>
-        <Button title="Save" onPress={onSave} loading={save.isPending || setBudget.isPending} disabled={!name.trim()} />
+        <Button title={t.common.save} onPress={onSave} loading={save.isPending || setBudget.isPending} disabled={!name.trim()} />
       </View>
       {/* Kept apart from Save so the destructive action is never a mis-tap away. */}
       {id && cat ? (
         <View style={s.danger}>
           {cat.archived_at ? (
             <Button
-              title="Restore Category"
+              title={t.categories.restore}
               kind="plain"
               onPress={async () => {
                 await save.mutateAsync({ id, householdId: householdId!, name: cat.name, sfSymbol: cat.sf_symbol, archived: false });
@@ -122,7 +123,7 @@ function Editor({ id }: { id?: string }) {
             />
           ) : (
             <Button
-              title="Delete Category"
+              title={t.categories.deleteCategory}
               kind="destructive"
               onPress={async () => {
                 if (await actions.remove(cat)) router.back();
@@ -143,17 +144,17 @@ function MonthStatus({ cap, spent, currency, preview }: { cap: number | null; sp
   const tone = st.kind === 'none' ? c.label : budgetTone(st.pct, c, pace);
   return (
     <View style={[s.status, { backgroundColor: c.cell }]} accessibilityLiveRegion="polite">
-      <Text style={[s.statusLabel, { color: c.secondaryLabel }]}>{preview ? 'This month, with the new budget' : 'This month'}</Text>
+      <Text style={[s.statusLabel, { color: c.secondaryLabel }]}>{preview ? t.categories.withNewBudget : t.month.thisMonth}</Text>
       {st.kind === 'none' ? (
-        <Text style={[s.statusAmount, { color: tone }]}>{formatMoney(spent, currency)} spent</Text>
+        <Text style={[s.statusAmount, { color: tone }]}>{t.budget.spent(formatMoney(spent, currency))}</Text>
       ) : (
         <>
           <Text style={[s.statusAmount, { color: tone }]}>
-            {formatMoney(st.amount, currency)} {st.kind}
+            {st.kind === 'left' ? t.budget.left(formatMoney(st.amount, currency)) : t.budget.over(formatMoney(st.amount, currency))}
           </Text>
           <ProgressBar pct={st.pct} color={tone} pace={pace} />
           <Text style={[s.statusMeta, { color: c.secondaryLabel }]}>
-            {formatMoney(st.spent, currency)} of {formatMoney(st.cap, currency)}
+            {t.common.of(formatMoney(st.spent, currency), formatMoney(st.cap, currency))}
           </Text>
         </>
       )}
@@ -168,7 +169,7 @@ const s = StyleSheet.create({
   statusMeta: { fontSize: 13, ...moneyText },
   preview: { alignItems: 'center', marginTop: 16 },
   hint: { fontSize: 13, marginHorizontal: 32, marginTop: 6 },
-  label: { fontSize: 13, marginLeft: 32, marginTop: 22, marginBottom: 6 },
+  label: { fontSize: 13, marginStart: 32, marginTop: 22, marginBottom: 6 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: 16, borderRadius: 10, padding: 8 },
   symbol: { width: '16.66%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center', borderRadius: 10 },
   actions: { marginHorizontal: 16, marginTop: 24, gap: 8 },

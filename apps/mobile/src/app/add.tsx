@@ -12,8 +12,10 @@ import { InstallmentPicker } from '@/components/installment-picker';
 import { KindToggle } from '@/components/kind-toggle';
 import { ErrorText, Field, Section } from '@/components/ui';
 import { onDay, todayYmd, ymd } from '@/lib/dates';
+import { t } from '@/lib/i18n';
 import { CURRENCIES, formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
 import { useIsOnline } from '@/lib/query';
+import { textStart } from '@/lib/rtl';
 import { moneyText, useColors } from '@/lib/theme';
 
 const DRAFT_KEY = 'hl-add-draft';
@@ -78,19 +80,19 @@ export default function AddExpense() {
   // Ask once typing pauses, not on every keystroke.
   const [typedTitle, setTypedTitle] = useState(title);
   useEffect(() => {
-    const t = setTimeout(() => setTypedTitle(title), 300);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setTypedTitle(title), 300);
+    return () => clearTimeout(timer);
   }, [title]);
   const suggestion = useSuggestedCategory(categoryId ? '' : typedTitle).data;
   const suggestedId =
     suggestion && cats.data?.some((x) => x.id === suggestion.category_id && !x.archived_at) ? suggestion.category_id : null;
   const selectedCategory = categoryId ?? suggestedId;
   const autoPicked = !categoryId && !!suggestedId;
-  const applyTemplate = (t: { title: string; category_id: string; amount_minor: number; currency: string }) => {
-    setTitle(t.title);
-    setCategoryId(t.category_id);
-    setAmount(minorToInput(t.amount_minor));
-    setCurrency(t.currency);
+  const applyTemplate = (tpl: { title: string; category_id: string; amount_minor: number; currency: string }) => {
+    setTitle(tpl.title);
+    setCategoryId(tpl.category_id);
+    setAmount(minorToInput(tpl.amount_minor));
+    setCurrency(tpl.currency);
   };
 
   const minor = parseMoneyInput(amount);
@@ -103,7 +105,7 @@ export default function AddExpense() {
     const id = await add.mutateAsync({
       householdId: hh.data.household.id,
       userId: hh.data.me.user_id,
-      title: title.trim() || (refund ? `${categoryName ?? 'Refund'} refund` : categoryName) || 'Expense',
+      title: title.trim() || (refund ? t.add.refundTitle(categoryName) : categoryName) || t.common.expense,
       amountMinor: refund ? -minor : minor,
       currency,
       categoryId: selectedCategory,
@@ -117,7 +119,7 @@ export default function AddExpense() {
         await split.mutateAsync({ transactionId: id, count });
       } catch {
         // The expense is saved; only the split failed, and it can be done from its details.
-        toast({ message: 'Saved as one payment. Open it to split into installments.' });
+        toast({ message: t.add.splitFailed });
       }
     }
     await AsyncStorage.removeItem(DRAFT_KEY);
@@ -134,9 +136,9 @@ export default function AddExpense() {
     <View style={{ flex: 1, backgroundColor: c.groupedBackground }}>
       <View style={s.nav}>
         <Pressable onPress={close} hitSlop={12} accessibilityRole="button">
-          <Text style={[s.navButton, { color: c.tint }]}>Cancel</Text>
+          <Text style={[s.navButton, { color: c.tint }]}>{t.common.cancel}</Text>
         </Pressable>
-        <Text style={[s.navTitle, { color: c.label }]}>{refund ? 'New Refund' : 'New Expense'}</Text>
+        <Text style={[s.navTitle, { color: c.label }]}>{refund ? t.add.newRefund : t.add.newExpense}</Text>
         <Pressable
           onPress={online ? save : saveDraft}
           disabled={online ? !canSave : !minor}
@@ -144,7 +146,7 @@ export default function AddExpense() {
           accessibilityRole="button"
           accessibilityState={{ disabled: online ? !canSave : !minor }}>
           <Text style={[s.navButton, { color: c.tint, fontWeight: '600', opacity: (online ? canSave : !!minor) ? 1 : 0.35 }]}>
-            {online ? (refund ? 'Save Refund' : 'Save') : 'Save Draft'}
+            {online ? (refund ? t.add.saveRefund : t.common.save) : t.add.saveDraft}
           </Text>
         </Pressable>
       </View>
@@ -160,7 +162,7 @@ export default function AddExpense() {
             keyboardType="decimal-pad"
             autoFocus={!params.amount}
             style={[s.amount, { color: refund ? c.green : c.label }]}
-            accessibilityLabel={refund ? 'Refund amount' : 'Amount'}
+            accessibilityLabel={refund ? t.add.refundAmount : t.add.amount}
           />
           <View style={s.currencies}>
             {CURRENCIES.map((cur) => (
@@ -177,49 +179,49 @@ export default function AddExpense() {
           </View>
           <DateField value={day} onChange={setDay} />
           {currency !== base ? (
-            <Text style={[s.hint, { color: c.secondaryLabel }]}>Converted to {base} at the day’s rate.</Text>
+            <Text style={[s.hint, { color: c.secondaryLabel }]}>{t.add.converted(base)}</Text>
           ) : null}
         </View>
 
         {!title.trim() && (templates.data ?? []).length > 0 ? (
           <>
-            <Text style={[s.label, { color: c.secondaryLabel }]}>RECENT</Text>
+            <Text style={[s.label, { color: c.secondaryLabel }]}>{t.add.recent}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.recents} keyboardShouldPersistTaps="handled">
-              {(templates.data ?? []).map((t) => (
+              {(templates.data ?? []).map((tpl) => (
                 <Pressable
-                  key={t.title}
-                  onPress={() => applyTemplate(t)}
+                  key={tpl.title}
+                  onPress={() => applyTemplate(tpl)}
                   accessibilityRole="button"
-                  accessibilityLabel={`Fill in ${t.title}, ${formatMoney(t.amount_minor, t.currency)}`}
+                  accessibilityLabel={t.add.fillIn(tpl.title, formatMoney(tpl.amount_minor, tpl.currency))}
                   style={[s.recent, { backgroundColor: c.cell }]}>
                   <Text style={[s.recentTitle, { color: c.label }]} numberOfLines={1}>
-                    {t.title}
+                    {tpl.title}
                   </Text>
-                  <Text style={[s.recentMeta, { color: c.secondaryLabel }]}>{formatMoney(t.amount_minor, t.currency)}</Text>
+                  <Text style={[s.recentMeta, { color: c.secondaryLabel }]}>{formatMoney(tpl.amount_minor, tpl.currency)}</Text>
                 </Pressable>
               ))}
             </ScrollView>
           </>
         ) : null}
 
-        <Text style={[s.label, { color: c.secondaryLabel }]}>CATEGORY</Text>
+        <Text style={[s.label, { color: c.secondaryLabel }]}>{t.add.category}</Text>
         <CategoryPicker categories={cats.data ?? []} value={selectedCategory} onChange={setCategoryId} />
-        {autoPicked ? <Text style={[s.hint, s.picked, { color: c.secondaryLabel }]}>Picked from past expenses. Tap another to change it.</Text> : null}
+        {autoPicked ? <Text style={[s.hint, s.picked, { color: c.secondaryLabel, textAlign: textStart() }]}>{t.add.picked}</Text> : null}
 
         {!refund ? (
           <>
-            <Text style={[s.label, { color: c.secondaryLabel }]}>PAYMENTS</Text>
+            <Text style={[s.label, { color: c.secondaryLabel }]}>{t.add.payments}</Text>
             <InstallmentPicker value={payments} onChange={setPayments} totalMinor={minor} currency={currency} />
           </>
         ) : null}
 
-        <Section title="Details">
-          <Field label="Title" value={title} onChangeText={setTitle} placeholder={categoryName ?? 'Optional'} />
-          <Field label="Note" value={note} onChangeText={setNote} placeholder="Optional" last />
+        <Section title={t.add.details}>
+          <Field label={t.add.titleLabel} value={title} onChangeText={setTitle} placeholder={categoryName ?? t.common.optional} />
+          <Field label={t.add.note} value={note} onChangeText={setNote} placeholder={t.common.optional} last />
         </Section>
         {!online ? (
           <Text style={[s.hint, { color: c.secondaryLabel, marginTop: 12 }]}>
-            You’re offline. The draft stays on this phone until you save it.
+            {t.add.offline}
           </Text>
         ) : null}
         <ErrorText error={add.error} />
@@ -238,10 +240,10 @@ const s = StyleSheet.create({
   // 36 tall plus 4 of hitSlop each side = a 44pt target; 8 apart so neighbours aren't mis-tapped.
   cur: { paddingHorizontal: 14, borderRadius: 18, minHeight: 36, minWidth: 56, alignItems: 'center', justifyContent: 'center' },
   hint: { fontSize: 13, textAlign: 'center', marginHorizontal: 32 },
-  label: { fontSize: 13, marginLeft: 32, marginTop: 8, marginBottom: 8 },
+  label: { fontSize: 13, marginStart: 32, marginTop: 8, marginBottom: 8 },
   recents: { gap: 8, paddingHorizontal: 16, paddingBottom: 8 },
   recent: { borderRadius: 12, paddingHorizontal: 14, paddingVertical: 8, minHeight: 44, justifyContent: 'center', maxWidth: 180 },
   recentTitle: { fontSize: 15, fontWeight: '600' },
   recentMeta: { fontSize: 13, marginTop: 1 },
-  picked: { marginTop: 8, textAlign: 'left', marginHorizontal: 32 },
+  picked: { marginTop: 8, marginHorizontal: 32 },
 });

@@ -4,6 +4,7 @@ import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from './ui';
+import { t } from '@/lib/i18n';
 import { radius, useColors } from '@/lib/theme';
 
 // The app's main action sits in the thumb zone (docs/DESIGN_PLAN.md §5), floating above the
@@ -21,7 +22,7 @@ export function AddButton({ href = '/add' }: { href?: Href }) {
     <View pointerEvents="box-none" style={[s.wrap, { bottom }]}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Add expense"
+        accessibilityLabel={t.add.addExpense}
         onPress={() => {
           if (Platform.OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           router.push(href);
@@ -32,7 +33,7 @@ export function AddButton({ href = '/add' }: { href?: Href }) {
           pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
         ]}>
         <Icon name="plus" size={20} color={c.onTint} />
-        <Text style={[s.label, { color: c.onTint }]}>Add expense</Text>
+        <Text style={[s.label, { color: c.onTint }]}>{t.add.addExpense}</Text>
       </Pressable>
     </View>
   );

@@ -4,6 +4,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from './ui';
 import { useDevices, useHousehold, useOverview } from '@/api/queries';
+import { t } from '@/lib/i18n';
+import { forwardIcon } from '@/lib/rtl';
 import { dismissSetupCard, readSetupCardDismissed } from '@/lib/setup';
 import { useColors } from '@/lib/theme';
 
@@ -22,9 +24,9 @@ export function SetupCard() {
 
   if (dismissed !== false || !overview.data || !hh.data || !devices.data) return null;
   const items: { done: boolean; title: string; href: Href }[] = [
-    { done: overview.data.categories.some((x) => (x.cap ?? 0) > 0), title: 'Set your monthly budgets', href: '/settings/categories' },
-    { done: hh.data.members.length > 1, title: 'Invite your partner', href: '/settings/household' },
-    { done: devices.data.some((d) => !d.revoked_at), title: 'Log Apple Pay purchases automatically', href: '/settings/devices' },
+    { done: overview.data.categories.some((x) => (x.cap ?? 0) > 0), title: t.setup.cardBudgets, href: '/settings/categories' },
+    { done: hh.data.members.length > 1, title: t.setup.invite, href: '/settings/household' },
+    { done: devices.data.some((d) => !d.revoked_at), title: t.setup.cardApplePay, href: '/settings/devices' },
   ];
   const doneCount = items.filter((x) => x.done).length;
   if (doneCount === items.length) return null;
@@ -32,9 +34,9 @@ export function SetupCard() {
   return (
     <View style={[s.card, { backgroundColor: c.cell }]}>
       <View style={s.head}>
-        <Text style={[s.title, { color: c.label }]}>Finish setting up</Text>
+        <Text style={[s.title, { color: c.label }]}>{t.setup.cardTitle}</Text>
         <Text style={[s.count, { color: c.secondaryLabel }]}>
-          {doneCount} of {items.length}
+          {t.detail.installmentOf(doneCount, items.length)}
         </Text>
         <Pressable
           hitSlop={10}
@@ -43,7 +45,7 @@ export function SetupCard() {
             dismissSetupCard();
           }}
           accessibilityRole="button"
-          accessibilityLabel="Hide setup checklist">
+          accessibilityLabel={t.setup.cardHide}>
           <Icon name="xmark.circle.fill" size={20} color={c.tertiaryLabel} />
         </Pressable>
       </View>
@@ -58,7 +60,7 @@ export function SetupCard() {
           style={s.item}>
           <Icon name={x.done ? 'checkmark.circle.fill' : 'circle'} size={22} color={x.done ? c.green : c.tertiaryLabel} />
           <Text style={[s.itemText, { color: x.done ? c.secondaryLabel : c.label }, x.done && s.doneText]}>{x.title}</Text>
-          {!x.done ? <Icon name="chevron.right" size={13} color={c.tertiaryLabel} /> : null}
+          {!x.done ? <Icon name={forwardIcon()} size={13} color={c.tertiaryLabel} /> : null}
         </Pressable>
       ))}
     </View>

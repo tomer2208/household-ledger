@@ -6,6 +6,7 @@ import { useHousehold, useOverview, useSetIncome } from '@/api/queries';
 import { IncomePlanCard } from '@/components/income-plan';
 import { Button, ErrorText, Field, Screen, Section } from '@/components/ui';
 import { SAVINGS_TARGET_PCT } from '@/lib/budget';
+import { t } from '@/lib/i18n';
 import { useIncomeActions } from '@/lib/income-actions';
 import { minorToInput, parseMoneyInput } from '@/lib/money';
 
@@ -29,19 +30,19 @@ function Editor() {
 
   return (
     <Screen>
-      <Stack.Screen options={{ title: 'Monthly Income', headerLargeTitle: false }} />
+      <Stack.Screen options={{ title: t.settings.income, headerLargeTitle: false }} />
       {/* Live: the plan under the income being typed, before saving. */}
       <IncomePlanCard income={typed || null} budgeted={o.total_cap} currency={cur} />
 
       <Section
-        title="Household income"
-        footer={`Both of you together, after tax: salaries, allowances, anything that comes in every month. Budgets are carved out of it; aim to leave at least ${SAVINGS_TARGET_PCT}% unassigned for savings. A change applies from this month on.`}>
+        title={t.income.section}
+        footer={t.income.footer(SAVINGS_TARGET_PCT)}>
         <Field
-          label={`Amount (${cur})`}
+          label={t.detail.amount(cur)}
           value={text}
           onChangeText={setText}
           keyboardType="decimal-pad"
-          placeholder="Not set"
+          placeholder={t.settings.notSet}
           autoFocus={!o.income}
           last
         />
@@ -50,7 +51,7 @@ function Editor() {
       <ErrorText error={setIncome.error} />
       <View style={s.actions}>
         <Button
-          title="Save"
+          title={t.common.save}
           disabled={!changed}
           loading={setIncome.isPending}
           onPress={async () => {
@@ -63,7 +64,7 @@ function Editor() {
       {o.income ? (
         <View style={s.danger}>
           <Button
-            title="Remove Income"
+            title={t.income.remove}
             kind="destructive"
             onPress={async () => {
               if (await actions.remove()) router.back();

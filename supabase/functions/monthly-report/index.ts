@@ -7,7 +7,19 @@
 
 import type Anthropic from "npm:@anthropic-ai/sdk@^0.128.0";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { addUsage, aiAllowed, aiClient, flatten, logRun, MODELS, namesIn, validateText } from "../_shared/ai.ts";
+import {
+  addUsage,
+  aiAllowed,
+  aiClient,
+  flatten,
+  LANGUAGE_RULE,
+  logRun,
+  memberLanguages,
+  MODELS,
+  namesIn,
+  validateText,
+  type Lang,
+} from "../_shared/ai.ts";
 
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
   auth: { persistSession: false },
@@ -45,7 +57,7 @@ minor units (agorot/cents); the app formats them, so just cite the path.
 Paths: totals.<field>, categories.<key>.<field>, top_merchants.<key>.<field>,
 anomalies.<key>.<field>, and extra.<key>.<field> for anything a tool returned.
 
-Voice: direct, warm, specific, like a sharp friend who is good with money. English.
+Voice: direct, warm, specific, like a sharp friend who is good with money. {{LANGUAGE}}
 No generic tips ("track your spending", "make a budget"). Every recommendation must
 point at a specific category, merchant or recurring item from the data.
 At most five highlights and three recommendations.
@@ -185,7 +197,8 @@ function checkNarrative(n: Narrative, m: Metrics, extra: Record<string, unknown>
   return null;
 }
 
-export function template(m: Metrics): Narrative {
+export function template(m: Metrics, lang: Lang = "en"): Narrative {
+  if (lang === "he") return templateHe(m);
   const t = m.totals;
   const over = m.categories.filter((c) => c.cap > 0 && c.spent > c.cap);
   const headline =
@@ -218,9 +231,43 @@ export function template(m: Metrics): Narrative {
   };
 }
 
+// The same template in Hebrew: same placeholders, same rules (no digits outside them).
+function templateHe(m: Metrics): Narrative {
+  const t = m.totals;
+  const over = m.categories.filter((c) => c.cap > 0 && c.spent > c.cap);
+  const headline =
+    t.cap > 0
+      ? t.net >= 0
+        ? "{{totals.net}} נשארו מתחת לתקציב"
+        : "חרגתם מהתקציב ב-{{totals.overrun}}"
+      : "הוצאתם {{totals.spent}} החודש";
+  const summary =
+    "הוצאתם {{totals.spent}}" +
+    (t.cap > 0 ? " מתוך תקציב של {{totals.cap}}" : "") +
+    (t.prev_spent > 0 ? ", לעומת {{totals.prev_spent}} בחודש הקודם." : ".");
+  const highlights: Narrative["highlights"] = over.slice(0, 3).map((c) => ({
+    tone: "warning",
+    text: `${c.name} סיימה את החודש ב-{{categories.${c.key}.pct}} מהתקציב.`,
+  }));
+  if (m.top_merchants[0]) {
+    highlights.push({ tone: "neutral", text: `בית העסק הגדול ביותר: ${m.top_merchants[0].name}, {{top_merchants.m1.spent}}.` });
+  }
+  if (m.anomalies[0]) {
+    highlights.push({ tone: "neutral", text: `קנייה חריגה: ${m.anomalies[0].title}, {{anomalies.a1.amount}}.` });
+  }
+  if (t.cap > 0 && t.net >= 0) highlights.unshift({ tone: "positive", text: "{{totals.net}} עברו לחיסכון." });
+  return {
+    headline,
+    summary,
+    highlights: highlights.slice(0, 5),
+    category_notes: [],
+    recommendations: over[0] ? [{ text: `כדאי להתחיל מ${over[0].name}: היא חרגה מהתקציב החודש.` }] : [],
+  };
+}
+
 // ───────── agent ─────────
 
-async function writeWithAI(r: { household_id: string; budget_month: string; metrics: Metrics }) {
+async function writeWithAI(r: { household_id: string; budget_month: string; metrics: Metrics }, lang: Lang) {
   const client = aiClient();
   if (!client || !(await aiAllowed(db, r.household_id))) return null;
   const started = performance.now();
@@ -244,7 +291,7 @@ async function writeWithAI(r: { household_id: string; budget_month: string; metr
         max_tokens: 8000,
         thinking: { type: "adaptive" },
         output_config: { effort: "medium" },
-        system: SYSTEM,
+        system: SYSTEM.replace("{{LANGUAGE}}", LANGUAGE_RULE[lang]),
         tools: TOOLS,
         messages,
       });
@@ -304,15 +351,23 @@ Deno.serve(async () => {
   const done: Array<{ id: string; status: string }> = [];
 
   for (const r of reports) {
-    const ai = r.ai_enabled ? await writeWithAI(r) : null;
+    // P1-6: one report per language spoken in the household. The first member's language is the
+    // household's main one: the AI writes in it (when allowed), any other language gets the
+    // template, so a second language never doubles the AI cost.
+    const langs = await memberLanguages(db, r.household_id);
+    const main = langs[0];
+    const ai = r.ai_enabled ? await writeWithAI(r, main) : null;
     const status = ai ? "ready" : "fallback";
     let runId = ai?.run ?? null;
     if (!ai) {
       runId = await logRun(db, { household_id: r.household_id, agent: "monthly_report", status: "fallback", started: performance.now() });
     }
+    const narratives = Object.fromEntries(
+      langs.map((l) => [l, l === main && ai ? ai.narrative : template(r.metrics, l)]),
+    ) as Partial<Record<Lang, Narrative>>;
     await db
       .from("monthly_reports")
-      .update({ narrative: ai?.narrative ?? template(r.metrics), status, agent_run_id: runId, updated_at: new Date().toISOString() })
+      .update({ narrative: narratives[main], narratives, status, agent_run_id: runId, updated_at: new Date().toISOString() })
       .eq("id", r.id);
     done.push({ id: r.id, status });
   }

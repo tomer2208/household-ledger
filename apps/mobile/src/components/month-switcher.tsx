@@ -2,6 +2,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from './ui';
 import { addMonths, monthLabel } from '@/lib/dates';
+import { t } from '@/lib/i18n';
+import { backIcon, forwardIcon } from '@/lib/rtl';
 import { useColors } from '@/lib/theme';
 
 // P1-5: ‹ September 2026 › above Overview. Back as far as the household's first month, never
@@ -26,10 +28,10 @@ export function MonthSwitcher({
       disabled={!enabled}
       hitSlop={8}
       accessibilityRole="button"
-      accessibilityLabel={dir < 0 ? `Previous month, ${monthLabel(addMonths(month, -1))}` : `Next month, ${monthLabel(addMonths(month, 1))}`}
+      accessibilityLabel={dir < 0 ? t.month.previous(monthLabel(addMonths(month, -1))) : t.month.next(monthLabel(addMonths(month, 1)))}
       accessibilityState={{ disabled: !enabled }}
       style={s.arrow}>
-      <Icon name={dir < 0 ? 'chevron.left' : 'chevron.right'} size={18} color={enabled ? c.tint : c.tertiaryLabel} />
+      <Icon name={dir < 0 ? backIcon() : forwardIcon()} size={18} color={enabled ? c.tint : c.tertiaryLabel} />
     </Pressable>
   );
   return (
@@ -45,7 +47,7 @@ export function MonthSwitcher({
           hitSlop={8}
           accessibilityRole="button"
           style={[s.today, { backgroundColor: c.tintFill }]}>
-          <Text style={[s.todayText, { color: c.tint }]}>This month</Text>
+          <Text style={[s.todayText, { color: c.tint }]}>{t.month.thisMonth}</Text>
         </Pressable>
       ) : null}
     </View>
@@ -57,6 +59,6 @@ const s = StyleSheet.create({
   // 44pt targets for the arrows.
   arrow: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   label: { fontSize: 20, fontWeight: '700', minWidth: 150, textAlign: 'center' },
-  today: { marginLeft: 'auto', minHeight: 32, paddingHorizontal: 12, borderRadius: 16, justifyContent: 'center' },
+  today: { marginStart: 'auto', minHeight: 32, paddingHorizontal: 12, borderRadius: 16, justifyContent: 'center' },
   todayText: { fontSize: 15, fontWeight: '600' },
 });

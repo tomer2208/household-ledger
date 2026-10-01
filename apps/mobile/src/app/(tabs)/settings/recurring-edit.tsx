@@ -10,14 +10,9 @@ import { CURRENCIES, minorToInput, parseMoneyInput } from '@/lib/money';
 import { useColors } from '@/lib/theme';
 import { todayYmd } from '@/lib/dates';
 import { confirm } from '@/lib/confirm';
+import { t } from '@/lib/i18n';
 
-const INTERVALS = [
-  { v: 1, label: 'Monthly' },
-  { v: 2, label: '2 mo' },
-  { v: 3, label: '3 mo' },
-  { v: 6, label: '6 mo' },
-  { v: 12, label: 'Yearly' },
-];
+const INTERVALS = [1, 2, 3, 6, 12] as const;
 
 export default function RecurringEdit() {
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -68,12 +63,12 @@ function Editor({ id, rule }: { id?: string; rule?: RecurringRule }) {
 
   return (
     <Screen>
-      <Stack.Screen options={{ title: id ? 'Edit Recurring' : 'New Recurring', headerLargeTitle: false }} />
+      <Stack.Screen options={{ title: id ? t.recurring.editTitle : t.recurring.newTitle, headerLargeTitle: false }} />
       <Section>
-        <Field label="Title" value={title} onChangeText={setTitle} placeholder="Rent, Netflix, Electricity" />
-        <Field label={`Amount (${currency})`} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0" />
+        <Field label={t.add.titleLabel} value={title} onChangeText={setTitle} placeholder={t.recurring.titlePlaceholder} />
+        <Field label={t.detail.amount(currency)} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0" />
         <View style={s.row}>
-          <Text style={[s.rowLabel, { color: c.label }]}>Variable bill (estimate)</Text>
+          <Text style={[s.rowLabel, { color: c.label }]}>{t.recurring.variable}</Text>
           <Switch value={estimated} onValueChange={setEstimated} />
         </View>
         <View style={[s.chips, { paddingBottom: 12 }]}>
@@ -83,35 +78,35 @@ function Editor({ id, rule }: { id?: string; rule?: RecurringRule }) {
         </View>
       </Section>
 
-      <Section title="Schedule" footer="Day 31 falls on the last day of shorter months.">
+      <Section title={t.recurring.scheduleTitle} footer={t.recurring.scheduleFooter}>
         <View style={[s.chips, { paddingTop: 12 }]}>
-          {INTERVALS.map((i) => (
-            <Chip key={i.v} label={i.label} on={interval === i.v} onPress={() => setInterval(i.v)} />
+          {INTERVALS.map((v) => (
+            <Chip key={v} label={t.recurring.intervalChip[v]} on={interval === v} onPress={() => setInterval(v)} />
           ))}
         </View>
-        <Field label="Day of month" value={day} onChangeText={setDay} keyboardType="number-pad" maxLength={2} />
-        <Field label="Starts" value={startDate} onChangeText={setStartDate} placeholder="YYYY-MM-DD" autoCapitalize="none" />
+        <Field label={t.recurring.dayOfMonth} value={day} onChangeText={setDay} keyboardType="number-pad" maxLength={2} />
+        <Field label={t.recurring.starts} value={startDate} onChangeText={setStartDate} placeholder="YYYY-MM-DD" autoCapitalize="none" />
         <View style={s.row}>
-          <Text style={[s.rowLabel, { color: c.label }]}>Paused</Text>
+          <Text style={[s.rowLabel, { color: c.label }]}>{t.recurring.paused}</Text>
           <Switch value={paused} onValueChange={setPaused} />
         </View>
       </Section>
 
-      <Text style={[s.label, { color: c.secondaryLabel }]}>CATEGORY</Text>
+      <Text style={[s.label, { color: c.secondaryLabel }]}>{t.add.category}</Text>
       <CategoryPicker categories={cats.data ?? []} value={categoryId} onChange={setCategoryId} />
 
       <ErrorText error={save.error ?? del.error} />
       <View style={s.actions}>
-        <Button title="Save" onPress={onSave} disabled={!valid} loading={save.isPending} />
+        <Button title={t.common.save} onPress={onSave} disabled={!valid} loading={save.isPending} />
         {id ? (
           <Button
-            title={rule?.installment_count ? 'Cancel Remaining Payments' : 'Delete Recurring'}
+            title={rule?.installment_count ? t.recurring.cancelRemaining : t.recurring.deleteRule}
             kind="destructive"
             onPress={async () => {
               // Installments: payments already made stay; only the ones still to come stop.
               if (
                 rule?.installment_count &&
-                !(await confirm('Cancel the remaining payments?', 'Payments already made stay. No more will be added.', 'Cancel Payments'))
+                !(await confirm(t.recurring.cancelTitle, t.recurring.cancelBody, t.recurring.cancelPayments))
               )
                 return;
               await del.mutateAsync(id);
@@ -143,6 +138,6 @@ const s = StyleSheet.create({
   rowLabel: { fontSize: 17 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16 },
   chip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 16, minHeight: 36, justifyContent: 'center' },
-  label: { fontSize: 13, marginLeft: 32, marginTop: 22, marginBottom: 8 },
+  label: { fontSize: 13, marginStart: 32, marginTop: 22, marginBottom: 8 },
   actions: { marginHorizontal: 16, marginTop: 24, gap: 8 },
 });

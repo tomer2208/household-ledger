@@ -3,6 +3,8 @@ import { router } from 'expo-router';
 import { useCategoryDelete, useSaveCategory } from '@/api/queries';
 import { useToast } from '@/components/toast';
 import { confirm } from '@/lib/confirm';
+import { errorMessage } from '@/lib/errors';
+import { t } from '@/lib/i18n';
 
 type Cat = { id: string; name: string; sf_symbol: string };
 
@@ -25,17 +27,13 @@ export function useCategoryActions(householdId: string | undefined) {
     try {
       plan = await del.preview(cat.id);
     } catch (e) {
-      toast({ message: e instanceof Error ? e.message : String(e) });
+      toast({ message: errorMessage(e) });
       return false;
     }
 
     if (plan.action === 'blocked') {
       const n = plan.recurring;
-      const go = await confirm(
-        `Can’t delete ${cat.name}`,
-        `${n} recurring expense${n === 1 ? ' uses' : 's use'} this category. Move or pause ${n === 1 ? 'it' : 'them'} first.`,
-        'Show Recurring',
-      );
+      const go = await confirm(t.actions.cantDelete(cat.name), t.actions.usedByRecurring(n), t.actions.showRecurring);
       if (go) router.push('/settings/recurring');
       return false;
     }
@@ -43,23 +41,21 @@ export function useCategoryActions(householdId: string | undefined) {
     if (plan.action === 'archive') {
       const n = plan.transactions;
       const ok = await confirm(
-        `Archive ${cat.name}?`,
-        n > 0
-          ? `${n} past expense${n === 1 ? ' keeps' : 's keep'} this category. It leaves your lists and budgets, and you can restore it from Archived.`
-          : 'It has history, so it’s archived rather than deleted. You can restore it from Archived.',
-        'Archive',
+        t.actions.archiveTitle(cat.name),
+        n > 0 ? t.actions.archiveBody(n) : t.actions.archiveHistory,
+        t.actions.archive,
       );
       if (!ok) return false;
       try {
         await del.commit(cat.id);
       } catch (e) {
-        toast({ message: e instanceof Error ? e.message : String(e) });
+        toast({ message: errorMessage(e) });
         return false;
       }
       toast({
-        message: `${cat.name} archived`,
+        message: t.actions.archived(cat.name),
         action: {
-          label: 'Undo',
+          label: t.common.undo,
           onPress: () => {
             if (householdId) save.mutate({ id: cat.id, householdId, name: cat.name, sfSymbol: cat.sf_symbol, archived: false });
           },
@@ -68,14 +64,14 @@ export function useCategoryActions(householdId: string | undefined) {
       return true;
     }
 
-    const ok = await confirm(`Delete ${cat.name}?`, 'It hasn’t been used, so it’s removed along with its budget.', 'Delete');
+    const ok = await confirm(t.actions.deleteTitle(cat.name), t.actions.deleteUnused, t.common.delete);
     if (!ok) return false;
     del.hide(cat.id);
     toast({
-      message: `${cat.name} deleted`,
-      action: { label: 'Undo', onPress: () => del.restore() },
+      message: t.actions.deleted(cat.name),
+      action: { label: t.common.undo, onPress: () => del.restore() },
       onExpire: () => {
-        del.commit(cat.id).catch((e) => toast({ message: e instanceof Error ? e.message : String(e) }));
+        del.commit(cat.id).catch((e) => toast({ message: errorMessage(e) }));
       },
     });
     return true;

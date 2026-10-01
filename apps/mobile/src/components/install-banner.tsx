@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from './ui';
+import { t } from '@/lib/i18n';
 import { isInstalled } from '@/lib/install';
 import { useColors } from '@/lib/theme';
 
@@ -28,11 +29,11 @@ export function InstallBanner() {
       onPress={() => router.push('/settings/install')}
       style={[s.banner, { backgroundColor: c.cell }]}
       accessibilityRole="button"
-      accessibilityLabel="Add FinPace to your Home Screen">
+      accessibilityLabel={t.banner.installA11y}>
       <Icon name="square.and.arrow.up" size={20} color={c.tint} />
       <View style={{ flex: 1 }}>
-        <Text style={[s.title, { color: c.label }]}>Add to your Home Screen</Text>
-        <Text style={[s.text, { color: c.secondaryLabel }]}>Opens full screen and can send budget alerts.</Text>
+        <Text style={[s.title, { color: c.label }]}>{t.banner.installTitle}</Text>
+        <Text style={[s.text, { color: c.secondaryLabel }]}>{t.banner.installBody}</Text>
       </View>
       <Pressable
         hitSlop={10}
@@ -40,7 +41,7 @@ export function InstallBanner() {
           setShow(false);
           AsyncStorage.setItem(DISMISSED, '1').catch(() => {});
         }}
-        accessibilityLabel="Dismiss">
+        accessibilityLabel={t.banner.dismiss}>
         <Icon name="xmark.circle.fill" size={20} color={c.tertiaryLabel} />
       </Pressable>
     </Pressable>

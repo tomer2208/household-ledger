@@ -6,7 +6,9 @@ import { Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-nat
 import Svg, { Circle, G, Line, Path, Polyline, Rect, Text as SvgText } from 'react-native-svg';
 
 import type { ReportMetrics } from '@/api/types';
+import { isRTL, locale, t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
+import { dirProps } from '@/lib/rtl';
 import { useColors } from '@/lib/theme';
 
 // SVG text doesn't inherit the app font on web; iOS already uses the system font.
@@ -15,7 +17,13 @@ const FONT = Platform.OS === 'web' ? 'system-ui, -apple-system, sans-serif' : un
 // Ordered, colorblind-safe categorical palette; "Other" slices share the last swatch.
 const PALETTE = ['#4E79A7', '#F28E2B', '#59A14F', '#E15759', '#B07AA1', '#76B7B2', '#EDC948', '#9C755F'];
 const monthShort = (ym: string) =>
-  new Date(Number(ym.slice(0, 4)), Number(ym.slice(5, 7)) - 1, 1).toLocaleDateString('en-US', { month: 'short' });
+  new Date(Number(ym.slice(0, 4)), Number(ym.slice(5, 7)) - 1, 1).toLocaleDateString(locale(), { month: 'short' });
+
+// P1-6: SVG coordinates are physical, so each chart draws in a left-to-right box and mirrors
+// itself in Hebrew: labels on the right, bars growing left, time running right to left.
+function Mirror({ children }: { children: React.ReactNode }) {
+  return <View {...dirProps('ltr')}>{children}</View>;
+}
 
 function useChartWidth() {
   const { width } = useWindowDimensions();
@@ -38,7 +46,7 @@ export function CategoryDonut({ m }: { m: ReportMetrics }) {
   const cats = m.categories.filter((x) => x.spent > 0);
   const top = cats.slice(0, 7);
   const rest = cats.slice(7).reduce((a, x) => a + x.spent, 0);
-  const slices = [...top.map((x) => ({ name: x.name, v: x.spent })), ...(rest > 0 ? [{ name: 'Other', v: rest }] : [])];
+  const slices = [...top.map((x) => ({ name: x.name, v: x.spent })), ...(rest > 0 ? [{ name: t.charts.other, v: rest }] : [])];
   const total = slices.reduce((a, x) => a + x.v, 0);
   if (total <= 0) return null;
   const R = 70;
@@ -59,14 +67,14 @@ export function CategoryDonut({ m }: { m: ReportMetrics }) {
     return { d, color: PALETTE[Math.min(i, PALETTE.length - 1)], ...sl };
   });
   return (
-    <ChartCard title="Where it went">
+    <ChartCard title={t.charts.whereItWent}>
       <View style={s.donutRow}>
         <Svg width={160} height={160}>
           {arcs.map((a) => (
             <Path key={a.name} d={a.d} fill={a.color} stroke={c.cell as string} strokeWidth={1.5} />
           ))}
           <SvgText fontFamily={FONT} x={80} y={78} textAnchor="middle" fontSize={13} fill={c.secondaryLabel as string}>
-            Total
+            {t.charts.total}
           </SvgText>
           <SvgText fontFamily={FONT} x={80} y={96} textAnchor="middle" fontSize={15} fontWeight="700" fill={c.label as string}>
             {formatMoney(total, m.currency)}
@@ -98,32 +106,37 @@ export function CapBars({ m }: { m: ReportMetrics }) {
   const labelW = 92;
   const barW = w - labelW - 8;
   const rowH = 30;
+  const rtl = isRTL();
+  // x of a shape `width` wide that starts `from` px in from the reading edge.
+  const at = (from: number, width = 0) => (rtl ? w - from - width : from);
   return (
-    <ChartCard title="Budget vs. spent">
-      <Svg width={w} height={rows.length * rowH}>
-        {rows.map((x, i) => {
-          const y = i * rowH;
-          const over = x.spent > x.cap;
-          return (
-            <G key={x.key}>
-              <SvgText fontFamily={FONT} x={0} y={y + 18} fontSize={13} fill={c.label as string}>
-                {x.name.length > 12 ? `${x.name.slice(0, 11)}…` : x.name}
-              </SvgText>
-              <Rect x={labelW} y={y + 6} width={(x.cap / max) * barW} height={14} rx={4} fill={c.fill as string} />
-              <Rect
-                x={labelW}
-                y={y + 9}
-                width={Math.max(2, (x.spent / max) * barW)}
-                height={8}
-                rx={4}
-                fill={over ? (c.red as string) : (c.green as string)}
-              />
-              <Line x1={labelW + (x.cap / max) * barW} x2={labelW + (x.cap / max) * barW} y1={y + 3} y2={y + 23} stroke={c.secondaryLabel as string} strokeWidth={1.5} />
-            </G>
-          );
-        })}
-      </Svg>
-      <Text style={[s.caption, { color: c.secondaryLabel }]}>Bar = spent · tick = budget</Text>
+    <ChartCard title={t.charts.budgetVsSpent}>
+      <Mirror>
+        <Svg width={w} height={rows.length * rowH}>
+          {rows.map((x, i) => {
+            const y = i * rowH;
+            const over = x.spent > x.cap;
+            return (
+              <G key={x.key}>
+                <SvgText fontFamily={FONT} x={at(0)} y={y + 18} fontSize={13} textAnchor={rtl ? 'end' : 'start'} fill={c.label as string}>
+                  {x.name.length > 12 ? `${x.name.slice(0, 11)}…` : x.name}
+                </SvgText>
+                <Rect x={at(labelW, (x.cap / max) * barW)} y={y + 6} width={(x.cap / max) * barW} height={14} rx={4} fill={c.fill as string} />
+                <Rect
+                  x={at(labelW, Math.max(2, (x.spent / max) * barW))}
+                  y={y + 9}
+                  width={Math.max(2, (x.spent / max) * barW)}
+                  height={8}
+                  rx={4}
+                  fill={over ? (c.red as string) : (c.green as string)}
+                />
+                <Line x1={at(labelW + (x.cap / max) * barW)} x2={at(labelW + (x.cap / max) * barW)} y1={y + 3} y2={y + 23} stroke={c.secondaryLabel as string} strokeWidth={1.5} />
+              </G>
+            );
+          })}
+        </Svg>
+      </Mirror>
+      <Text style={[s.caption, { color: c.secondaryLabel }]}>{t.charts.legend}</Text>
     </ChartCard>
   );
 }
@@ -143,27 +156,31 @@ function LineChart({
   const pad = { l: 8, r: 8, t: 16, b: 22 };
   const max = Math.max(1, ...points.map((p) => p.v));
   const min = Math.min(0, ...points.map((p) => p.v));
-  const x = (i: number) => pad.l + (i * (w - pad.l - pad.r)) / Math.max(1, points.length - 1);
+  const rtl = isRTL();
+  const step = (i: number) => pad.l + (i * (w - pad.l - pad.r)) / Math.max(1, points.length - 1);
+  const x = (i: number) => (rtl ? w - step(i) : step(i));
   const y = (v: number) => pad.t + (1 - (v - min) / (max - min || 1)) * (h - pad.t - pad.b);
   const last = points[points.length - 1];
   return (
-    <Svg width={w} height={h}>
-      <Line x1={pad.l} x2={w - pad.r} y1={y(0)} y2={y(0)} stroke={c.separator as string} strokeWidth={1} />
-      <Polyline points={points.map((p, i) => `${x(i)},${y(p.v)}`).join(' ')} fill="none" stroke={color} strokeWidth={2.5} />
-      {points.map((p, i) => (
-        <G key={p.label}>
-          <Circle cx={x(i)} cy={y(p.v)} r={i === points.length - 1 ? 4.5 : 3} fill={color} />
-          <SvgText fontFamily={FONT} x={x(i)} y={h - 6} fontSize={11} textAnchor="middle" fill={c.secondaryLabel as string}>
-            {p.label}
+    <Mirror>
+      <Svg width={w} height={h}>
+        <Line x1={pad.l} x2={w - pad.r} y1={y(0)} y2={y(0)} stroke={c.separator as string} strokeWidth={1} />
+        <Polyline points={points.map((p, i) => `${x(i)},${y(p.v)}`).join(' ')} fill="none" stroke={color} strokeWidth={2.5} />
+        {points.map((p, i) => (
+          <G key={p.label}>
+            <Circle cx={x(i)} cy={y(p.v)} r={i === points.length - 1 ? 4.5 : 3} fill={color} />
+            <SvgText fontFamily={FONT} x={x(i)} y={h - 6} fontSize={11} textAnchor="middle" fill={c.secondaryLabel as string}>
+              {p.label}
+            </SvgText>
+          </G>
+        ))}
+        {last ? (
+          <SvgText fontFamily={FONT} x={x(points.length - 1)} y={y(last.v) - 8} fontSize={11} textAnchor={rtl ? 'start' : 'end'} fill={c.label as string}>
+            {formatMoney(last.v, currency)}
           </SvgText>
-        </G>
-      ))}
-      {last ? (
-        <SvgText fontFamily={FONT} x={x(points.length - 1)} y={y(last.v) - 8} fontSize={11} textAnchor="end" fill={c.label as string}>
-          {formatMoney(last.v, currency)}
-        </SvgText>
-      ) : null}
-    </Svg>
+        ) : null}
+      </Svg>
+    </Mirror>
   );
 }
 
@@ -171,7 +188,7 @@ function LineChart({
 export function TrendLine({ m }: { m: ReportMetrics }) {
   const c = useColors();
   return (
-    <ChartCard title="Six-month spending">
+    <ChartCard title={t.charts.trend}>
       <LineChart points={m.trend.map((p) => ({ label: monthShort(p.month), v: p.spent }))} currency={m.currency} color={c.tint as string} />
     </ChartCard>
   );
@@ -181,7 +198,7 @@ export function TrendLine({ m }: { m: ReportMetrics }) {
 export function SavingsLine({ m }: { m: ReportMetrics }) {
   const c = useColors();
   return (
-    <ChartCard title="Savings balance">
+    <ChartCard title={t.charts.savings}>
       <LineChart points={m.savings_trend.map((p) => ({ label: monthShort(p.month), v: p.balance }))} currency={m.currency} color={c.green as string} />
     </ChartCard>
   );

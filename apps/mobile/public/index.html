@@ -43,6 +43,13 @@
         height: 100%;
         flex: 1;
       }
+      /* P1-6: react-native-web gives every text dir="auto", so an English merchant name in the
+         Hebrew UI would align left. Text without an explicit alignment starts at the right like
+         the page (match-parent would say it, but not every browser has it); its own direction
+         (word order) still comes from its content. */
+      :where(html[dir="rtl"]) [dir="auto"]:not([class*="r-textAlign"]) {
+        text-align: right;
+      }
     </style>
   </head>
 

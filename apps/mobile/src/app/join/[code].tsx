@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useHousehold } from '@/api/queries';
 import { useSession } from '@/api/session';
 import { Button, Icon } from '@/components/ui';
+import { t } from '@/lib/i18n';
 import { clearPendingInvite, savePendingInvite } from '@/lib/pending-invite';
 import { useColors } from '@/lib/theme';
 
@@ -35,11 +36,11 @@ export default function JoinLink() {
   return (
     <View style={[s.wrap, { backgroundColor: c.groupedBackground }]}>
       <Icon name="person.2" size={44} color={c.tertiaryLabel} />
-      <Text style={[s.title, { color: c.label }]}>You’re already in a household</Text>
+      <Text style={[s.title, { color: c.label }]}>{t.join.title}</Text>
       <Text style={[s.body, { color: c.secondaryLabel }]}>
-        To join another one, leave {hh.data.household.name} first in Settings → Household, then open this link again.
+        {t.join.body(hh.data.household.name)}
       </Text>
-      <Button title="Open FinPace" onPress={() => router.replace('/overview')} style={{ alignSelf: 'stretch' }} />
+      <Button title={t.join.open} onPress={() => router.replace('/overview')} style={{ alignSelf: 'stretch' }} />
     </View>
   );
 }

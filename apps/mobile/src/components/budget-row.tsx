@@ -2,7 +2,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Badge, CategoryIcon, Icon, ProgressBar } from './ui';
 import { budgetStatus } from '@/lib/budget';
+import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
+import { textEnd } from '@/lib/rtl';
 import { budgetTone, moneyText, useColors } from '@/lib/theme';
 
 // One category's month at a glance: what's left (or over) first, then the bar with the pace
@@ -40,9 +42,9 @@ export function BudgetRow({
 
   const label =
     st.kind === 'none'
-      ? `${name}, ${formatMoney(spent, currency)} spent, no budget`
-      : `${name}, ${formatMoney(st.amount, currency)} ${st.kind} of ${formatMoney(st.cap, currency)}` +
-        (st.kind === 'left' && pace != null ? (ahead ? ', ahead of pace' : ', on pace') : '');
+      ? t.budget.a11yNone(name, formatMoney(spent, currency))
+      : t.budget.a11y(name, formatMoney(st.amount, currency), st.kind, formatMoney(st.cap, currency)) +
+        (st.kind === 'left' && pace != null ? (ahead ? t.budget.aheadOfPace : t.budget.onPace) : '');
 
   // Opaque base: the pressed tint is translucent, and swipe actions sit right behind the row.
   return (
@@ -64,12 +66,12 @@ export function BudgetRow({
               {name}
             </Text>
             {st.kind === 'none' ? (
-              <Text style={[s.small, { color: c.secondaryLabel }]}>{formatMoney(spent, currency)} spent</Text>
+              <Text style={[s.small, { color: c.secondaryLabel }]}>{t.budget.spent(formatMoney(spent, currency))}</Text>
             ) : (
               <View style={s.status}>
                 {st.kind === 'over' ? <Icon name="exclamationmark.triangle.fill" size={15} color={tone} /> : null}
                 <Text style={[s.amount, { color: tone }]}>
-                  {formatMoney(st.amount, currency)} {st.kind}
+                  {st.kind === 'left' ? t.budget.left(formatMoney(st.amount, currency)) : t.budget.over(formatMoney(st.amount, currency))}
                 </Text>
               </View>
             )}
@@ -77,16 +79,16 @@ export function BudgetRow({
           {st.kind === 'none' ? (
             noBudget ? (
               <View style={s.badgeRow}>
-                <Badge text="No budget" color={c.orange} />
+                <Badge text={t.overview.noBudget} color={c.orange} />
               </View>
             ) : (
-              <Text style={[s.small, { color: c.secondaryLabel }]}>No budget</Text>
+              <Text style={[s.small, { color: c.secondaryLabel }]}>{t.overview.noBudget}</Text>
             )
           ) : (
             <>
               <ProgressBar pct={st.pct} color={tone} pace={pace} />
-              <Text style={[s.small, s.of, { color: c.secondaryLabel }]}>
-                {formatMoney(st.spent, currency)} of {formatMoney(st.cap, currency)}
+              <Text style={[s.small, { color: c.secondaryLabel, textAlign: textEnd() }]}>
+                {t.common.of(formatMoney(st.spent, currency), formatMoney(st.cap, currency))}
               </Text>
             </>
           )}
@@ -97,13 +99,12 @@ export function BudgetRow({
 }
 
 const s = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', paddingLeft: 16, gap: 12 },
-  body: { flex: 1, paddingVertical: 12, paddingRight: 16, gap: 6, minHeight: 56 },
+  row: { flexDirection: 'row', alignItems: 'center', paddingStart: 16, gap: 12 },
+  body: { flex: 1, paddingVertical: 12, paddingEnd: 16, gap: 6, minHeight: 56 },
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
   name: { fontSize: 17, flexShrink: 1 },
   status: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   amount: { fontSize: 20, fontWeight: '600', ...moneyText },
   small: { fontSize: 13, ...moneyText },
-  of: { textAlign: 'right' },
   badgeRow: { flexDirection: 'row' },
 });
