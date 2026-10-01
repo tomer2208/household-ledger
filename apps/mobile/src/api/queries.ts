@@ -335,6 +335,17 @@ export const useSetBudget = () =>
     must(supabase.rpc('set_category_budget', { p_category_id: v.categoryId, p_cap_minor: v.capMinor })),
   );
 
+// P1-7: the setup wizard's budgets and income in one all-or-nothing call (migration 30).
+export const useSetBudgetsBulk = () =>
+  useHHMutation((v: { budgets: { categoryId: string; capMinor: number }[]; income: number | null }) =>
+    must(
+      supabase.rpc('set_budgets_bulk', {
+        p_budgets: v.budgets.map((b) => ({ category_id: b.categoryId, cap_minor: b.capMinor })),
+        p_income: v.income,
+      }),
+    ),
+  );
+
 // 0 clears the income. Applies from the current month on, like a budget change.
 export const useSetIncome = () =>
   useHHMutation((amountMinor: number) => must(supabase.rpc('set_monthly_income', { p_amount_minor: amountMinor })));

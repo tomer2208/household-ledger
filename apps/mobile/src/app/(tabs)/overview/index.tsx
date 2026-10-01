@@ -9,6 +9,7 @@ import { BudgetRow } from '@/components/budget-row';
 import { CaptureBanner } from '@/components/capture-banner';
 import { InstallBanner } from '@/components/install-banner';
 import { MonthSwitcher } from '@/components/month-switcher';
+import { SetupCard } from '@/components/setup-card';
 import { OfflineBanner } from '@/components/offline-banner';
 import { ProposalCard } from '@/components/proposal-card';
 import { SwipeRow } from '@/components/swipe-row';
@@ -85,6 +86,7 @@ export default function OverviewScreen() {
         <OfflineBanner />
         {!past ? <InstallBanner /> : null}
         {!past ? <CaptureBanner /> : null}
+        {!past ? <SetupCard /> : null}
         <MonthSwitcher month={month ?? o?.month ?? thisMonth} first={firstMonth} current={thisMonth} onChange={goTo} />
         <ErrorText error={overview.error} />
 

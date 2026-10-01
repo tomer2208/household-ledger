@@ -32,7 +32,7 @@ const WEB_ICON: Record<string, string> = {
   plus: 'add', 'tray.full': 'inbox', 'iphone.gen3': 'smartphone', 'person.2': 'group', 'calendar.badge.clock': 'event_repeat',
   'square.and.arrow.up': 'ios_share', 'doc.on.doc': 'content_copy', 'checkmark.circle.fill': 'check_circle',
   'exclamationmark.triangle.fill': 'warning', 'wifi.slash': 'wifi_off', 'sparkles': 'auto_awesome',
-  'chevron.right': 'chevron_right', 'chevron.left': 'chevron_left', 'person.crop.circle': 'account_circle', 'envelope': 'mail',
+  'chevron.right': 'chevron_right', 'chevron.left': 'chevron_left', circle: 'radio_button_unchecked', 'person.crop.circle': 'account_circle', 'envelope': 'mail',
   // category picker (settings/category.tsx) and later screens
   'cup.and.saucer': 'local_cafe', bus: 'directions_bus', drop: 'water_drop', wifi: 'wifi', pills: 'medication',
   pawprint: 'pets', tshirt: 'checkroom', gamecontroller: 'sports_esports', dumbbell: 'fitness_center',

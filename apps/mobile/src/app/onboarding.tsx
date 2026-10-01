@@ -7,6 +7,7 @@ import { Button, ErrorText, Field, Section } from '@/components/ui';
 import { AI_DISCLOSURE } from '@/lib/ai-disclosure';
 import { CURRENCIES } from '@/lib/money';
 import { clearPendingInvite, readPendingInvite } from '@/lib/pending-invite';
+import { clearSetupPending, setSetupPending } from '@/lib/setup';
 import { supabase } from '@/lib/supabase';
 import { useColors } from '@/lib/theme';
 
@@ -92,7 +93,11 @@ export default function Onboarding() {
                 title="Create Household"
                 loading={busy}
                 disabled={!displayName.trim() || !householdName.trim()}
-                onPress={() => create.mutate({ name: householdName.trim(), currency, displayName: displayName.trim(), aiConsent })}
+                onPress={async () => {
+                  // P1-7: set before creating, so the route guard's redirect already finds it.
+                  await setSetupPending();
+                  create.mutate({ name: householdName.trim(), currency, displayName: displayName.trim(), aiConsent });
+                }}
               />
             </View>
           </>
@@ -107,7 +112,15 @@ export default function Onboarding() {
                 loading={busy}
                 disabled={!displayName.trim() || code.replace(/[^A-Za-z0-9]/g, '').length < 8}
                 onPress={() =>
-                  join.mutate({ code, displayName: displayName.trim() }, { onSuccess: () => clearPendingInvite() })
+                  join.mutate(
+                    { code, displayName: displayName.trim() },
+                    {
+                      onSuccess: () => {
+                        clearPendingInvite();
+                        clearSetupPending(); // joining: the household's budgets already exist
+                      },
+                    },
+                  )
                 }
               />
             </View>

@@ -75,6 +75,7 @@ function Root() {
           </Stack.Protected>
           <Stack.Protected guard={signedIn && !!household}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="setup" options={{ headerShown: false, gestureEnabled: false }} />
             <Stack.Screen
               name="add"
               options={{ presentation: 'formSheet', sheetAllowedDetents: [0.92], sheetGrabberVisible: true, headerShown: false }}
