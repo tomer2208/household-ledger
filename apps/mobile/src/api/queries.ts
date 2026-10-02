@@ -275,7 +275,11 @@ export function useLanguageSync(me: Member | null | undefined) {
 
 export const useJoinHousehold = () =>
   useHHMutation((v: { code: string; displayName: string }) =>
-    must(supabase.rpc('join_household', { p_code: v.code, p_display_name: v.displayName })),
+    // A wrong code comes back as null (migration 35 counts it toward the attempt limit).
+    must(supabase.rpc('join_household', { p_code: v.code, p_display_name: v.displayName })).then((id) => {
+      if (!id) throw new Error('invalid or expired invite code');
+      return id;
+    }),
   );
 
 export const useSetAiConsent = () =>
