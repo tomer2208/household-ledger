@@ -17,6 +17,7 @@ export function BudgetRow({
   noBudget,
   currency,
   pace,
+  forecast,
   onPress,
   onLongPress,
   actions,
@@ -29,6 +30,8 @@ export function BudgetRow({
   noBudget?: boolean;
   currency: string;
   pace?: number;
+  // P1-17: where the category is heading by month end (current month only)
+  forecast?: number | null;
   onPress?: () => void;
   onLongPress?: () => void;
   // Offered to VoiceOver/TalkBack as custom actions, so swipe-only actions stay reachable.
@@ -39,12 +42,16 @@ export function BudgetRow({
   const st = budgetStatus(cap, spent);
   const tone = st.kind === 'none' ? c.secondaryLabel : budgetTone(st.pct, c, pace);
   const ahead = st.kind === 'left' && pace != null && st.pct - pace >= 15;
+  // Only worth a mark when more is still expected than is already spent.
+  const heading = forecast != null && forecast > spent ? forecast : null;
+  const headingOver = heading != null && st.kind !== 'none' && heading > st.cap;
 
   const label =
     st.kind === 'none'
       ? t.budget.a11yNone(name, formatMoney(spent, currency))
       : t.budget.a11y(name, formatMoney(st.amount, currency), st.kind, formatMoney(st.cap, currency)) +
-        (st.kind === 'left' && pace != null ? (ahead ? t.budget.aheadOfPace : t.budget.onPace) : '');
+        (st.kind === 'left' && pace != null ? (ahead ? t.budget.aheadOfPace : t.budget.onPace) : '') +
+        (heading != null ? t.budget.a11yForecast(formatMoney(heading, currency)) : '');
 
   // Opaque base: the pressed tint is translucent, and swipe actions sit right behind the row.
   return (
@@ -86,9 +93,20 @@ export function BudgetRow({
             )
           ) : (
             <>
-              <ProgressBar pct={st.pct} color={tone} pace={pace} />
+              <ProgressBar
+                pct={st.pct}
+                color={tone}
+                pace={pace}
+                forecast={heading != null ? (heading * 100) / st.cap : undefined}
+              />
               <Text style={[s.small, { color: c.secondaryLabel, textAlign: textEnd() }]}>
                 {t.common.of(formatMoney(st.spent, currency), formatMoney(st.cap, currency))}
+                {heading != null ? (
+                  <Text style={{ color: headingOver ? c.orange : c.secondaryLabel }}>
+                    {' · '}
+                    {t.budget.forecast(formatMoney(heading, currency))}
+                  </Text>
+                ) : null}
               </Text>
             </>
           )}

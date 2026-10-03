@@ -36,7 +36,7 @@ const WEB_ICON: Record<string, string> = {
   plus: 'add', 'tray.full': 'inbox', 'iphone.gen3': 'smartphone', 'person.2': 'group', 'calendar.badge.clock': 'event_repeat',
   'square.and.arrow.up': 'ios_share', 'doc.on.doc': 'content_copy', 'checkmark.circle.fill': 'check_circle',
   'exclamationmark.triangle.fill': 'warning', 'wifi.slash': 'wifi_off', 'sparkles': 'auto_awesome',
-  'chevron.right': 'chevron_right', 'chevron.left': 'chevron_left', circle: 'radio_button_unchecked', 'person.crop.circle': 'account_circle', 'envelope': 'mail',
+  'chevron.right': 'chevron_right', 'chevron.left': 'chevron_left', 'chevron.up': 'expand_less', 'chevron.down': 'expand_more', circle: 'radio_button_unchecked', 'person.crop.circle': 'account_circle', 'envelope': 'mail',
   // category picker (settings/category.tsx) and later screens
   'cup.and.saucer': 'local_cafe', bus: 'directions_bus', drop: 'water_drop', wifi: 'wifi', pills: 'medication',
   pawprint: 'pets', tshirt: 'checkroom', gamecontroller: 'sports_esports', dumbbell: 'fitness_center',
@@ -263,8 +263,9 @@ export function Button({
   );
 }
 
-// `pace` (0-100) draws the FinPace marker: where spending should be by today.
-export function ProgressBar({ pct, color, pace }: { pct: number; color: any; pace?: number }) {
+// `pace` (0-100) draws the FinPace marker: where spending should be by today. `forecast`
+// (0-100, P1-17) draws a hollow ring where the month is heading; past the end, at the end.
+export function ProgressBar({ pct, color, pace, forecast }: { pct: number; color: any; pace?: number; forecast?: number }) {
   const c = useColors();
   const clamp = (n: number) => Math.min(100, Math.max(0, n));
   return (
@@ -275,6 +276,13 @@ export function ProgressBar({ pct, color, pace }: { pct: number; color: any; pac
       {pace != null ? (
         <View
           style={[styles.pace, { start: `${clamp(pace)}%`, backgroundColor: c.paceMarker }]}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        />
+      ) : null}
+      {forecast != null ? (
+        <View
+          style={[styles.forecast, { start: `${clamp(forecast)}%`, borderColor: color, backgroundColor: c.cell }]}
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
         />
@@ -377,6 +385,7 @@ export const styles = StyleSheet.create({
   track: { height: 8, borderRadius: 4, overflow: 'hidden' },
   fillBar: { height: 8, borderRadius: 4 },
   pace: { position: 'absolute', width: 2, height: 14, marginStart: -1, borderRadius: 1 },
+  forecast: { position: 'absolute', width: 10, height: 10, marginStart: -5, borderRadius: 5, borderWidth: 2 },
   badge: { borderWidth: 1, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 1 },
   badgeText: { fontSize: 12, fontWeight: '600' },
   catIcon: { alignItems: 'center', justifyContent: 'center' },

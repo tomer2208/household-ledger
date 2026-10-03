@@ -97,3 +97,21 @@ export function suggestBudgets(income: number | null | undefined, symbols: strin
   }
   return out;
 }
+
+// P1-17: what the month-end forecast says, for the line on Overview. With budgets it is how far
+// over or under the total budget the month is heading; without, just where spending is heading.
+export type ForecastSummary =
+  | { kind: 'over' | 'under'; amount: number; total: number }
+  | { kind: 'spend'; total: number }
+  | null;
+
+export function forecastSummary(
+  f: { total: number; spent: number; upcoming: number } | null | undefined,
+  totalCap: number,
+): ForecastSummary {
+  // Nothing spent and nothing due: no basis for a forecast yet.
+  if (!f || (f.spent === 0 && f.upcoming === 0)) return null;
+  if (totalCap <= 0) return { kind: 'spend', total: f.total };
+  const diff = f.total - totalCap;
+  return { kind: diff > 0 ? 'over' : 'under', amount: Math.abs(diff), total: f.total };
+}

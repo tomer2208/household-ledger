@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useHousehold, useOverview, useProposals } from '@/api/queries';
-import type { OverviewCategory } from '@/api/types';
+import type { Forecast, OverviewCategory } from '@/api/types';
 import { ADD_BUTTON_SPACE, AddButton } from '@/components/add-button';
 import { BudgetRow } from '@/components/budget-row';
 import { CaptureBanner } from '@/components/capture-banner';
@@ -14,8 +14,8 @@ import { OfflineBanner } from '@/components/offline-banner';
 import { ProposalCard } from '@/components/proposal-card';
 import { SwipeRow } from '@/components/swipe-row';
 import { OverviewSkeleton } from '@/components/skeleton';
-import { Badge, CategoryIcon, Empty, LoadingState, ProgressBar, Row, Screen, Section } from '@/components/ui';
-import { daysToGo, incomePlan, perDay } from '@/lib/budget';
+import { Badge, CategoryIcon, Empty, Icon, LoadingState, ProgressBar, Row, Screen, Section } from '@/components/ui';
+import { daysToGo, forecastSummary, type ForecastSummary, incomePlan, perDay } from '@/lib/budget';
 import { useCategoryActions } from '@/lib/category-actions';
 import { currentMonth, monthLabel, monthOfInstant, monthPace } from '@/lib/dates';
 import { t } from '@/lib/i18n';
@@ -45,6 +45,9 @@ export default function OverviewScreen() {
   const days = daysToGo();
   const actions = useCategoryActions(hh.data?.household?.id);
   const plan = incomePlan(o?.income, o?.total_cap ?? 0);
+  // P1-17: where the month is heading; the line opens how it adds up.
+  const forecast = !past ? forecastSummary(o?.forecast, o?.total_cap ?? 0) : null;
+  const [showForecast, setShowForecast] = useState(false);
 
   // A category's line on Overview. This month: swipe or long press for Edit and Delete, tap
   // for its expenses. A past month is history: read-only, and tap shows that month's expenses.
@@ -58,6 +61,7 @@ export default function OverviewScreen() {
         spent={cat.spent}
         currency={cur}
         pace={past || cap == null ? undefined : pace}
+        forecast={past ? undefined : cat.forecast}
         onPress={() =>
           router.push({ pathname: '/transactions', params: past && o ? { category: cat.id, month: o.month } : { category: cat.id } })
         }
@@ -149,6 +153,9 @@ export default function OverviewScreen() {
                       </Text>
                     </Pressable>
                   ) : null}
+                  {forecast && o.forecast ? (
+                    <ForecastLine f={o.forecast} summary={forecast} currency={cur} open={showForecast} onToggle={() => setShowForecast((x) => !x)} />
+                  ) : null}
                 </>
               ) : (
                 <>
@@ -157,6 +164,9 @@ export default function OverviewScreen() {
                   <Pressable onPress={() => router.push('/settings/categories')} accessibilityRole="button" hitSlop={8}>
                     <Text style={[s.heroMeta, { color: c.tint }]}>{t.overview.setBudgetsLink}</Text>
                   </Pressable>
+                  {forecast && o.forecast ? (
+                    <ForecastLine f={o.forecast} summary={forecast} currency={cur} open={showForecast} onToggle={() => setShowForecast((x) => !x)} />
+                  ) : null}
                 </>
               )}
             </View>
@@ -241,6 +251,61 @@ export default function OverviewScreen() {
   );
 }
 
+function ForecastLine({
+  f,
+  summary,
+  currency,
+  open,
+  onToggle,
+}: {
+  f: Forecast;
+  summary: NonNullable<ForecastSummary>;
+  currency: string;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  const c = useColors();
+  const money = (n: number) => formatMoney(n, currency);
+  const text =
+    summary.kind === 'over'
+      ? t.overview.forecastOver(money(summary.amount))
+      : summary.kind === 'under'
+        ? t.overview.forecastUnder(money(summary.amount))
+        : t.overview.forecastSpend(money(summary.total));
+  const color = summary.kind === 'over' ? c.red : summary.kind === 'under' ? c.green : c.secondaryLabel;
+  const line = (label: string, amount: number, strong?: boolean) => (
+    <View style={s.forecastRow}>
+      <Text style={[s.heroMeta, { color: strong ? c.label : c.secondaryLabel, fontWeight: strong ? '600' : '400' }]}>{label}</Text>
+      <Text style={[s.heroMeta, { color: strong ? c.label : c.secondaryLabel, fontWeight: strong ? '600' : '400' }]}>{money(amount)}</Text>
+    </View>
+  );
+  return (
+    <View style={[s.forecast, { borderTopColor: c.separator }]}>
+      <Pressable
+        onPress={onToggle}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: open }}
+        accessibilityHint={open ? t.overview.forecastHide : t.overview.forecastShow}
+        hitSlop={6}
+        style={s.forecastHead}>
+        <Text style={[s.forecastText, { color }]}>{text}</Text>
+        <Icon name={open ? 'chevron.up' : 'chevron.down'} size={13} color={c.secondaryLabel} />
+      </Pressable>
+      {open ? (
+        <View style={s.forecastBody}>
+          {line(t.overview.forecastSpent, f.spent)}
+          {line(t.overview.forecastUpcoming, f.upcoming)}
+          {line(t.overview.forecastRest, f.rest)}
+          {line(t.overview.forecastTotal, f.total, true)}
+          <Text style={[s.forecastNote, { color: c.secondaryLabel }]}>
+            {f.day < 5 ? t.overview.forecastNoteEarly(f.day, f.days) : t.overview.forecastNote(f.day, f.days)}
+          </Text>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
 const s = StyleSheet.create({
   fill: { flex: 1 },
   hero: { marginHorizontal: 16, marginTop: 12, borderRadius: radius.hero, padding: 18, gap: 8 },
@@ -248,4 +313,10 @@ const s = StyleSheet.create({
   heroAmount: { fontSize: 40, fontWeight: '700', ...moneyText },
   heroRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', columnGap: 12, rowGap: 2 },
   heroMeta: { fontSize: 14, ...moneyText },
+  forecast: { borderTopWidth: StyleSheet.hairlineWidth, marginTop: 4, paddingTop: 10, gap: 8 },
+  forecastHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  forecastText: { fontSize: 15, fontWeight: '600', flexShrink: 1, ...moneyText },
+  forecastBody: { gap: 4 },
+  forecastRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
+  forecastNote: { fontSize: 12, marginTop: 4, lineHeight: 16 },
 });

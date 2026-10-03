@@ -6,7 +6,7 @@
 set -uo pipefail
 cd "$(dirname "$0")"
 DB_URL="${DB_URL:-postgresql://postgres:postgres@127.0.0.1:54322/postgres}"
-TESTS=(phase1_smoke members_account delete_category maintenance_isolation capture_health search_transactions search_by_month set_budgets_bulk quick_entry installments language hardening search_filters performance)
+TESTS=(phase1_smoke members_account delete_category maintenance_isolation capture_health search_transactions search_by_month set_budgets_bulk quick_entry installments language hardening search_filters performance month_forecast)
 
 psql "$DB_URL" -X -q -v ON_ERROR_STOP=1 -f fixtures.sql || { echo "fixtures failed"; exit 1; }
 

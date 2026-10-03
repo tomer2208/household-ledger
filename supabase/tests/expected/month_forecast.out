@@ -1,0 +1,1 @@
+ERROR:  TEST_ROLLBACK groceries_rest=t rent_upcoming=t rent_rest_ignores_recurring=t usd_priced=t totals_add_up=t past_month_null=t category_past_null=t posted_once=t stranger_sees=0

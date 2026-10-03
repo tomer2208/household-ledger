@@ -53,7 +53,13 @@ export type OverviewCategory = {
   spent: number;
   pct: number | null;
   no_budget: boolean;
+  // P1-17: where this category is heading by month end (current month only; null otherwise).
+  forecast?: number | null;
 };
+
+// P1-17 (migration 38): spent so far + recurring payments still due + the rest of the month at
+// this month's pace (blended with the months before in its first days). Current month only.
+export type Forecast = { day: number; days: number; spent: number; upcoming: number; rest: number; total: number };
 
 export type Overview = {
   month: string;
@@ -67,6 +73,7 @@ export type Overview = {
   net: number;
   savings_balance: number;
   pending_review: number;
+  forecast?: Forecast | null;
   categories: OverviewCategory[];
 };
 

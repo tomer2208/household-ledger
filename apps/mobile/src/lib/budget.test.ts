@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { budgetStatus, incomePlan, perDay, shortOfTarget, suggestBudgets, SUGGESTED_SHARE_PCT } from './budget';
+import { budgetStatus, forecastSummary, incomePlan, perDay, shortOfTarget, suggestBudgets, SUGGESTED_SHARE_PCT } from './budget';
 
 test('budgetStatus: left, over, no budget', () => {
   assert.deepEqual(budgetStatus(200000, 138000), { kind: 'left', spent: 138000, cap: 200000, amount: 62000, pct: 69 });
@@ -53,4 +53,14 @@ test('suggestBudgets: shares of income, rounded down to ₪50, 20% left for savi
   assert.deepEqual(suggestBudgets(1500000, ['pawprint']), {});
   assert.deepEqual(suggestBudgets(null, names), {});
   assert.deepEqual(suggestBudgets(0, names), {});
+});
+
+test('forecastSummary: over, under, no budgets, nothing to go on', () => {
+  const f = { total: 864000, spent: 300000, upcoming: 500000 };
+  assert.deepEqual(forecastSummary(f, 800000), { kind: 'over', amount: 64000, total: 864000 });
+  assert.deepEqual(forecastSummary(f, 1000000), { kind: 'under', amount: 136000, total: 864000 });
+  assert.deepEqual(forecastSummary(f, 864000), { kind: 'under', amount: 0, total: 864000 });
+  assert.deepEqual(forecastSummary(f, 0), { kind: 'spend', total: 864000 });
+  assert.equal(forecastSummary({ total: 0, spent: 0, upcoming: 0 }, 800000), null);
+  assert.equal(forecastSummary(null, 800000), null);
 });
