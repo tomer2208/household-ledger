@@ -23,7 +23,7 @@ import { monthOfInstant } from '@/lib/dates';
 import { lang, type Lang } from '@/lib/i18n';
 import { applyTxChange, findTx, holdTxCaches, restoreTxCaches, type Snapshot } from '@/lib/optimistic';
 import type { ServerFilter } from '@/lib/search-filter';
-import { supabase } from '@/lib/supabase';
+import { rpc, supabase } from '@/lib/supabase';
 
 // Every household query key starts with 'hh'. A write, local or the partner's via Realtime,
 // refreshes the keys that read the tables it changed (lib/cache-sync), or all of them.
@@ -35,6 +35,10 @@ function refresh(qc: QueryClient, tables?: Iterable<string>) {
   return Promise.all(keys.map((k) => qc.invalidateQueries({ queryKey: [HH, k] })));
 }
 
+// A Postgres argument can always be null, but the generated types only say so for arguments with
+// a default (as optional). This passes null to one without a default, where the function expects it.
+const SQL_NULL = null as unknown as string;
+
 // The error keeps its code (SQLSTATE or PostgREST's PGRSTxxx), which decides a retry (lib/errors).
 async function must<T>(p: PromiseLike<{ data: T; error: { message: string; code?: string } | null }>): Promise<T> {
   const { data, error } = await p;
@@ -42,10 +46,9 @@ async function must<T>(p: PromiseLike<{ data: T; error: { message: string; code?
   return data;
 }
 
+// One literal (not joined with +), so the typed client can read which columns come back.
 const TX_COLUMNS =
-  'id,title,raw_merchant,amount_minor,currency,amount_base_minor,fx_rate,fx_source,occurred_at,budget_month,' +
-  'status,source,category_id,note,card_label,created_by,recurring_rule_id,classification,categories(name,sf_symbol),' +
-  'recurring_period,recurring_rules(installment_count,installment_first)';
+  'id,title,raw_merchant,amount_minor,currency,amount_base_minor,fx_rate,fx_source,occurred_at,budget_month,status,source,category_id,note,card_label,created_by,recurring_rule_id,classification,categories(name,sf_symbol),recurring_period,recurring_rules(installment_count,installment_first)';
 
 // ───────── reads ─────────
 
@@ -77,7 +80,7 @@ export function useOverview(month?: string) {
     queryKey: [HH, 'overview', month ?? 'current'],
     // Stepping between months keeps the last one on screen until the next arrives.
     placeholderData: keepPreviousData,
-    queryFn: async () => (await must(supabase.rpc('month_overview', month ? { p_month: month } : {}))) as Overview,
+    queryFn: async () => (await must(rpc('month_overview', month ? { p_month: month } : {}))) as Overview,
   });
 }
 
@@ -118,10 +121,11 @@ export function useTransactionPages(filter: ServerFilter) {
     initialPageParam: null as TxCursor,
     queryFn: async ({ pageParam }) =>
       (await must(
-        supabase.rpc('find_transactions', {
+        rpc('find_transactions', {
           p_filter: filter,
-          p_before_at: pageParam?.at ?? null,
-          p_before_id: pageParam?.id ?? null,
+          // left out on the first page: both default to null
+          p_before_at: pageParam?.at,
+          p_before_id: pageParam?.id,
           p_limit: TX_PAGE,
         }),
       )) as Transaction[],
@@ -141,7 +145,7 @@ export function useTransactionSummary(filter: ServerFilter, enabled = true) {
   return useQuery({
     queryKey: [HH, 'transactions', 'summary', filter],
     enabled,
-    queryFn: async () => (await must(supabase.rpc('summarize_transactions', { p_filter: filter }))) as TxSummary,
+    queryFn: async () => (await must(rpc('summarize_transactions', { p_filter: filter }))) as TxSummary,
     placeholderData: keepPreviousData,
     gcTime: 5 * 60_000,
   });
@@ -151,7 +155,7 @@ export function useTransaction(id: string) {
   return useQuery({
     queryKey: [HH, 'transaction', id],
     queryFn: async () =>
-      (await must(supabase.from('transactions').select(TX_COLUMNS).eq('id', id).single())) as unknown as Transaction,
+      (await must(supabase.from('transactions').select(TX_COLUMNS).eq('id', id).single())) as Transaction,
   });
 }
 
@@ -166,7 +170,7 @@ export function usePendingReview() {
           .eq('status', 'pending_review')
           .is('deleted_at', null)
           .order('occurred_at', { ascending: false }),
-      )) as unknown as Transaction[],
+      )) as Transaction[],
   });
 }
 
@@ -182,7 +186,7 @@ export function useRecurring() {
           )
           .is('deleted_at', null)
           .order('next_run_date'),
-      )) as unknown as RecurringRule[],
+      )) as RecurringRule[],
   });
 }
 
@@ -204,7 +208,7 @@ export function useDevices() {
 export function useCaptureHealth() {
   return useQuery({
     queryKey: [HH, 'capture_health'],
-    queryFn: async () => (await must(supabase.rpc('capture_health'))) as CaptureHealth[],
+    queryFn: async () => (await must(rpc('capture_health'))) as CaptureHealth[],
     refetchInterval: 3_600_000,
   });
 }
@@ -303,7 +307,7 @@ const recentlyDeleted = new Map<string, Transaction>();
 export const useCreateHousehold = () =>
   useHHMutation((v: { name: string; currency: string; displayName: string; aiConsent: boolean; language: Lang }) =>
     must(
-      supabase.rpc('create_household', {
+      rpc('create_household', {
         p_name: v.name,
         p_base_currency: v.currency,
         p_display_name: v.displayName,
@@ -327,7 +331,7 @@ export function useLanguageSync(me: Member | null | undefined) {
   const stored = me?.language;
   useEffect(() => {
     if (!meId || stored === current) return;
-    supabase.rpc('set_my_language', { p_language: current }).then(({ error }) => {
+    rpc('set_my_language', { p_language: current }).then(({ error }) => {
       if (error) console.warn('Language sync failed', error.message);
     });
   }, [meId, stored, current]);
@@ -336,7 +340,7 @@ export function useLanguageSync(me: Member | null | undefined) {
 export const useJoinHousehold = () =>
   useHHMutation((v: { code: string; displayName: string }) =>
     // A wrong code comes back as null (migration 35 counts it toward the attempt limit).
-    must(supabase.rpc('join_household', { p_code: v.code, p_display_name: v.displayName })).then((id) => {
+    must(rpc('join_household', { p_code: v.code, p_display_name: v.displayName })).then((id) => {
       if (!id) throw new Error('invalid or expired invite code');
       return id;
     }),
@@ -354,13 +358,13 @@ export const useSetAiConsent = () =>
 
 // G4: equal rights, so any member can remove another; the server revokes their Shortcut.
 export const useRemoveMember = () =>
-  useHHMutation((userId: string) => must(supabase.rpc('remove_member', { p_user_id: userId })));
+  useHHMutation((userId: string) => must(rpc('remove_member', { p_user_id: userId })));
 
 // The last member leaving deletes the household ('deleted'); otherwise 'left'.
 export const useLeaveHousehold = () =>
-  useHHMutation(() => must(supabase.rpc('leave_household')) as Promise<'left' | 'deleted'>);
+  useHHMutation(() => must(rpc('leave_household')) as Promise<'left' | 'deleted'>);
 
-export const useCreateInvite = () => useHHMutation(() => must(supabase.rpc('create_invite')) as Promise<string>);
+export const useCreateInvite = () => useHHMutation(() => must(rpc('create_invite')) as Promise<string>);
 
 export type NewTransaction = {
   householdId: string;
@@ -424,7 +428,7 @@ export const useAddTransaction = () =>
 export const useCreateInstallments = () =>
   useHHMutation(
     (v: { transactionId: string; count: number }) =>
-      must(supabase.rpc('create_installments', { p_transaction_id: v.transactionId, p_count: v.count })),
+      must(rpc('create_installments', { p_transaction_id: v.transactionId, p_count: v.count })),
     ['transactions', 'recurring_rules'],
   );
 
@@ -474,10 +478,10 @@ export const useRestoreTransaction = () =>
 export const useReviewTransaction = () =>
   useHHMutation((v: { id: string; categoryName?: string; newCategoryName?: string; title: string }) =>
     must(
-      supabase.rpc('review_transaction', {
+      rpc('review_transaction', {
         p_transaction_id: v.id,
-        p_category_name: v.categoryName ?? null,
-        p_new_category_name: v.newCategoryName ?? null,
+        p_category_name: v.categoryName ?? SQL_NULL,
+        p_new_category_name: v.newCategoryName ?? SQL_NULL,
         p_title: v.title,
       }),
     ),
@@ -486,7 +490,7 @@ export const useReviewTransaction = () =>
 export const useSetBudget = () =>
   useHHMutation(
     (v: { categoryId: string; capMinor: number }) =>
-      must(supabase.rpc('set_category_budget', { p_category_id: v.categoryId, p_cap_minor: v.capMinor })),
+      must(rpc('set_category_budget', { p_category_id: v.categoryId, p_cap_minor: v.capMinor })),
     ['category_budgets', 'categories'],
   );
 
@@ -494,9 +498,9 @@ export const useSetBudget = () =>
 export const useSetBudgetsBulk = () =>
   useHHMutation((v: { budgets: { categoryId: string; capMinor: number }[]; income: number | null }) =>
     must(
-      supabase.rpc('set_budgets_bulk', {
+      rpc('set_budgets_bulk', {
         p_budgets: v.budgets.map((b) => ({ category_id: b.categoryId, cap_minor: b.capMinor })),
-        p_income: v.income,
+        p_income: v.income ?? undefined, // left out (its default, null) keeps the income as it is
       }),
     ),
   );
@@ -506,7 +510,7 @@ export type ExpenseTemplate = { title: string; category_id: string; amount_minor
 export function useExpenseTemplates() {
   return useQuery({
     queryKey: [HH, 'templates'],
-    queryFn: async () => (await must(supabase.rpc('recent_expense_templates'))) as ExpenseTemplate[],
+    queryFn: async () => (await must(rpc('recent_expense_templates'))) as ExpenseTemplate[],
   });
 }
 
@@ -520,13 +524,13 @@ export function useSuggestedCategory(title: string) {
     staleTime: 60_000,
     gcTime: 60_000,
     queryFn: async () =>
-      (await must(supabase.rpc('suggest_category', { p_title: t }))) as { category_id: string; source: string } | null,
+      (await must(rpc('suggest_category', { p_title: t }))) as { category_id: string; source: string } | null,
   });
 }
 
 // 0 clears the income. Applies from the current month on, like a budget change.
 export const useSetIncome = () =>
-  useHHMutation((amountMinor: number) => must(supabase.rpc('set_monthly_income', { p_amount_minor: amountMinor })), [
+  useHHMutation((amountMinor: number) => must(rpc('set_monthly_income', { p_amount_minor: amountMinor })), [
     'household_income',
   ]);
 
@@ -538,7 +542,7 @@ export type DeleteCategoryResult = { action: 'delete' | 'archive' | 'blocked'; t
 export function useCategoryDelete() {
   const qc = useQueryClient();
   const call = (id: string, dryRun: boolean) =>
-    must(supabase.rpc('delete_category', { p_category_id: id, p_dry_run: dryRun })) as Promise<DeleteCategoryResult>;
+    must(rpc('delete_category', { p_category_id: id, p_dry_run: dryRun })) as Promise<DeleteCategoryResult>;
   return {
     preview: (id: string) => call(id, true),
     commit: async (id: string) => {
@@ -620,17 +624,17 @@ export const useDeleteRecurring = () =>
 
 export const useCreateDeviceToken = () =>
   useHHMutation(async (label: string) => {
-    const rows = (await must(supabase.rpc('create_device_token', { p_label: label }))) as { id: string; token: string }[];
+    const rows = (await must(rpc('create_device_token', { p_label: label }))) as { id: string; token: string }[];
     return rows[0];
   });
 
 export const useRevokeDevice = () =>
-  useHHMutation((id: string) => must(supabase.rpc('revoke_device_token', { p_id: id })), ['device_tokens']);
+  useHHMutation((id: string) => must(rpc('revoke_device_token', { p_id: id })), ['device_tokens']);
 
 export const useAddSavingsEntry = () =>
   useHHMutation(
     (v: { amountMinor: number; reason: string }) =>
-      must(supabase.rpc('add_savings_entry', { p_amount_minor: v.amountMinor, p_reason: v.reason })),
+      must(rpc('add_savings_entry', { p_amount_minor: v.amountMinor, p_reason: v.reason })),
     ['savings_ledger'],
   );
 
@@ -653,7 +657,7 @@ export function useProposals() {
 
 export const useDecideProposal = () =>
   useHHMutation((v: { id: string; approve: boolean }) =>
-    must(supabase.rpc('decide_proposal', { p_id: v.id, p_approve: v.approve })) as Promise<{ status: string; reason?: string }>,
+    must(rpc('decide_proposal', { p_id: v.id, p_approve: v.approve })) as Promise<{ status: string; reason?: string }>,
   );
 
 export function useMonthlyReport(month: string) {
@@ -673,13 +677,13 @@ export function useMonthlyReport(month: string) {
 }
 
 export const useRequestReport = () =>
-  useHHMutation((month: string) => must(supabase.rpc('request_monthly_report', { p_month: month })));
+  useHHMutation((month: string) => must(rpc('request_monthly_report', { p_month: month })));
 
 // G6: this month's estimated AI cost against the household's cap (USD).
 export function useAiUsage() {
   return useQuery({
     queryKey: [HH, 'ai_usage'],
-    queryFn: async () => (await must(supabase.rpc('my_ai_usage'))) as { cost_usd: number; cap_usd: number },
+    queryFn: async () => (await must(rpc('my_ai_usage'))) as { cost_usd: number; cap_usd: number },
   });
 }
 

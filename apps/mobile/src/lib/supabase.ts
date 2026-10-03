@@ -2,12 +2,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient } from '@supabase/supabase-js';
 import { AppState, Platform } from 'react-native';
 
+import type { Database } from '@/api/database.types';
+
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 const key = process.env.EXPO_PUBLIC_SUPABASE_KEY!;
 
 // TODO(3.1): move the native session to the LargeSecureStore pattern (BLUEPRINT §3.9).
 // AsyncStorage lives in the app sandbox; good enough for TestFlight, not for the store.
-export const supabase = createClient(url, key, {
+// T5: typed by the schema (api/database.types.ts, generated; CI fails if it is stale), so a
+// wrong table, column, function or argument name is a type error, not a broken screen.
+export const supabase = createClient<Database>(url, key, {
   auth: {
     storage: Platform.OS === 'web' ? undefined : AsyncStorage,
     autoRefreshToken: true,
@@ -22,6 +26,14 @@ if (Platform.OS !== 'web') {
     if (state === 'active') supabase.auth.startAutoRefresh();
     else supabase.auth.stopAutoRefresh();
   });
+}
+
+type Fns = Database['public']['Functions'];
+
+// supabase.rpc infers its arguments' type from the object it is given, so a misspelled optional
+// argument would pass. Here they are checked against the function's own, like any typed call.
+export function rpc<F extends keyof Fns & string>(fn: F, args?: Fns[F]['Args']) {
+  return supabase.rpc(fn, args);
 }
 
 export const FUNCTIONS_URL = `${url}/functions/v1`;

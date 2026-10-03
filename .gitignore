@@ -4,3 +4,4 @@ node_modules/
 apps/mobile/.expo/
 apps/mobile/dist/
 supabase/.temp/
+.schema-types/

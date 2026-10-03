@@ -1,57 +1,48 @@
-// Shapes the app reads. Mirrors supabase/migrations; regenerate from
-// `supabase gen types` once the CLI is set up (BLUEPRINT §3.2).
+// Shapes the app reads. T5: a table's row is picked from the generated schema types
+// (database.types.ts, `supabase gen types`; CI fails when they are stale), so a renamed or
+// dropped column breaks the build here instead of a screen. Text columns that a CHECK limits to
+// a few values are narrowed to those values, which the generator can't see.
+// What an RPC returns as JSON (Overview, report metrics, capture health) is described by hand,
+// next to the function that builds it.
 
-export type Household = {
-  id: string;
-  name: string;
-  base_currency: string;
-  timezone: string;
-  ai_consent_at: string | null;
-  created_at: string;
-};
+import type { Tables } from './database.types';
+
+// `R` with the columns in `N` replaced by narrower types.
+type Narrow<R, N extends Partial<Record<keyof R, unknown>>> = Omit<R, keyof N> & N;
+
+export type Household = Pick<Tables<'households'>, 'id' | 'name' | 'base_currency' | 'timezone' | 'ai_consent_at' | 'created_at'>;
 
 // language: what the server writes this member's alerts and reports in (P1-6).
-export type Member = { user_id: string; display_name: string; joined_at: string; language?: 'en' | 'he' };
+export type Member = Pick<Tables<'household_members'>, 'user_id' | 'display_name' | 'joined_at'> & { language?: 'en' | 'he' };
 
-export type Category = {
-  id: string;
-  name: string;
-  sf_symbol: string;
-  kind: 'expense' | 'savings';
-  sort_order: number;
-  archived_at: string | null;
-  budget_acknowledged: boolean;
-  created_via: 'seed' | 'app' | 'shortcut';
-};
+export type Category = Narrow<
+  Pick<Tables<'categories'>, 'id' | 'name' | 'sf_symbol' | 'kind' | 'sort_order' | 'archived_at' | 'budget_acknowledged' | 'created_via'>,
+  { kind: 'expense' | 'savings'; created_via: 'seed' | 'app' | 'shortcut' }
+>;
 
 export type TxStatus = 'confirmed' | 'pending_review' | 'estimated';
 export type TxSource = 'apple_pay' | 'manual' | 'recurring';
 
-export type Transaction = {
-  id: string;
-  title: string;
-  raw_merchant: string | null;
-  amount_minor: number;
-  currency: string;
-  amount_base_minor: number;
-  fx_rate: number;
-  fx_source: 'identity' | 'daily' | 'manual';
-  occurred_at: string;
-  budget_month: string;
-  status: TxStatus;
-  source: TxSource;
-  category_id: string;
-  note: string | null;
-  card_label: string | null;
-  created_by: string | null;
-  recurring_rule_id: string | null;
-  classification: { method?: string; confidence?: number } | null;
-  categories: { name: string; sf_symbol: string } | null;
+export type Transaction = Narrow<
+  Pick<
+    Tables<'transactions'>,
+    | 'id' | 'title' | 'raw_merchant' | 'amount_minor' | 'currency' | 'amount_base_minor' | 'fx_rate' | 'fx_source'
+    | 'occurred_at' | 'budget_month' | 'status' | 'source' | 'category_id' | 'note' | 'card_label' | 'created_by'
+    | 'recurring_rule_id' | 'classification'
+  >,
+  {
+    fx_source: 'identity' | 'daily' | 'manual';
+    status: TxStatus;
+    source: TxSource;
+    classification: { method?: string; confidence?: number } | null;
+  }
+> & {
+  categories: Pick<Tables<'categories'>, 'name' | 'sf_symbol'> | null;
   // P1-2: payment k of n for installments. Lists get it from find_transactions; details
   // compute it from the embedded rule.
   installment?: { no: number; count: number } | null;
-  recurring_period?: string | null;
-  recurring_rules?: { installment_count: number | null; installment_first: string | null } | null;
+  recurring_period?: Tables<'transactions'>['recurring_period'];
+  recurring_rules?: Pick<Tables<'recurring_rules'>, 'installment_count' | 'installment_first'> | null;
 };
 
 export type OverviewCategory = {
@@ -79,60 +70,37 @@ export type Overview = {
   categories: OverviewCategory[];
 };
 
-export type RecurringRule = {
-  id: string;
-  title: string;
-  category_id: string;
-  amount_minor: number;
-  currency: string;
-  amount_kind: 'fixed' | 'estimated';
-  interval_months: number;
-  day_of_month: number;
-  start_date: string;
-  end_date: string | null;
-  next_run_date: string | null;
-  paused: boolean;
-  categories: { name: string; sf_symbol: string } | null;
-  installment_count: number | null;
-  installment_first: string | null;
-};
+export type RecurringRule = Narrow<
+  Pick<
+    Tables<'recurring_rules'>,
+    | 'id' | 'title' | 'category_id' | 'amount_minor' | 'currency' | 'amount_kind' | 'interval_months' | 'day_of_month'
+    | 'start_date' | 'end_date' | 'next_run_date' | 'paused' | 'installment_count' | 'installment_first'
+  >,
+  { amount_kind: 'fixed' | 'estimated' }
+> & { categories: Pick<Tables<'categories'>, 'name' | 'sf_symbol'> | null };
 
-export type Device = {
-  id: string;
-  user_id: string;
-  label: string;
-  created_at: string;
-  last_used_at: string | null;
-  revoked_at: string | null;
-};
+export type Device = Pick<Tables<'device_tokens'>, 'id' | 'user_id' | 'label' | 'created_at' | 'last_used_at' | 'revoked_at'>;
 
-export type SavingsEntry = {
-  id: string;
-  entry_type: 'month_close' | 'late_adjustment' | 'manual' | 'unassigned_income';
-  budget_month: string;
-  amount_minor: number;
-  reason: string;
-  created_at: string;
-};
+export type SavingsEntry = Narrow<
+  Pick<Tables<'savings_ledger'>, 'id' | 'entry_type' | 'budget_month' | 'amount_minor' | 'reason' | 'created_at'>,
+  { entry_type: 'month_close' | 'late_adjustment' | 'manual' | 'unassigned_income' }
+>;
 
-export type MonthClose = {
-  budget_month: string;
-  total_cap_minor: number;
-  total_spent_minor: number;
-  net_minor: number;
-  snapshot: { category_id: string; name: string; cap: number; spent: number }[];
-  closed_at: string;
-};
+export type MonthClose = Narrow<
+  Pick<Tables<'month_closes'>, 'budget_month' | 'total_cap_minor' | 'total_spent_minor' | 'net_minor' | 'snapshot' | 'closed_at'>,
+  { snapshot: { category_id: string; name: string; cap: number; spent: number }[] }
+>;
 
-export type Proposal = {
-  id: string;
-  kind: 'create_recurring' | 'update_estimate' | 'adjust_budget' | 'recategorize_merchant' | 'flag_duplicate';
-  payload: Record<string, unknown>;
-  // texts: the same card per language (P1-6); text is the household's main language.
-  rationale: { text: string; texts?: Partial<Record<'en' | 'he', string>>; evidence: Record<string, unknown>; priority?: number };
-  status: 'pending' | 'approved' | 'rejected' | 'expired' | 'failed';
-  created_at: string;
-};
+export type Proposal = Narrow<
+  Pick<Tables<'agent_proposals'>, 'id' | 'kind' | 'payload' | 'rationale' | 'status' | 'created_at'>,
+  {
+    kind: 'create_recurring' | 'update_estimate' | 'adjust_budget' | 'recategorize_merchant' | 'flag_duplicate';
+    payload: Record<string, unknown>;
+    // texts: the same card per language (P1-6); text is the household's main language.
+    rationale: { text: string; texts?: Partial<Record<'en' | 'he', string>>; evidence: Record<string, unknown>; priority?: number };
+    status: 'pending' | 'approved' | 'rejected' | 'expired' | 'failed';
+  }
+>;
 
 export type ReportMetrics = {
   month: string;
@@ -155,28 +123,21 @@ export type Narrative = {
   extra?: Record<string, unknown>;
 };
 
-export type MonthlyReport = {
-  id: string;
-  budget_month: string;
-  metrics: ReportMetrics;
-  narrative: Narrative | null;
-  // P1-6: the same report per member language; `narrative` is the household's main language.
-  narratives?: Partial<Record<'en' | 'he', Narrative>> | null;
-  status: 'pending' | 'generating' | 'ready' | 'fallback' | 'failed';
-  updated_at: string;
-};
+export type MonthlyReport = Narrow<
+  Pick<Tables<'monthly_reports'>, 'id' | 'budget_month' | 'metrics' | 'narrative' | 'narratives' | 'status' | 'updated_at'>,
+  {
+    metrics: ReportMetrics;
+    narrative: Narrative | null;
+    // P1-6: the same report per member language; `narrative` is the household's main language.
+    narratives?: Partial<Record<'en' | 'he', Narrative>> | null;
+    status: 'pending' | 'generating' | 'ready' | 'fallback' | 'failed';
+  }
+>;
 
-export type AgentRun = {
-  id: string;
-  agent: 'classifier' | 'monthly_report' | 'advisor';
-  model: string;
-  status: 'ok' | 'timeout' | 'error' | 'invalid_output' | 'fallback';
-  input_tokens: number | null;
-  output_tokens: number | null;
-  latency_ms: number | null;
-  error: string | null;
-  created_at: string;
-};
+export type AgentRun = Narrow<
+  Pick<Tables<'agent_runs'>, 'id' | 'agent' | 'model' | 'status' | 'input_tokens' | 'output_tokens' | 'latency_ms' | 'error' | 'created_at'>,
+  { agent: 'classifier' | 'monthly_report' | 'advisor'; status: 'ok' | 'timeout' | 'error' | 'invalid_output' | 'fallback' }
+>;
 
 // R9: per active Shortcut device, whether it has gone quiet (public.capture_health()).
 export type CaptureHealth = {

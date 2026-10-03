@@ -8,7 +8,7 @@
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 
-import { supabase } from './supabase';
+import { rpc, supabase } from './supabase';
 import { t } from './i18n';
 
 export type PushState = 'unsupported' | 'install-first' | 'off' | 'on' | 'blocked';
@@ -54,7 +54,7 @@ export async function enableNotifications(userId: string): Promise<PushState> {
   if (!supported()) return 'unsupported';
   const permission = await Notification.requestPermission();
   if (permission !== 'granted') return permission === 'denied' ? 'blocked' : 'off';
-  const { data: key, error } = await supabase.rpc('web_push_public_key');
+  const { data: key, error } = await rpc('web_push_public_key');
   if (error || !key) throw error ?? new Error(t.errors.pushNotReady);
   const reg = await navigator.serviceWorker.ready;
   const sub =

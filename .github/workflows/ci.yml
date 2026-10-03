@@ -36,7 +36,7 @@ jobs:
       - run: npm run build:web
 
   db:
-    name: Database (all migrations from scratch, SQL tests)
+    name: Database (all migrations from scratch, SQL tests, schema types)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -47,3 +47,12 @@ jobs:
         run: supabase db start
       - name: SQL tests
         run: supabase/tests/run.sh
+      - name: Schema types match the migrations
+        run: supabase/scripts/check-types.sh
+      - name: Upload the regenerated schema types
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: database.types
+          path: .schema-types/database.types.ts
+          if-no-files-found: ignore
