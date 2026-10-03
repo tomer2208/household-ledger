@@ -4,11 +4,12 @@
 //
 // A key belongs here when its query reads the table, directly or through an RPC or an embedded
 // select: month_overview reads transactions, budgets, income and the savings ledger; the
-// expense lists embed the category's name and the installment rule.
+// expense lists embed the category's name and the installment rule. Merchants (P1-13) aren't
+// sent by Realtime; their list counts expenses and names categories, so it follows those two.
 
 export const TABLE_KEYS = {
-  transactions: ['transactions', 'transaction', 'overview', 'pending', 'templates', 'suggest', 'capture_health'],
-  categories: ['categories', 'overview', 'transactions', 'transaction', 'pending', 'recurring', 'templates', 'suggest'],
+  transactions: ['transactions', 'transaction', 'overview', 'pending', 'templates', 'suggest', 'capture_health', 'merchants'],
+  categories: ['categories', 'overview', 'transactions', 'transaction', 'pending', 'recurring', 'templates', 'suggest', 'merchants'],
   category_budgets: ['overview'],
   household_income: ['overview'],
   recurring_rules: ['recurring', 'transactions', 'transaction'],

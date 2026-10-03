@@ -12,6 +12,7 @@ import type {
   Device,
   Household,
   Member,
+  MerchantSummary,
   MonthClose,
   Overview,
   RecurringRule,
@@ -636,6 +637,51 @@ export const useAddSavingsEntry = () =>
     (v: { amountMinor: number; reason: string }) =>
       must(rpc('add_savings_entry', { p_amount_minor: v.amountMinor, p_reason: v.reason })),
     ['savings_ledger'],
+  );
+
+// ───────── merchants (P1-13) ─────────
+
+export function useMerchants() {
+  return useQuery({
+    queryKey: [HH, 'merchants'],
+    queryFn: async () => (await must(rpc('list_merchants'))) as MerchantSummary[],
+  });
+}
+
+export type MerchantUpdate = { moved: number; closed: number };
+
+// How many of its expenses a category change would move (and how many sit in closed months and
+// stay), for the confirmation. A dry run: nothing changes, so nothing needs refreshing.
+export const countMerchantMove = (id: string, name: string, categoryId: string) =>
+  must(
+    rpc('update_merchant', { p_merchant: id, p_name: name, p_category: categoryId, p_apply_existing: true, p_dry_run: true }),
+  ) as Promise<MerchantUpdate>;
+
+export const useUpdateMerchant = () =>
+  useHHMutation(
+    (v: { id: string; name: string; categoryId: string | null; applyExisting: boolean }) =>
+      must(
+        rpc('update_merchant', {
+          p_merchant: v.id,
+          p_name: v.name,
+          p_category: v.categoryId ?? SQL_NULL,
+          p_apply_existing: v.applyExisting,
+        }),
+      ) as Promise<MerchantUpdate>,
+    ['transactions'],
+  );
+
+export const useRemoveMerchantAlias = () =>
+  useHHMutation(
+    (v: { id: string; normalized: string }) => must(rpc('remove_merchant_alias', { p_merchant: v.id, p_normalized: v.normalized })),
+    ['transactions'],
+  );
+
+export const useMergeMerchants = () =>
+  useHHMutation(
+    (v: { into: string; from: string }) =>
+      must(rpc('merge_merchants', { p_into: v.into, p_from: v.from })) as Promise<{ transactions: number; recurring: number; aliases: number }>,
+    ['transactions', 'recurring_rules'],
   );
 
 // ───────── AI (Phase 4) ─────────

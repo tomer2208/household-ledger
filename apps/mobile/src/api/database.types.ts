@@ -519,6 +519,12 @@ isOneToOne: false
 "leave_household":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
+"list_merchants":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"merge_merchants":
+{ Args: { "p_from": string,"p_into": string }; Returns: Json
+                           },
 "month_overview":
 { Args: { "p_month"?: string }; Returns: Json
                            },
@@ -539,6 +545,9 @@ isOneToOne: false
                            },
 "remove_member":
 { Args: { "p_user_id": string }; Returns: undefined
+                           },
+"remove_merchant_alias":
+{ Args: { "p_merchant": string,"p_normalized": string }; Returns: undefined
                            },
 "request_monthly_report":
 { Args: { "p_month": string }; Returns: undefined
@@ -569,6 +578,9 @@ isOneToOne: false
                            },
 "summarize_transactions":
 { Args: { "p_filter"?: Json }; Returns: Json
+                           },
+"update_merchant":
+{ Args: { "p_apply_existing"?: boolean,"p_category": string,"p_dry_run"?: boolean,"p_merchant": string,"p_name": string }; Returns: Json
                            },
 "web_push_public_key":
 { Args: Record<PropertyKey, never>; Returns: string

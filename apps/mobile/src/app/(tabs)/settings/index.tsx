@@ -124,6 +124,7 @@ export default function SettingsScreen() {
           />
         )}
         <Row left={<CategoryIcon symbol="tag" />} title={t.settings.categories} onPress={() => router.push('/settings/categories')} />
+        <Row left={<CategoryIcon symbol="bag" />} title={t.settings.merchants} onPress={() => router.push('/settings/merchants')} />
         <Row
           left={<CategoryIcon symbol="calendar.badge.clock" />}
           title={t.settings.recurring}

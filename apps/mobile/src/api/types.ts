@@ -146,6 +146,14 @@ export type AgentRun = Narrow<
   { agent: 'classifier' | 'monthly_report' | 'advisor'; status: 'ok' | 'timeout' | 'error' | 'invalid_output' | 'fallback' }
 >;
 
+// P1-13: a learned merchant, as list_merchants() returns it (migration 39).
+export type MerchantSummary = Pick<Tables<'merchants'>, 'id' | 'display_name' | 'default_category_id'> & {
+  category: Pick<Tables<'categories'>, 'name' | 'sf_symbol'> | null;
+  tx_count: number;
+  last_at: string | null;
+  aliases: { normalized: string; source: 'user' | 'fuzzy' | 'llm' }[];
+};
+
 // R9: per active Shortcut device, whether it has gone quiet (public.capture_health()).
 export type CaptureHealth = {
   device_id: string;
