@@ -1,7 +1,7 @@
 {
   "name": "FinPace",
   "short_name": "FinPace",
-  "description": "Shared household budget: capture, categorize and plan together.",
+  "description": "תקציב משותף למשק הבית: רישום, סיווג ותכנון ביחד.",
   "id": "/",
   "start_url": "/",
   "scope": "/",
@@ -14,10 +14,10 @@
     { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
-  "lang": "en",
-  "dir": "ltr",
+  "lang": "he",
+  "dir": "rtl",
   "shortcuts": [
-    { "name": "Add expense", "short_name": "Add", "url": "/add", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
-    { "name": "Expenses", "short_name": "Expenses", "url": "/transactions", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] }
+    { "name": "הוספת הוצאה", "short_name": "הוספה", "url": "/add", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "הוצאות", "short_name": "הוצאות", "url": "/transactions", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] }
   ]
 }

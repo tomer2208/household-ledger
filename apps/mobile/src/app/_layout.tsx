@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useHousehold, useLanguageSync, useRealtimeSync } from '@/api/queries';
 import { SessionProvider, useSession } from '@/api/session';
 import { ToastProvider } from '@/components/toast';
+import { UpdateBanner } from '@/components/update-banner';
 import { dark, light, type Palette } from '@/lib/colors';
 import { setAppTimeZone } from '@/lib/dates';
 import { isRTL, t } from '@/lib/i18n';
@@ -99,6 +100,7 @@ function Root() {
                 <Stack.Screen name="review" options={{ title: t.review.title, headerBackTitle: t.common.back }} />
               </Stack.Protected>
             </Stack>
+            <UpdateBanner />
           </ToastProvider>
         </View>
       </LocaleProvider>

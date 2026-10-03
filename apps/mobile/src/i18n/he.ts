@@ -588,6 +588,10 @@ export const he: Dict = {
     body: (household: string) => `כדי להצטרף למשק בית אחר, קודם עוזבים את ${household} בהגדרות ← משק בית, ואז פותחים את הקישור שוב.`,
     open: 'פתיחת FinPace',
   },
+  update: {
+    title: 'יש גרסה חדשה',
+    action: 'רענון',
+  },
   banner: {
     silentTitle: (device: string, days: number) => `${device} לא רשם קנייה כבר ${days} ימים`,
     setupTitle: (device: string) => `להשלים את הגדרת השורטקאט ב${device}`,

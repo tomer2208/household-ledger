@@ -584,6 +584,10 @@ export const en = {
     body: (household: string) => `To join another one, leave ${household} first in Settings → Household, then open this link again.`,
     open: 'Open FinPace',
   },
+  update: {
+    title: 'A new version is ready',
+    action: 'Refresh',
+  },
   banner: {
     silentTitle: (device: string, days: number) => `${device} hasn’t logged a purchase in ${days} days`,
     setupTitle: (device: string) => `Finish setting up the Shortcut on ${device}`,

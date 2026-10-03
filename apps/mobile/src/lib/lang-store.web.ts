@@ -28,6 +28,8 @@ export function bootLanguageSync() {
   // The page itself: screen readers, the browser's own controls and the fallback text direction.
   document.documentElement.lang = lang();
   document.documentElement.dir = isRTL() ? 'rtl' : 'ltr';
+  // Installing from a Hebrew page names the Home Screen shortcuts in Hebrew (T15).
+  document.getElementById('manifest')?.setAttribute('href', isRTL() ? '/manifest.he.json' : '/manifest.json');
   return true;
 }
 export async function bootLanguage() {

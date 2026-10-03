@@ -19,7 +19,8 @@ async function precache() {
   const html = await res.clone().text();
   await cache.put('/', res);
   const urls = new Set(SHELL.slice(1));
-  for (const m of html.matchAll(/(?:src|href)="(\/[^"]+)"/g)) urls.add(m[1]);
+  // Not the iPhone launch images: dozens of them, one per screen size, used only at install.
+  for (const m of html.matchAll(/(?:src|href)="(\/[^"]+)"/g)) if (!m[1].startsWith('/splash/')) urls.add(m[1]);
   await Promise.all(
     [...urls].map((u) => cache.add(u).catch(() => undefined)), // one missing icon must not block install
   );
@@ -44,6 +45,8 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return; // Supabase, fonts: straight to the network
+  // The open app asks for the latest build id (T15); never answer that from a cache.
+  if (url.pathname === '/version.json') return;
 
   // Pages: network first so a new deploy shows up at once; the cached shell when offline.
   // Every route is the same single-page shell.
