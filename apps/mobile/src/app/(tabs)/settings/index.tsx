@@ -3,7 +3,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
 import { Switch } from 'react-native';
 
-import { useDevices, useHousehold, useOverview, useRecurring, useSetAiConsent } from '@/api/queries';
+import { useDevices, useHousehold, useOverview, useRecurring, useSetAiConsent, useSetReportNotices } from '@/api/queries';
 import { useSession } from '@/api/session';
 import { LanguageRows } from '@/components/language-picker';
 import { SwipeRow } from '@/components/swipe-row';
@@ -21,6 +21,8 @@ import { APP_URL, FUNCTIONS_URL, supabase } from '@/lib/supabase';
 export default function SettingsScreen() {
   const { session } = useSession();
   const hh = useHousehold();
+  const reportNotices = useSetReportNotices();
+  const notifyReports = hh.data?.me?.notify_reports ?? true;
   const devices = useDevices();
   const recurring = useRecurring();
   const overview = useOverview();
@@ -155,6 +157,21 @@ export default function SettingsScreen() {
                 value={push.state === 'on'}
                 disabled={pushBusy || (push.state !== 'on' && push.state !== 'off')}
                 onValueChange={togglePush}
+              />
+            }
+          />
+          {/* P1-19: the month's report, announced when it is written; needs notifications on. */}
+          <Row
+            left={<CategoryIcon symbol="doc.text" />}
+            title={t.settings.reportNotices}
+            subtitle={t.settings.reportNoticesHint}
+            chevron={false}
+            right={
+              <Switch
+                value={push.state === 'on' && (reportNotices.isPending ? !!reportNotices.variables : notifyReports)}
+                disabled={push.state !== 'on' || reportNotices.isPending}
+                onValueChange={(on) => reportNotices.mutate(on)}
+                accessibilityLabel={t.settings.reportNotices}
               />
             }
             last

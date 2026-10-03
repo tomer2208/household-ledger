@@ -31,8 +31,8 @@ jobs:
       - run: npm run typecheck
       - run: npx expo lint
       - run: npm test
-      - name: Server amount parser
-        run: node --test ../../supabase/functions/capture/amount.test.ts
+      - name: Server amount parser and push copy
+        run: node --test ../../supabase/functions/capture/amount.test.ts ../../supabase/functions/push-dispatch/compose.test.ts
       - run: npm run build:web
 
   db:

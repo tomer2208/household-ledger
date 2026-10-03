@@ -203,13 +203,13 @@ isOneToOne: false
                   ]
                 },"household_members": {
                   Row: {
-                    "display_name": string,"household_id": string,"joined_at": string,"language": string,"removed_at": string | null,"user_id": string
+                    "display_name": string,"household_id": string,"joined_at": string,"language": string,"notify_reports": boolean,"removed_at": string | null,"user_id": string
                   }
                   Insert: {
-                    "display_name": string,"household_id": string,"joined_at"?: string,"language"?: string,"removed_at"?: string | null,"user_id": string
+                    "display_name": string,"household_id": string,"joined_at"?: string,"language"?: string,"notify_reports"?: boolean,"removed_at"?: string | null,"user_id": string
                   }
                   Update: {
-                    "display_name"?: string,"household_id"?: string,"joined_at"?: string,"language"?: string,"removed_at"?: string | null,"user_id"?: string
+                    "display_name"?: string,"household_id"?: string,"joined_at"?: string,"language"?: string,"notify_reports"?: boolean,"removed_at"?: string | null,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -304,13 +304,13 @@ isOneToOne: false
                   ]
                 },"monthly_reports": {
                   Row: {
-                    "agent_run_id": string | null,"budget_month": string,"claimed_at": string | null,"created_at": string,"household_id": string,"id": string,"metrics": NonNullable<Json>,"narrative": Json | null,"narratives": Json | null,"status": string,"updated_at": string
+                    "agent_run_id": string | null,"budget_month": string,"claimed_at": string | null,"created_at": string,"household_id": string,"id": string,"metrics": NonNullable<Json>,"narrative": Json | null,"narratives": Json | null,"push_claimed_at": string | null,"push_status": string | null,"status": string,"updated_at": string
                   }
                   Insert: {
-                    "agent_run_id"?: string | null,"budget_month": string,"claimed_at"?: string | null,"created_at"?: string,"household_id": string,"id"?: string,"metrics": NonNullable<Json>,"narrative"?: Json | null,"narratives"?: Json | null,"status": string,"updated_at"?: string
+                    "agent_run_id"?: string | null,"budget_month": string,"claimed_at"?: string | null,"created_at"?: string,"household_id": string,"id"?: string,"metrics": NonNullable<Json>,"narrative"?: Json | null,"narratives"?: Json | null,"push_claimed_at"?: string | null,"push_status"?: string | null,"status": string,"updated_at"?: string
                   }
                   Update: {
-                    "agent_run_id"?: string | null,"budget_month"?: string,"claimed_at"?: string | null,"created_at"?: string,"household_id"?: string,"id"?: string,"metrics"?: NonNullable<Json>,"narrative"?: Json | null,"narratives"?: Json | null,"status"?: string,"updated_at"?: string
+                    "agent_run_id"?: string | null,"budget_month"?: string,"claimed_at"?: string | null,"created_at"?: string,"household_id"?: string,"id"?: string,"metrics"?: NonNullable<Json>,"narrative"?: Json | null,"narratives"?: Json | null,"push_claimed_at"?: string | null,"push_status"?: string | null,"status"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -572,6 +572,9 @@ isOneToOne: false
                            },
 "set_my_language":
 { Args: { "p_language": string }; Returns: undefined
+                           },
+"set_report_notices":
+{ Args: { "p_on": boolean }; Returns: undefined
                            },
 "suggest_category":
 { Args: { "p_title": string }; Returns: Json

@@ -13,7 +13,11 @@ type Narrow<R, N extends Partial<Record<keyof R, unknown>>> = Omit<R, keyof N> &
 export type Household = Pick<Tables<'households'>, 'id' | 'name' | 'base_currency' | 'timezone' | 'ai_consent_at' | 'created_at'>;
 
 // language: what the server writes this member's alerts and reports in (P1-6).
-export type Member = Pick<Tables<'household_members'>, 'user_id' | 'display_name' | 'joined_at'> & { language?: 'en' | 'he' };
+// notify_reports: whether this member gets the "report is ready" notification (P1-19).
+export type Member = Pick<Tables<'household_members'>, 'user_id' | 'display_name' | 'joined_at'> & {
+  language?: 'en' | 'he';
+  notify_reports?: boolean;
+};
 
 export type Category = Narrow<
   Pick<Tables<'categories'>, 'id' | 'name' | 'sf_symbol' | 'kind' | 'sort_order' | 'archived_at' | 'budget_acknowledged' | 'created_via'>,

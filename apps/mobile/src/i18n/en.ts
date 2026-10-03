@@ -343,6 +343,8 @@ export const en = {
     devices: 'Shortcut & Devices',
     notifications: 'Notifications',
     budgetAlerts: 'Budget alerts',
+    reportNotices: 'Monthly report',
+    reportNoticesHint: 'When last month’s report is ready',
     pushFooter: {
       on: 'You get an alert when a category reaches 90% and 100% of its budget. Nothing else.',
       off: 'Get an alert when a category reaches 90% and 100% of its budget. Nothing else.',

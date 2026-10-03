@@ -60,7 +60,7 @@ export function useHousehold() {
     enabled: !!session,
     queryFn: async () => {
       const members = await must(
-        supabase.from('household_members').select('household_id,user_id,display_name,joined_at,language').is('removed_at', null),
+        supabase.from('household_members').select('household_id,user_id,display_name,joined_at,language,notify_reports').is('removed_at', null),
       );
       const mine = (members as (Member & { household_id: string })[]).find((m) => m.user_id === session!.user.id);
       if (!mine) return { household: null, members: [] as Member[], me: null };
@@ -364,6 +364,9 @@ export const useRemoveMember = () =>
 // The last member leaving deletes the household ('deleted'); otherwise 'left'.
 export const useLeaveHousehold = () =>
   useHHMutation(() => must(rpc('leave_household')) as Promise<'left' | 'deleted'>);
+
+// P1-19: this member's "report is ready" notification, on or off (budget alerts stay as they are).
+export const useSetReportNotices = () => useHHMutation((on: boolean) => must(rpc('set_report_notices', { p_on: on })));
 
 export const useCreateInvite = () => useHHMutation(() => must(rpc('create_invite')) as Promise<string>);
 

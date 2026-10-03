@@ -1,4 +1,5 @@
-// Drains the budget_alerts queue into push notifications (US-S2, BLUEPRINT §3.6):
+// Drains the budget_alerts queue, and "your report is ready" notices (P1-19, migration 40),
+// into push notifications (US-S2, BLUEPRINT §3.6):
 // Web Push for the installed web app (VAPID keys in Vault), Expo push for a native build.
 // Woken by a DB trigger on every new alert and by a 5-minute cron backstop.
 //
@@ -8,64 +9,16 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
 
+import { isReport, keyOf, type Item, type Result, sameKey, tagOf, textOf, urlOf } from "./compose.ts";
+
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
   auth: { persistSession: false },
 });
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 
-type Alert = {
-  category_id: string;
-  budget_month: string;
-  threshold: 90 | 100;
-  spent_minor: number;
-  cap_minor: number;
-  category_name: string;
-  currency: string;
-  days_left: number;
-  suppressed: boolean;
-  tokens: string[];
-  // P1-6 (migration 34): each recipient's language; missing means English.
-  token_lang?: Record<string, Lang>;
-  web: WebSub[];
-};
-
-type Lang = "en" | "he";
-type WebSub = { endpoint: string; p256dh: string; auth: string; lang?: Lang };
-
-type Result = { category_id: string; budget_month: string; threshold: number; status: "sent" | "suppressed" | "failed" };
-
-function money(minor: number, currency: string, lang: Lang) {
-  try {
-    return new Intl.NumberFormat(lang === "he" ? "he-IL" : "en-US", {
-      style: "currency",
-      currency,
-      currencyDisplay: "narrowSymbol",
-      maximumFractionDigits: minor % 100 === 0 ? 0 : 2,
-    }).format(minor / 100);
-  } catch {
-    return `${(minor / 100).toFixed(2)} ${currency}`;
-  }
-}
-
-// Copy per BLUEPRINT US-S2 AC4: what happened, the numbers, and how much month is left,
-// in the recipient's language (P1-6).
-export function compose(a: Alert, lang: Lang = "en") {
-  const spent = money(a.spent_minor, a.currency, lang);
-  const cap = money(a.cap_minor, a.currency, lang);
-  const n = a.days_left;
-  if (lang === "he") {
-    const title = a.threshold >= 100 ? `${a.category_name}: חריגה מהתקציב` : `${a.category_name}: הגעתם ל-90% מהתקציב`;
-    const days = n === 0 ? "היום האחרון בחודש" : n === 1 ? "נשאר יום אחד" : n === 2 ? "נשארו יומיים" : `נשארו ${n} ימים`;
-    return { title, body: `${spent} מתוך ${cap} · ${days}` };
-  }
-  const title = a.threshold >= 100 ? `${a.category_name} is over budget` : `${a.category_name} is at 90%`;
-  const days = n === 0 ? "last day of the month" : n === 1 ? "1 day left" : `${n} days left`;
-  return { title, body: `${spent} of ${cap} · ${days}` };
-}
-
 // Sends to every browser in the household. 404/410 means the subscription is gone for good.
-async function sendWeb(alerts: Alert[], okByAlert: Map<number, boolean>, dead: string[]) {
+async function sendWeb(alerts: Item[], okByAlert: Map<number, boolean>, dead: string[]) {
   if (!alerts.some((a) => !a.suppressed && a.web.length > 0)) return;
   const { data: vapid } = await db.rpc("web_push_vapid");
   if (!vapid?.public_key || !vapid?.private_key) {
@@ -78,17 +31,12 @@ async function sendWeb(alerts: Alert[], okByAlert: Map<number, boolean>, dead: s
       a.suppressed
         ? []
         : a.web.map(async (w) => {
-            const { title, body } = compose(a, w.lang ?? "en");
-            const payload = JSON.stringify({
-              title,
-              body,
-              url: `/transactions?category=${a.category_id}`,
-              tag: `budget-${a.category_id}`,
-            });
+            const { title, body } = textOf(a, w.lang ?? "en");
+            const payload = JSON.stringify({ title, body, url: urlOf(a), tag: tagOf(a) });
             try {
               await webpush.sendNotification({ endpoint: w.endpoint, keys: { p256dh: w.p256dh, auth: w.auth } }, payload, {
                 TTL: 60 * 60 * 24,
-                urgency: "high",
+                urgency: isReport(a) ? "normal" : "high",
               });
               okByAlert.set(i, true);
             } catch (e) {
@@ -110,7 +58,7 @@ Deno.serve(async () => {
     console.error("PUSH_CLAIM_ERROR", error);
     return Response.json({ error: "claim_failed" }, { status: 500 });
   }
-  const alerts = (data ?? []) as Alert[];
+  const alerts = (data ?? []) as Item[];
   if (alerts.length === 0) return Response.json({ sent: 0 });
 
   const results: Result[] = [];
@@ -118,26 +66,26 @@ Deno.serve(async () => {
   const owner: number[] = []; // messages[i] belongs to alerts[owner[i]]
 
   alerts.forEach((a, i) => {
-    const key = { category_id: a.category_id, budget_month: a.budget_month, threshold: a.threshold };
+    const key = keyOf(a);
     if (a.suppressed) {
-      results.push({ ...key, status: "suppressed" });
+      results.push({ ...key, status: "suppressed" } as Result);
       return;
     }
     const tokens = a.tokens.filter(isExpoToken);
     if (tokens.length === 0 && a.web.length === 0) {
       // Nobody to notify yet (e.g. permission never granted). The alert still counts as handled.
-      results.push({ ...key, status: "sent" });
+      results.push({ ...key, status: "sent" } as Result);
       return;
     }
     for (const to of tokens) {
-      const { title, body } = compose(a, a.token_lang?.[to] ?? "en");
+      const { title, body } = textOf(a, a.token_lang?.[to] ?? "en");
       messages.push({
         to,
         title,
         body,
         sound: "default",
-        // Opens the category's expenses (Expo Router path).
-        data: { url: `/transactions?category=${a.category_id}` },
+        // Opens the category's expenses, or the report (Expo Router path).
+        data: { url: urlOf(a) },
       });
       owner.push(i);
     }
@@ -173,15 +121,8 @@ Deno.serve(async () => {
   }
 
   alerts.forEach((a, i) => {
-    if (results.some((r) => r.category_id === a.category_id && r.budget_month === a.budget_month && r.threshold === a.threshold)) {
-      return;
-    }
-    results.push({
-      category_id: a.category_id,
-      budget_month: a.budget_month,
-      threshold: a.threshold,
-      status: okByAlert.get(i) ? "sent" : "failed",
-    });
+    if (results.some((r) => sameKey(r, a))) return;
+    results.push({ ...keyOf(a), status: okByAlert.get(i) ? "sent" : "failed" } as Result);
   });
 
   const { error: finishErr } = await db.rpc("finish_push_alerts", {
