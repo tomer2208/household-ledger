@@ -2,7 +2,8 @@ import { router } from 'expo-router';
 import { Text } from 'react-native';
 
 import { useHousehold, useMonthCloses, useOverview } from '@/api/queries';
-import { Empty, ErrorText, Row, Screen, Section } from '@/components/ui';
+import { ListSkeleton } from '@/components/skeleton';
+import { Empty, LoadingState, Row, Screen, Section } from '@/components/ui';
 import { monthLabel } from '@/lib/dates';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
@@ -19,7 +20,6 @@ export default function ReportsScreen() {
 
   return (
     <Screen onRefresh={() => closes.refetch()} refreshing={closes.isRefetching}>
-      <ErrorText error={closes.error} />
       {overview.data ? (
         <Section title={t.reports.inProgress} footer={t.reports.inProgressFooter}>
           <Row
@@ -49,7 +49,9 @@ export default function ReportsScreen() {
             />
           ))}
         </Section>
-      ) : closes.isLoading ? null : (
+      ) : !closes.data ? (
+        <LoadingState error={closes.error} onRetry={() => closes.refetch()} retrying={closes.isFetching} skeleton={<ListSkeleton rows={3} />} />
+      ) : (
         <Empty icon="doc.text.magnifyingglass" title={t.reports.emptyTitle} message={t.reports.emptyMessage} />
       )}
     </Screen>

@@ -3,7 +3,8 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { useHousehold, useMonthCloses, useMonthlyReport, useRequestReport } from '@/api/queries';
 import { CapBars, CategoryDonut, SavingsLine, TrendLine } from '@/components/charts';
-import { Button, ErrorText, Icon, ProgressBar, Screen, Section } from '@/components/ui';
+import { DetailSkeleton } from '@/components/skeleton';
+import { Button, ErrorText, Icon, LoadingState, ProgressBar, Screen, Section } from '@/components/ui';
 import { monthLabel } from '@/lib/dates';
 import { fill, flatten } from '@/lib/fill';
 import { lang, t } from '@/lib/i18n';
@@ -37,7 +38,10 @@ export default function MonthReport() {
   return (
     <Screen onRefresh={() => report.refetch()} refreshing={report.isRefetching}>
       <Stack.Screen options={{ title: monthLabel(month), headerLargeTitle: false }} />
-      <ErrorText error={report.error ?? regenerate.error} />
+      <ErrorText error={regenerate.error} />
+      {report.isPending || (report.error && !r) ? (
+        <LoadingState error={report.error} onRetry={() => report.refetch()} retrying={report.isFetching} skeleton={<DetailSkeleton />} />
+      ) : null}
 
       {close ? (
         <View style={[s.hero, { backgroundColor: c.cell }]}>
@@ -114,7 +118,7 @@ export default function MonthReport() {
         </Section>
       ) : null}
 
-      {!r && !report.isLoading ? (
+      {!r && !report.isPending && !report.error ? (
         <Text style={[s.hint, { color: c.secondaryLabel }]}>{t.reports.none}</Text>
       ) : null}
 

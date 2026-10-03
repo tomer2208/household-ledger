@@ -16,7 +16,8 @@ import { CategoryPicker } from '@/components/category-picker';
 import { DateField } from '@/components/date-field';
 import { InstallmentPicker } from '@/components/installment-picker';
 import { KindToggle } from '@/components/kind-toggle';
-import { Button, ErrorText, Field, Row, Screen, Section } from '@/components/ui';
+import { DetailSkeleton } from '@/components/skeleton';
+import { Button, ErrorText, Field, LoadingState, Row, Screen, Section } from '@/components/ui';
 import { monthLabel, monthOfDay, onDay, timeLabel, ymd } from '@/lib/dates';
 import { formatSigned, minorToInput, parseMoneyInput } from '@/lib/money';
 import { t } from '@/lib/i18n';
@@ -28,7 +29,13 @@ import { useTransactionActions } from '@/lib/transaction-actions';
 export default function TransactionDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const query = useTransaction(id);
-  if (!query.data) return <Screen><ErrorText error={query.error} /></Screen>;
+  // P1-12: its shape while it loads; a retry if it couldn't (a deleted expense says so).
+  if (!query.data)
+    return (
+      <Screen>
+        <LoadingState error={query.error} onRetry={() => query.refetch()} retrying={query.isFetching} skeleton={<DetailSkeleton />} />
+      </Screen>
+    );
   // Keyed so a fresh row (e.g. the partner edited it) re-seeds the form.
   const tx = query.data;
   return <Editor key={tx.id + tx.amount_minor + tx.category_id + tx.occurred_at} tx={tx} />;

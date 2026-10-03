@@ -22,6 +22,8 @@ import {
 import { moneyText, radius, useColors } from '@/lib/theme';
 import { isRtl } from '@/lib/bidi';
 import { errorMessage } from '@/lib/errors';
+import { t } from '@/lib/i18n';
+import { useIsOnline } from '@/lib/query';
 import { forwardIcon, textEnd } from '@/lib/rtl';
 
 // Web has no SF Symbols; a few Material names keep the icons meaningful there.
@@ -312,6 +314,39 @@ export function Empty({
   );
 }
 
+// P1-12: a screen whose data couldn't load at all: what went wrong, in the person's language,
+// and a way to try again. Offline, it says so; the data reloads by itself once back online.
+export function ErrorState({ error, onRetry, retrying }: { error: unknown; onRetry: () => void; retrying?: boolean }) {
+  const c = useColors();
+  const online = useIsOnline();
+  return (
+    <View style={[styles.errorCard, { backgroundColor: c.cell }]} accessibilityLiveRegion="polite">
+      <Icon name={online ? 'exclamationmark.triangle.fill' : 'wifi.slash'} size={28} color={online ? c.orange : c.secondaryLabel} />
+      <Text style={[styles.errorTitle, { color: c.label }]}>{online ? t.common.loadFailed : t.common.offlineTitle}</Text>
+      <Text style={[styles.errorBody, { color: c.secondaryLabel }]}>{online ? errorMessage(error) : t.common.offlineBody}</Text>
+      <Button title={t.common.retry} kind="plain" onPress={onRetry} loading={retrying} style={styles.errorButton} />
+    </View>
+  );
+}
+
+// What stands in for data that isn't here yet: the error card when it failed or the phone is
+// offline (a paused request would otherwise look like an empty list), else the skeleton.
+export function LoadingState({
+  error,
+  onRetry,
+  retrying,
+  skeleton,
+}: {
+  error: unknown;
+  onRetry: () => void;
+  retrying?: boolean;
+  skeleton: ReactNode;
+}) {
+  const online = useIsOnline();
+  if (error || !online) return <ErrorState error={error} onRetry={onRetry} retrying={retrying} />;
+  return <>{skeleton}</>;
+}
+
 export function ErrorText({ error }: { error: unknown }) {
   const c = useColors();
   if (!error) return null;
@@ -349,4 +384,8 @@ export const styles = StyleSheet.create({
   emptyMessage: { fontSize: 15, textAlign: 'center', lineHeight: 21 },
   emptyAction: { marginTop: 12, alignSelf: 'stretch' },
   error: { fontSize: 14, marginHorizontal: 32, marginTop: 10, textAlign: 'center' },
+  errorCard: { marginHorizontal: 16, marginTop: 24, borderRadius: radius.hero, padding: 20, alignItems: 'center', gap: 6 },
+  errorTitle: { fontSize: 17, fontWeight: '600', textAlign: 'center', marginTop: 4 },
+  errorBody: { fontSize: 15, lineHeight: 21, textAlign: 'center' },
+  errorButton: { alignSelf: 'stretch', marginTop: 6 },
 });

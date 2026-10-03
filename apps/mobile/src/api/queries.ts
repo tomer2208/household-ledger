@@ -24,9 +24,10 @@ import { supabase } from '@/lib/supabase';
 // after any write, local or from the partner via Realtime.
 const HH = 'hh';
 
-async function must<T>(p: PromiseLike<{ data: T; error: { message: string } | null }>): Promise<T> {
+// The error keeps its code (SQLSTATE or PostgREST's PGRSTxxx), which decides a retry (lib/errors).
+async function must<T>(p: PromiseLike<{ data: T; error: { message: string; code?: string } | null }>): Promise<T> {
   const { data, error } = await p;
-  if (error) throw new Error(error.message);
+  if (error) throw Object.assign(new Error(error.message), { code: error.code });
   return data;
 }
 

@@ -20,6 +20,11 @@ export const he: Dict = {
     expense: 'הוצאה',
     refund: 'החזר',
     more: '‹',
+    loading: 'טוען',
+    retry: 'לנסות שוב',
+    loadFailed: 'לא הצלחנו לטעון',
+    offlineTitle: 'אין חיבור',
+    offlineBody: 'המידע הזה עוד לא נטען בטלפון. הוא ייטען לבד כשהחיבור יחזור.',
   },
   dates: {
     today: 'היום',
@@ -67,6 +72,7 @@ export const he: Dict = {
     codeExpired: 'הקוד שגוי או שפג תוקפו. כדאי לבקש קוד חדש.',
     tooMany: 'יותר מדי ניסיונות. כדאי לחכות דקה ולנסות שוב.',
     emailNotConfirmed: 'קודם צריך לאשר את המייל, דרך הקישור ששלחנו.',
+    notFound: 'זה כבר לא כאן. ייתכן שזה נמחק.',
     pushNotReady: 'ההתראות עדיין לא הוגדרו בשרת.',
   },
   tabs: {
@@ -128,6 +134,7 @@ export const he: Dict = {
     clearSearch: 'ניקוי החיפוש',
     loadingMore: 'טוען עוד…',
     everything: 'זה הכול',
+    moreFailed: 'לא הצלחנו לטעון עוד · לנסות שוב',
     showingFilter: (what: string) => `מוצג: ${what}. הצגת כל ההוצאות`,
     noMatches: 'אין תוצאות',
     emptyTitle: 'עוד אין הוצאות',

@@ -8,7 +8,8 @@ import { ADD_BUTTON_SPACE, AddButton } from '@/components/add-button';
 import { OfflineBanner } from '@/components/offline-banner';
 import { SwipeRow } from '@/components/swipe-row';
 import { TransactionRow } from '@/components/transaction-row';
-import { Empty, ErrorText, Icon } from '@/components/ui';
+import { ListSkeleton } from '@/components/skeleton';
+import { Empty, Icon, LoadingState } from '@/components/ui';
 import { dayLabel, monthLabel } from '@/lib/dates';
 import { t } from '@/lib/i18n';
 import { useTransactionActions } from '@/lib/transaction-actions';
@@ -83,6 +84,10 @@ export default function TransactionsScreen() {
               <ActivityIndicator />
               <Text style={[s.footerText, { color: c.secondaryLabel }]}>{t.expenses.loadingMore}</Text>
             </View>
+          ) : txs.isFetchNextPageError ? (
+            <Pressable onPress={loadMore} accessibilityRole="button" style={s.footer} hitSlop={8}>
+              <Text style={[s.footerText, { color: c.tint }]}>{t.expenses.moreFailed}</Text>
+            </Pressable>
           ) : sections.length > 0 && !txs.hasNextPage ? (
             <Text style={[s.footerText, s.footer, { color: c.tertiaryLabel }]}>{t.expenses.everything}</Text>
           ) : null
@@ -101,7 +106,6 @@ export default function TransactionsScreen() {
               </Pressable>
             ) : null}
             <OfflineBanner />
-            <ErrorText error={txs.error} />
           </>
         }
         renderSectionHeader={({ section }) => (
@@ -133,7 +137,15 @@ export default function TransactionsScreen() {
           </View>
         )}
         ListEmptyComponent={
-          txs.isLoading || (query.trim() !== search) ? null : (
+          // P1-12: the list's shape while the first page loads; a retry when it couldn't load.
+          !txs.data ? (
+            <LoadingState
+              error={txs.error}
+              onRetry={() => txs.refetch()}
+              retrying={txs.isFetching}
+              skeleton={<ListSkeleton rows={4} sections={2} />}
+            />
+          ) : query.trim() !== search ? null : (
             <Empty
               icon="list.bullet"
               title={query || categoryFilter || monthFilter ? t.expenses.noMatches : t.expenses.emptyTitle}

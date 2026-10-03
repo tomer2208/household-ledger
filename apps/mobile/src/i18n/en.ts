@@ -18,6 +18,11 @@ export const en = {
     expense: 'Expense',
     refund: 'Refund',
     more: '›',
+    loading: 'Loading',
+    retry: 'Try Again',
+    loadFailed: 'Couldn’t load this',
+    offlineTitle: 'You’re offline',
+    offlineBody: 'This hasn’t been loaded on this phone yet. It loads by itself once you’re back online.',
   },
   dates: {
     today: 'Today',
@@ -64,6 +69,7 @@ export const en = {
     codeExpired: 'The code is wrong or has expired. Ask for a new one.',
     tooMany: 'Too many tries. Wait a minute and try again.',
     emailNotConfirmed: 'Confirm your email first, from the link we sent.',
+    notFound: 'It isn’t here anymore. It may have been deleted.',
     pushNotReady: 'Notifications are not set up on the server yet.',
   },
   tabs: {
@@ -124,6 +130,7 @@ export const en = {
     clearSearch: 'Clear search',
     loadingMore: 'Loading more…',
     everything: 'That’s everything',
+    moreFailed: 'Couldn’t load more · Try Again',
     showingFilter: (what: string) => `Showing ${what}. Show all expenses`,
     noMatches: 'No matches',
     emptyTitle: 'No expenses yet',

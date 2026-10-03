@@ -46,6 +46,7 @@ test('errors keep their details and fall back sensibly', () => {
     assert.equal(errorMessage(new Error('move or pause 3 recurring expense(s) first')), t.errors.recurringBlocks(3));
     assert.equal(errorMessage(new TypeError('Failed to fetch')), t.errors.network);
     assert.equal(errorMessage(new Error('Load failed')), t.errors.network);
+    assert.equal(errorMessage(new Error('JSON object requested, multiple (or no) rows returned')), t.errors.notFound);
     assert.equal(errorMessage(new Error('duplicate key value violates unique constraint')), t.errors.generic);
     assert.equal(errorMessage(null), t.errors.generic);
   } finally {
@@ -55,4 +56,32 @@ test('errors keep their details and fall back sensibly', () => {
   assert.equal(errorMessage(new Error('duplicate key value')), 'duplicate key value');
   assert.equal(errorMessage(new Error('budgets of closed months are locked')), t.errors.budgetsLocked);
   assert.equal(errorMessage('Invalid login credentials'), t.errors.badLogin);
+});
+
+test('reads are retried only when another try could help (P1-12)', async () => {
+  const { isTransient, shouldRetry, retryDelay, MAX_RETRIES } = await import('./errors');
+  // the network, a timeout, a busy server: worth another try
+  assert.equal(isTransient(new TypeError('Failed to fetch')), true);
+  assert.equal(isTransient(new Error('Load failed')), true);
+  assert.equal(isTransient(new Error('canceling statement due to statement timeout')), true);
+  assert.equal(isTransient(new Error('upstream connect error')), true);
+  // a refusal says the same thing every time
+  assert.equal(isTransient(new Error('budgets of closed months are locked')), false);
+  assert.equal(isTransient(new Error('not a member of any household')), false);
+  assert.equal(isTransient(new Error('permission denied for table households')), false);
+  assert.equal(isTransient(new Error('JWT expired')), false);
+  // the code decides when there is one
+  const withCode = (code: string) => Object.assign(new Error('x'), { code });
+  assert.equal(isTransient(withCode('PGRST116')), false); // no such row
+  assert.equal(isTransient(withCode('42501')), false); // no permission
+  assert.equal(isTransient(withCode('22023')), false); // bad input
+  assert.equal(isTransient(withCode('57014')), true); // statement timeout
+  assert.equal(isTransient(withCode('08006')), true); // connection lost
+  assert.equal(isTransient(withCode('PGRST003')), true); // PostgREST timed out reaching the database
+  // at most three more tries, waiting 1s, 2s, 4s, never more than 8s
+  assert.equal(MAX_RETRIES, 3);
+  assert.deepEqual([0, 1, 2].map((n) => shouldRetry(n, new Error('Failed to fetch'))), [true, true, true]);
+  assert.equal(shouldRetry(3, new Error('Failed to fetch')), false);
+  assert.equal(shouldRetry(0, new Error('JWT expired')), false);
+  assert.deepEqual([0, 1, 2, 3, 4].map(retryDelay), [1000, 2000, 4000, 8000, 8000]);
 });

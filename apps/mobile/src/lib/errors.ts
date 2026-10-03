@@ -45,12 +45,15 @@ const SERVER: Rule[] = [
 ];
 
 // The browser and the auth server, which speak for themselves.
+const NETWORK = /failed to fetch|network request failed|load failed|networkerror|network error/i;
 const CLIENT: Rule[] = [
-  [/failed to fetch|network request failed|load failed|networkerror|network error/i, () => t.errors.network],
+  [NETWORK, () => t.errors.network],
   [/invalid login credentials/i, () => t.errors.badLogin],
   [/token has expired or is invalid|otp.*expired/i, () => t.errors.codeExpired],
   [/rate limit|only request this after|too many requests/i, () => t.errors.tooMany],
   [/email not confirmed/i, () => t.errors.emailNotConfirmed],
+  // PostgREST's "no such row" for a single item (PGRST116): usually deleted meanwhile
+  [/multiple \(or no\) rows returned/i, () => t.errors.notFound],
 ];
 
 export const SERVER_RULES = SERVER.map(([re]) => re);
@@ -63,3 +66,27 @@ export function errorMessage(e: unknown): string {
   }
   return lang() === 'en' && raw ? raw : t.errors.generic;
 }
+
+// P1-12: which failed reads are worth asking again. A network blip or a busy server often
+// clears up; a refusal from the database (a known message above) or a missing permission
+// will say the same thing every time, so retrying only delays the message.
+const PERMANENT = /permission denied|not authorized|jwt|row-level security/i;
+// With a code, it decides: lost connection (08), out of resources (53), a timeout or restart
+// (57), a conflict between transactions (40), or PostgREST unable to reach the database
+// (PGRST000-003) can pass; anything else (bad input, not found, no permission) won't.
+const TRANSIENT_CODE = /^(08|53|57|40)|^PGRST00[0-3]$/;
+
+export function isTransient(e: unknown): boolean {
+  const code = (e as { code?: unknown } | null)?.code;
+  if (typeof code === 'string' && code) return TRANSIENT_CODE.test(code);
+  const raw = (e instanceof Error ? e.message : typeof e === 'string' ? e : '').trim();
+  if (NETWORK.test(raw)) return true; // the network itself failed
+  if (SERVER.some(([re]) => re.test(raw))) return false;
+  return !PERMANENT.test(raw);
+}
+
+// TanStack Query's retry policy for reads: up to 3 more tries for transient errors only,
+// waiting 1s, 2s, 4s (capped at 8s) so a struggling server isn't hammered.
+export const MAX_RETRIES = 3;
+export const shouldRetry = (failures: number, e: unknown) => failures < MAX_RETRIES && isTransient(e);
+export const retryDelay = (attempt: number) => Math.min(1000 * 2 ** attempt, 8000);

@@ -13,7 +13,8 @@ import { SetupCard } from '@/components/setup-card';
 import { OfflineBanner } from '@/components/offline-banner';
 import { ProposalCard } from '@/components/proposal-card';
 import { SwipeRow } from '@/components/swipe-row';
-import { Badge, CategoryIcon, Empty, ErrorText, ProgressBar, Row, Screen, Section } from '@/components/ui';
+import { OverviewSkeleton } from '@/components/skeleton';
+import { Badge, CategoryIcon, Empty, LoadingState, ProgressBar, Row, Screen, Section } from '@/components/ui';
 import { daysToGo, incomePlan, perDay } from '@/lib/budget';
 import { useCategoryActions } from '@/lib/category-actions';
 import { currentMonth, monthLabel, monthOfInstant, monthPace } from '@/lib/dates';
@@ -89,7 +90,6 @@ export default function OverviewScreen() {
         {!past ? <CaptureBanner /> : null}
         {!past ? <SetupCard /> : null}
         <MonthSwitcher month={month ?? o?.month ?? thisMonth} first={firstMonth} current={thisMonth} onChange={goTo} />
-        <ErrorText error={overview.error} />
 
         {o ? (
           <>
@@ -232,7 +232,9 @@ export default function OverviewScreen() {
               />
             ) : null}
           </>
-        ) : null}
+        ) : (
+          <LoadingState error={overview.error} onRetry={() => overview.refetch()} retrying={overview.isFetching} skeleton={<OverviewSkeleton />} />
+        )}
       </Screen>
       <AddButton />
     </View>

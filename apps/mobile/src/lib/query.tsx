@@ -5,6 +5,8 @@ import { onlineManager, QueryClient, useIsRestoring } from '@tanstack/react-quer
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { ReactNode, useSyncExternalStore } from 'react';
 
+import { retryDelay, shouldRetry } from './errors';
+
 // Offline = read-only (Batch 3): cached queries render, mutations pause instead of failing.
 onlineManager.setEventListener((setOnline) =>
   NetInfo.addEventListener((s) => setOnline(s.isConnected !== false)),
@@ -12,7 +14,8 @@ onlineManager.setEventListener((setOnline) =>
 
 export const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { staleTime: 30_000, gcTime: 7 * 86_400_000, retry: 1 },
+    // P1-12: transient failures are retried with growing waits; refusals are shown at once.
+    queries: { staleTime: 30_000, gcTime: 7 * 86_400_000, retry: shouldRetry, retryDelay },
     mutations: { networkMode: 'online' },
   },
 });

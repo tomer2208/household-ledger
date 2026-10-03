@@ -4,7 +4,8 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useCategories, useHousehold, usePendingReview, useReviewTransaction } from '@/api/queries';
 import type { Transaction } from '@/api/types';
 import { CategoryPicker } from '@/components/category-picker';
-import { Button, Empty, ErrorText, Icon, Screen } from '@/components/ui';
+import { DetailSkeleton } from '@/components/skeleton';
+import { Button, Empty, ErrorText, Icon, LoadingState, Screen } from '@/components/ui';
 import { isolate } from '@/lib/bidi';
 import { dayLabel } from '@/lib/dates';
 import { t } from '@/lib/i18n';
@@ -18,8 +19,9 @@ export default function ReviewScreen() {
   const items = pending.data ?? [];
   return (
     <Screen onRefresh={() => pending.refetch()} refreshing={pending.isRefetching}>
-      <ErrorText error={pending.error} />
-      {items.length === 0 && !pending.isLoading ? (
+      {!pending.data ? (
+        <LoadingState error={pending.error} onRetry={() => pending.refetch()} retrying={pending.isFetching} skeleton={<DetailSkeleton />} />
+      ) : items.length === 0 ? (
         <Empty icon="checkmark.circle.fill" title={t.review.emptyTitle} message={t.review.emptyMessage} />
       ) : null}
       {items.map((tx) => (
