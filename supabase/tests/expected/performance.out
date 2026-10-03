@@ -1,0 +1,1 @@
+ERROR:  TEST_ROLLBACK months_checked=3 mismatches=0 now_spent_total_ok=t archived_with_spend=t archived_without_spend=f deleted_ignored=t empty_month_total=0 indexes=16 tx_recent_gone=t
