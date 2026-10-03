@@ -15,7 +15,7 @@ export function installmentsPaid(first: string, nextRun: string | null, count: n
   return Math.min(count, Math.max(1, months(nextRun) - months(first)));
 }
 
-// Which payment an expense is: from the list (search_transactions) or, on its details, from the
+// Which payment an expense is: from the list (find_transactions) or, on its details, from the
 // embedded rule and its recurring_period. Null when it isn't an installment.
 export function installmentNo(t: {
   installment?: { no: number; count: number } | null;

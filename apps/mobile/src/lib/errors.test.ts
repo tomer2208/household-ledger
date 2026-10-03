@@ -21,7 +21,7 @@ function serverMessages(): string[] {
 }
 
 // Raised only when the app itself sends a malformed request, never by something a person does.
-const INTERNAL = new Set(['budgets must be a list', 'language must be en or he']);
+const INTERNAL = new Set(['budgets must be a list', 'language must be en or he', 'bad search filter', 'not an object']);
 
 test('every error the server can raise reads as a Hebrew sentence (P1-6)', () => {
   const messages = serverMessages();

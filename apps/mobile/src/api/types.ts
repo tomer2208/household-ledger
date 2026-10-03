@@ -47,7 +47,7 @@ export type Transaction = {
   recurring_rule_id: string | null;
   classification: { method?: string; confidence?: number } | null;
   categories: { name: string; sf_symbol: string } | null;
-  // P1-2: payment k of n for installments. Lists get it from search_transactions; details
+  // P1-2: payment k of n for installments. Lists get it from find_transactions; details
   // compute it from the embedded rule.
   installment?: { no: number; count: number } | null;
   recurring_period?: string | null;

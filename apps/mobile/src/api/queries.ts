@@ -18,6 +18,7 @@ import type {
   Transaction,
 } from './types';
 import { lang, type Lang } from '@/lib/i18n';
+import type { ServerFilter } from '@/lib/search-filter';
 import { supabase } from '@/lib/supabase';
 
 // Every household query key starts with 'hh', so one invalidation refreshes the app
@@ -96,24 +97,22 @@ export function useMemberNames() {
 export const TX_PAGE = 50;
 type TxCursor = { at: string; id: string } | null;
 
-// R7: every expense, a page at a time, searched and filtered on the server
-// (search_transactions, migrations 26-28). The next page starts after the last row of the
-// previous one, and a refetch (Realtime, Undo) recomputes each cursor from fresh data, so
-// rows are never repeated or skipped.
-// P1-5: `month` ('YYYY-MM-01') limits it to one budget month, e.g. from a past month on Overview.
-export function useTransactionPages(query: string, categoryId: string | null, month: string | null = null) {
+// R7: every expense, a page at a time, searched and filtered on the server. The next page
+// starts after the last row of the previous one, and a refetch (Realtime, Undo) recomputes each
+// cursor from fresh data, so rows are never repeated or skipped.
+// P1-9: `filter` is lib/search-filter's serverFilter (find_transactions, migration 36).
+export function useTransactionPages(filter: ServerFilter) {
+  const filtered = Object.keys(filter).length > 0;
   return useInfiniteQuery({
-    queryKey: [HH, 'transactions', query, categoryId, month],
+    queryKey: [HH, 'transactions', filter],
     initialPageParam: null as TxCursor,
     queryFn: async ({ pageParam }) =>
       (await must(
-        supabase.rpc('search_transactions', {
-          p_query: query || null,
-          p_category: categoryId,
+        supabase.rpc('find_transactions', {
+          p_filter: filter,
           p_before_at: pageParam?.at ?? null,
           p_before_id: pageParam?.id ?? null,
           p_limit: TX_PAGE,
-          p_month: month,
         }),
       )) as Transaction[],
     getNextPageParam: (last): TxCursor | undefined =>
@@ -121,7 +120,20 @@ export function useTransactionPages(query: string, categoryId: string | null, mo
     // While a new search loads, keep showing the previous results rather than an empty list.
     placeholderData: keepPreviousData,
     // Only the plain list is worth keeping offline for a week; searches are short-lived.
-    gcTime: query || categoryId || month ? 5 * 60_000 : undefined,
+    gcTime: filtered ? 5 * 60_000 : undefined,
+  });
+}
+
+export type TxSummary = { count: number; total_minor: number; spent_minor: number; refunded_minor: number };
+
+// P1-9: what every match adds up to, not just the pages loaded, in the base currency.
+export function useTransactionSummary(filter: ServerFilter, enabled = true) {
+  return useQuery({
+    queryKey: [HH, 'transactions', 'summary', filter],
+    enabled,
+    queryFn: async () => (await must(supabase.rpc('summarize_transactions', { p_filter: filter }))) as TxSummary,
+    placeholderData: keepPreviousData,
+    gcTime: 5 * 60_000,
   });
 }
 
