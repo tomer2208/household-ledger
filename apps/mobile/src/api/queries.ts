@@ -1,4 +1,5 @@
-import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, type QueryClient, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import * as Crypto from 'expo-crypto';
 import { useEffect } from 'react';
 
 import { useSession } from './session';
@@ -17,13 +18,22 @@ import type {
   SavingsEntry,
   Transaction,
 } from './types';
+import { batchChanges, keysFor, SYNC_TABLES, type SyncTable } from '@/lib/cache-sync';
+import { monthOfInstant } from '@/lib/dates';
 import { lang, type Lang } from '@/lib/i18n';
+import { applyTxChange, findTx, holdTxCaches, restoreTxCaches, type Snapshot } from '@/lib/optimistic';
 import type { ServerFilter } from '@/lib/search-filter';
 import { supabase } from '@/lib/supabase';
 
-// Every household query key starts with 'hh', so one invalidation refreshes the app
-// after any write, local or from the partner via Realtime.
+// Every household query key starts with 'hh'. A write, local or the partner's via Realtime,
+// refreshes the keys that read the tables it changed (lib/cache-sync), or all of them.
 const HH = 'hh';
+
+function refresh(qc: QueryClient, tables?: Iterable<string>) {
+  const keys = tables ? keysFor(tables) : null;
+  if (!keys) return qc.invalidateQueries({ queryKey: [HH] });
+  return Promise.all(keys.map((k) => qc.invalidateQueries({ queryKey: [HH, k] })));
+}
 
 // The error keeps its code (SQLSTATE or PostgREST's PGRSTxxx), which decides a retry (lib/errors).
 async function must<T>(p: PromiseLike<{ data: T; error: { message: string; code?: string } | null }>): Promise<T> {
@@ -227,20 +237,22 @@ export function useMonthCloses() {
 
 // ───────── realtime ─────────
 
-// Silent background sync (Batch 2 §4): any change by the partner refreshes this device.
+// Silent background sync (Batch 2 §4): a change by the partner refreshes this device. T6: only
+// the screens that read the changed tables, and a burst of changes (a month close, an import)
+// in one refresh after it settles.
 export function useRealtimeSync(householdId: string | undefined) {
   const qc = useQueryClient();
   useEffect(() => {
     if (!householdId) return;
     const filter = `household_id=eq.${householdId}`;
     const channel = supabase.channel(`hh:${householdId}`);
-    for (const table of ['transactions', 'categories', 'category_budgets', 'household_income', 'recurring_rules', 'savings_ledger', 'device_tokens', 'agent_proposals', 'monthly_reports']) {
-      channel.on('postgres_changes', { event: '*', schema: 'public', table, filter }, () =>
-        qc.invalidateQueries({ queryKey: [HH] }),
-      );
+    const batch = batchChanges((tables) => refresh(qc, tables));
+    for (const table of SYNC_TABLES) {
+      channel.on('postgres_changes', { event: '*', schema: 'public', table, filter }, () => batch.add(table));
     }
     channel.subscribe();
     return () => {
+      batch.cancel();
       supabase.removeChannel(channel);
     };
   }, [householdId, qc]);
@@ -248,10 +260,45 @@ export function useRealtimeSync(householdId: string | undefined) {
 
 // ───────── writes ─────────
 
-function useHHMutation<V, R = unknown>(fn: (v: V) => Promise<R>) {
+// `tables`: what the write changes, so only what reads them is refreshed. Left out, everything is.
+function useHHMutation<V, R = unknown>(fn: (v: V) => Promise<R>, tables?: SyncTable[]) {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: fn, onSuccess: () => qc.invalidateQueries({ queryKey: [HH] }) });
+  return useMutation({ mutationFn: fn, onSuccess: () => refresh(qc, tables) });
 }
+
+// T7: an expense write that shows at once. `change` says what the expense was and will be; the
+// caches move there before the request, go back if it fails, and are refreshed when it settles.
+// The requests go out one after another, so an Undo tapped before its delete reached the server
+// lands after it; the screen changes at once either way. While another expense write is still
+// out, the refresh waits for the last one, so a row never blinks back to an in-between state.
+let txQueue: Promise<unknown> = Promise.resolve();
+const TX_WRITE = ['tx-write'];
+
+function useTxMutation<V, R = unknown>(
+  fn: (v: V) => Promise<R>,
+  change: (v: V, qc: QueryClient) => { before: Transaction | null; after: Transaction | null } | null,
+) {
+  const qc = useQueryClient();
+  return useMutation<R, Error, V, { snapshot: Snapshot }>({
+    mutationKey: TX_WRITE,
+    mutationFn: (v) => {
+      const run = txQueue.catch(() => undefined).then(() => fn(v));
+      txQueue = run;
+      return run;
+    },
+    onMutate: async (v) => {
+      const snapshot = await holdTxCaches(qc);
+      const c = change(v, qc);
+      if (c) applyTxChange(qc, c.before, c.after);
+      return { snapshot };
+    },
+    onError: (_e, _v, ctx) => restoreTxCaches(qc, ctx?.snapshot),
+    onSettled: () => (qc.isMutating({ mutationKey: TX_WRITE }) > 1 ? undefined : refresh(qc, ['transactions'])),
+  });
+}
+
+// What a deleted expense was, for an Undo that puts it straight back.
+const recentlyDeleted = new Map<string, Transaction>();
 
 export const useCreateHousehold = () =>
   useHHMutation((v: { name: string; currency: string; displayName: string; aiConsent: boolean; language: Lang }) =>
@@ -325,45 +372,104 @@ export type NewTransaction = {
   occurredAt?: string;
   note?: string | null;
   rawMerchant?: string | null;
+  // Made on the phone, so the row shown before the server answers is the row it saves.
+  id?: string;
 };
+
+export const newTransactionId = () => Crypto.randomUUID();
+
+// The row as the server will return it, for showing at once. Only in the base currency: another
+// currency's converted amount is the server's to work out, so that expense waits for it.
+function draftRow(v: NewTransaction & { id: string; occurredAt: string }, qc: QueryClient): Transaction | null {
+  const hh = qc.getQueriesData<{ household: Household | null }>({ queryKey: [HH, 'household'] })[0]?.[1];
+  const base = hh?.household?.base_currency;
+  const cat = qc.getQueryData<Category[]>([HH, 'categories'])?.find((x) => x.id === v.categoryId);
+  if (!base || v.currency !== base || !cat) return null;
+  return {
+    id: v.id, title: v.title, raw_merchant: v.rawMerchant ?? null, amount_minor: v.amountMinor, currency: v.currency,
+    amount_base_minor: v.amountMinor, fx_rate: 1, fx_source: 'identity', occurred_at: v.occurredAt,
+    budget_month: monthOfInstant(new Date(v.occurredAt)), status: 'confirmed', source: 'manual', category_id: v.categoryId,
+    note: v.note ?? null, card_label: null, created_by: v.userId, recurring_rule_id: null, classification: null,
+    categories: { name: cat.name, sf_symbol: cat.sf_symbol }, installment: null,
+  } as Transaction;
+}
 
 // Resolves to the new expense's id, so it can be split into installments right after.
 export const useAddTransaction = () =>
-  useHHMutation((v: NewTransaction) =>
-    must(
-      supabase.from('transactions').insert({
-        household_id: v.householdId,
-        created_by: v.userId,
-        source: 'manual',
-        title: v.title,
-        amount_minor: v.amountMinor,
-        currency: v.currency,
-        category_id: v.categoryId,
-        occurred_at: v.occurredAt ?? new Date().toISOString(),
-        note: v.note ?? null,
-        raw_merchant: v.rawMerchant ?? null,
-      }).select('id').single(),
-    ).then((row) => (row as { id: string }).id),
+  useTxMutation(
+    (v: NewTransaction) =>
+      must(
+        supabase.from('transactions').insert({
+          id: v.id,
+          household_id: v.householdId,
+          created_by: v.userId,
+          source: 'manual',
+          title: v.title,
+          amount_minor: v.amountMinor,
+          currency: v.currency,
+          category_id: v.categoryId,
+          occurred_at: v.occurredAt ?? new Date().toISOString(),
+          note: v.note ?? null,
+          raw_merchant: v.rawMerchant ?? null,
+        }).select('id').single(),
+      ).then((row) => (row as { id: string }).id),
+    (v, qc) => {
+      if (!v.id) return null;
+      const after = draftRow({ ...v, id: v.id, occurredAt: v.occurredAt ?? new Date().toISOString() }, qc);
+      return after ? { before: null, after } : null;
+    },
   );
 
 // P1-2: split an expense into monthly installments (migration 33). All or nothing.
 export const useCreateInstallments = () =>
-  useHHMutation((v: { transactionId: string; count: number }) =>
-    must(supabase.rpc('create_installments', { p_transaction_id: v.transactionId, p_count: v.count })),
+  useHHMutation(
+    (v: { transactionId: string; count: number }) =>
+      must(supabase.rpc('create_installments', { p_transaction_id: v.transactionId, p_count: v.count })),
+    ['transactions', 'recurring_rules'],
   );
 
+type TxPatch = Partial<Pick<Transaction, 'title' | 'amount_minor' | 'category_id' | 'note' | 'status' | 'occurred_at'>>;
+
 export const useUpdateTransaction = () =>
-  useHHMutation((v: { id: string; patch: Partial<Pick<Transaction, 'title' | 'amount_minor' | 'category_id' | 'note' | 'status' | 'occurred_at'>> }) =>
-    must(supabase.from('transactions').update(v.patch).eq('id', v.id)),
+  useTxMutation(
+    (v: { id: string; patch: TxPatch }) => must(supabase.from('transactions').update(v.patch).eq('id', v.id)),
+    (v, qc) => {
+      const before = findTx(qc, v.id);
+      if (!before) return null;
+      const after: Transaction = { ...before, ...v.patch };
+      if (v.patch.occurred_at) after.budget_month = monthOfInstant(new Date(v.patch.occurred_at));
+      if (v.patch.category_id && v.patch.category_id !== before.category_id) {
+        const cat = qc.getQueryData<Category[]>([HH, 'categories'])?.find((x) => x.id === v.patch.category_id);
+        if (cat) after.categories = { name: cat.name, sf_symbol: cat.sf_symbol };
+      }
+      if (v.patch.amount_minor != null) {
+        // the server keeps the rate captured when it was added (1 in the base currency)
+        after.amount_base_minor = Math.round(v.patch.amount_minor * before.fx_rate);
+      }
+      return { before, after };
+    },
   );
 
 export const useDeleteTransaction = () =>
-  useHHMutation((id: string) =>
-    must(supabase.from('transactions').update({ deleted_at: new Date().toISOString() }).eq('id', id)),
+  useTxMutation(
+    (id: string) => must(supabase.from('transactions').update({ deleted_at: new Date().toISOString() }).eq('id', id)),
+    (id, qc) => {
+      const before = findTx(qc, id);
+      if (!before) return null;
+      recentlyDeleted.set(id, before);
+      return { before, after: null };
+    },
   );
 
 export const useRestoreTransaction = () =>
-  useHHMutation((id: string) => must(supabase.from('transactions').update({ deleted_at: null }).eq('id', id)));
+  useTxMutation(
+    (id: string) => must(supabase.from('transactions').update({ deleted_at: null }).eq('id', id)),
+    (id) => {
+      const after = recentlyDeleted.get(id);
+      recentlyDeleted.delete(id);
+      return after ? { before: null, after } : null;
+    },
+  );
 
 export const useReviewTransaction = () =>
   useHHMutation((v: { id: string; categoryName?: string; newCategoryName?: string; title: string }) =>
@@ -378,8 +484,10 @@ export const useReviewTransaction = () =>
   );
 
 export const useSetBudget = () =>
-  useHHMutation((v: { categoryId: string; capMinor: number }) =>
-    must(supabase.rpc('set_category_budget', { p_category_id: v.categoryId, p_cap_minor: v.capMinor })),
+  useHHMutation(
+    (v: { categoryId: string; capMinor: number }) =>
+      must(supabase.rpc('set_category_budget', { p_category_id: v.categoryId, p_cap_minor: v.capMinor })),
+    ['category_budgets', 'categories'],
   );
 
 // P1-7: the setup wizard's budgets and income in one all-or-nothing call (migration 30).
@@ -418,7 +526,9 @@ export function useSuggestedCategory(title: string) {
 
 // 0 clears the income. Applies from the current month on, like a budget change.
 export const useSetIncome = () =>
-  useHHMutation((amountMinor: number) => must(supabase.rpc('set_monthly_income', { p_amount_minor: amountMinor })));
+  useHHMutation((amountMinor: number) => must(supabase.rpc('set_monthly_income', { p_amount_minor: amountMinor })), [
+    'household_income',
+  ]);
 
 export type DeleteCategoryResult = { action: 'delete' | 'archive' | 'blocked'; transactions: number; recurring: number };
 
@@ -503,8 +613,9 @@ export const useSaveRecurring = () =>
   });
 
 export const useDeleteRecurring = () =>
-  useHHMutation((id: string) =>
-    must(supabase.from('recurring_rules').update({ deleted_at: new Date().toISOString() }).eq('id', id)),
+  useHHMutation(
+    (id: string) => must(supabase.from('recurring_rules').update({ deleted_at: new Date().toISOString() }).eq('id', id)),
+    ['recurring_rules'],
   );
 
 export const useCreateDeviceToken = () =>
@@ -514,11 +625,13 @@ export const useCreateDeviceToken = () =>
   });
 
 export const useRevokeDevice = () =>
-  useHHMutation((id: string) => must(supabase.rpc('revoke_device_token', { p_id: id })));
+  useHHMutation((id: string) => must(supabase.rpc('revoke_device_token', { p_id: id })), ['device_tokens']);
 
 export const useAddSavingsEntry = () =>
-  useHHMutation((v: { amountMinor: number; reason: string }) =>
-    must(supabase.rpc('add_savings_entry', { p_amount_minor: v.amountMinor, p_reason: v.reason })),
+  useHHMutation(
+    (v: { amountMinor: number; reason: string }) =>
+      must(supabase.rpc('add_savings_entry', { p_amount_minor: v.amountMinor, p_reason: v.reason })),
+    ['savings_ledger'],
   );
 
 // ───────── AI (Phase 4) ─────────

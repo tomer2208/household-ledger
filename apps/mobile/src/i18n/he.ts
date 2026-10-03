@@ -191,6 +191,7 @@ export const he: Dict = {
     saveRefund: 'שמירת ההחזר',
     saveDraft: 'שמירת טיוטה',
     refundTitle: (category: string | undefined) => (category ? `החזר ${category}` : 'החזר'),
+    saveFailed: (why: string) => `לא נשמר: ${why} הפרטים מחכים כטיוטה במסך ההוספה.`,
     splitFailed: 'נשמר כתשלום אחד. אפשר לפתוח אותו ולפצל לתשלומים.',
     amount: 'סכום',
     refundAmount: 'סכום ההחזר',

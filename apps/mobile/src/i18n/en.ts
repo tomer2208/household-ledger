@@ -187,6 +187,7 @@ export const en = {
     saveRefund: 'Save Refund',
     saveDraft: 'Save Draft',
     refundTitle: (category: string | undefined) => `${category ?? 'Refund'} refund`,
+    saveFailed: (why: string) => `Not saved: ${why} The details are waiting as a draft in Add.`,
     splitFailed: 'Saved as one payment. Open it to split into installments.',
     amount: 'Amount',
     refundAmount: 'Refund amount',

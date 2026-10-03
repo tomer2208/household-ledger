@@ -16,9 +16,11 @@ import { CategoryPicker } from '@/components/category-picker';
 import { DateField } from '@/components/date-field';
 import { InstallmentPicker } from '@/components/installment-picker';
 import { KindToggle } from '@/components/kind-toggle';
+import { useToast } from '@/components/toast';
 import { DetailSkeleton } from '@/components/skeleton';
 import { Button, ErrorText, Field, LoadingState, Row, Screen, Section } from '@/components/ui';
 import { monthLabel, monthOfDay, onDay, timeLabel, ymd } from '@/lib/dates';
+import { errorMessage } from '@/lib/errors';
 import { formatSigned, minorToInput, parseMoneyInput } from '@/lib/money';
 import { t } from '@/lib/i18n';
 import { useIsOnline } from '@/lib/query';
@@ -46,6 +48,7 @@ function Editor({ tx }: { tx: Transaction }) {
   const cats = useCategories();
   const base = useHousehold().data?.household?.base_currency ?? 'ILS';
   const update = useUpdateTransaction();
+  const toast = useToast();
   const actions = useTransactionActions();
   // P1-2: split this expense into monthly installments, or show which payment it is.
   const createSplit = useCreateInstallments();
@@ -79,6 +82,8 @@ function Editor({ tx }: { tx: Transaction }) {
     categoryId !== tx.category_id ||
     dayChanged;
 
+  // T7: the change shows at once (this editor re-opens on the edited expense). If the server
+  // refuses, the expense goes back to what it was and a toast says why: this editor is gone by then.
   async function save() {
     if (!signedMinor || !categoryId) return;
     await update.mutateAsync({
@@ -93,7 +98,7 @@ function Editor({ tx }: { tx: Transaction }) {
         ...(tx.status === 'estimated' && signedMinor !== tx.amount_minor ? { status: 'confirmed' as const } : {}),
         ...(tx.status === 'pending_review' && categoryId !== tx.category_id ? { status: 'confirmed' as const } : {}),
       },
-    });
+    }).catch((e) => toast({ message: errorMessage(e) }));
   }
 
   // R5: deletes at once and offers Undo in a toast on every platform (the PWA had none).
@@ -184,7 +189,7 @@ function Editor({ tx }: { tx: Transaction }) {
         </Section>
       ) : null}
 
-      <ErrorText error={update.error ?? createSplit.error} />
+      <ErrorText error={createSplit.error} />
       <View style={s.actions}>
         {/* P1-8: the same expense again, dated today: for repeats that aren't recurring rules. */}
         <Button

@@ -4,7 +4,15 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { useAddTransaction, useCategories, useCreateInstallments, useExpenseTemplates, useHousehold, useSuggestedCategory } from '@/api/queries';
+import {
+  newTransactionId,
+  useAddTransaction,
+  useCategories,
+  useCreateInstallments,
+  useExpenseTemplates,
+  useHousehold,
+  useSuggestedCategory,
+} from '@/api/queries';
 import { CategoryPicker } from '@/components/category-picker';
 import { useToast } from '@/components/toast';
 import { DateField } from '@/components/date-field';
@@ -12,6 +20,7 @@ import { InstallmentPicker } from '@/components/installment-picker';
 import { KindToggle } from '@/components/kind-toggle';
 import { ErrorText, Field, Section } from '@/components/ui';
 import { onDay, todayYmd, ymd } from '@/lib/dates';
+import { errorMessage } from '@/lib/errors';
 import { t } from '@/lib/i18n';
 import { CURRENCIES, formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
 import { useIsOnline } from '@/lib/query';
@@ -102,7 +111,8 @@ export default function AddExpense() {
 
   async function save() {
     if (!minor || !selectedCategory || !hh.data?.household || !hh.data.me) return;
-    const id = await add.mutateAsync({
+    const expense = {
+      id: newTransactionId(),
       householdId: hh.data.household.id,
       userId: hh.data.me.user_id,
       title: title.trim() || (refund ? t.add.refundTitle(categoryName) : categoryName) || t.common.expense,
@@ -110,10 +120,25 @@ export default function AddExpense() {
       currency,
       categoryId: selectedCategory,
       // Today: the moment of saving. Another day keeps the time of day (the deep link's, or now).
-      occurredAt: linked && ymd(linked) === day ? linked.toISOString() : day === todayYmd() ? undefined : onDay(day, linked ?? new Date()),
+      // The same instant for the row shown at once and the row saved.
+      occurredAt: linked && ymd(linked) === day ? linked.toISOString() : day === todayYmd() ? new Date().toISOString() : onDay(day, linked ?? new Date()),
       note: note.trim() || null,
       rawMerchant: params.merchant ?? null,
-    });
+    };
+    // T7: one payment in the base currency is shown at once and the sheet closes; the save goes
+    // on behind it. The draft is kept until the server has it, so a refusal loses nothing.
+    if (count === 1 && currency === base) {
+      await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify({ amount, title, currency, categoryId: selectedCategory, day, refund, payments }));
+      add
+        .mutateAsync(expense)
+        .then(() => AsyncStorage.removeItem(DRAFT_KEY))
+        .catch((e) => toast({ message: t.add.saveFailed(errorMessage(e)) }));
+      if (Platform.OS === 'ios') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      close();
+      return;
+    }
+    // Installments need the saved expense, and another currency the server's rate: wait for it.
+    const id = await add.mutateAsync(expense);
     if (count > 1) {
       try {
         await split.mutateAsync({ transactionId: id, count });

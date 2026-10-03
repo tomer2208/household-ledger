@@ -20,18 +20,15 @@ export function useTransactionActions() {
 
   const edit = (tx: Tx) => router.push({ pathname: '/transaction/[id]', params: { id: tx.id } });
 
-  // Resolves true once the expense is deleted.
+  // T7: the expense leaves every list at once and Undo is offered right away; the delete goes
+  // on behind it. If the server refuses, it comes back and a toast says why.
+  // Resolves true once the delete has started (false offline, where nothing happens).
   async function remove(tx: Tx): Promise<boolean> {
     if (!online) {
       toast({ message: t.actions.offlineDelete });
       return false;
     }
-    try {
-      await del.mutateAsync(tx.id);
-    } catch (e) {
-      toast({ message: errorMessage(e) });
-      return false;
-    }
+    del.mutateAsync(tx.id).catch((e) => toast({ message: errorMessage(e) }));
     toast({
       message: t.actions.deleted(`${tx.title} · ${formatSigned(tx.amount_minor, tx.currency)}`),
       action: {
