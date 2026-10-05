@@ -115,3 +115,14 @@ export function forecastSummary(
   const diff = f.total - totalCap;
   return { kind: diff > 0 ? 'over' : 'under', amount: Math.abs(diff), total: f.total };
 }
+
+// P1-11: a category's months on its screen: this month against the average of the months before
+// it (null change when there is nothing before to compare with).
+export type TrendMonth = { month: string; spent: number; cap: number | null };
+
+export function trendSummary(months: TrendMonth[]) {
+  const now = months[months.length - 1]?.spent ?? 0;
+  const before = months.slice(0, -1);
+  const avg = before.length ? Math.round(before.reduce((a, x) => a + x.spent, 0) / before.length) : 0;
+  return { now, avg, pct: avg > 0 ? Math.round(((now - avg) * 100) / avg) : null };
+}

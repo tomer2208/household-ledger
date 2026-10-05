@@ -2,7 +2,8 @@ import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { useCategories, useHousehold, useOverview, useSaveCategory, useSetBudget } from '@/api/queries';
+import { useCategories, useCategoryTrend, useHousehold, useOverview, useSaveCategory, useSetBudget } from '@/api/queries';
+import { CategoryTrend } from '@/components/charts';
 import { Button, CategoryIcon, ErrorText, Field, ProgressBar, Screen, Section } from '@/components/ui';
 import { budgetStatus, incomePlan } from '@/lib/budget';
 import { useCategoryActions } from '@/lib/category-actions';
@@ -34,6 +35,7 @@ function Editor({ id }: { id?: string }) {
   const save = useSaveCategory();
   const setBudget = useSetBudget();
   const actions = useCategoryActions(hh.data?.household?.id);
+  const trend = useCategoryTrend(id);
   const cat = cats.data?.find((x) => x.id === id);
   const current = overview.data?.categories.find((x) => x.id === id);
 
@@ -69,6 +71,14 @@ function Editor({ id }: { id?: string }) {
           spent={current.spent}
           currency={cur}
           preview={capMinor !== (current.cap ?? null)}
+        />
+      ) : null}
+      {/* P1-11: the last six months; a month opens its expenses here. */}
+      {id && trend.data ? (
+        <CategoryTrend
+          months={trend.data}
+          currency={cur}
+          onMonth={(mo) => router.push({ pathname: '/transactions', params: { category: id, month: mo } })}
         />
       ) : null}
       <Section>

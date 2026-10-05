@@ -481,6 +481,9 @@ isOneToOne: false
 "capture_record":
 { Args: { "p": Json }; Returns: Json
                            },
+"category_trend":
+{ Args: { "p_category": string,"p_months"?: number }; Returns: Json
+                           },
 "claim_monthly_reports":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },

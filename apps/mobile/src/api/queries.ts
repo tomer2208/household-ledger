@@ -642,6 +642,16 @@ export const useAddSavingsEntry = () =>
     ['savings_ledger'],
   );
 
+// P1-11: a category's spend and budget for the last `months` budget months, oldest first.
+export function useCategoryTrend(categoryId: string | undefined, months = 6) {
+  return useQuery({
+    queryKey: [HH, 'trend', categoryId, months],
+    enabled: !!categoryId,
+    queryFn: async () =>
+      (await must(rpc('category_trend', { p_category: categoryId!, p_months: months }))) as { month: string; spent: number; cap: number | null }[],
+  });
+}
+
 // ───────── merchants (P1-13) ─────────
 
 export function useMerchants() {

@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { useHousehold, useMonthCloses, useMonthlyReport, useRequestReport } from '@/api/queries';
@@ -79,9 +79,11 @@ export default function MonthReport() {
 
       {m ? (
         <>
-          <CategoryDonut m={m} />
-          <CapBars m={m} />
-          <TrendLine m={m} />
+          {/* P1-11: a category opens its expenses that month; a month opens its Overview. */}
+          <Text style={[s.chartHint, { color: c.secondaryLabel }]}>{t.charts.tapHint}</Text>
+          <CategoryDonut m={m} onCategory={(id) => router.push({ pathname: '/transactions', params: id ? { category: id, month } : { month } })} />
+          <CapBars m={m} onCategory={(id) => router.push({ pathname: '/transactions', params: { category: id, month } })} />
+          <TrendLine m={m} onMonth={(mo) => router.push({ pathname: '/overview', params: { month: mo } })} />
           <SavingsLine m={m} />
         </>
       ) : null}
@@ -136,6 +138,7 @@ export default function MonthReport() {
 }
 
 const s = StyleSheet.create({
+  chartHint: { fontSize: 13, marginHorizontal: 32, marginTop: 18 },
   hero: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 18, gap: 6 },
   heroLabel: { fontSize: 15 },
   heroAmount: { fontSize: 36, fontWeight: '700', ...moneyText },

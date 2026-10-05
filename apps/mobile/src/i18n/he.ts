@@ -337,6 +337,15 @@ export const he: Dict = {
     legend: 'פס = הוצאה · קו = תקציב',
     trend: 'הוצאות בחצי השנה האחרונה',
     savings: 'יתרת החיסכון',
+    sliceA11y: (name: string, amount: string, pct: number) => `${name}, ${amount}, ${pct}%. הצגת ההוצאות`,
+    barA11y: (name: string, spent: string, cap: string) => `${name}: ${spent} מתוך ${cap}. הצגת ההוצאות`,
+    pointA11y: (month: string, amount: string) => `${month}: ${amount}. פתיחת החודש`,
+    tapHint: 'לחיצה על קטגוריה או על חודש פותחת אותם.',
+    categoryTrend: '6 החודשים האחרונים',
+    avgVsNow: (avg: string, now: string, pct: number) => `ממוצע ${avg} · החודש ${now} (${pct > 0 ? '+' : ''}${pct}%)`,
+    nowOnly: (now: string) => `החודש ${now}`,
+    monthBarA11y: (month: string, spent: string, cap: string | null) =>
+      cap ? `${month}: ${spent} מתוך תקציב של ${cap}. הצגת ההוצאות` : `${month}: ${spent}. הצגת ההוצאות`,
   },
   settings: {
     merchants: 'בתי עסק',

@@ -8,9 +8,9 @@
 // sent by Realtime; their list counts expenses and names categories, so it follows those two.
 
 export const TABLE_KEYS = {
-  transactions: ['transactions', 'transaction', 'overview', 'pending', 'templates', 'suggest', 'capture_health', 'merchants'],
-  categories: ['categories', 'overview', 'transactions', 'transaction', 'pending', 'recurring', 'templates', 'suggest', 'merchants'],
-  category_budgets: ['overview'],
+  transactions: ['transactions', 'transaction', 'overview', 'pending', 'templates', 'suggest', 'capture_health', 'merchants', 'trend'],
+  categories: ['categories', 'overview', 'transactions', 'transaction', 'pending', 'recurring', 'templates', 'suggest', 'merchants', 'trend'],
+  category_budgets: ['overview', 'trend'],
   household_income: ['overview'],
   recurring_rules: ['recurring', 'transactions', 'transaction'],
   // a month close writes the ledger, so the closed months move with it

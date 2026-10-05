@@ -1,4 +1,4 @@
-import { router, Stack } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -25,10 +25,13 @@ import { budgetTone, moneyText, radius, useColors } from '@/lib/theme';
 export default function OverviewScreen() {
   const c = useColors();
   const hh = useHousehold();
-  // P1-5: null is the current month; a past month is read-only history.
-  const [month, setMonth] = useState<string | null>(null);
-  const overview = useOverview(month ?? undefined);
+  // P1-5: null is the current month; a past month is read-only history. P1-11: the month lives
+  // in the URL (?month=YYYY-MM-01), so a month tapped on a report's chart opens here.
+  const params = useLocalSearchParams<{ month?: string }>();
   const thisMonth = currentMonth();
+  const month = params.month && /^\d{4}-\d{2}-01$/.test(params.month) && params.month < thisMonth ? params.month : null;
+  const setMonth = (m: string | null) => router.setParams({ month: m ?? undefined });
+  const overview = useOverview(month ?? undefined);
   const createdAt = hh.data?.household?.created_at;
   const firstMonth = createdAt ? monthOfInstant(new Date(createdAt)) : thisMonth;
   const past = month != null;

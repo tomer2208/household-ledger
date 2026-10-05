@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { budgetStatus, forecastSummary, incomePlan, perDay, shortOfTarget, suggestBudgets, SUGGESTED_SHARE_PCT } from './budget';
+import { budgetStatus, forecastSummary, trendSummary, incomePlan, perDay, shortOfTarget, suggestBudgets, SUGGESTED_SHARE_PCT } from './budget';
 
 test('budgetStatus: left, over, no budget', () => {
   assert.deepEqual(budgetStatus(200000, 138000), { kind: 'left', spent: 138000, cap: 200000, amount: 62000, pct: 69 });
@@ -63,4 +63,12 @@ test('forecastSummary: over, under, no budgets, nothing to go on', () => {
   assert.deepEqual(forecastSummary(f, 0), { kind: 'spend', total: 864000 });
   assert.equal(forecastSummary({ total: 0, spent: 0, upcoming: 0 }, 800000), null);
   assert.equal(forecastSummary(null, 800000), null);
+});
+
+test('trendSummary: this month against the average of the months before', () => {
+  const m = (spent: number) => ({ month: '2026-01-01', spent, cap: null });
+  assert.deepEqual(trendSummary([m(100000), m(140000), m(120000), m(156000)]), { now: 156000, avg: 120000, pct: 30 });
+  assert.deepEqual(trendSummary([m(0), m(0), m(50000)]), { now: 50000, avg: 0, pct: null });
+  assert.deepEqual(trendSummary([m(50000)]), { now: 50000, avg: 0, pct: null });
+  assert.deepEqual(trendSummary([]), { now: 0, avg: 0, pct: null });
 });

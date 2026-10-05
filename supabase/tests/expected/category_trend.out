@@ -1,0 +1,1 @@
+ERROR:  TEST_ROLLBACK rows=6 consecutive=t ends_now=t matches_overview=t empty_month_zero=t caps_follow_changes=t one_month=1 capped_at=24 stranger="unknown category"

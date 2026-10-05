@@ -331,6 +331,15 @@ export const en = {
     legend: 'Bar = spent · tick = budget',
     trend: 'Six-month spending',
     savings: 'Savings balance',
+    sliceA11y: (name: string, amount: string, pct: number) => `${name}, ${amount}, ${pct}%. Show its expenses`,
+    barA11y: (name: string, spent: string, cap: string) => `${name}: ${spent} of ${cap}. Show its expenses`,
+    pointA11y: (month: string, amount: string) => `${month}: ${amount}. Open this month`,
+    tapHint: 'Tap a category or a month to open it.',
+    categoryTrend: 'Last 6 months',
+    avgVsNow: (avg: string, now: string, pct: number) => `Average ${avg} · this month ${now} (${pct > 0 ? '+' : ''}${pct}%)`,
+    nowOnly: (now: string) => `This month ${now}`,
+    monthBarA11y: (month: string, spent: string, cap: string | null) =>
+      cap ? `${month}: ${spent} of a ${cap} budget. Show its expenses` : `${month}: ${spent}. Show its expenses`,
   },
   settings: {
     merchants: 'Merchants',
