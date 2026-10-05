@@ -158,6 +158,22 @@ export type MerchantSummary = Pick<Tables<'merchants'>, 'id' | 'display_name' | 
   aliases: { normalized: string; source: 'user' | 'fuzzy' | 'llm' }[];
 };
 
+// P1-15: list_goals() (migration 43). Goals earmark part of the savings balance; `free` is
+// what no open goal holds, below zero after spending savings that goals were counting on.
+export type Goal = {
+  id: string;
+  name: string;
+  sf_symbol: string;
+  target_minor: number;
+  target_month: string | null;
+  saved: number;
+  done: boolean;
+  months_left: number;
+  monthly_needed: number | null;
+  behind_by: number;
+};
+export type Goals = { balance: number; allocated: number; free: number; goals: Goal[] };
+
 // R9: per active Shortcut device, whether it has gone quiet (public.capture_health()).
 export type CaptureHealth = {
   device_id: string;

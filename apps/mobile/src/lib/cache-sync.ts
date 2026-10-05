@@ -14,7 +14,10 @@ export const TABLE_KEYS = {
   household_income: ['overview'],
   recurring_rules: ['recurring', 'transactions', 'transaction'],
   // a month close writes the ledger, so the closed months move with it
-  savings_ledger: ['savings', 'overview', 'closes'],
+  savings_ledger: ['savings', 'overview', 'closes', 'goals'],
+  // P1-15: what goals hold, and what's free
+  savings_goals: ['goals'],
+  savings_goal_moves: ['goals'],
   device_tokens: ['devices', 'capture_health'],
   agent_proposals: ['proposals'],
   monthly_reports: ['report', 'closes'],

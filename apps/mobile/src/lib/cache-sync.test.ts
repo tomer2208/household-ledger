@@ -33,7 +33,7 @@ test('every key in the map is a real query key, and every key a table feeds is m
   const unfed = new Set(['household', 'ai_usage', 'agent_runs']);
   const fed = new Set(Object.values(TABLE_KEYS).flat());
   for (const k of used) assert.ok(fed.has(k as never) || unfed.has(k), `${k} is refreshed by no table`);
-  assert.equal(SYNC_TABLES.length, 9);
+  assert.equal(SYNC_TABLES.length, 11);
 });
 
 test('a burst of changes is one refresh, with every table in it', async () => {

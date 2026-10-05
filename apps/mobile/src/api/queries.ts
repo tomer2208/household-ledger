@@ -6,6 +6,7 @@ import { useSession } from './session';
 import type {
   AgentRun,
   CaptureHealth,
+  Goals,
   Category,
   MonthlyReport,
   Proposal,
@@ -651,6 +652,36 @@ export function useCategoryTrend(categoryId: string | undefined, months = 6) {
       (await must(rpc('category_trend', { p_category: categoryId!, p_months: months }))) as { month: string; spent: number; cap: number | null }[],
   });
 }
+
+// ───────── savings goals (P1-15) ─────────
+
+export function useGoals() {
+  return useQuery({ queryKey: [HH, 'goals'], queryFn: async () => (await must(rpc('list_goals'))) as Goals });
+}
+
+export const useSaveGoal = () =>
+  useHHMutation(
+    (v: { id?: string; name: string; symbol: string; targetMinor: number; targetMonth: string | null }) =>
+      must(
+        rpc('save_goal', {
+          p_id: v.id ?? SQL_NULL,
+          p_name: v.name,
+          p_symbol: v.symbol,
+          p_target_minor: v.targetMinor,
+          p_target_month: v.targetMonth ?? SQL_NULL,
+        }),
+      ) as Promise<string>,
+    ['savings_goals'],
+  );
+
+// + sets money aside for the goal, − releases it back to free savings.
+export const useMoveGoal = () =>
+  useHHMutation((v: { id: string; amountMinor: number }) => must(rpc('move_goal', { p_id: v.id, p_amount_minor: v.amountMinor })), [
+    'savings_goal_moves',
+  ]);
+
+export const useCloseGoal = () =>
+  useHHMutation((id: string) => must(rpc('close_goal', { p_id: id })), ['savings_goals', 'savings_goal_moves']);
 
 // ───────── merchants (P1-13) ─────────
 

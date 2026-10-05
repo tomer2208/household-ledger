@@ -371,6 +371,50 @@ isOneToOne: false
       referencedColumns: ["id","household_id"]
     }
                   ]
+                },"savings_goal_moves": {
+                  Row: {
+                    "amount_minor": number,"created_at": string,"created_by": string | null,"goal_id": string,"household_id": string,"id": string
+                  }
+                  Insert: {
+                    "amount_minor": number,"created_at"?: string,"created_by"?: string | null,"goal_id": string,"household_id": string,"id"?: string
+                  }
+                  Update: {
+                    "amount_minor"?: number,"created_at"?: string,"created_by"?: string | null,"goal_id"?: string,"household_id"?: string,"id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "savings_goal_moves_goal_id_household_id_fkey"
+      columns: ["goal_id","household_id"]
+isOneToOne: false
+      referencedRelation: "savings_goals"
+      referencedColumns: ["id","household_id"]
+    },{
+      foreignKeyName: "savings_goal_moves_household_id_fkey"
+      columns: ["household_id"]
+isOneToOne: false
+      referencedRelation: "households"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"savings_goals": {
+                  Row: {
+                    "closed_at": string | null,"created_at": string,"created_by": string | null,"household_id": string,"id": string,"name": string,"sf_symbol": string,"target_minor": number,"target_month": string | null
+                  }
+                  Insert: {
+                    "closed_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"household_id": string,"id"?: string,"name": string,"sf_symbol"?: string,"target_minor": number,"target_month"?: string | null
+                  }
+                  Update: {
+                    "closed_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"household_id"?: string,"id"?: string,"name"?: string,"sf_symbol"?: string,"target_minor"?: number,"target_month"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "savings_goals_household_id_fkey"
+      columns: ["household_id"]
+isOneToOne: false
+      referencedRelation: "households"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"savings_ledger": {
                   Row: {
                     "amount_minor": number,"budget_month": string,"created_at": string,"created_by": string | null,"entry_type": string,"household_id": string,"id": string,"reason": string,"transaction_id": string | null
@@ -490,6 +534,9 @@ isOneToOne: false
 "claim_push_alerts":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"close_goal":
+{ Args: { "p_id": string }; Returns: undefined
+                           },
 "create_device_token":
 { Args: { "p_label": string }; Returns: {
               "id": string,"token": string
@@ -522,6 +569,9 @@ isOneToOne: false
 "leave_household":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
+"list_goals":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "list_merchants":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
@@ -530,6 +580,9 @@ isOneToOne: false
                            },
 "month_overview":
 { Args: { "p_month"?: string }; Returns: Json
+                           },
+"move_goal":
+{ Args: { "p_amount_minor": number,"p_id": string }; Returns: Json
                            },
 "my_ai_usage":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -560,6 +613,9 @@ isOneToOne: false
                            },
 "revoke_device_token":
 { Args: { "p_id": string }; Returns: undefined
+                           },
+"save_goal":
+{ Args: { "p_id": string,"p_name": string,"p_symbol": string,"p_target_minor": number,"p_target_month": string }; Returns: string
                            },
 "search_transactions":
 { Args: { "p_before_at"?: string,"p_before_id"?: string,"p_category"?: string,"p_limit"?: number,"p_month"?: string,"p_query"?: string }; Returns: Json

@@ -1,9 +1,10 @@
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { useAddSavingsEntry, useHousehold, useOverview, useSavingsLedger } from '@/api/queries';
-import { Button, ErrorText, Field, Row, Screen, Section } from '@/components/ui';
+import { useAddSavingsEntry, useGoals, useHousehold, useOverview, useSavingsLedger } from '@/api/queries';
+import { GoalLine } from '@/components/goal-line';
+import { Button, CategoryIcon, ErrorText, Field, ProgressBar, Row, Screen, Section } from '@/components/ui';
 import { monthLabel, shortDate } from '@/lib/dates';
 import { t } from '@/lib/i18n';
 import { formatMoney, parseMoneyInput } from '@/lib/money';
@@ -24,6 +25,7 @@ export default function SavingsScreen() {
   const ledger = useSavingsLedger();
   const overview = useOverview();
   const add = useAddSavingsEntry();
+  const goals = useGoals().data;
   const cur = useHousehold().data?.household?.base_currency ?? 'ILS';
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('');
@@ -46,6 +48,39 @@ export default function SavingsScreen() {
           </Text>
         ) : null}
       </View>
+
+      {/* P1-15: goals set part of the balance aside; the money stays in savings. */}
+      <Section
+        title={t.goals.title}
+        footer={goals && goals.free < 0 ? t.goals.overAllocated(formatMoney(-goals.free, cur)) : t.goals.footer}
+        action={{ label: t.goals.add, onPress: () => router.push('/settings/goal') }}>
+        {goals && goals.goals.length > 0 ? (
+          <>
+            <Row title={t.goals.allocated(formatMoney(goals.allocated, cur), formatMoney(goals.free, cur))} titleStyle={{ fontSize: 15, color: goals.free < 0 ? c.red : c.secondaryLabel }} />
+            {goals.goals.map((g, i) => (
+              <Pressable
+                key={g.id}
+                onPress={() => router.push({ pathname: '/settings/goal', params: { id: g.id } })}
+                accessibilityRole="button"
+                style={({ pressed }) => [s.goal, i < goals.goals.length - 1 && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }, pressed && { backgroundColor: c.fill }]}>
+                <CategoryIcon symbol={g.sf_symbol} />
+                <View style={{ flex: 1, gap: 6 }}>
+                  <View style={s.goalTop}>
+                    <Text numberOfLines={1} style={[s.goalName, { color: c.label }]}>{g.name}</Text>
+                    <Text style={[s.goalAmount, { color: c.secondaryLabel }]}>
+                      {t.goals.progress(formatMoney(g.saved, cur), formatMoney(g.target_minor, cur))}
+                    </Text>
+                  </View>
+                  <ProgressBar pct={Math.round((g.saved * 100) / g.target_minor)} color={g.done ? c.green : c.tint} />
+                  <GoalLine goal={g} currency={cur} />
+                </View>
+              </Pressable>
+            ))}
+          </>
+        ) : (
+          <Row title={t.goals.add} onPress={() => router.push('/settings/goal')} chevron={false} last />
+        )}
+      </Section>
 
       <Section title={t.savings.manual} footer={t.savings.manualFooter}>
         <View style={s.toggle}>
@@ -107,4 +142,8 @@ const s = StyleSheet.create({
   toggle: { flexDirection: 'row', gap: 8, padding: 12 },
   toggleItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 8, borderRadius: 8, minHeight: 36 },
   actions: { marginHorizontal: 16, marginTop: 16 },
+  goal: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 12 },
+  goalTop: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
+  goalName: { fontSize: 17, flexShrink: 1 },
+  goalAmount: { fontSize: 14, ...moneyText },
 });
