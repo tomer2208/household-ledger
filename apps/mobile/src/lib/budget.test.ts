@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { budgetStatus, forecastSummary, trendSummary, incomePlan, perDay, shortOfTarget, suggestBudgets, SUGGESTED_SHARE_PCT } from './budget';
+import { budgetStatus, forecastSummary, headingToSavings, trendSummary, incomePlan, perDay, shortOfTarget, suggestBudgets, SUGGESTED_SHARE_PCT } from './budget';
 
 test('budgetStatus: left, over, no budget', () => {
   assert.deepEqual(budgetStatus(200000, 138000), { kind: 'left', spent: 138000, cap: 200000, amount: 62000, pct: 69 });
@@ -71,4 +71,25 @@ test('trendSummary: this month against the average of the months before', () => 
   assert.deepEqual(trendSummary([m(0), m(0), m(50000)]), { now: 50000, avg: 0, pct: null });
   assert.deepEqual(trendSummary([m(50000)]), { now: 50000, avg: 0, pct: null });
   assert.deepEqual(trendSummary([]), { now: 0, avg: 0, pct: null });
+});
+
+test('headingToSavings: a rollover category keeps its remainder; an overspend carries unless turned off', () => {
+  const cat = (id: string, cap: number | null, spent: number, rollover: boolean, base_cap = cap) => ({ id, cap, base_cap, spent, rollover });
+  // net = (1,300 + 500 + 400) − (700 + 600 + 100) = 800; unassigned 8,100
+  const o = {
+    net: 80000,
+    unassigned: 810000,
+    categories: [
+      cat('g', 130000, 70000, true, 100000), // 600 left, rolls over
+      cat('f', 50000, 60000, true), // 100 over
+      cat('s', 40000, 10000, false), // 300 left, to savings
+      cat('k', null, 5000, true), // no budget: nothing carries
+    ],
+  };
+  // f's overspend carries: savings get 8,900 − 600 + 100
+  assert.equal(headingToSavings(o, () => true), 890000 - 60000 + 10000);
+  // f's overspend is covered by savings
+  assert.equal(headingToSavings(o, (id) => id !== 'f'), 890000 - 60000);
+  // nothing rolls over: the same as before P1-14
+  assert.equal(headingToSavings({ ...o, categories: o.categories.map((c) => ({ ...c, rollover: false })) }, () => true), 890000);
 });

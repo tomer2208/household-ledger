@@ -1,10 +1,10 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { useCategories, useCategoryTrend, useHousehold, useOverview, useSaveCategory, useSetBudget } from '@/api/queries';
 import { CategoryTrend } from '@/components/charts';
-import { Button, CategoryIcon, ErrorText, Field, ProgressBar, Screen, Section } from '@/components/ui';
+import { Button, CategoryIcon, ErrorText, Field, ProgressBar, Row, Screen, Section } from '@/components/ui';
 import { budgetStatus, incomePlan } from '@/lib/budget';
 import { useCategoryActions } from '@/lib/category-actions';
 import { monthPace } from '@/lib/dates';
@@ -41,19 +41,31 @@ function Editor({ id }: { id?: string }) {
 
   const [name, setName] = useState(cat?.name ?? '');
   const [symbol, setSymbol] = useState(cat?.sf_symbol ?? 'tag');
-  const [cap, setCap] = useState(current?.cap ? minorToInput(current.cap) : '');
+  // The budget that was set; what carried in from last month (P1-14) comes on top of it.
+  const baseCap = current?.base_cap ?? null;
+  const carry = current?.carry ?? 0;
+  const [cap, setCap] = useState(baseCap ? minorToInput(baseCap) : '');
+  const [rollover, setRollover] = useState(cat?.rollover ?? false);
+  const [overspend, setOverspend] = useState(cat?.rollover_overspend ?? true);
 
   const householdId = hh.data?.household?.id;
   const capMinor = cap.trim() === '' ? null : parseMoneyInput(cap) ?? (cap.trim() === '0' ? 0 : null);
   // The household plan with this budget swapped in: budgets come out of income.
   const o = overview.data;
-  const plan = incomePlan(o?.income, (o?.total_cap ?? 0) - (current?.cap ?? 0) + (capMinor ?? 0));
+  const plan = incomePlan(o?.income, (o?.total_base_cap ?? 0) - (baseCap ?? 0) + (capMinor ?? 0));
   const cur = hh.data?.household?.base_currency ?? 'ILS';
 
   async function onSave() {
     if (!householdId || !name.trim()) return;
-    await save.mutateAsync({ id, householdId, name: name.trim(), sfSymbol: symbol, acknowledge: !!id });
-    if (id && capMinor != null && capMinor !== (current?.cap ?? null)) {
+    await save.mutateAsync({
+      id,
+      householdId,
+      name: name.trim(),
+      sfSymbol: symbol,
+      acknowledge: !!id,
+      ...(id ? { rollover, rolloverOverspend: overspend } : {}),
+    });
+    if (id && capMinor != null && capMinor !== baseCap) {
       await setBudget.mutateAsync({ categoryId: id, capMinor });
     }
     router.back();
@@ -68,9 +80,10 @@ function Editor({ id }: { id?: string }) {
       {id && current ? (
         <MonthStatus
           cap={capMinor}
+          carry={carry}
           spent={current.spent}
           currency={cur}
-          preview={capMinor !== (current.cap ?? null)}
+          preview={capMinor !== baseCap}
         />
       ) : null}
       {/* P1-11: the last six months; a month opens its expenses here. */}
@@ -95,6 +108,23 @@ function Editor({ id }: { id?: string }) {
             ? t.categories.planOver(formatMoney(-plan.unassigned, cur), formatMoney(plan.income, cur))
             : t.categories.planLeft(formatMoney(plan.unassigned, cur), formatMoney(plan.income, cur), plan.savingsPct)}
         </Text>
+      ) : null}
+      {/* P1-14: what's left at month end stays with this category. */}
+      {id ? (
+        <Section footer={rollover ? `${t.categories.rolloverFooter} ${t.categories.rolloverOverspendFooter}` : t.categories.rolloverFooter}>
+          <Row
+            title={t.categories.rollover}
+            right={<Switch value={rollover} onValueChange={setRollover} accessibilityLabel={t.categories.rollover} />}
+            last={!rollover}
+          />
+          {rollover ? (
+            <Row
+              title={t.categories.rolloverOverspend}
+              right={<Switch value={overspend} onValueChange={setOverspend} accessibilityLabel={t.categories.rolloverOverspend} />}
+              last
+            />
+          ) : null}
+        </Section>
       ) : null}
       {id && cat && !cat.budget_acknowledged ? (
         <Text style={[s.hint, { color: c.secondaryLabel }]}>
@@ -147,10 +177,23 @@ function Editor({ id }: { id?: string }) {
 }
 
 // This month under the budget being typed: the effect of a change is visible before saving.
-function MonthStatus({ cap, spent, currency, preview }: { cap: number | null; spent: number; currency: string; preview: boolean }) {
+function MonthStatus({
+  cap,
+  carry,
+  spent,
+  currency,
+  preview,
+}: {
+  cap: number | null;
+  carry: number;
+  spent: number;
+  currency: string;
+  preview: boolean;
+}) {
   const c = useColors();
   const pace = monthPace();
-  const st = budgetStatus(cap, spent);
+  // the month's budget: the one being typed plus what carried in
+  const st = budgetStatus(cap == null && carry === 0 ? null : (cap ?? 0) + carry, spent);
   const tone = st.kind === 'none' ? c.label : budgetTone(st.pct, c, pace);
   return (
     <View style={[s.status, { backgroundColor: c.cell }]} accessibilityLiveRegion="polite">
@@ -166,6 +209,11 @@ function MonthStatus({ cap, spent, currency, preview }: { cap: number | null; sp
           <Text style={[s.statusMeta, { color: c.secondaryLabel }]}>
             {t.common.of(formatMoney(st.spent, currency), formatMoney(st.cap, currency))}
           </Text>
+          {carry !== 0 ? (
+            <Text style={[s.statusMeta, { color: c.secondaryLabel }]}>
+              {t.budget.carry(formatMoney(cap ?? 0, currency), formatMoney(Math.abs(carry), currency), carry > 0 ? 'in' : 'over')}
+            </Text>
+          ) : null}
         </>
       )}
     </View>

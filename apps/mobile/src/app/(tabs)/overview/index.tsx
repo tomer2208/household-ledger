@@ -47,7 +47,7 @@ export default function OverviewScreen() {
   const pace = monthPace();
   const days = daysToGo();
   const actions = useCategoryActions(hh.data?.household?.id);
-  const plan = incomePlan(o?.income, o?.total_cap ?? 0);
+  const plan = incomePlan(o?.income, o?.total_base_cap ?? 0);
   // P1-17: where the month is heading; the line opens how it adds up.
   const forecast = !past ? forecastSummary(o?.forecast, o?.total_cap ?? 0) : null;
   const [showForecast, setShowForecast] = useState(false);
@@ -61,6 +61,7 @@ export default function OverviewScreen() {
         name={cat.name}
         symbol={cat.sf_symbol}
         cap={cap}
+        carry={cat.carry}
         spent={cat.spent}
         currency={cur}
         pace={past || cap == null ? undefined : pace}

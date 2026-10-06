@@ -140,6 +140,8 @@ export const he: Dict = {
       kind === 'left' ? `${name}, נשארו ${amount} מתוך ${cap}` : `${name}, חריגה של ${amount} מעבר ל-${cap}`,
     aheadOfPace: ', מהר מהקצב',
     onPace: ', בקצב',
+    carry: (base: string, amount: string, kind: 'in' | 'over') =>
+      kind === 'in' ? `${base} + ${amount} מחודש קודם` : `${base} − ${amount} חריגה מחודש קודם`,
   },
   month: {
     previous: (month: string) => `החודש הקודם, ${month}`,
@@ -325,6 +327,8 @@ export const he: Dict = {
     moved: 'הועבר לחיסכון',
     taken: 'נלקח מהחיסכון',
     spentOfBudgeted: (spent: string, cap: string) => `הוצאו ${spent} מתוך תקציב של ${cap}`,
+    carried: (amount: string, kind: 'left' | 'over') =>
+      kind === 'left' ? `${amount} עברו לתקציבים של החודש הבא` : `חריגה של ${amount} עברה לתקציבים של החודש הבא`,
     writing: 'הדוח של החודש נכתב…',
     byAi: 'נכתב על ידי AI מהמספרים שלכם',
     summary: 'סיכום',
@@ -473,6 +477,10 @@ export const he: Dict = {
     restore: 'שחזור הקטגוריה',
     deleteCategory: 'מחיקת הקטגוריה',
     withNewBudget: 'החודש, עם התקציב החדש',
+    rollover: 'העברת היתרה לחודש הבא',
+    rolloverFooter: 'בסוף החודש, מה שנשאר מהתקציב מתווסף לתקציב של החודש הבא במקום לעבור לחיסכון. זה מתחיל מהחודש הבא שנסגר.',
+    rolloverOverspend: 'גם חריגה עוברת לחודש הבא',
+    rolloverOverspendFooter: 'הוצאה מעבר לתקציב מקטינה את התקציב של החודש הבא. כשכבוי, החיסכון מכסה אותה.',
   },
   merchants: {
     title: 'בתי עסק',

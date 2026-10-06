@@ -93,7 +93,7 @@ export function useCategories() {
       (await must(
         supabase
           .from('categories')
-          .select('id,name,sf_symbol,kind,sort_order,archived_at,budget_acknowledged,created_via')
+          .select('id,name,sf_symbol,kind,sort_order,archived_at,budget_acknowledged,created_via,rollover,rollover_overspend')
           .eq('kind', 'expense')
           .order('sort_order')
           .order('name'),
@@ -235,7 +235,7 @@ export function useMonthCloses() {
       (await must(
         supabase
           .from('month_closes')
-          .select('budget_month,total_cap_minor,total_spent_minor,net_minor,snapshot,closed_at')
+          .select('budget_month,total_cap_minor,total_spent_minor,net_minor,carried_minor,snapshot,closed_at')
           .order('budget_month', { ascending: false }),
       )) as MonthClose[],
   });
@@ -569,7 +569,17 @@ export function useCategoryDelete() {
 
 export const useSaveCategory = () =>
   useHHMutation(
-    (v: { id?: string; householdId: string; name: string; sfSymbol: string; archived?: boolean; acknowledge?: boolean }) =>
+    (v: {
+      id?: string;
+      householdId: string;
+      name: string;
+      sfSymbol: string;
+      archived?: boolean;
+      acknowledge?: boolean;
+      // P1-14: carry what's left (and, with overspend, what's over) into next month
+      rollover?: boolean;
+      rolloverOverspend?: boolean;
+    }) =>
       v.id
         ? must(
             supabase
@@ -579,6 +589,8 @@ export const useSaveCategory = () =>
                 sf_symbol: v.sfSymbol,
                 ...(v.archived !== undefined ? { archived_at: v.archived ? new Date().toISOString() : null } : {}),
                 ...(v.acknowledge ? { budget_acknowledged: true } : {}),
+                ...(v.rollover !== undefined ? { rollover: v.rollover } : {}),
+                ...(v.rolloverOverspend !== undefined ? { rollover_overspend: v.rolloverOverspend } : {}),
               })
               .eq('id', v.id),
           )

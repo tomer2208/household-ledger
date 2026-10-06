@@ -13,6 +13,7 @@ export function BudgetRow({
   name,
   symbol,
   cap,
+  carry = 0,
   spent,
   noBudget,
   currency,
@@ -26,6 +27,8 @@ export function BudgetRow({
   name: string;
   symbol: string;
   cap: number | null;
+  // P1-14: what carried in from last month, already part of cap (negative after an overspend)
+  carry?: number;
   spent: number;
   noBudget?: boolean;
   currency: string;
@@ -108,6 +111,11 @@ export function BudgetRow({
                   </Text>
                 ) : null}
               </Text>
+              {carry !== 0 ? (
+                <Text style={[s.small, { color: c.secondaryLabel, textAlign: textEnd() }]}>
+                  {t.budget.carry(formatMoney(st.cap - carry, currency), formatMoney(Math.abs(carry), currency), carry > 0 ? 'in' : 'over')}
+                </Text>
+              ) : null}
             </>
           )}
         </View>

@@ -136,6 +136,9 @@ export const en = {
     a11y: (name: string, amount: string, kind: 'left' | 'over', cap: string) => `${name}, ${amount} ${kind} of ${cap}`,
     aheadOfPace: ', ahead of pace',
     onPace: ', on pace',
+    // P1-14: the month's budget is the one set plus what carried in from last month
+    carry: (base: string, amount: string, kind: 'in' | 'over') =>
+      kind === 'in' ? `${base} + ${amount} from last month` : `${base} − ${amount} overspent last month`,
   },
   month: {
     previous: (month: string) => `Previous month, ${month}`,
@@ -319,6 +322,8 @@ export const en = {
     moved: 'Moved to savings',
     taken: 'Taken from savings',
     spentOfBudgeted: (spent: string, cap: string) => `${spent} spent of ${cap} budgeted`,
+    carried: (amount: string, kind: 'left' | 'over') =>
+      kind === 'left' ? `${amount} rolled over to next month’s budgets` : `${amount} overspent rolled over to next month’s budgets`,
     writing: 'Writing this month’s report…',
     byAi: 'Written by AI from your numbers',
     summary: 'Summary',
@@ -468,6 +473,10 @@ export const en = {
     restore: 'Restore Category',
     deleteCategory: 'Delete Category',
     withNewBudget: 'This month, with the new budget',
+    rollover: 'Roll Over What’s Left',
+    rolloverFooter: 'At month end, what’s left of this budget is added to next month’s, instead of going to savings. It starts with the next month that closes.',
+    rolloverOverspend: 'Roll Over Overspending Too',
+    rolloverOverspendFooter: 'Spending over the budget makes next month’s smaller. Off: savings cover it.',
   },
   merchants: {
     title: 'Merchants',

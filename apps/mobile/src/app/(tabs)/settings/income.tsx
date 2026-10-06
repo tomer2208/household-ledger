@@ -32,7 +32,7 @@ function Editor() {
     <Screen>
       <Stack.Screen options={{ title: t.settings.income, headerLargeTitle: false }} />
       {/* Live: the plan under the income being typed, before saving. */}
-      <IncomePlanCard income={typed || null} budgeted={o.total_cap} currency={cur} />
+      <IncomePlanCard income={typed || null} budgeted={o.total_base_cap} currency={cur} />
 
       <Section
         title={t.income.section}

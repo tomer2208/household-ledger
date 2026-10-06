@@ -50,6 +50,12 @@ export default function MonthReport() {
           <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>
             {t.reports.spentOfBudgeted(formatMoney(close.total_spent_minor, cur), formatMoney(close.total_cap_minor, cur))}
           </Text>
+          {/* P1-14: what stayed with its category instead of moving to savings */}
+          {close.carried_minor !== 0 ? (
+            <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>
+              {t.reports.carried(formatMoney(Math.abs(close.carried_minor), cur), close.carried_minor > 0 ? 'left' : 'over')}
+            </Text>
+          ) : null}
         </View>
       ) : null}
 

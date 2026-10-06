@@ -89,13 +89,13 @@ isOneToOne: false
                   ]
                 },"categories": {
                   Row: {
-                    "archived_at": string | null,"budget_acknowledged": boolean,"created_via": string,"household_id": string,"id": string,"kind": string,"name": string,"sf_symbol": string,"sort_order": number
+                    "archived_at": string | null,"budget_acknowledged": boolean,"created_via": string,"household_id": string,"id": string,"kind": string,"name": string,"rollover": boolean,"rollover_overspend": boolean,"sf_symbol": string,"sort_order": number
                   }
                   Insert: {
-                    "archived_at"?: string | null,"budget_acknowledged"?: boolean,"created_via"?: string,"household_id": string,"id"?: string,"kind"?: string,"name": string,"sf_symbol"?: string,"sort_order"?: number
+                    "archived_at"?: string | null,"budget_acknowledged"?: boolean,"created_via"?: string,"household_id": string,"id"?: string,"kind"?: string,"name": string,"rollover"?: boolean,"rollover_overspend"?: boolean,"sf_symbol"?: string,"sort_order"?: number
                   }
                   Update: {
-                    "archived_at"?: string | null,"budget_acknowledged"?: boolean,"created_via"?: string,"household_id"?: string,"id"?: string,"kind"?: string,"name"?: string,"sf_symbol"?: string,"sort_order"?: number
+                    "archived_at"?: string | null,"budget_acknowledged"?: boolean,"created_via"?: string,"household_id"?: string,"id"?: string,"kind"?: string,"name"?: string,"rollover"?: boolean,"rollover_overspend"?: boolean,"sf_symbol"?: string,"sort_order"?: number
                   }
                   Relationships: [
                     {
@@ -125,6 +125,31 @@ isOneToOne: false
       referencedColumns: ["id","household_id"]
     },{
       foreignKeyName: "category_budgets_household_id_fkey"
+      columns: ["household_id"]
+isOneToOne: false
+      referencedRelation: "households"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"category_rollovers": {
+                  Row: {
+                    "amount_minor": number,"budget_month": string,"category_id": string,"created_at": string,"household_id": string
+                  }
+                  Insert: {
+                    "amount_minor": number,"budget_month": string,"category_id": string,"created_at"?: string,"household_id": string
+                  }
+                  Update: {
+                    "amount_minor"?: number,"budget_month"?: string,"category_id"?: string,"created_at"?: string,"household_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "category_rollovers_category_id_fkey"
+      columns: ["category_id"]
+isOneToOne: false
+      referencedRelation: "categories"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "category_rollovers_household_id_fkey"
       columns: ["household_id"]
 isOneToOne: false
       referencedRelation: "households"
@@ -285,13 +310,13 @@ isOneToOne: false
                   ]
                 },"month_closes": {
                   Row: {
-                    "budget_month": string,"closed_at": string,"household_id": string,"net_minor": number,"snapshot": NonNullable<Json>,"total_cap_minor": number,"total_spent_minor": number
+                    "budget_month": string,"carried_minor": number,"closed_at": string,"household_id": string,"net_minor": number,"snapshot": NonNullable<Json>,"total_cap_minor": number,"total_spent_minor": number
                   }
                   Insert: {
-                    "budget_month": string,"closed_at"?: string,"household_id": string,"net_minor": number,"snapshot": NonNullable<Json>,"total_cap_minor": number,"total_spent_minor": number
+                    "budget_month": string,"carried_minor"?: number,"closed_at"?: string,"household_id": string,"net_minor": number,"snapshot": NonNullable<Json>,"total_cap_minor": number,"total_spent_minor": number
                   }
                   Update: {
-                    "budget_month"?: string,"closed_at"?: string,"household_id"?: string,"net_minor"?: number,"snapshot"?: NonNullable<Json>,"total_cap_minor"?: number,"total_spent_minor"?: number
+                    "budget_month"?: string,"carried_minor"?: number,"closed_at"?: string,"household_id"?: string,"net_minor"?: number,"snapshot"?: NonNullable<Json>,"total_cap_minor"?: number,"total_spent_minor"?: number
                   }
                   Relationships: [
                     {

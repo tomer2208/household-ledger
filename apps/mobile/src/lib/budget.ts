@@ -126,3 +126,22 @@ export function trendSummary(months: TrendMonth[]) {
   const avg = before.length ? Math.round(before.reduce((a, x) => a + x.spent, 0) / before.length) : 0;
   return { now, avg, pct: avg > 0 ? Math.round(((now - avg) * 100) / avg) : null };
 }
+
+// P1-14: what this month's close is on its way to move into savings: what the budgets don't use
+// plus income never put in a budget, less what rolls over into next month instead. A category
+// with rollover carries its remainder if it had a budget of its own; an overspend carries too,
+// unless the category says otherwise (then savings cover it), as app.close_month does.
+type ToSavingsCategory = { id: string; cap: number | null; base_cap: number | null; spent: number; rollover: boolean };
+
+export function headingToSavings(
+  o: { net: number; unassigned: number | null; categories: ToSavingsCategory[] },
+  rollsOverspend: (categoryId: string) => boolean,
+) {
+  let carried = 0;
+  for (const c of o.categories) {
+    if (!c.rollover || !(c.base_cap && c.base_cap > 0)) continue;
+    const left = (c.cap ?? 0) - c.spent;
+    if (left >= 0 || rollsOverspend(c.id)) carried += left;
+  }
+  return o.net + (o.unassigned ?? 0) - carried;
+}

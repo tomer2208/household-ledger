@@ -44,7 +44,7 @@ export default function CategoriesScreen() {
           {(open) => (
             <IncomePlanCard
               income={overview.data!.income}
-              budgeted={overview.data!.total_cap}
+              budgeted={overview.data!.total_base_cap}
               currency={cur}
               onPress={income.edit}
               onLongPress={open}
@@ -57,7 +57,7 @@ export default function CategoriesScreen() {
           )}
         </SwipeRow>
       ) : overview.data ? (
-        <IncomePlanCard income={null} budgeted={overview.data.total_cap} currency={cur} onPress={income.edit} />
+        <IncomePlanCard income={null} budgeted={overview.data.total_base_cap} currency={cur} onPress={income.edit} />
       ) : null}
       <Section
         title={t.month.thisMonth}
@@ -71,6 +71,7 @@ export default function CategoriesScreen() {
                   name={cat.name}
                   symbol={cat.sf_symbol}
                   cap={o?.cap ?? null}
+                  carry={o?.carry}
                   spent={o?.spent ?? 0}
                   noBudget={o?.no_budget}
                   currency={cur}

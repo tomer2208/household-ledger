@@ -20,7 +20,11 @@ export type Member = Pick<Tables<'household_members'>, 'user_id' | 'display_name
 };
 
 export type Category = Narrow<
-  Pick<Tables<'categories'>, 'id' | 'name' | 'sf_symbol' | 'kind' | 'sort_order' | 'archived_at' | 'budget_acknowledged' | 'created_via'>,
+  Pick<
+    Tables<'categories'>,
+    | 'id' | 'name' | 'sf_symbol' | 'kind' | 'sort_order' | 'archived_at' | 'budget_acknowledged' | 'created_via'
+    | 'rollover' | 'rollover_overspend'
+  >,
   { kind: 'expense' | 'savings'; created_via: 'seed' | 'app' | 'shortcut' }
 >;
 
@@ -53,7 +57,13 @@ export type OverviewCategory = {
   id: string;
   name: string;
   sf_symbol: string;
+  // P1-14 (migration 44): cap is the month's budget including what carried in from last month
+  // (carry, negative after an overspend); base_cap is the budget that was set, which the category
+  // screen edits.
   cap: number | null;
+  base_cap: number | null;
+  carry: number;
+  rollover: boolean;
   spent: number;
   pct: number | null;
   no_budget: boolean;
@@ -69,10 +79,14 @@ export type Overview = {
   month: string;
   closed: boolean;
   currency: string;
-  // Combined monthly income, null until set. unassigned = income − total_cap (null without income).
+  // Combined monthly income, null until set. unassigned = income − total_base_cap (null without
+  // income): income is planned against the budgets set, not what carried in.
   income: number | null;
   unassigned: number | null;
+  // total_cap and net include what carried in (total_carry); total_base_cap doesn't.
   total_cap: number;
+  total_base_cap: number;
+  total_carry: number;
   total_spent: number;
   net: number;
   savings_balance: number;
@@ -98,8 +112,10 @@ export type SavingsEntry = Narrow<
 >;
 
 export type MonthClose = Narrow<
-  Pick<Tables<'month_closes'>, 'budget_month' | 'total_cap_minor' | 'total_spent_minor' | 'net_minor' | 'snapshot' | 'closed_at'>,
-  { snapshot: { category_id: string; name: string; cap: number; spent: number }[] }
+  Pick<Tables<'month_closes'>, 'budget_month' | 'total_cap_minor' | 'total_spent_minor' | 'net_minor' | 'carried_minor' | 'snapshot' | 'closed_at'>,
+  // carry_in / carry_out: what came from the month before and went on to the next (P1-14);
+  // closes before migration 44 don't have them.
+  { snapshot: { category_id: string; name: string; cap: number; spent: number; carry_in?: number; carry_out?: number }[] }
 >;
 
 export type Proposal = Narrow<

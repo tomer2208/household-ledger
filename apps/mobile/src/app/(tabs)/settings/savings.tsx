@@ -2,9 +2,10 @@ import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { useAddSavingsEntry, useGoals, useHousehold, useOverview, useSavingsLedger } from '@/api/queries';
+import { useAddSavingsEntry, useCategories, useGoals, useHousehold, useOverview, useSavingsLedger } from '@/api/queries';
 import { GoalLine } from '@/components/goal-line';
 import { Button, CategoryIcon, ErrorText, Field, ProgressBar, Row, Screen, Section } from '@/components/ui';
+import { headingToSavings } from '@/lib/budget';
 import { monthLabel, shortDate } from '@/lib/dates';
 import { t } from '@/lib/i18n';
 import { formatMoney, parseMoneyInput } from '@/lib/money';
@@ -32,9 +33,11 @@ export default function SavingsScreen() {
   const [direction, setDirection] = useState<'out' | 'in'>('out');
   const minor = parseMoneyInput(amount);
   const entries = ledger.data ?? [];
-  // What month close will move: what the budgets don't use, plus income never put in a budget.
+  // What month close will move: what the budgets don't use, plus income never put in a budget,
+  // less what rolls over to next month (P1-14).
   const o = overview.data;
-  const coming = o ? o.net + (o.unassigned ?? 0) : 0;
+  const cats = useCategories().data;
+  const coming = o ? headingToSavings(o, (id) => cats?.find((x) => x.id === id)?.rollover_overspend ?? true) : 0;
 
   return (
     <Screen>
@@ -42,7 +45,7 @@ export default function SavingsScreen() {
       <View style={[s.hero, { backgroundColor: c.cell }]}>
         <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>{t.savings.balance}</Text>
         <Text style={[s.heroAmount, { color: c.label }]}>{formatMoney(overview.data?.savings_balance ?? 0, cur)}</Text>
-        {o && (o.total_cap > 0 || o.income != null) ? (
+        {o && (o.total_base_cap > 0 || o.income != null) ? (
           <Text style={[s.heroMeta, { color: coming >= 0 ? c.green : c.red }]}>
             {t.savings.onTheWay(formatMoney(coming, cur, { sign: true }))}
           </Text>
