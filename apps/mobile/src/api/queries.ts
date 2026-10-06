@@ -184,7 +184,7 @@ export function useRecurring() {
         supabase
           .from('recurring_rules')
           .select(
-            'id,title,category_id,amount_minor,currency,amount_kind,interval_months,day_of_month,start_date,end_date,next_run_date,paused,categories(name,sf_symbol),installment_count,installment_first',
+            'id,title,category_id,amount_minor,currency,amount_kind,interval_months,day_of_month,start_date,end_date,next_run_date,paused,categories(name,sf_symbol),installment_count,installment_first,spread',
           )
           .is('deleted_at', null)
           .order('next_run_date'),
@@ -235,7 +235,7 @@ export function useMonthCloses() {
       (await must(
         supabase
           .from('month_closes')
-          .select('budget_month,total_cap_minor,total_spent_minor,net_minor,carried_minor,snapshot,closed_at')
+          .select('budget_month,total_cap_minor,total_spent_minor,net_minor,carried_minor,reserved_minor,snapshot,closed_at')
           .order('budget_month', { ascending: false }),
       )) as MonthClose[],
   });
@@ -613,6 +613,8 @@ export type RecurringInput = {
   dayOfMonth: number;
   startDate: string;
   paused?: boolean;
+  // P1-16: set a share aside every month until it's due (only every 2+ months)
+  spread?: boolean;
 };
 
 export const useSaveRecurring = () =>
@@ -627,6 +629,7 @@ export const useSaveRecurring = () =>
       day_of_month: v.dayOfMonth,
       start_date: v.startDate,
       paused: v.paused ?? false,
+      spread: v.intervalMonths > 1 && !!v.spread,
     };
     return v.id
       ? must(supabase.from('recurring_rules').update(row).eq('id', v.id))

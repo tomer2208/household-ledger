@@ -72,6 +72,8 @@ export default function CategoriesScreen() {
                   symbol={cat.sf_symbol}
                   cap={o?.cap ?? null}
                   carry={o?.carry}
+                  reserve={o?.reserve}
+                  funds={o?.funds}
                   spent={o?.spent ?? 0}
                   noBudget={o?.no_budget}
                   currency={cur}

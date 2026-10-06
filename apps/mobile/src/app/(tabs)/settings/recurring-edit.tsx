@@ -6,7 +6,7 @@ import { useCategories, useDeleteRecurring, useHousehold, useRecurring, useSaveR
 import type { RecurringRule } from '@/api/types';
 import { CategoryPicker } from '@/components/category-picker';
 import { Button, ErrorText, Field, Screen, Section } from '@/components/ui';
-import { CURRENCIES, minorToInput, parseMoneyInput } from '@/lib/money';
+import { CURRENCIES, formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
 import { useColors } from '@/lib/theme';
 import { todayYmd } from '@/lib/dates';
 import { confirm } from '@/lib/confirm';
@@ -37,6 +37,7 @@ function Editor({ id, rule }: { id?: string; rule?: RecurringRule }) {
   const [day, setDay] = useState(String(rule?.day_of_month ?? Number(todayYmd().slice(8))));
   const [startDate, setStartDate] = useState(rule?.start_date ?? todayYmd());
   const [paused, setPaused] = useState(rule?.paused ?? false);
+  const [spread, setSpread] = useState(rule?.spread ?? false);
   const [categoryId, setCategoryId] = useState<string | null>(rule?.category_id ?? null);
 
   const minor = parseMoneyInput(amount);
@@ -57,6 +58,7 @@ function Editor({ id, rule }: { id?: string; rule?: RecurringRule }) {
       dayOfMonth: dayNum,
       startDate,
       paused,
+      spread,
     });
     router.back();
   }
@@ -91,6 +93,16 @@ function Editor({ id, rule }: { id?: string; rule?: RecurringRule }) {
           <Switch value={paused} onValueChange={setPaused} />
         </View>
       </Section>
+
+      {/* P1-16: a payment every few months, set aside a share at a time */}
+      {interval > 1 ? (
+        <Section footer={t.recurring.spreadFooter(minor ? formatMoney(Math.round(minor / interval), currency) : null)}>
+          <View style={s.row}>
+            <Text style={[s.rowLabel, { color: c.label }]}>{t.recurring.spread}</Text>
+            <Switch value={spread} onValueChange={setSpread} accessibilityLabel={t.recurring.spread} />
+          </View>
+        </Section>
+      ) : null}
 
       <Text style={[s.label, { color: c.secondaryLabel }]}>{t.add.category}</Text>
       <CategoryPicker categories={cats.data ?? []} value={categoryId} onChange={setCategoryId} />

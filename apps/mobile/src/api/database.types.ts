@@ -310,13 +310,13 @@ isOneToOne: false
                   ]
                 },"month_closes": {
                   Row: {
-                    "budget_month": string,"carried_minor": number,"closed_at": string,"household_id": string,"net_minor": number,"snapshot": NonNullable<Json>,"total_cap_minor": number,"total_spent_minor": number
+                    "budget_month": string,"carried_minor": number,"closed_at": string,"household_id": string,"net_minor": number,"reserved_minor": number,"snapshot": NonNullable<Json>,"total_cap_minor": number,"total_spent_minor": number
                   }
                   Insert: {
-                    "budget_month": string,"carried_minor"?: number,"closed_at"?: string,"household_id": string,"net_minor": number,"snapshot": NonNullable<Json>,"total_cap_minor": number,"total_spent_minor": number
+                    "budget_month": string,"carried_minor"?: number,"closed_at"?: string,"household_id": string,"net_minor": number,"reserved_minor"?: number,"snapshot": NonNullable<Json>,"total_cap_minor": number,"total_spent_minor": number
                   }
                   Update: {
-                    "budget_month"?: string,"carried_minor"?: number,"closed_at"?: string,"household_id"?: string,"net_minor"?: number,"snapshot"?: NonNullable<Json>,"total_cap_minor"?: number,"total_spent_minor"?: number
+                    "budget_month"?: string,"carried_minor"?: number,"closed_at"?: string,"household_id"?: string,"net_minor"?: number,"reserved_minor"?: number,"snapshot"?: NonNullable<Json>,"total_cap_minor"?: number,"total_spent_minor"?: number
                   }
                   Relationships: [
                     {
@@ -365,15 +365,46 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
-                },"recurring_rules": {
+                },"recurring_reserves": {
                   Row: {
-                    "amount_kind": string,"amount_minor": number,"category_id": string,"created_at": string,"created_by": string | null,"currency": string,"day_of_month": number,"deleted_at": string | null,"end_date": string | null,"household_id": string,"id": string,"installment_count": number | null,"installment_first": string | null,"interval_months": number,"merchant_id": string | null,"next_run_date": string | null,"paused": boolean,"start_date": string,"title": string,"updated_at": string
+                    "amount_minor": number,"budget_month": string,"category_id": string,"created_at": string,"household_id": string,"rule_id": string
                   }
                   Insert: {
-                    "amount_kind": string,"amount_minor": number,"category_id": string,"created_at"?: string,"created_by"?: string | null,"currency": string,"day_of_month": number,"deleted_at"?: string | null,"end_date"?: string | null,"household_id": string,"id"?: string,"installment_count"?: number | null,"installment_first"?: string | null,"interval_months"?: number,"merchant_id"?: string | null,"next_run_date"?: string | null,"paused"?: boolean,"start_date": string,"title": string,"updated_at"?: string
+                    "amount_minor": number,"budget_month": string,"category_id": string,"created_at"?: string,"household_id": string,"rule_id": string
                   }
                   Update: {
-                    "amount_kind"?: string,"amount_minor"?: number,"category_id"?: string,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"day_of_month"?: number,"deleted_at"?: string | null,"end_date"?: string | null,"household_id"?: string,"id"?: string,"installment_count"?: number | null,"installment_first"?: string | null,"interval_months"?: number,"merchant_id"?: string | null,"next_run_date"?: string | null,"paused"?: boolean,"start_date"?: string,"title"?: string,"updated_at"?: string
+                    "amount_minor"?: number,"budget_month"?: string,"category_id"?: string,"created_at"?: string,"household_id"?: string,"rule_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "recurring_reserves_category_id_fkey"
+      columns: ["category_id"]
+isOneToOne: false
+      referencedRelation: "categories"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "recurring_reserves_household_id_fkey"
+      columns: ["household_id"]
+isOneToOne: false
+      referencedRelation: "households"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "recurring_reserves_rule_id_fkey"
+      columns: ["rule_id"]
+isOneToOne: false
+      referencedRelation: "recurring_rules"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"recurring_rules": {
+                  Row: {
+                    "amount_kind": string,"amount_minor": number,"category_id": string,"created_at": string,"created_by": string | null,"currency": string,"day_of_month": number,"deleted_at": string | null,"end_date": string | null,"household_id": string,"id": string,"installment_count": number | null,"installment_first": string | null,"interval_months": number,"merchant_id": string | null,"next_run_date": string | null,"paused": boolean,"spread": boolean,"start_date": string,"title": string,"updated_at": string
+                  }
+                  Insert: {
+                    "amount_kind": string,"amount_minor": number,"category_id": string,"created_at"?: string,"created_by"?: string | null,"currency": string,"day_of_month": number,"deleted_at"?: string | null,"end_date"?: string | null,"household_id": string,"id"?: string,"installment_count"?: number | null,"installment_first"?: string | null,"interval_months"?: number,"merchant_id"?: string | null,"next_run_date"?: string | null,"paused"?: boolean,"spread"?: boolean,"start_date": string,"title": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "amount_kind"?: string,"amount_minor"?: number,"category_id"?: string,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"day_of_month"?: number,"deleted_at"?: string | null,"end_date"?: string | null,"household_id"?: string,"id"?: string,"installment_count"?: number | null,"installment_first"?: string | null,"interval_months"?: number,"merchant_id"?: string | null,"next_run_date"?: string | null,"paused"?: boolean,"spread"?: boolean,"start_date"?: string,"title"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {

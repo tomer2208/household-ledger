@@ -50,6 +50,12 @@ export default function MonthReport() {
           <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>
             {t.reports.spentOfBudgeted(formatMoney(close.total_spent_minor, cur), formatMoney(close.total_cap_minor, cur))}
           </Text>
+          {/* P1-16: what went into, or came out of, periodic payments' funds */}
+          {close.reserved_minor !== 0 ? (
+            <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>
+              {t.reports.reserved(formatMoney(Math.abs(close.reserved_minor), cur), close.reserved_minor > 0 ? 'in' : 'out')}
+            </Text>
+          ) : null}
           {/* P1-14: what stayed with its category instead of moving to savings */}
           {close.carried_minor !== 0 ? (
             <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>

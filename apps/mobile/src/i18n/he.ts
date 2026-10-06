@@ -140,8 +140,12 @@ export const he: Dict = {
       kind === 'left' ? `${name}, נשארו ${amount} מתוך ${cap}` : `${name}, חריגה של ${amount} מעבר ל-${cap}`,
     aheadOfPace: ', מהר מהקצב',
     onPace: ', בקצב',
-    carry: (base: string, amount: string, kind: 'in' | 'over') =>
-      kind === 'in' ? `${base} + ${amount} מחודש קודם` : `${base} − ${amount} חריגה מחודש קודם`,
+    carryIn: (amount: string) => `+ ${amount} מחודש קודם`,
+    carryOver: (amount: string) => `− ${amount} חריגה מחודש קודם`,
+    setAside: (amount: string) => `− ${amount} בצד לתשלומים`,
+    savedUp: (amount: string) => `+ ${amount} שנצברו לתשלומים`,
+    fund: (title: string, saved: string, target: string, due: string) => `${title}: נצברו ${saved} מתוך ${target} · תשלום ב${due}`,
+    fundDue: (title: string, saved: string) => `${title}: תשלום החודש, נצברו ${saved}`,
   },
   month: {
     previous: (month: string) => `החודש הקודם, ${month}`,
@@ -327,6 +331,8 @@ export const he: Dict = {
     moved: 'הועבר לחיסכון',
     taken: 'נלקח מהחיסכון',
     spentOfBudgeted: (spent: string, cap: string) => `הוצאו ${spent} מתוך תקציב של ${cap}`,
+    reserved: (amount: string, kind: 'in' | 'out') =>
+      kind === 'in' ? `${amount} נשמרו בצד לתשלומים תקופתיים` : `${amount} מהצבירה לתשלומים נוצלו`,
     carried: (amount: string, kind: 'left' | 'over') =>
       kind === 'left' ? `${amount} עברו לתקציבים של החודש הבא` : `חריגה של ${amount} עברה לתקציבים של החודש הבא`,
     writing: 'הדוח של החודש נכתב…',
@@ -542,6 +548,9 @@ export const he: Dict = {
     cancelTitle: 'לבטל את התשלומים שנשארו?',
     cancelBody: 'תשלומים ששולמו נשארים. לא יתווספו עוד.',
     cancelPayments: 'ביטול התשלומים',
+    spread: 'לחלק לאורך התקופה',
+    spreadFooter: (share: string | null) =>
+      `${share ? `כל חודש נשמרים בצד ${share}` : 'כל חודש נשמר בצד חלק'} מתקציב הקטגוריה, כך שהחודש של התשלום לא נראה כחריגה. מתאים לקטגוריה שיש לה תקציב.`,
   },
   savings: {
     balance: 'יתרה',

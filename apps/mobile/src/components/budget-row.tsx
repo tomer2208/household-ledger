@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { BudgetBreakdown } from './budget-breakdown';
 import { Badge, CategoryIcon, Icon, ProgressBar } from './ui';
+import type { Fund } from '@/api/types';
 import { budgetStatus } from '@/lib/budget';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
@@ -14,6 +16,8 @@ export function BudgetRow({
   symbol,
   cap,
   carry = 0,
+  reserve = 0,
+  funds = [],
   spent,
   noBudget,
   currency,
@@ -29,6 +33,9 @@ export function BudgetRow({
   cap: number | null;
   // P1-14: what carried in from last month, already part of cap (negative after an overspend)
   carry?: number;
+  // P1-16: what spread payments set aside (−) or release (+), also part of cap, and their funds
+  reserve?: number;
+  funds?: Fund[];
   spent: number;
   noBudget?: boolean;
   currency: string;
@@ -111,11 +118,7 @@ export function BudgetRow({
                   </Text>
                 ) : null}
               </Text>
-              {carry !== 0 ? (
-                <Text style={[s.small, { color: c.secondaryLabel, textAlign: textEnd() }]}>
-                  {t.budget.carry(formatMoney(st.cap - carry, currency), formatMoney(Math.abs(carry), currency), carry > 0 ? 'in' : 'over')}
-                </Text>
-              ) : null}
+              <BudgetBreakdown base={st.cap - carry - reserve} carry={carry} reserve={reserve} funds={funds} currency={currency} />
             </>
           )}
         </View>

@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { useCategories, useCategoryTrend, useHousehold, useOverview, useSaveCategory, useSetBudget } from '@/api/queries';
+import type { Fund } from '@/api/types';
+import { BudgetBreakdown } from '@/components/budget-breakdown';
 import { CategoryTrend } from '@/components/charts';
 import { Button, CategoryIcon, ErrorText, Field, ProgressBar, Row, Screen, Section } from '@/components/ui';
 import { budgetStatus, incomePlan } from '@/lib/budget';
@@ -44,6 +46,7 @@ function Editor({ id }: { id?: string }) {
   // The budget that was set; what carried in from last month (P1-14) comes on top of it.
   const baseCap = current?.base_cap ?? null;
   const carry = current?.carry ?? 0;
+  const reserve = current?.reserve ?? 0;
   const [cap, setCap] = useState(baseCap ? minorToInput(baseCap) : '');
   const [rollover, setRollover] = useState(cat?.rollover ?? false);
   const [overspend, setOverspend] = useState(cat?.rollover_overspend ?? true);
@@ -81,6 +84,8 @@ function Editor({ id }: { id?: string }) {
         <MonthStatus
           cap={capMinor}
           carry={carry}
+          reserve={reserve}
+          funds={current.funds}
           spent={current.spent}
           currency={cur}
           preview={capMinor !== baseCap}
@@ -180,20 +185,25 @@ function Editor({ id }: { id?: string }) {
 function MonthStatus({
   cap,
   carry,
+  reserve,
+  funds,
   spent,
   currency,
   preview,
 }: {
   cap: number | null;
   carry: number;
+  reserve: number;
+  funds: Fund[];
   spent: number;
   currency: string;
   preview: boolean;
 }) {
   const c = useColors();
   const pace = monthPace();
-  // the month's budget: the one being typed plus what carried in
-  const st = budgetStatus(cap == null && carry === 0 ? null : (cap ?? 0) + carry, spent);
+  // the month's budget: the one being typed, plus what carried in and what spread payments
+  // set aside or release
+  const st = budgetStatus(cap == null && carry === 0 && reserve === 0 ? null : (cap ?? 0) + carry + reserve, spent);
   const tone = st.kind === 'none' ? c.label : budgetTone(st.pct, c, pace);
   return (
     <View style={[s.status, { backgroundColor: c.cell }]} accessibilityLiveRegion="polite">
@@ -209,11 +219,7 @@ function MonthStatus({
           <Text style={[s.statusMeta, { color: c.secondaryLabel }]}>
             {t.common.of(formatMoney(st.spent, currency), formatMoney(st.cap, currency))}
           </Text>
-          {carry !== 0 ? (
-            <Text style={[s.statusMeta, { color: c.secondaryLabel }]}>
-              {t.budget.carry(formatMoney(cap ?? 0, currency), formatMoney(Math.abs(carry), currency), carry > 0 ? 'in' : 'over')}
-            </Text>
-          ) : null}
+          <BudgetBreakdown base={cap ?? 0} carry={carry} reserve={reserve} funds={funds} currency={currency} align="start" />
         </>
       )}
     </View>

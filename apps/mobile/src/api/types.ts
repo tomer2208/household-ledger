@@ -63,6 +63,10 @@ export type OverviewCategory = {
   cap: number | null;
   base_cap: number | null;
   carry: number;
+  // P1-16 (migration 45): what spread periodic payments set aside this month (negative) or
+  // release in the month they're paid (positive); also part of cap. funds: one per spread rule.
+  reserve: number;
+  funds: Fund[];
   rollover: boolean;
   spent: number;
   pct: number | null;
@@ -74,6 +78,19 @@ export type OverviewCategory = {
 // P1-17 (migration 38): spent so far + recurring payments still due + the rest of the month at
 // this month's pace (blended with the months before in its first days). Current month only.
 export type Forecast = { day: number; days: number; spent: number; upcoming: number; rest: number; total: number };
+
+// A spread payment's fund in a month: what it held before the month (balance), this month's
+// reserve (−share set aside, +release), the payment it's for (target, null without an FX rate)
+// and when that's due.
+export type Fund = {
+  rule_id: string;
+  title: string;
+  target: number | null;
+  balance: number;
+  reserve: number;
+  due_month: string | null;
+  due_now: boolean | null;
+};
 
 export type Overview = {
   month: string;
@@ -87,6 +104,7 @@ export type Overview = {
   total_cap: number;
   total_base_cap: number;
   total_carry: number;
+  total_reserve: number;
   total_spent: number;
   net: number;
   savings_balance: number;
@@ -99,7 +117,7 @@ export type RecurringRule = Narrow<
   Pick<
     Tables<'recurring_rules'>,
     | 'id' | 'title' | 'category_id' | 'amount_minor' | 'currency' | 'amount_kind' | 'interval_months' | 'day_of_month'
-    | 'start_date' | 'end_date' | 'next_run_date' | 'paused' | 'installment_count' | 'installment_first'
+    | 'start_date' | 'end_date' | 'next_run_date' | 'paused' | 'installment_count' | 'installment_first' | 'spread'
   >,
   { amount_kind: 'fixed' | 'estimated' }
 > & { categories: Pick<Tables<'categories'>, 'name' | 'sf_symbol'> | null };
@@ -112,10 +130,10 @@ export type SavingsEntry = Narrow<
 >;
 
 export type MonthClose = Narrow<
-  Pick<Tables<'month_closes'>, 'budget_month' | 'total_cap_minor' | 'total_spent_minor' | 'net_minor' | 'carried_minor' | 'snapshot' | 'closed_at'>,
+  Pick<Tables<'month_closes'>, 'budget_month' | 'total_cap_minor' | 'total_spent_minor' | 'net_minor' | 'carried_minor' | 'reserved_minor' | 'snapshot' | 'closed_at'>,
   // carry_in / carry_out: what came from the month before and went on to the next (P1-14);
   // closes before migration 44 don't have them.
-  { snapshot: { category_id: string; name: string; cap: number; spent: number; carry_in?: number; carry_out?: number }[] }
+  { snapshot: { category_id: string; name: string; cap: number; spent: number; carry_in?: number; carry_out?: number; reserve?: number }[] }
 >;
 
 export type Proposal = Narrow<

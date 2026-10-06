@@ -136,9 +136,13 @@ export const en = {
     a11y: (name: string, amount: string, kind: 'left' | 'over', cap: string) => `${name}, ${amount} ${kind} of ${cap}`,
     aheadOfPace: ', ahead of pace',
     onPace: ', on pace',
-    // P1-14: the month's budget is the one set plus what carried in from last month
-    carry: (base: string, amount: string, kind: 'in' | 'over') =>
-      kind === 'in' ? `${base} + ${amount} from last month` : `${base} − ${amount} overspent last month`,
+    // P1-14 / P1-16: how the month's budget adds up, after the budget that was set
+    carryIn: (amount: string) => `+ ${amount} from last month`,
+    carryOver: (amount: string) => `− ${amount} overspent last month`,
+    setAside: (amount: string) => `− ${amount} set aside`,
+    savedUp: (amount: string) => `+ ${amount} saved up`,
+    fund: (title: string, saved: string, target: string, due: string) => `${title}: ${saved} of ${target} saved · due ${due}`,
+    fundDue: (title: string, saved: string) => `${title}: due this month, ${saved} saved up`,
   },
   month: {
     previous: (month: string) => `Previous month, ${month}`,
@@ -322,6 +326,8 @@ export const en = {
     moved: 'Moved to savings',
     taken: 'Taken from savings',
     spentOfBudgeted: (spent: string, cap: string) => `${spent} spent of ${cap} budgeted`,
+    reserved: (amount: string, kind: 'in' | 'out') =>
+      kind === 'in' ? `${amount} set aside for periodic payments` : `${amount} of saved-up payments used`,
     carried: (amount: string, kind: 'left' | 'over') =>
       kind === 'left' ? `${amount} rolled over to next month’s budgets` : `${amount} overspent rolled over to next month’s budgets`,
     writing: 'Writing this month’s report…',
@@ -538,6 +544,10 @@ export const en = {
     cancelTitle: 'Cancel the remaining payments?',
     cancelBody: 'Payments already made stay. No more will be added.',
     cancelPayments: 'Cancel Payments',
+    // P1-16
+    spread: 'Spread Over the Period',
+    spreadFooter: (share: string | null) =>
+      `${share ? `Sets ${share} a month aside` : 'Sets a share aside every month'} in the category’s budget, so the month it’s paid isn’t over budget. For a category with a budget.`,
   },
   savings: {
     balance: 'Balance',

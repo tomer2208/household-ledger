@@ -12,7 +12,8 @@ export const TABLE_KEYS = {
   categories: ['categories', 'overview', 'transactions', 'transaction', 'pending', 'recurring', 'templates', 'suggest', 'merchants', 'trend'],
   category_budgets: ['overview', 'trend'],
   household_income: ['overview'],
-  recurring_rules: ['recurring', 'transactions', 'transaction'],
+  // Overview's forecast and spread payments (P1-16) read the rules
+  recurring_rules: ['recurring', 'transactions', 'transaction', 'overview'],
   // a month close writes the ledger, so the closed months move with it
   savings_ledger: ['savings', 'overview', 'closes', 'goals'],
   // P1-15: what goals hold, and what's free

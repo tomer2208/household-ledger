@@ -20,8 +20,15 @@ function serverMessages(): string[] {
   return [...out];
 }
 
-// Raised only when the app itself sends a malformed request, never by something a person does.
-const INTERNAL = new Set(['budgets must be a list', 'language must be en or he', 'bad search filter', 'not an object']);
+// Raised only when the app itself sends a malformed request, never by something a person does,
+// or (the last) only while a migration runs.
+const INTERNAL = new Set([
+  'budgets must be a list',
+  'language must be en or he',
+  'bad search filter',
+  'not an object',
+  'report_metrics is not the expected version',
+]);
 
 test('every error the server can raise reads as a Hebrew sentence (P1-6)', () => {
   const messages = serverMessages();

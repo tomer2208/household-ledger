@@ -62,6 +62,8 @@ export default function OverviewScreen() {
         symbol={cat.sf_symbol}
         cap={cap}
         carry={cat.carry}
+        reserve={cat.reserve}
+        funds={cat.funds}
         spent={cat.spent}
         currency={cur}
         pace={past || cap == null ? undefined : pace}

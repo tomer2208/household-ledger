@@ -16,11 +16,11 @@ const tx = (id: string, at: string, over: Partial<Transaction> = {}): Transactio
   }) as Transaction;
 
 const overview = (): Overview => ({
-  month: '2026-10-01', closed: false, currency: 'ILS', income: null, unassigned: null, total_cap: 10000, total_base_cap: 10000, total_carry: 0, total_spent: 3000, net: 7000,
+  month: '2026-10-01', closed: false, currency: 'ILS', income: null, unassigned: null, total_cap: 10000, total_base_cap: 10000, total_carry: 0, total_reserve: 0, total_spent: 3000, net: 7000,
   savings_balance: 0, pending_review: 1,
   categories: [
-    { id: 'food', name: 'Food', sf_symbol: 'cart', cap: 10000, base_cap: 10000, carry: 0, rollover: false, spent: 3000, pct: 30, no_budget: false },
-    { id: 'fun', name: 'Fun', sf_symbol: 'star', cap: null, base_cap: null, carry: 0, rollover: false, spent: 0, pct: null, no_budget: true },
+    { id: 'food', name: 'Food', sf_symbol: 'cart', cap: 10000, base_cap: 10000, carry: 0, reserve: 0, funds: [], rollover: false, spent: 3000, pct: 30, no_budget: false },
+    { id: 'fun', name: 'Fun', sf_symbol: 'star', cap: null, base_cap: null, carry: 0, reserve: 0, funds: [], rollover: false, spent: 0, pct: null, no_budget: true },
   ],
 });
 
