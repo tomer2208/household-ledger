@@ -27,6 +27,7 @@ import { useIsOnline } from '@/lib/query';
 import { useColors } from '@/lib/theme';
 import { installmentNo } from '@/lib/installments';
 import { useTransactionActions } from '@/lib/transaction-actions';
+import { fontFamily } from '@/lib/tokens';
 
 export default function TransactionDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -96,7 +97,8 @@ function Editor({ tx }: { tx: Transaction }) {
         ...(dayChanged ? { occurred_at: onDay(day, new Date(tx.occurred_at)) } : {}),
         // US-R1 AC4: entering the real amount of an estimate confirms it.
         ...(tx.status === 'estimated' && signedMinor !== tx.amount_minor ? { status: 'confirmed' as const } : {}),
-        ...(tx.status === 'pending_review' && categoryId !== tx.category_id ? { status: 'confirmed' as const } : {}),
+        // D3: saving an expense that waits for review confirms it, also when the guess was right.
+        ...(tx.status === 'pending_review' ? { status: 'confirmed' as const } : {}),
       },
     }).catch((e) => toast({ message: errorMessage(e) }));
   }
@@ -215,10 +217,10 @@ function Editor({ tx }: { tx: Transaction }) {
 }
 
 const s = StyleSheet.create({
-  hint: { fontSize: 13, marginHorizontal: 32, marginTop: 6 },
+  hint: { fontFamily: fontFamily.body, fontSize: 13, marginHorizontal: 32, marginTop: 6 },
   kind: { marginTop: 16 },
   split: { paddingVertical: 12, gap: 12 },
   splitActions: { marginHorizontal: 16, gap: 6 },
-  label: { fontSize: 13, marginStart: 32, marginTop: 22, marginBottom: 8 },
+  label: { fontFamily: fontFamily.body, fontSize: 13, marginStart: 32, marginTop: 22, marginBottom: 8 },
   actions: { marginHorizontal: 16, marginTop: 24, gap: 8 },
 });

@@ -1,8 +1,9 @@
-import { ColorValue, TextStyle, useColorScheme } from 'react-native';
+import { ColorValue, TextStyle } from 'react-native';
 
 import { dark, light, type Palette } from './colors';
 import { iosPalette } from './palette';
 import { envelope, fontFamily } from './tokens';
+import { useScheme } from './appearance';
 
 export { dark, light, type Palette } from './colors';
 export * as tokens from './tokens';
@@ -20,7 +21,7 @@ export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
 export const radius = { row: 10, hero: 14, pill: 999 } as const;
 
 export function useColors(): Palette {
-  const scheme = useColorScheme();
+  const scheme = useScheme();
   if (iosPalette) return iosPalette;
   return scheme === 'dark' ? dark : light;
 }

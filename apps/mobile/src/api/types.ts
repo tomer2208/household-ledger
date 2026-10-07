@@ -5,6 +5,8 @@
 // What an RPC returns as JSON (Overview, report metrics, capture health) is described by hand,
 // next to the function that builds it.
 
+import type { CategoryColor } from '@/lib/tokens/palette.gen';
+
 import type { Tables } from './database.types';
 
 // `R` with the columns in `N` replaced by narrower types.
@@ -23,9 +25,9 @@ export type Category = Narrow<
   Pick<
     Tables<'categories'>,
     | 'id' | 'name' | 'sf_symbol' | 'kind' | 'sort_order' | 'archived_at' | 'budget_acknowledged' | 'created_via'
-    | 'rollover' | 'rollover_overspend'
+    | 'rollover' | 'rollover_overspend' | 'color' | 'icon' | 'hidden'
   >,
-  { kind: 'expense' | 'savings'; created_via: 'seed' | 'app' | 'shortcut' }
+  { kind: 'expense' | 'savings'; created_via: 'seed' | 'app' | 'shortcut'; color: CategoryColor }
 >;
 
 export type TxStatus = 'confirmed' | 'pending_review' | 'estimated';

@@ -10,6 +10,7 @@ import { fill, flatten } from '@/lib/fill';
 import { lang, t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { budgetTone, moneyText, useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 const TONE_ICON = { positive: 'checkmark.circle.fill', warning: 'exclamationmark.triangle.fill', neutral: 'sparkles' } as const;
 
@@ -150,22 +151,22 @@ export default function MonthReport() {
 }
 
 const s = StyleSheet.create({
-  chartHint: { fontSize: 13, marginHorizontal: 32, marginTop: 18 },
+  chartHint: { fontFamily: fontFamily.body, fontSize: 13, marginHorizontal: 32, marginTop: 18 },
   hero: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 18, gap: 6 },
-  heroLabel: { fontSize: 15 },
+  heroLabel: { fontFamily: fontFamily.body, fontSize: 15 },
   heroAmount: { fontSize: 36, fontWeight: '700', ...moneyText },
-  heroMeta: { fontSize: 14, fontVariant: ['tabular-nums'] },
+  heroMeta: { fontFamily: fontFamily.body, fontSize: 14, fontVariant: ['tabular-nums'] },
   writing: { flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center', padding: 24 },
   story: { marginHorizontal: 16, marginTop: 16, borderRadius: 14, padding: 18, gap: 10 },
   badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  badge: { fontSize: 13, fontWeight: '600', textTransform: 'uppercase' },
-  headline: { fontSize: 22, fontWeight: '700' },
-  summary: { fontSize: 16, lineHeight: 23 },
+  badge: { fontFamily: fontFamily.body, fontSize: 13, fontWeight: '600', textTransform: 'uppercase' },
+  headline: { fontFamily: fontFamily.body, fontSize: 22, fontWeight: '700' },
+  summary: { fontFamily: fontFamily.body, fontSize: 16, lineHeight: 23 },
   highlight: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
-  highlightText: { flex: 1, fontSize: 15, lineHeight: 21 },
+  highlightText: { fontFamily: fontFamily.body, flex: 1, fontSize: 15, lineHeight: 21 },
   note: { paddingHorizontal: 16, paddingVertical: 12, gap: 4 },
-  noteTitle: { fontSize: 15, fontWeight: '600' },
-  noteText: { fontSize: 15, lineHeight: 21 },
+  noteTitle: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
+  noteText: { fontFamily: fontFamily.body, fontSize: 15, lineHeight: 21 },
   hint: { textAlign: 'center', marginTop: 24 },
   actions: { marginHorizontal: 16, marginTop: 20 },
 });

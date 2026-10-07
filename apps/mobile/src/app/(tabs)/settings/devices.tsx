@@ -11,6 +11,7 @@ import { t } from '@/lib/i18n';
 import { FUNCTIONS_URL } from '@/lib/supabase';
 import { confirm } from '@/lib/confirm';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // US-C5 + Shortcut setup (BLUEPRINT §3.11, shortcuts/SPEC.md). The token is shown exactly once.
 // Wallet automations can't be shared by link, so the guide below is how each person builds one.
@@ -167,8 +168,8 @@ const s = StyleSheet.create({
   actions: { marginHorizontal: 16, marginTop: 12 },
   step: { flexDirection: 'row', gap: 12, padding: 14, alignItems: 'flex-start' },
   stepNum: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  stepNumText: { fontWeight: '700', fontSize: 13 },
-  stepText: { fontSize: 15, lineHeight: 21 },
+  stepNumText: { fontFamily: fontFamily.body, fontWeight: '700', fontSize: 13 },
+  stepText: { fontFamily: fontFamily.body, fontSize: 15, lineHeight: 21 },
   copy: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8 },
   copyValue: { flex: 1, fontSize: 13, fontFamily: Platform.select({ ios: 'Menlo', default: 'monospace' }) },
 });

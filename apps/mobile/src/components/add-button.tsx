@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from './ui';
 import { t } from '@/lib/i18n';
 import { radius, useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // The app's main action sits in the thumb zone (docs/DESIGN_PLAN.md §5), floating above the
 // tab bar on Overview and Expenses instead of a small + in the header's far corner.
@@ -54,5 +55,5 @@ const s = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
-  label: { fontSize: 17, fontWeight: '600' },
+  label: { fontFamily: fontFamily.body, fontSize: 17, fontWeight: '600' },
 });

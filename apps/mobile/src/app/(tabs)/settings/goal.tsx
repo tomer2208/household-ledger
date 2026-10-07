@@ -13,6 +13,7 @@ import { errorMessage } from '@/lib/errors';
 import { t } from '@/lib/i18n';
 import { formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
 import { moneyText, useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 const SYMBOLS = ['star', 'airplane', 'car', 'house', 'gift', 'graduationcap', 'heart', 'laptopcomputer', 'figure.and.child.holdinghands', 'cross.case'];
 
@@ -142,10 +143,10 @@ function Editor({ goal, free }: { goal?: Goal; free: number }) {
 const s = StyleSheet.create({
   hero: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 18, gap: 8 },
   heroAmount: { fontSize: 22, fontWeight: '700', ...moneyText },
-  label: { fontSize: 13, marginTop: 22, marginBottom: 8, marginStart: 32 },
+  label: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 22, marginBottom: 8, marginStart: 32 },
   chips: { gap: 8, paddingHorizontal: 16 },
   chip: { paddingHorizontal: 14, minHeight: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  chipText: { fontSize: 15, fontWeight: '600' },
+  chipText: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
   symbols: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginHorizontal: 16 },
   symbol: { padding: 6, borderRadius: 10 },
   actions: { marginHorizontal: 16, marginTop: 16 },

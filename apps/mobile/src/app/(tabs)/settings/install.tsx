@@ -5,6 +5,7 @@ import { Button, Icon, Screen, Section } from '@/components/ui';
 import { t } from '@/lib/i18n';
 import { isInstalled, isIosBrowser } from '@/lib/install';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 type Step = { icon: string; title: string; body: string };
 
@@ -64,8 +65,8 @@ function StepList({ title, steps }: { title: string; steps: Step[] }) {
 const s = StyleSheet.create({
   step: { flexDirection: 'row', gap: 12, paddingHorizontal: 16, paddingVertical: 12, alignItems: 'flex-start' },
   num: { width: 34, height: 34, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
-  stepTitle: { fontSize: 16, fontWeight: '600' },
-  stepBody: { fontSize: 14, lineHeight: 19 },
+  stepTitle: { fontFamily: fontFamily.body, fontSize: 16, fontWeight: '600' },
+  stepBody: { fontFamily: fontFamily.body, fontSize: 14, lineHeight: 19 },
   done: { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 16, marginTop: 16, padding: 14, borderRadius: 14 },
-  doneText: { fontSize: 15, flex: 1 },
+  doneText: { fontFamily: fontFamily.body, fontSize: 15, flex: 1 },
 });

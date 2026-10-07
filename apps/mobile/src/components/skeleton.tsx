@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { AccessibilityInfo, Animated, DimensionValue, StyleSheet, View, ViewStyle } from 'react-native';
 
 import { t } from '@/lib/i18n';
-import { radius, useColors } from '@/lib/theme';
+import { radius, tokens, useColors } from '@/lib/theme';
 
 // P1-12: the shape of a screen while its data loads, so nothing jumps when it arrives.
 // Shown only when there is nothing to show yet: cached data (persisted on the phone) renders
@@ -84,38 +84,37 @@ export function ListSkeleton({ rows = 6, sections = 1 }: { rows?: number; sectio
 }
 
 // Overview: the month, the hero with what's left, then budget rows with their bars.
+// O1: the shape of the envelopes screen while it loads: the month's number, then envelopes two
+// to a row, so nothing jumps when the real ones arrive.
 export function OverviewSkeleton() {
   const c = useColors();
   return (
     <Skeleton>
-      <View style={[s.hero, { backgroundColor: c.cell }]}>
+      <View style={[s.hero, { backgroundColor: c.cell, borderRadius: tokens.radius.card }]}>
         <Bone width={110} height={13} />
-        <Bone width={170} height={38} />
+        <Bone width={170} height={44} />
+        <Bone width={140} height={14} />
         <Bone height={8} round />
-        <Bone width="60%" height={12} />
+        <Bone height={34} />
       </View>
-      <View style={s.section}>
-        <Bone width={70} height={11} style={s.sectionTitle} />
-        <View style={[s.card, { backgroundColor: c.cell }]}>
-          {Array.from({ length: 4 }, (_, i) => (
-            <View key={i} style={[s.row, i < 3 && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+      <Bone width={90} height={18} style={s.envTitle} />
+      <View style={s.envGrid}>
+        {Array.from({ length: 4 }, (_, i) => (
+          <View key={i} style={[s.env, { backgroundColor: c.cell }]}>
+            <View style={s.split}>
               <Bone width={30} height={30} />
-              <View style={s.rowText}>
-                <View style={s.split}>
-                  <Bone width="40%" height={14} />
-                  <Bone width={70} height={16} />
-                </View>
-                <Bone height={8} round />
-              </View>
+              <Bone width="50%" height={14} />
             </View>
-          ))}
-        </View>
+            <Bone width="70%" height={18} />
+            <Bone height={8} round />
+            <Bone width="55%" height={11} />
+          </View>
+        ))}
       </View>
     </Skeleton>
   );
 }
 
-// A report or an expense's details: a hero card and a block of text.
 export function DetailSkeleton() {
   const c = useColors();
   return (
@@ -136,6 +135,9 @@ export function DetailSkeleton() {
 }
 
 const s = StyleSheet.create({
+  envTitle: { marginHorizontal: tokens.space[5], marginTop: tokens.space[6], marginBottom: tokens.space[2] },
+  envGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.envelope.gap, marginHorizontal: tokens.space[4] },
+  env: { width: '47.5%', borderRadius: tokens.envelope.radius, padding: tokens.space[3], paddingTop: 22, gap: tokens.space[2] },
   section: { marginTop: 22, marginHorizontal: 16 },
   sectionTitle: { marginHorizontal: 16, marginBottom: 8 },
   card: { borderRadius: radius.row, overflow: 'hidden' },

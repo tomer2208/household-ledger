@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { CategoryIcon } from './ui';
 import type { Category } from '@/api/types';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // A grid rather than a wheel: 15+ categories need to be scannable in one glance
 // while standing at a register.
@@ -20,7 +21,8 @@ export function CategoryPicker({
     <ScrollView horizontal={false} scrollEnabled={false}>
       <View style={s.grid}>
         {categories
-          .filter((cat) => !cat.archived_at)
+          // P2: hidden categories stay out, unless it's the one already chosen
+          .filter((cat) => !cat.archived_at && (!cat.hidden || cat.id === value))
           .map((cat) => {
             const selected = cat.id === value;
             return (
@@ -33,7 +35,7 @@ export function CategoryPicker({
                   s.chip,
                   { backgroundColor: c.cell, borderColor: selected ? c.tint : 'transparent' },
                 ]}>
-                <CategoryIcon symbol={cat.sf_symbol} size={28} />
+                <CategoryIcon symbol={cat.sf_symbol} categoryId={cat.id} size={28} />
                 <Text numberOfLines={1} style={[s.label, { color: selected ? c.tint : c.label }]}>
                   {cat.name}
                 </Text>
@@ -57,5 +59,5 @@ const s = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 6,
   },
-  label: { fontSize: 13, fontWeight: '500' },
+  label: { fontFamily: fontFamily.body, fontSize: 13, fontWeight: '500' },
 });

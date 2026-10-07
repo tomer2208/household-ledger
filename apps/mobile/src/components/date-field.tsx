@@ -5,6 +5,7 @@ import { DateInput, hasSystemDatePicker } from './date-input';
 import { addDays, dayChipLabel, todayYmd, yesterdayYmd } from '@/lib/dates';
 import { t } from '@/lib/i18n';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // When an expense happened, on the household's clock (lib/dates.ts): Today and Yesterday are one tap, anything older opens the system
 // date picker. Future days can't be picked; a budget month is only ever in the past or now.
@@ -67,5 +68,5 @@ const s = StyleSheet.create({
   strip: { gap: 8, paddingHorizontal: 16 },
   // 36 tall plus 4 of hitSlop each side = a 44pt target, like the currency chips.
   chip: { paddingHorizontal: 14, borderRadius: 18, minHeight: 36, alignItems: 'center', justifyContent: 'center' },
-  chipText: { fontWeight: '600', fontSize: 15 },
+  chipText: { fontFamily: fontFamily.body, fontWeight: '600', fontSize: 15 },
 });

@@ -6,6 +6,7 @@ import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { forwardIcon } from '@/lib/rtl';
 import { moneyText, radius, useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // Where the month's income goes: the budgets carved out of it, and what's left unassigned
 // (planned savings). Used by Settings → Monthly Income and Categories & Budgets.
@@ -118,9 +119,9 @@ const s = StyleSheet.create({
   flush: { marginHorizontal: 0, marginTop: 0, borderRadius: 0 },
   cta: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   ctaIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  ctaTitle: { fontSize: 17, fontWeight: '600' },
+  ctaTitle: { fontFamily: fontFamily.body, fontSize: 17, fontWeight: '600' },
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  label: { fontSize: 13 },
+  label: { fontFamily: fontFamily.body, fontSize: 13 },
   amountRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' },
   amount: { fontSize: 28, fontWeight: '700', ...moneyText },
   pct: { fontSize: 15, fontWeight: '600', ...moneyText },

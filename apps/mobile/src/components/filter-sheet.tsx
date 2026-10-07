@@ -21,6 +21,7 @@ import {
 } from '@/lib/search-filter';
 import { textStart } from '@/lib/rtl';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // P1-9: every filter in one sheet. Changes are a draft until Show, and the button counts what
 // the draft would show (summarize_transactions), so nobody applies a filter that finds nothing.
@@ -145,7 +146,7 @@ function Sheet({ value, query, onApply, onClose }: { value: TxFilter; query: str
             <Choice
               key={cat.id}
               label={cat.name}
-              icon={<CategoryIcon symbol={cat.sf_symbol} size={20} />}
+              icon={<CategoryIcon symbol={cat.sf_symbol} categoryId={cat.id} size={20} />}
               selected={draft.categories.includes(cat.id)}
               onPress={() => setDraft((d) => toggleIn.categories(d, cat.id))}
             />
@@ -255,21 +256,21 @@ const s = StyleSheet.create({
     height: 56,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  barTitle: { fontSize: 17, fontWeight: '600' },
-  barButton: { fontSize: 17 },
+  barTitle: { fontFamily: fontFamily.body, fontSize: 17, fontWeight: '600' },
+  barButton: { fontFamily: fontFamily.body, fontSize: 17 },
   group: { marginTop: 22, paddingHorizontal: 16 },
-  groupTitle: { fontSize: 13, marginBottom: 8, marginStart: 16 },
-  groupFooter: { fontSize: 13, marginTop: 8, marginStart: 16 },
+  groupTitle: { fontFamily: fontFamily.body, fontSize: 13, marginBottom: 8, marginStart: 16 },
+  groupFooter: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 8, marginStart: 16 },
   choices: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   // 36 tall plus 4 of hitSlop each side = a 44pt target.
   choice: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, minHeight: 36, borderRadius: 18 },
-  choiceText: { fontSize: 15, fontWeight: '600' },
+  choiceText: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
   iconBacking: { borderRadius: 6 },
   days: { flexDirection: 'row', gap: 12, paddingHorizontal: 16, marginTop: 12 },
   day: { justifyContent: 'space-between' },
-  dayLabel: { fontSize: 13, marginStart: 4 },
+  dayLabel: { fontFamily: fontFamily.body, fontSize: 13, marginStart: 4 },
   amounts: { flexDirection: 'row', gap: 12, width: '100%' },
   // 16px or larger, or iOS Safari zooms the page on focus.
-  amount: { flex: 1, minWidth: 0, height: 44, borderRadius: 10, paddingHorizontal: 12, fontSize: 17, outlineStyle: 'none' } as any,
+  amount: { fontFamily: fontFamily.body, flex: 1, minWidth: 0, height: 44, borderRadius: 10, paddingHorizontal: 12, fontSize: 17, outlineStyle: 'none' } as any,
   footer: { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: StyleSheet.hairlineWidth },
 });

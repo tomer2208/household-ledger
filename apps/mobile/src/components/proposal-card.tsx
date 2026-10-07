@@ -7,6 +7,7 @@ import type { Proposal } from '@/api/types';
 import { fill, flatten } from '@/lib/fill';
 import { lang, t } from '@/lib/i18n';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // US-A2: one tap to approve (the server re-checks and applies), one to dismiss for good.
 export function ProposalCard({ p, currency }: { p: Proposal; currency: string }) {
@@ -40,9 +41,9 @@ export function ProposalCard({ p, currency }: { p: Proposal; currency: string })
 const s = StyleSheet.create({
   card: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 16, gap: 10 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  kind: { fontSize: 13, fontWeight: '700', textTransform: 'uppercase' },
-  text: { fontSize: 16, lineHeight: 22 },
-  outcome: { fontSize: 13 },
+  kind: { fontFamily: fontFamily.body, fontSize: 13, fontWeight: '700', textTransform: 'uppercase' },
+  text: { fontFamily: fontFamily.body, fontSize: 16, lineHeight: 22 },
+  outcome: { fontFamily: fontFamily.body, fontSize: 13 },
   buttons: { flexDirection: 'row', gap: 10 },
   btn: { flex: 1, height: 44 },
 });

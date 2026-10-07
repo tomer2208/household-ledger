@@ -8,6 +8,7 @@ import { useCaptureHealth } from '@/api/queries';
 import type { CaptureHealth } from '@/api/types';
 import { t } from '@/lib/i18n';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 const SNOOZE_KEY = 'capture-banner-snooze';
 const SNOOZE_MS = 3 * 86_400_000;
@@ -91,9 +92,9 @@ function Banner({ d, onSnooze }: { d: CaptureHealth; onSnooze: () => void }) {
 
 const s = StyleSheet.create({
   banner: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginHorizontal: 16, marginTop: 12, padding: 14, borderRadius: 14, borderWidth: 1 },
-  title: { fontSize: 15, fontWeight: '600' },
-  text: { fontSize: 13, marginTop: 2, lineHeight: 18 },
+  title: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
+  text: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 2, lineHeight: 18 },
   actions: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   button: { minHeight: 36, paddingHorizontal: 14, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  buttonText: { fontSize: 15, fontWeight: '600' },
+  buttonText: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
 });

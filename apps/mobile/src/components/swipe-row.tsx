@@ -8,6 +8,7 @@ import { Icon } from './ui';
 import { isRTL, t } from '@/lib/i18n';
 import { dirProps } from '@/lib/rtl';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // Swipe toward the start of a row for Edit and Delete (docs/DESIGN_PLAN.md §7): left in English,
 // right in Hebrew. Dragging past both buttons arms a full-swipe delete: the strip turns red, and
@@ -161,5 +162,5 @@ const s = StyleSheet.create({
   fillerEnd: { right: 0 },
   slot: { width: ACTION },
   button: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 4 },
-  label: { fontSize: 13, fontWeight: '600' },
+  label: { fontFamily: fontFamily.body, fontSize: 13, fontWeight: '600' },
 });

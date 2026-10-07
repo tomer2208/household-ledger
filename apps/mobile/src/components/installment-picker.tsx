@@ -4,6 +4,7 @@ import { INSTALLMENT_CHOICES, splitInstallments } from '@/lib/installments';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { moneyText, useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // P1-2: one payment, or 3-36 monthly installments, with what each month will be charged.
 export function InstallmentPicker({
@@ -54,6 +55,6 @@ const s = StyleSheet.create({
   wrap: { gap: 8 },
   row: { gap: 8, paddingHorizontal: 16 },
   chip: { minHeight: 36, paddingHorizontal: 14, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  chipText: { fontSize: 15, fontWeight: '600' },
+  chipText: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
   summary: { fontSize: 14, marginHorizontal: 32, ...moneyText },
 });

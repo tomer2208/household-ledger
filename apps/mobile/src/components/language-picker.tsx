@@ -4,6 +4,7 @@ import { Icon, Row } from './ui';
 import { lang, type LangChoice } from '@/lib/i18n';
 import { langChoice, setLanguageChoice } from '@/lib/lang-store';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // P1-6: each language is named in itself, so someone who can't read the current one still
 // finds theirs.
@@ -53,5 +54,5 @@ export function LanguageToggle() {
 
 const s = StyleSheet.create({
   toggle: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'center', minHeight: 44, paddingHorizontal: 12 },
-  toggleText: { fontSize: 15, fontWeight: '600' },
+  toggleText: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
 });

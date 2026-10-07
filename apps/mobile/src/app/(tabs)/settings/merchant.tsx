@@ -13,6 +13,7 @@ import { confirm } from '@/lib/confirm';
 import { errorMessage } from '@/lib/errors';
 import { t } from '@/lib/i18n';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // P1-13: one learned merchant. Rename it, change where its purchases go (optionally its existing
 // expenses too), forget a spelling that belongs to another shop, or merge a duplicate into it.
@@ -164,7 +165,7 @@ function MergePicker({ visible, others, onPick, onClose }: { visible: boolean; o
             {shown.map((m, i) => (
               <Row
                 key={m.id}
-                left={<CategoryIcon symbol={m.category?.sf_symbol ?? 'bag'} />}
+                left={<CategoryIcon symbol={m.category?.sf_symbol ?? 'bag'} categoryId={m.default_category_id} />}
                 title={m.display_name}
                 subtitle={`${m.category?.name ?? t.merchants.noCategory} · ${t.merchants.uses(m.tx_count)}`}
                 onPress={() => onPick(m)}
@@ -180,10 +181,10 @@ function MergePicker({ visible, others, onPick, onClose }: { visible: boolean; o
 }
 
 const s = StyleSheet.create({
-  label: { fontSize: 13, marginTop: 22, marginBottom: 8, marginStart: 32 },
-  hint: { fontSize: 13, marginTop: 8, marginHorizontal: 32 },
+  label: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 22, marginBottom: 8, marginStart: 32 },
+  hint: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 8, marginHorizontal: 32 },
   actions: { marginHorizontal: 16, marginTop: 20 },
   bar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, height: 56, borderBottomWidth: StyleSheet.hairlineWidth },
-  barTitle: { fontSize: 17, fontWeight: '600' },
-  barButton: { fontSize: 17 },
+  barTitle: { fontFamily: fontFamily.body, fontSize: 17, fontWeight: '600' },
+  barButton: { fontFamily: fontFamily.body, fontSize: 17 },
 });

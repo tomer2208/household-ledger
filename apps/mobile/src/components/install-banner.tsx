@@ -7,6 +7,7 @@ import { Icon } from './ui';
 import { t } from '@/lib/i18n';
 import { isInstalled } from '@/lib/install';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 const DISMISSED = 'install-banner-dismissed';
 
@@ -50,6 +51,6 @@ export function InstallBanner() {
 
 const s = StyleSheet.create({
   banner: { flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 16, marginTop: 12, padding: 14, borderRadius: 14 },
-  title: { fontSize: 15, fontWeight: '600' },
-  text: { fontSize: 13, marginTop: 2 },
+  title: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
+  text: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 2 },
 });

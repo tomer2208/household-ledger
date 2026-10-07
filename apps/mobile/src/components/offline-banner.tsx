@@ -4,6 +4,7 @@ import { Icon } from './ui';
 import { t } from '@/lib/i18n';
 import { useIsOnline } from '@/lib/query';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // Offline is read-only by design (Batch 3), so say so instead of letting saves fail.
 export function OfflineBanner() {
@@ -20,5 +21,5 @@ export function OfflineBanner() {
 
 const s = StyleSheet.create({
   banner: { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: 16, marginTop: 12, padding: 10, borderRadius: 10 },
-  text: { fontSize: 13, flex: 1 },
+  text: { fontFamily: fontFamily.body, fontSize: 13, flex: 1 },
 });

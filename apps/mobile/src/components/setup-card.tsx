@@ -8,6 +8,7 @@ import { t } from '@/lib/i18n';
 import { forwardIcon } from '@/lib/rtl';
 import { dismissSetupCard, readSetupCardDismissed } from '@/lib/setup';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // P1-7: the three things that make the app work, ticked off as they happen: budgets, a partner
 // (shared households are the point), and Apple Pay logging. Gone once all three are done, or
@@ -70,9 +71,9 @@ export function SetupCard() {
 const s = StyleSheet.create({
   card: { marginHorizontal: 16, marginTop: 12, padding: 14, borderRadius: 14, gap: 4 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
-  title: { flex: 1, fontSize: 17, fontWeight: '600' },
-  count: { fontSize: 13 },
+  title: { fontFamily: fontFamily.body, flex: 1, fontSize: 17, fontWeight: '600' },
+  count: { fontFamily: fontFamily.body, fontSize: 13 },
   item: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44 },
-  itemText: { flex: 1, fontSize: 16 },
+  itemText: { fontFamily: fontFamily.body, flex: 1, fontSize: 16 },
   doneText: { textDecorationLine: 'line-through' },
 });

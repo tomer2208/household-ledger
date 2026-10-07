@@ -1,5 +1,6 @@
-import { Children, type ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, useColorScheme, useWindowDimensions, View } from 'react-native';
+import { Children, type ReactNode, useEffect, useRef } from 'react';
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 import Svg, { Polygon } from 'react-native-svg';
 
 import { money } from './money-text';
@@ -9,6 +10,7 @@ import { envelopeStatus } from '@/lib/envelope';
 import { t } from '@/lib/i18n';
 import { moneyText, tokens, useColors } from '@/lib/theme';
 import type { CategoryColor } from '@/lib/tokens/palette.gen';
+import { useScheme } from '@/lib/appearance';
 
 const { envelope: E, type } = tokens;
 
@@ -19,6 +21,7 @@ const { envelope: E, type } = tokens;
 export function Envelope({
   name,
   symbol,
+  icon,
   color,
   cap,
   spent,
@@ -30,6 +33,7 @@ export function Envelope({
 }: {
   name: string;
   symbol: string;
+  icon?: string | null;
   color?: CategoryColor;
   cap: number | null;
   spent: number;
@@ -42,12 +46,31 @@ export function Envelope({
   actions?: { name: string; label: string; run: () => void }[];
 }) {
   const c = useColors();
-  const dark = useColorScheme() === 'dark';
+  const dark = useScheme() === 'dark';
   const look = tokens.categoryColors[color ?? categoryColorId(symbol)][dark ? 'dark' : 'light'];
   const st = envelopeStatus(cap, spent);
   const frame = st.state === 'over' ? c.overBar : st.state === 'close' ? c.closeBar : null;
   const tone = st.state === 'over' ? c.over : st.state === 'close' ? c.close : c.text;
   const bar = st.state === 'over' ? c.overBar : st.state === 'close' ? c.closeBar : look.base;
+
+  // F4: when money goes in, the bar grows to its new length and the envelope flashes once
+  // (emphasis, 600ms). With Reduce Motion the new state is simply there.
+  const reduced = useReducedMotion();
+  const target = st.state === 'none' ? 0 : Math.min(100, st.pct);
+  const width = useSharedValue(target);
+  const flash = useSharedValue(0);
+  const lastSpent = useRef(spent);
+  useEffect(() => {
+    const ease = { duration: E.emphasis, easing: Easing.bezier(...tokens.easing.enter) };
+    width.value = reduced ? target : withTiming(target, ease);
+    if (spent > lastSpent.current && !reduced) {
+      flash.value = 1;
+      flash.value = withTiming(0, ease);
+    }
+    lastSpent.current = spent;
+  }, [target, spent, reduced, width, flash]);
+  const fillStyle = useAnimatedStyle(() => ({ width: `${width.value}%` }));
+  const flashStyle = useAnimatedStyle(() => ({ opacity: flash.value }));
 
   const amount =
     st.state === 'none'
@@ -83,7 +106,7 @@ export function Envelope({
         <Polygon points="0,0 100,0 50,16" fill={look.base} />
       </Svg>
       <View style={s.top}>
-        <CategoryIcon symbol={symbol} color={color ?? categoryColorId(symbol)} size={E.iconBox} />
+        <CategoryIcon symbol={symbol} icon={icon} color={color ?? categoryColorId(symbol)} size={E.iconBox} />
         <Text numberOfLines={1} style={[s.name, { color: c.text }]}>
           {name}
         </Text>
@@ -95,12 +118,13 @@ export function Envelope({
       {st.state !== 'none' ? (
         <>
           <View style={[s.track, { backgroundColor: c.fill }]}>
-            <View style={[s.fill, { width: `${Math.min(100, st.pct)}%`, backgroundColor: bar }]} />
+            <Animated.View style={[s.fill, { backgroundColor: bar }, fillStyle]} />
           </View>
           <Text style={[s.of, { color: c.text2 }]}>{t.envelope.of(money(st.spent, currency), money(st.cap, currency))}</Text>
         </>
       ) : null}
       {hint ? <Text style={[s.hint, { color: c.text2 }]}>{hint}</Text> : null}
+      <Animated.View pointerEvents="none" style={[s.flash, { borderColor: c.action }, flashStyle]} />
     </Pressable>
   );
 }
@@ -138,6 +162,7 @@ const s = StyleSheet.create({
     overflow: 'hidden',
   },
   flap: { position: 'absolute', top: 0, start: 0, end: 0 },
+  flash: { position: 'absolute', top: 0, bottom: 0, start: 0, end: 0, borderRadius: E.radius, borderWidth: 3 },
   top: { flexDirection: 'row', alignItems: 'center', gap: tokens.space[2] },
   name: { ...type.label, fontWeight: '600', flexShrink: 1 },
   amountRow: { flexDirection: 'row', alignItems: 'center', gap: tokens.space[1], marginTop: 2 },

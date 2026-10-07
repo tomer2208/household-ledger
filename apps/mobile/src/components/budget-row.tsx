@@ -5,15 +5,17 @@ import { Badge, CategoryIcon, Icon, ProgressBar } from './ui';
 import type { Fund } from '@/api/types';
 import { budgetStatus } from '@/lib/budget';
 import { t } from '@/lib/i18n';
-import { formatMoney } from '@/lib/money';
+import { money } from './money-text';
 import { textEnd } from '@/lib/rtl';
 import { budgetTone, moneyText, useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // One category's month at a glance: what's left (or over) first, then the bar with the pace
 // marker, then spent of cap. Used by Overview and Settings → Categories.
 export function BudgetRow({
   name,
   symbol,
+  categoryId,
   cap,
   carry = 0,
   reserve = 0,
@@ -30,6 +32,8 @@ export function BudgetRow({
 }: {
   name: string;
   symbol: string;
+  // P2: the category's own icon and colour
+  categoryId?: string;
   cap: number | null;
   // P1-14: what carried in from last month, already part of cap (negative after an overspend)
   carry?: number;
@@ -58,10 +62,10 @@ export function BudgetRow({
 
   const label =
     st.kind === 'none'
-      ? t.budget.a11yNone(name, formatMoney(spent, currency))
-      : t.budget.a11y(name, formatMoney(st.amount, currency), st.kind, formatMoney(st.cap, currency)) +
+      ? t.budget.a11yNone(name, money(spent, currency))
+      : t.budget.a11y(name, money(st.amount, currency), st.kind, money(st.cap, currency)) +
         (st.kind === 'left' && pace != null ? (ahead ? t.budget.aheadOfPace : t.budget.onPace) : '') +
-        (heading != null ? t.budget.a11yForecast(formatMoney(heading, currency)) : '');
+        (heading != null ? t.budget.a11yForecast(money(heading, currency)) : '');
 
   // Opaque base: the pressed tint is translucent, and swipe actions sit right behind the row.
   return (
@@ -76,19 +80,19 @@ export function BudgetRow({
         accessibilityRole={onPress ? 'button' : undefined}
         accessibilityLabel={label}
         style={({ pressed }) => [s.row, pressed && { backgroundColor: c.fill }]}>
-        <CategoryIcon symbol={symbol} />
+        <CategoryIcon symbol={symbol} categoryId={categoryId} />
         <View style={[s.body, !last && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
           <View style={s.top}>
             <Text numberOfLines={1} style={[s.name, { color: c.label }]}>
               {name}
             </Text>
             {st.kind === 'none' ? (
-              <Text style={[s.small, { color: c.secondaryLabel }]}>{t.budget.spent(formatMoney(spent, currency))}</Text>
+              <Text style={[s.small, { color: c.secondaryLabel }]}>{t.budget.spent(money(spent, currency))}</Text>
             ) : (
               <View style={s.status}>
                 {st.kind === 'over' ? <Icon name="exclamationmark.triangle.fill" size={15} color={tone} /> : null}
                 <Text style={[s.amount, { color: tone }]}>
-                  {st.kind === 'left' ? t.budget.left(formatMoney(st.amount, currency)) : t.budget.over(formatMoney(st.amount, currency))}
+                  {st.kind === 'left' ? t.budget.left(money(st.amount, currency)) : t.budget.over(money(st.amount, currency))}
                 </Text>
               </View>
             )}
@@ -110,11 +114,11 @@ export function BudgetRow({
                 forecast={heading != null ? (heading * 100) / st.cap : undefined}
               />
               <Text style={[s.small, { color: c.secondaryLabel, textAlign: textEnd() }]}>
-                {t.common.of(formatMoney(st.spent, currency), formatMoney(st.cap, currency))}
+                {t.common.of(money(st.spent, currency), money(st.cap, currency))}
                 {heading != null ? (
                   <Text style={{ color: headingOver ? c.orange : c.secondaryLabel }}>
                     {' · '}
-                    {t.budget.forecast(formatMoney(heading, currency))}
+                    {t.budget.forecast(money(heading, currency))}
                   </Text>
                 ) : null}
               </Text>
@@ -131,7 +135,7 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', paddingStart: 16, gap: 12 },
   body: { flex: 1, paddingVertical: 12, paddingEnd: 16, gap: 6, minHeight: 56 },
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
-  name: { fontSize: 17, flexShrink: 1 },
+  name: { fontFamily: fontFamily.body, fontSize: 17, flexShrink: 1 },
   status: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   amount: { fontSize: 20, fontWeight: '600', ...moneyText },
   small: { fontSize: 13, ...moneyText },

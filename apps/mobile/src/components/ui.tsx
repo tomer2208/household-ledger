@@ -15,12 +15,12 @@ import {
   TextInput,
   TextInputProps,
   TextStyle,
-  useColorScheme,
   View,
   ViewStyle,
 } from 'react-native';
 
-import { CATEGORY_ICONS, categoryColorId, categoryIconId } from '@/lib/category-look';
+import { useCategories } from '@/api/queries';
+import { CATEGORY_ICONS, categoryColorId, categoryIconId, lookOf } from '@/lib/category-look';
 import { moneyText, radius, tokens, useColors } from '@/lib/theme';
 import type { CategoryColor } from '@/lib/tokens/palette.gen';
 import { isRtl } from '@/lib/bidi';
@@ -28,6 +28,7 @@ import { errorMessage } from '@/lib/errors';
 import { t } from '@/lib/i18n';
 import { useIsOnline } from '@/lib/query';
 import { forwardIcon, textEnd } from '@/lib/rtl';
+import { useScheme } from '@/lib/appearance';
 
 // Web has no SF Symbols; a few Material names keep the icons meaningful there.
 const WEB_ICON: Record<string, string> = {
@@ -69,10 +70,31 @@ export function Icon({ name, size = 20, color }: { name: string; size?: number; 
 
 // F5 + F2: a category's icon (Phosphor, duotone) in its own colour, the same on every platform.
 // Anything that isn't a category (the review tray, devices) keeps the system icon, in neutral.
-export function CategoryIcon({ symbol, size = 30, color }: { symbol: string; size?: number; color?: CategoryColor }) {
+// With `categoryId`, the household's own icon and colour for that category (P2), read from the
+// categories list every screen already has loaded.
+export function CategoryIcon({
+  symbol,
+  icon,
+  categoryId,
+  size = 30,
+  color,
+}: {
+  symbol: string;
+  icon?: string | null;
+  categoryId?: string | null;
+  size?: number;
+  color?: CategoryColor;
+}) {
   const c = useColors();
-  const dark = useColorScheme() === 'dark';
-  const id = categoryIconId(symbol);
+  const dark = useScheme() === 'dark';
+  const cats = useCategories();
+  const own = categoryId ? cats.data?.find((x) => x.id === categoryId) : undefined;
+  if (own) {
+    const look = lookOf(own);
+    icon = icon ?? look.icon;
+    color = color ?? look.color;
+  }
+  const id = icon && CATEGORY_ICONS[icon] ? icon : categoryIconId(symbol);
   const Glyph = id ? CATEGORY_ICONS[id] : null;
   if (!Glyph) {
     return (

@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Polygon } from 'react-native-svg';
 
 import {
@@ -23,14 +23,15 @@ import { DateField } from '@/components/date-field';
 import { InstallmentPicker } from '@/components/installment-picker';
 import { KindToggle } from '@/components/kind-toggle';
 import { CategoryIcon, ErrorText, Field, Icon, Section } from '@/components/ui';
-import { categoryColorId } from '@/lib/category-look';
+import { lookOf } from '@/lib/category-look';
 import { dayChipLabel, onDay, todayYmd, ymd } from '@/lib/dates';
 import { envelopeStatus } from '@/lib/envelope';
 import { errorMessage } from '@/lib/errors';
-import { t } from '@/lib/i18n';
+import { isRTL, t } from '@/lib/i18n';
 import { CURRENCIES, formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
 import { useIsOnline } from '@/lib/query';
 import { moneyText, tokens, useColors } from '@/lib/theme';
+import { useScheme } from '@/lib/appearance';
 
 const DRAFT_KEY = 'hl-add-draft';
 // How many envelopes show before "More": two rows of four, the ones used most (sort order).
@@ -47,7 +48,7 @@ const close = () => (router.canGoBack() ? router.back() : router.replace('/overv
 // the Shortcut's failure path (US-C3), so it keeps a local draft while offline.
 export default function AddExpense() {
   const c = useColors();
-  const dark = useColorScheme() === 'dark';
+  const dark = useScheme() === 'dark';
   // P1-8: `title`, `category` and `refund` come from Duplicate on an expense's details, and
   // `category` from tapping an envelope on Overview.
   const params = useLocalSearchParams<{
@@ -106,7 +107,7 @@ export default function AddExpense() {
     return () => clearTimeout(timer);
   }, [title]);
   const suggestion = useSuggestedCategory(categoryId ? '' : typedTitle).data;
-  const envelopes = (cats.data ?? []).filter((x) => !x.archived_at && x.kind === 'expense');
+  const envelopes = (cats.data ?? []).filter((x) => !x.archived_at && !x.hidden && x.kind === 'expense');
   const suggestedId = suggestion && envelopes.some((x) => x.id === suggestion.category_id) ? suggestion.category_id : null;
   // Marked for "Save to …": the one picked, else the suggestion, else the first envelope.
   const selected = categoryId ?? suggestedId ?? envelopes[0]?.id ?? null;
@@ -283,7 +284,7 @@ export default function AddExpense() {
                 onPress={() => applyTemplate(tpl)}
                 accessibilityRole="button"
                 accessibilityLabel={t.add.fillIn(tpl.title, formatMoney(tpl.amount_minor, tpl.currency))}
-                style={[s.recent, { backgroundColor: c.surface }]}>
+                style={[s.recent, { backgroundColor: c.bg }]}>
                 <Text style={[s.recentTitle, { color: c.text }]} numberOfLines={1}>
                   {tpl.title}
                 </Text>
@@ -315,7 +316,7 @@ export default function AddExpense() {
           {visible.map((cat) => {
             const o = thisMonth.get(cat.id);
             const st = envelopeStatus(o?.cap, o?.spent ?? 0);
-            const look = tokens.categoryColors[categoryColorId(cat.sf_symbol)][dark ? 'dark' : 'light'];
+            const look = tokens.categoryColors[lookOf(cat).color][dark ? 'dark' : 'light'];
             const on = cat.id === selected;
             return (
               <Pressable
@@ -332,14 +333,14 @@ export default function AddExpense() {
                 }
                 style={({ pressed }) => [
                   s.pick,
-                  { backgroundColor: c.surface },
+                  { backgroundColor: c.bg },
                   on && { borderColor: c.action, borderWidth: 2 },
                   pressed && { transform: [{ scale: 0.97 }] },
                 ]}>
                 <Svg style={s.flap} width="100%" height={10} viewBox="0 0 100 10" preserveAspectRatio="none">
                   <Polygon points="0,0 100,0 50,10" fill={look.base} />
                 </Svg>
-                <CategoryIcon symbol={cat.sf_symbol} size={26} />
+                <CategoryIcon symbol={cat.sf_symbol} categoryId={cat.id} size={26} />
                 <Text numberOfLines={1} style={[s.pickName, { color: c.text }]}>
                   {cat.name}
                 </Text>
@@ -363,16 +364,21 @@ export default function AddExpense() {
       </ScrollView>
 
       <View style={[s.bottom, { borderTopColor: c.line }]}>
+        {/* 1-2-3 from the left, as on every phone keypad, in Hebrew too. */}
         <View style={s.keys}>
-          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'del'].map((k) => (
-            <Pressable
-              key={k}
-              onPress={() => press(k)}
-              accessibilityRole="button"
-              accessibilityLabel={k === 'del' ? t.add.keyDelete : k === '.' ? t.add.keyPoint : k}
-              style={({ pressed }) => [s.key, { backgroundColor: pressed ? c.fill : c.surface }]}>
-              {k === 'del' ? <Icon name="delete.left" size={22} color={c.text} /> : <Text style={[s.keyText, { color: c.text }]}>{k}</Text>}
-            </Pressable>
+          {[['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9'], ['.', '0', 'del']].map((row) => (
+            <View key={row.join('')} style={[s.keyRow, { flexDirection: isRTL() ? 'row-reverse' : 'row' }]}>
+              {row.map((k) => (
+                <Pressable
+                  key={k}
+                  onPress={() => press(k)}
+                  accessibilityRole="button"
+                  accessibilityLabel={k === 'del' ? t.add.keyDelete : k === '.' ? t.add.keyPoint : k}
+                  style={({ pressed }) => [s.key, { backgroundColor: pressed ? c.fill : c.bg }]}>
+                  {k === 'del' ? <Icon name="delete.left" size={22} color={c.text} /> : <Text style={[s.keyText, { color: c.text }]}>{k}</Text>}
+                </Pressable>
+              ))}
+            </View>
           ))}
         </View>
         <Pressable
@@ -444,8 +450,9 @@ const s = StyleSheet.create({
   pickName: { ...type.caption, fontWeight: '600' },
   pickLeft: { ...type.caption, ...moneyText, fontSize: 11, lineHeight: 14 },
   bottom: { paddingHorizontal: space[4], paddingTop: space[2], paddingBottom: space[6], gap: space[2], borderTopWidth: StyleSheet.hairlineWidth },
-  keys: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, direction: 'ltr' },
-  key: { width: '32.4%', minHeight: 48, borderRadius: radius.tile, alignItems: 'center', justifyContent: 'center' },
+  keys: { gap: 6 },
+  keyRow: { gap: 6 },
+  key: { flex: 1, minHeight: 48, borderRadius: radius.tile, alignItems: 'center', justifyContent: 'center' },
   keyText: { ...moneyText, fontSize: 24 },
   save: { minHeight: 54, borderRadius: radius.tile + 2, alignItems: 'center', justifyContent: 'center', paddingHorizontal: space[4] },
   saveText: { ...type.label, fontSize: 18 },

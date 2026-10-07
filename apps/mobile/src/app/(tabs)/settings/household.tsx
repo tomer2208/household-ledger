@@ -10,6 +10,7 @@ import { shortDate } from '@/lib/dates';
 import { t } from '@/lib/i18n';
 import { APP_URL } from '@/lib/supabase';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 export default function HouseholdScreen() {
   const c = useColors();
@@ -100,5 +101,5 @@ export default function HouseholdScreen() {
 
 const s = StyleSheet.create({
   codeBox: { alignItems: 'center', paddingVertical: 18 },
-  code: { fontSize: 32, fontWeight: '700', letterSpacing: 3, fontVariant: ['tabular-nums'] },
+  code: { fontFamily: fontFamily.body, fontSize: 32, fontWeight: '700', letterSpacing: 3, fontVariant: ['tabular-nums'] },
 });

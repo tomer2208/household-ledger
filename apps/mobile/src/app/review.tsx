@@ -5,12 +5,13 @@ import { useCategories, useHousehold, usePendingReview, useReviewTransaction } f
 import type { Transaction } from '@/api/types';
 import { CategoryPicker } from '@/components/category-picker';
 import { DetailSkeleton } from '@/components/skeleton';
-import { Button, Empty, ErrorText, Icon, LoadingState, Screen } from '@/components/ui';
+import { Button, CategoryIcon, Empty, ErrorText, Icon, LoadingState, Screen } from '@/components/ui';
 import { isolate } from '@/lib/bidi';
 import { dayLabel } from '@/lib/dates';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { moneyText, useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // US-C2 AC4: purchases whose Shortcut menu was dismissed land here. Confirming teaches the
 // merchant memory exactly like the Shortcut does (review_transaction → confirm_pending).
@@ -39,7 +40,10 @@ function ReviewCard({ tx }: { tx: Transaction }) {
   const [title, setTitle] = useState(tx.title);
   const [categoryId, setCategoryId] = useState<string>(tx.category_id);
   const [newCategory, setNewCategory] = useState<string | null>(null);
-  const categoryName = cats.data?.find((x) => x.id === categoryId)?.name;
+  // S3 (D3): closed by default: the guess, and one tap to confirm. The full grid only on Change.
+  const [changing, setChanging] = useState(false);
+  const chosen = cats.data?.find((x) => x.id === categoryId);
+  const categoryName = chosen?.name;
 
   return (
     <View style={[s.card, { backgroundColor: c.cell }]}>
@@ -50,6 +54,19 @@ function ReviewCard({ tx }: { tx: Transaction }) {
         </View>
         <Text style={[s.amount, { color: c.label }]}>{formatMoney(tx.amount_minor, tx.currency ?? base)}</Text>
       </View>
+      {!changing ? (
+        <View style={s.guess}>
+          {chosen ? <CategoryIcon symbol={chosen.sf_symbol} categoryId={chosen.id} /> : null}
+          <Text style={[s.guessName, { color: c.text }]} numberOfLines={1}>
+            {categoryName ?? '…'}
+          </Text>
+          <Pressable onPress={() => setChanging(true)} accessibilityRole="button" hitSlop={8} style={s.change}>
+            <Text style={{ color: c.action, fontSize: 16, fontWeight: '600' }}>{t.review.change}</Text>
+          </Pressable>
+        </View>
+      ) : null}
+      {changing ? (
+      <>
       <TextInput
         value={title}
         onChangeText={setTitle}
@@ -82,6 +99,8 @@ function ReviewCard({ tx }: { tx: Transaction }) {
           style={[s.title, { color: c.label, borderColor: c.tint }]}
         />
       )}
+      </>
+      ) : null}
       <ErrorText error={review.error} />
       <Button
         title={newCategory ? t.review.createAndConfirm(newCategory.trim()) : t.review.confirmAs(categoryName ?? '…')}
@@ -102,9 +121,12 @@ function ReviewCard({ tx }: { tx: Transaction }) {
 const s = StyleSheet.create({
   card: { marginHorizontal: 16, marginTop: 16, borderRadius: 14, padding: 16, gap: 12 },
   head: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  raw: { fontSize: 13 },
-  when: { fontSize: 13, marginTop: 2 },
+  raw: { fontFamily: fontFamily.body, fontSize: 13 },
+  when: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 2 },
   amount: { fontSize: 22, fontWeight: '700', ...moneyText },
-  title: { fontSize: 17, borderWidth: StyleSheet.hairlineWidth, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10 },
+  title: { fontFamily: fontFamily.body, fontSize: 17, borderWidth: StyleSheet.hairlineWidth, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10 },
+  guess: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44 },
+  guessName: { fontFamily: fontFamily.body, fontSize: 17, fontWeight: '600', flex: 1 },
+  change: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 4 },
   newCat: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, minHeight: 44 },
 });

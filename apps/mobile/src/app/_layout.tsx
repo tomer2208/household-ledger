@@ -1,7 +1,7 @@
 import { DarkTheme, DefaultTheme, LocaleProvider, Stack, ThemeProvider, type Theme } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
-import { useColorScheme, View } from 'react-native';
+import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useHousehold, useLanguageSync, useRealtimeSync } from '@/api/queries';
@@ -15,6 +15,7 @@ import { isRTL, t } from '@/lib/i18n';
 import { bootLanguage, bootLanguageSync } from '@/lib/lang-store';
 import { usePushRegistration, useNotificationRouting } from '@/lib/push';
 import { QueryProvider } from '@/lib/query';
+import { bootAppearance, useScheme } from '@/lib/appearance';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -40,6 +41,10 @@ export default function RootLayout() {
   // P1-6: the language is known before the first screen renders. The web reads it at once;
   // a phone reads its storage first, behind the splash screen.
   const [langReady, setLangReady] = useState(bootLanguageSync);
+  // P5: the appearance chosen in Settings, before the first screen
+  useEffect(() => {
+    bootAppearance();
+  }, []);
   useEffect(() => {
     if (!langReady) bootLanguage().finally(() => setLangReady(true));
   }, [langReady]);
@@ -56,7 +61,7 @@ export default function RootLayout() {
 }
 
 function Root() {
-  const scheme = useColorScheme();
+  const scheme = useScheme();
   const { session, loading } = useSession();
   const hh = useHousehold();
   const household = hh.data?.household ?? null;

@@ -10,6 +10,7 @@ import { monthLabel, shortDate } from '@/lib/dates';
 import { t } from '@/lib/i18n';
 import { formatMoney, parseMoneyInput } from '@/lib/money';
 import { moneyText, useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // The server writes its own reasons in English ("Month close 2026-09"); entries it made
 // itself are described here instead, in the app's language. Manual ones keep what was typed.
@@ -30,7 +31,7 @@ export default function SavingsScreen() {
   const cur = useHousehold().data?.household?.base_currency ?? 'ILS';
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('');
-  const [direction, setDirection] = useState<'out' | 'in'>('out');
+  const [direction, setDirection] = useState<'out' | 'in'>('in'); // D1: deposit first; a withdrawal is the deliberate choice
   const minor = parseMoneyInput(amount);
   const entries = ledger.data ?? [];
   // What month close will move: what the budgets don't use, plus income never put in a budget,
@@ -139,14 +140,14 @@ export default function SavingsScreen() {
 
 const s = StyleSheet.create({
   hero: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 18, gap: 4 },
-  heroLabel: { fontSize: 15 },
+  heroLabel: { fontFamily: fontFamily.body, fontSize: 15 },
   heroAmount: { fontSize: 36, fontWeight: '700', ...moneyText },
-  heroMeta: { fontSize: 14, fontVariant: ['tabular-nums'] },
+  heroMeta: { fontFamily: fontFamily.body, fontSize: 14, fontVariant: ['tabular-nums'] },
   toggle: { flexDirection: 'row', gap: 8, padding: 12 },
   toggleItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 8, borderRadius: 8, minHeight: 36 },
   actions: { marginHorizontal: 16, marginTop: 16 },
   goal: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 12 },
   goalTop: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
-  goalName: { fontSize: 17, flexShrink: 1 },
+  goalName: { fontFamily: fontFamily.body, fontSize: 17, flexShrink: 1 },
   goalAmount: { fontSize: 14, ...moneyText },
 });

@@ -5,6 +5,7 @@ import { Icon } from './ui';
 import { applyUpdate, useUpdateAvailable } from '@/lib/app-update';
 import { t } from '@/lib/i18n';
 import { radius, useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // T15: a new build is out. A small pill at the top of every screen; the refresh is the
 // person's call, so nothing they are typing is lost.
@@ -43,6 +44,6 @@ const s = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     elevation: 4,
   },
-  text: { fontSize: 14, fontWeight: '500' },
-  action: { fontSize: 14, fontWeight: '700', textDecorationLine: 'underline' },
+  text: { fontFamily: fontFamily.body, fontSize: 14, fontWeight: '500' },
+  action: { fontFamily: fontFamily.body, fontSize: 14, fontWeight: '700', textDecorationLine: 'underline' },
 });

@@ -37,7 +37,7 @@ export default function Merchants() {
               {shown.map((m, i) => (
                 <Row
                   key={m.id}
-                  left={<CategoryIcon symbol={m.category?.sf_symbol ?? 'bag'} />}
+                  left={<CategoryIcon symbol={m.category?.sf_symbol ?? 'bag'} categoryId={m.default_category_id} />}
                   title={m.display_name}
                   subtitle={`${m.category?.name ?? t.merchants.noCategory} · ${t.merchants.uses(m.tx_count)}`}
                   onPress={() => router.push({ pathname: '/settings/merchant', params: { id: m.id } })}

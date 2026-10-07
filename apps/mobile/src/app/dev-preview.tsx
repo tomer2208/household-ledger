@@ -1,8 +1,11 @@
 import { Redirect, Stack } from 'expo-router';
+import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { ADD_BUTTON_SPACE, AddButton } from '@/components/add-button';
+import { BudgetSheet } from '@/components/budget-sheet';
 import { Envelope, EnvelopeGrid } from '@/components/envelope';
+import { MenuSheet } from '@/components/sheet';
 import { SwipeRow } from '@/components/swipe-row';
 import { useToast } from '@/components/toast';
 import { IncomePlanCard } from '@/components/income-plan';
@@ -32,6 +35,14 @@ const SPENT = SAMPLE.reduce((n, x) => n + x.spent, 0);
 export default function DevPreview() {
   const c = useColors();
   const toast = useToast();
+  // A tap adds ₪100 to an envelope, so the bar's growth and the state changes can be watched.
+  const [spent, setSpent] = useState(() => SAMPLE.map((x) => x.spent));
+  const [menu, setMenu] = useState<number | null>(null);
+  const [budget, setBudget] = useState<number | null>(null);
+  const asOverview = (i: number) => ({
+    id: `sample-${i}`, name: SAMPLE[i].name, sf_symbol: SAMPLE[i].symbol, cap: SAMPLE[i].cap, base_cap: SAMPLE[i].cap,
+    carry: 0, reserve: 0, funds: [], rollover: false, spent: spent[i], pct: null, no_budget: false,
+  });
   if (!__DEV__) return <Redirect href="/" />;
   return (
     <View style={{ flex: 1 }}>
@@ -52,19 +63,19 @@ export default function DevPreview() {
         </View>
         <Text style={[s.group, { color: c.text }]}>{t.envelope.envelopes}</Text>
         <EnvelopeGrid>
-          {SAMPLE.map((x) => {
-            const out = runsOutOn(x.cap, x.spent, 12, 31);
+          {SAMPLE.map((x, i) => {
+            const out = runsOutOn(x.cap, spent[i], 12, 31);
             return (
               <Envelope
                 key={x.name}
                 name={x.name}
                 symbol={x.symbol}
                 cap={x.cap}
-                spent={x.spent}
+                spent={spent[i]}
                 currency="ILS"
                 hint={out ? t.envelope.runsOut(out) : null}
-                onPress={() => toast({ message: `Add to ${x.name}` })}
-                onLongPress={() => toast({ message: `Edit ${x.name}` })}
+                onPress={() => setSpent((all) => all.map((v, j) => (j === i ? v + 10000 : v)))}
+                onLongPress={() => setMenu(i)}
               />
             );
           })}
@@ -100,6 +111,18 @@ export default function DevPreview() {
         </View>
       </Screen>
       <AddButton />
+      <MenuSheet
+        open={menu != null}
+        onClose={() => setMenu(null)}
+        title={menu != null ? SAMPLE[menu].name : undefined}
+        items={[
+          { label: t.envelope.editBudget, icon: 'pencil', onPress: () => setBudget(menu) },
+          { label: t.envelope.expenses, icon: 'list.bullet', onPress: () => toast({ message: 'Expenses' }) },
+          { label: t.envelope.editEnvelope, icon: 'tag', onPress: () => toast({ message: 'Edit' }) },
+          { label: t.common.delete, icon: 'trash', destructive: true, onPress: () => toast({ message: 'Delete' }) },
+        ]}
+      />
+      <BudgetSheet cat={budget != null ? asOverview(budget) : null} currency="ILS" onClose={() => setBudget(null)} />
     </View>
   );
 }

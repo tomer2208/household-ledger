@@ -2,7 +2,7 @@ import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, ScrollView, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { useCategories, useHousehold, useTransactionPages, useTransactionSummary } from '@/api/queries';
+import { useCategories, useHousehold, useOverview, useTransactionPages, useTransactionSummary } from '@/api/queries';
 import type { Category, Member, Transaction } from '@/api/types';
 import { ADD_BUTTON_SPACE, AddButton } from '@/components/add-button';
 import { FilterSheet } from '@/components/filter-sheet';
@@ -10,7 +10,7 @@ import { OfflineBanner } from '@/components/offline-banner';
 import { SwipeRow } from '@/components/swipe-row';
 import { TransactionRow } from '@/components/transaction-row';
 import { ListSkeleton } from '@/components/skeleton';
-import { Empty, Icon, LoadingState } from '@/components/ui';
+import { Badge, CategoryIcon, Empty, Icon, LoadingState, Row, Section } from '@/components/ui';
 import { dayLabel, monthLabel, shortDate } from '@/lib/dates';
 import { t } from '@/lib/i18n';
 import { formatMoney, formatSigned } from '@/lib/money';
@@ -29,8 +29,10 @@ import {
 } from '@/lib/search-filter';
 import { useTransactionActions } from '@/lib/transaction-actions';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 export default function TransactionsScreen() {
+  const pending = useOverview().data?.pending_review ?? 0;
   const c = useColors();
   // P1-9: the filter lives in the URL, so a refresh or coming back from an expense keeps it.
   const params = useLocalSearchParams<FilterParams>();
@@ -153,10 +155,23 @@ export default function TransactionsScreen() {
               </View>
             ) : null}
             <OfflineBanner />
+            {/* D3: the tab's badge counts these; here is where they're reviewed. */}
+            {pending > 0 ? (
+              <Section>
+                <Row
+                  left={<CategoryIcon symbol="tray.full" />}
+                  title={t.review.title}
+                  subtitle={t.overview.reviewSubtitle}
+                  right={<Badge text={String(pending)} color={c.orange} />}
+                  onPress={() => router.push('/review')}
+                  last
+                />
+              </Section>
+            ) : null}
           </>
         }
         renderSectionHeader={({ section }) => (
-          <Text style={[s.header, { color: c.secondaryLabel }]}>{section.title.toUpperCase()}</Text>
+          <Text style={[s.header, { color: c.secondaryLabel }]}>{section.title}</Text>
         )}
         renderItem={({ item, index, section }) => (
           <View
@@ -296,19 +311,19 @@ const s = StyleSheet.create({
   searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: 16, marginTop: 8 },
   search: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 10, paddingHorizontal: 8, height: 36 },
   filterButton: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 36, paddingHorizontal: 12, borderRadius: 10 },
-  filterText: { fontSize: 15, fontWeight: '600' },
+  filterText: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
   chips: { gap: 8, paddingHorizontal: 16, marginTop: 10, alignItems: 'center' },
   clearAll: { minHeight: 32, justifyContent: 'center', paddingHorizontal: 4 },
   summary: { marginHorizontal: 32, marginTop: 14, gap: 2 },
-  summaryTotal: { fontSize: 17, fontWeight: '600', fontVariant: ['tabular-nums'] },
-  summaryDetail: { fontSize: 13 },
+  summaryTotal: { fontFamily: fontFamily.body, fontSize: 17, fontWeight: '600', fontVariant: ['tabular-nums'] },
+  summaryDetail: { fontFamily: fontFamily.body, fontSize: 13 },
   // 16px minimum, or iOS Safari zooms the page when the field is focused.
-  searchInput: { flex: 1, fontSize: 17, paddingVertical: 0, outlineStyle: 'none' } as any,
-  header: { fontSize: 13, marginTop: 22, marginBottom: 6, marginStart: 32 },
+  searchInput: { fontFamily: fontFamily.body, flex: 1, fontSize: 17, paddingVertical: 0, outlineStyle: 'none' } as any,
+  header: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 22, marginBottom: 6, marginStart: 32 },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 32, paddingHorizontal: 12, borderRadius: 16, maxWidth: 240 },
-  chipText: { fontSize: 15, fontWeight: '600' },
+  chipText: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
   footer: { flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', paddingVertical: 20 },
-  footerText: { fontSize: 13, textAlign: 'center' },
+  footerText: { fontFamily: fontFamily.body, fontSize: 13, textAlign: 'center' },
   cell: { marginHorizontal: 16, overflow: 'hidden' },
   first: { borderTopStartRadius: 10, borderTopEndRadius: 10 },
   lastCell: { borderBottomStartRadius: 10, borderBottomEndRadius: 10 },

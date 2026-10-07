@@ -4,6 +4,7 @@ import { Icon } from './ui';
 import type { MerchantSummary } from '@/api/types';
 import { t } from '@/lib/i18n';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // A name or any spelling it was learned under, so "PAZ YELLOW" finds "Paz".
 export const matches = (m: MerchantSummary, q: string) =>
@@ -36,5 +37,5 @@ export function MerchantSearch({ value, onChange }: { value: string; onChange: (
 const s = StyleSheet.create({
   search: { flexDirection: 'row', alignItems: 'center', gap: 6, marginHorizontal: 16, marginTop: 8, borderRadius: 10, paddingHorizontal: 8, height: 36 },
   // 16px minimum, or iOS Safari zooms the page when the field is focused.
-  input: { flex: 1, fontSize: 17, paddingVertical: 0, outlineStyle: 'none' } as any,
+  input: { fontFamily: fontFamily.body, flex: 1, fontSize: 17, paddingVertical: 0, outlineStyle: 'none' } as any,
 });

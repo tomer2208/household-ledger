@@ -25,7 +25,7 @@ export default function AiActivity() {
           footer={usedPct >= 100 ? t.aiActivity.usedUp : t.aiActivity.allowance}>
           <View style={{ paddingHorizontal: 16, paddingVertical: 12, gap: 8 }}>
             <Text style={{ color: c.label, fontSize: 17, fontVariant: ['tabular-nums'] }}>
-              {t.aiActivity.used(`$${usage.cost_usd.toFixed(2)}`, `$${usage.cap_usd.toFixed(2)}`)}
+              {t.aiActivity.usedPct(Math.round(usedPct))}
             </Text>
             <ProgressBar pct={usedPct} color={budgetTone(usedPct, c)} />
           </View>
@@ -39,10 +39,9 @@ export default function AiActivity() {
             <Row
               key={r.id}
               title={t.aiActivity.agent[r.agent]}
-              subtitle={`${shortDate(r.created_at)} ${timeLabel(r.created_at)} · ${r.model}${
-                r.input_tokens ? ` · ${t.aiActivity.tokens(r.input_tokens + (r.output_tokens ?? 0))}` : ''
-              }${r.latency_ms ? ` · ${(r.latency_ms / 1000).toFixed(1)}s` : ''}`}
-              right={<Badge text={r.status} color={tone(r.status)} />}
+              // D1: no model names, tokens or seconds; just when, and what happened in words.
+              subtitle={`${shortDate(r.created_at)} ${timeLabel(r.created_at)}`}
+              right={<Badge text={t.aiActivity.status(r.status)} color={tone(r.status)} />}
               last={i === list.length - 1}
             />
           ))}

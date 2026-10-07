@@ -38,7 +38,7 @@ export default function RecurringScreen() {
           {list.map((r, i) => (
             <Row
               key={r.id}
-              left={<CategoryIcon symbol={r.categories?.sf_symbol ?? 'tag'} />}
+              left={<CategoryIcon symbol={r.categories?.sf_symbol ?? 'tag'} categoryId={r.category_id} />}
               title={r.title}
               subtitle={
                 r.installment_count && r.installment_first

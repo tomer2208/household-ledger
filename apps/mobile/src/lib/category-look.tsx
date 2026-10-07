@@ -57,9 +57,9 @@ import { WrenchIcon } from 'phosphor-react-native/src/icons/Wrench';
 import type { CategoryColor } from './tokens/palette.gen';
 
 // F5 + F2: how a category looks. One icon set (Phosphor, duotone) on every platform, and one of
-// ten colours. Until categories carry their own `icon` and `color` (P1), both come from the
-// SF Symbol name the category already has. Icons are imported one by one: the package's index
-// pulls in all 3,000 of them.
+// ten colours. Categories carry their own `icon` and `color` (migration 46); the SF Symbol name
+// is only a fallback for a row read before that. Icons are imported one by one: the package's
+// index pulls in all 3,000 of them.
 
 type IconProps = { size?: number; color?: string; weight?: 'duotone' | 'regular' | 'fill' | 'bold' };
 type PhosphorIcon = ComponentType<IconProps>;
@@ -109,4 +109,19 @@ export function categoryColorId(sfSymbol: string | null | undefined): CategoryCo
   let h = 0;
   for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
   return ORDER[h % ORDER.length];
+}
+
+// What to draw for a category: its own icon and colour, else what its SF Symbol suggests.
+export function lookOf(cat: { sf_symbol?: string | null; icon?: string | null; color?: string | null }) {
+  const icon = cat.icon && CATEGORY_ICONS[cat.icon] ? cat.icon : categoryIconId(cat.sf_symbol);
+  const color = (cat.color && (ORDER as string[]).includes(cat.color) ? cat.color : categoryColorId(cat.sf_symbol)) as CategoryColor;
+  return { icon, color };
+}
+
+export const CATEGORY_COLORS = ORDER;
+
+// The other way round, for sf_symbol on a category saved from the app: kept while older builds
+// and the server's own inserts still read it. An icon with no SF counterpart saves as 'tag'.
+export function sfFor(icon: string) {
+  return Object.keys(FROM_SF).find((k) => FROM_SF[k] === icon) ?? 'tag';
 }

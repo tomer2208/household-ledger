@@ -5,6 +5,7 @@ import { addMonths, monthLabel } from '@/lib/dates';
 import { t } from '@/lib/i18n';
 import { backIcon, forwardIcon } from '@/lib/rtl';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // P1-5: ‹ September 2026 › above Overview. Back as far as the household's first month, never
 // past the current one; "This month" jumps home from anywhere in the past.
@@ -58,7 +59,7 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 4, marginHorizontal: 12, marginTop: 8 },
   // 44pt targets for the arrows.
   arrow: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  label: { fontSize: 20, fontWeight: '700', minWidth: 150, textAlign: 'center' },
+  label: { fontFamily: fontFamily.body, fontSize: 20, fontWeight: '700', minWidth: 150, textAlign: 'center' },
   today: { marginStart: 'auto', minHeight: 32, paddingHorizontal: 12, borderRadius: 16, justifyContent: 'center' },
-  todayText: { fontSize: 15, fontWeight: '600' },
+  todayText: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
 });

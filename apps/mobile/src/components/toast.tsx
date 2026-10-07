@@ -1,9 +1,11 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { AccessibilityInfo, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { dark, light, radius, useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
+import { useScheme } from '@/lib/appearance';
 
 // One bottom toast at a time, with an optional Undo. `onExpire` runs when the toast leaves
 // without its action being used (timeout or replaced by the next toast), which is how a
@@ -21,7 +23,7 @@ const ADD_BUTTON = 76;
 export function ToastProvider({ children }: { children: ReactNode }) {
   const c = useColors();
   // The toast is inverted (ink on light, light on dark), so its action takes the other mode's teal.
-  const actionColor = useColorScheme() === 'dark' ? light.tint : dark.tint;
+  const actionColor = useScheme() === 'dark' ? light.tint : dark.tint;
   const insets = useSafeAreaInsets();
   const [toast, setToast] = useState<(Toast & { key: number }) | null>(null);
   const current = useRef<Toast | null>(null);
@@ -95,7 +97,7 @@ const s = StyleSheet.create({
     paddingStart: 16,
     paddingEnd: 4,
   },
-  message: { flex: 1, fontSize: 15, paddingVertical: 12 },
+  message: { fontFamily: fontFamily.body, flex: 1, fontSize: 15, paddingVertical: 12 },
   action: { minHeight: 44, minWidth: 64, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
-  actionText: { fontSize: 15, fontWeight: '700' },
+  actionText: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '700' },
 });

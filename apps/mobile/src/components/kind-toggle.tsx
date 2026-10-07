@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useColors } from '@/lib/theme';
 import { t } from '@/lib/i18n';
+import { fontFamily } from '@/lib/tokens';
 
 // R4: an expense takes money out, a refund puts it back (stored as a negative amount, H5).
 export function KindToggle({ refund, onChange }: { refund: boolean; onChange: (refund: boolean) => void }) {
@@ -31,5 +32,5 @@ export function KindToggle({ refund, onChange }: { refund: boolean; onChange: (r
 const s = StyleSheet.create({
   segment: { flexDirection: 'row', borderRadius: 9, padding: 2, alignSelf: 'center', width: 220 },
   item: { flex: 1, alignItems: 'center', justifyContent: 'center', borderRadius: 7, minHeight: 36 },
-  text: { fontSize: 15, fontWeight: '600' },
+  text: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
 });

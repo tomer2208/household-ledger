@@ -78,6 +78,8 @@ export const envelope = {
   iconSize: 18,
   // F1: from 80% of the budget an envelope is "close to the limit"; over 100% it is over.
   closeAt: 80,
+  // F4: how long the bar takes to grow after a save (`duration.emphasis`).
+  emphasis: 600,
 } as const;
 
 export const sheet = { radius: radius.card, padding: space[4] } as const;

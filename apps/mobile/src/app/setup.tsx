@@ -13,6 +13,7 @@ import { forwardIcon, textEnd } from '@/lib/rtl';
 import { clearSetupPending } from '@/lib/setup';
 import { APP_URL } from '@/lib/supabase';
 import { moneyText, useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // P1-7: from a new household to a working budget in about two minutes. Three steps, each one
 // skippable: monthly income → suggested budgets (edit or blank any line) → invite a partner and
@@ -111,7 +112,7 @@ export default function Setup() {
                 <View
                   key={x.id}
                   style={[s.capRow, i < categories.length - 1 && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
-                  <CategoryIcon symbol={x.sf_symbol} />
+                  <CategoryIcon symbol={x.sf_symbol} categoryId={x.id} />
                   <Text style={[s.capName, { color: c.label }]} numberOfLines={1}>
                     {x.name}
                   </Text>
@@ -192,21 +193,21 @@ function ShareStep() {
 const s = StyleSheet.create({
   dots: { flexDirection: 'row', gap: 6, justifyContent: 'center', marginTop: 16 },
   dot: { width: 28, height: 4, borderRadius: 2 },
-  title: { fontSize: 28, fontWeight: '700', marginHorizontal: 20, marginTop: 24 },
-  lead: { fontSize: 16, lineHeight: 22, marginHorizontal: 20, marginTop: 8 },
+  title: { fontFamily: fontFamily.body, fontSize: 28, fontWeight: '700', marginHorizontal: 20, marginTop: 24 },
+  lead: { fontFamily: fontFamily.body, fontSize: 16, lineHeight: 22, marginHorizontal: 20, marginTop: 8 },
   amountWrap: { alignItems: 'center', paddingVertical: 24, gap: 6 },
   amount: { fontSize: 52, fontWeight: '700', textAlign: 'center', minWidth: 200, ...moneyText },
-  hint: { fontSize: 13, textAlign: 'center', marginHorizontal: 32 },
+  hint: { fontFamily: fontFamily.body, fontSize: 13, textAlign: 'center', marginHorizontal: 32 },
   actions: { marginHorizontal: 16, marginTop: 20, gap: 8 },
   summary: { flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 16, marginTop: 16, padding: 16, borderRadius: 14 },
-  summaryLabel: { fontSize: 13 },
+  summaryLabel: { fontFamily: fontFamily.body, fontSize: 13 },
   summaryValue: { fontSize: 22, fontWeight: '700', ...moneyText },
   capRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, minHeight: 52 },
-  capName: { flex: 1, fontSize: 17 },
+  capName: { fontFamily: fontFamily.body, flex: 1, fontSize: 17 },
   // 16px or larger, or iOS Safari zooms the page on focus.
   capInput: { width: 120, fontSize: 17, paddingVertical: 10, outlineStyle: 'none', ...moneyText } as any,
   card: { flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 16, marginTop: 12, padding: 14, borderRadius: 14, minHeight: 64 },
-  cardTitle: { fontSize: 17, fontWeight: '600' },
-  cardText: { fontSize: 13, marginTop: 2 },
-  cardAction: { fontSize: 15, fontWeight: '600' },
+  cardTitle: { fontFamily: fontFamily.body, fontSize: 17, fontWeight: '600' },
+  cardText: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 2 },
+  cardAction: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
 });

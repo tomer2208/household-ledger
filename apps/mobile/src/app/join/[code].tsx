@@ -8,6 +8,7 @@ import { Button, Icon } from '@/components/ui';
 import { t } from '@/lib/i18n';
 import { clearPendingInvite, savePendingInvite } from '@/lib/pending-invite';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // G3: /join/ABCD-EFGH. Outside every guard, like "/": it keeps the code, then sends the
 // person through sign-in (if needed) to onboarding, which fills the code in.
@@ -47,6 +48,6 @@ export default function JoinLink() {
 
 const s = StyleSheet.create({
   wrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 12 },
-  title: { fontSize: 22, fontWeight: '700', textAlign: 'center' },
-  body: { fontSize: 16, lineHeight: 22, textAlign: 'center', marginBottom: 12 },
+  title: { fontFamily: fontFamily.body, fontSize: 22, fontWeight: '700', textAlign: 'center' },
+  body: { fontFamily: fontFamily.body, fontSize: 16, lineHeight: 22, textAlign: 'center', marginBottom: 12 },
 });

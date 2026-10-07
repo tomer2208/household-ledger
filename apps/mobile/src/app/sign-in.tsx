@@ -2,14 +2,15 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LanguageToggle } from '@/components/language-picker';
-import { Button, ErrorText, Field, Icon, Section } from '@/components/ui';
+import { Button, ErrorText, Field, Section } from '@/components/ui';
 import { t } from '@/lib/i18n';
 import { APP_URL, supabase } from '@/lib/supabase';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // Sign in with Apple first (US-M1 AC1); an emailed one-time code as the fallback.
 // The code length is a Supabase project setting (6–10 digits), so the field accepts any of them.
@@ -75,11 +76,11 @@ export default function SignIn() {
 
   return (
     <SafeAreaView style={[s.flex, { backgroundColor: c.groupedBackground }]}>
-      <KeyboardAvoidingView style={s.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      {/* D1: the form sits in the middle of the screen, not under the top edge with the rest empty. */}
+      <KeyboardAvoidingView style={[s.flex, s.center]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={s.hero}>
-          <View style={[s.logo, { backgroundColor: c.tint }]}>
-            <Icon name="chart.pie" size={40} color="#fff" />
-          </View>
+          {/* F6: the app's own mark, the same as on the Home Screen */}
+          <Image source={require('@/assets/images/splash-icon.png')} style={s.logo} accessibilityIgnoresInvertColors />
           <Text style={[s.title, { color: c.label }]}>FinPace</Text>
           <Text style={[s.subtitle, { color: c.secondaryLabel }]}>{t.signIn.tagline}</Text>
         </View>
@@ -165,13 +166,14 @@ export default function SignIn() {
 
 const s = StyleSheet.create({
   flex: { flex: 1 },
-  hero: { alignItems: 'center', marginTop: 48, marginBottom: 16, paddingHorizontal: 32, gap: 8 },
-  logo: { width: 76, height: 76, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
-  title: { fontSize: 28, fontWeight: '700' },
-  subtitle: { fontSize: 16, textAlign: 'center' },
+  center: { justifyContent: 'center', paddingBottom: 48 },
+  hero: { alignItems: 'center', marginBottom: 16, paddingHorizontal: 32, gap: 8 },
+  logo: { width: 76, height: 76, marginBottom: 8 },
+  title: { fontFamily: fontFamily.display, fontSize: 32 },
+  subtitle: { fontFamily: fontFamily.body, fontSize: 16, textAlign: 'center' },
   apple: { marginHorizontal: 16, marginTop: 16, gap: 12 },
-  or: { textAlign: 'center', fontSize: 13 },
+  or: { fontFamily: fontFamily.body, textAlign: 'center', fontSize: 13 },
   actions: { marginHorizontal: 16, marginTop: 16, gap: 8 },
-  legal: { fontSize: 13, lineHeight: 18, textAlign: 'center', marginHorizontal: 32, marginTop: 16 },
+  legal: { fontFamily: fontFamily.body, fontSize: 13, lineHeight: 18, textAlign: 'center', marginHorizontal: 32, marginTop: 16 },
   language: { marginTop: 24 },
 });

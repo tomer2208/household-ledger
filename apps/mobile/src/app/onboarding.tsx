@@ -12,6 +12,7 @@ import { clearPendingInvite, readPendingInvite } from '@/lib/pending-invite';
 import { clearSetupPending, setSetupPending } from '@/lib/setup';
 import { supabase } from '@/lib/supabase';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // US-M1 AC2: create a household or join the partner's with an invite code.
 // An invite link (G3) opened earlier lands here with the code already filled in.
@@ -139,15 +140,15 @@ export default function Onboarding() {
 }
 
 const s = StyleSheet.create({
-  title: { fontSize: 34, fontWeight: '700', marginHorizontal: 20, marginTop: 24 },
+  title: { fontFamily: fontFamily.body, fontSize: 34, fontWeight: '700', marginHorizontal: 20, marginTop: 24 },
   segment: { flexDirection: 'row', marginHorizontal: 16, marginTop: 20, borderRadius: 9, padding: 2 },
   segmentItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 7, borderRadius: 7, minHeight: 36 },
-  segmentText: { fontSize: 14, fontWeight: '600' },
+  segmentText: { fontFamily: fontFamily.body, fontSize: 14, fontWeight: '600' },
   currencyRow: { paddingHorizontal: 16, paddingVertical: 10, gap: 10 },
-  currencyLabel: { fontSize: 17 },
+  currencyLabel: { fontFamily: fontFamily.body, fontSize: 17 },
   currencyChips: { flexDirection: 'row', gap: 8 },
   chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 16, minHeight: 36, justifyContent: 'center' },
   switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, minHeight: 50 },
-  switchLabel: { fontSize: 17 },
+  switchLabel: { fontFamily: fontFamily.body, fontSize: 17 },
   actions: { marginHorizontal: 16, marginTop: 20 },
 });

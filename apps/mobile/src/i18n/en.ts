@@ -146,6 +146,16 @@ export const en = {
     fundDue: (title: string, saved: string) => `${title}: due this month, ${saved} saved up`,
   },
   // K1: an envelope's state in words (direction D). The status lives in the sentence, not a tag.
+  // P3: every envelope's budget on one screen, for the start of a month (YNAB's assign-all)
+  budgets: {
+    title: 'Update budgets',
+    lede: 'Every envelope on one screen. Leave a field empty for no budget.',
+    total: (sum: string) => `Budgets total ${sum}`,
+    save: 'Save the budgets',
+    saved: 'Budgets saved',
+    lastMonth: (amount: string) => `Last month: ${amount}`,
+    open: 'Update budgets',
+  },
   envelope: {
     left: (amount: string) => `${amount} left`,
     close: (amount: string) => `Only ${amount} left`,
@@ -163,6 +173,13 @@ export const en = {
     someClose: (n: number) => (n === 1 ? 'one is close' : `${n} are close`),
     envelopes: 'Envelopes',
     ofTotal: (spent: string, cap: string) => `${spent} of ${cap}`,
+    // K3 / P3: the envelope's long-press menu and the budget sheet
+    editBudget: 'Change the budget',
+    editEnvelope: 'Name, icon and colour',
+    expenses: 'Its expenses',
+    budgetFor: (name: string) => `${name}: monthly budget`,
+    budgetPreview: 'This month with this budget',
+    noBudgetYet: 'No budget yet',
   },
   month: {
     previous: (month: string) => `Previous month, ${month}`,
@@ -326,6 +343,7 @@ export const en = {
     incomeRemoved: 'Monthly income removed',
   },
   review: {
+    change: 'Change',
     title: 'To Review',
     emptyTitle: 'All caught up',
     emptyMessage: 'New places you pay at will show up here if you skip the Shortcut menu.',
@@ -396,6 +414,10 @@ export const en = {
       cap ? `${month}: ${spent} of a ${cap} budget. Show its expenses` : `${month}: ${spent}. Show its expenses`,
   },
   settings: {
+    appearance: 'Appearance',
+    appearanceSystem: 'Like the phone',
+    appearanceLight: 'Light',
+    appearanceDark: 'Dark',
     merchants: 'Merchants',
     budget: 'Budget',
     income: 'Monthly Income',
@@ -520,6 +542,25 @@ export const en = {
     rolloverFooter: 'At month end, what’s left of this budget is added to next month’s, instead of going to savings. It starts with the next month that closes.',
     rolloverOverspend: 'Roll Over Overspending Too',
     rolloverOverspendFooter: 'Spending over the budget makes next month’s smaller. Off: savings cover it.',
+    // P2: the envelope's look and whether it shows
+    color: 'Colour',
+    iconSearch: 'Find an icon: "kids", "electricity", "dog"',
+    noIcon: (q: string) => `No icon for "${q}". Try another word, or "Other".`,
+    hidden: 'Hide this envelope',
+    hiddenFooter: "A hidden envelope doesn't show on Overview or when adding an expense, unless money was spent from it this month. Its history stays.",
+    sameColor: (name: string) => `${name} has this colour too.`,
+    preview: 'How it looks',
+    colors: { teal: 'Teal', sand: 'Sand', blue: 'Blue', ocean: 'Ocean', clay: 'Clay', olive: 'Olive', indigo: 'Indigo', sage: 'Sage', violet: 'Violet', rose: 'Rose' } as Record<string, string>,
+    // P2: order, hidden ones, and names in the other language
+    order: 'Order',
+    orderDone: 'Done',
+    moveUp: (name: string) => `Move ${name} up`,
+    moveDown: (name: string) => `Move ${name} down`,
+    orderFooter: 'The order here is the order on Overview and when adding an expense.',
+    hiddenTitle: 'Hidden',
+    translateTitle: 'Category names are in Hebrew',
+    translateBody: (n: number) => `Rename ${n} categories that came with the app to English?`,
+    translate: 'Rename to English',
   },
   merchants: {
     title: 'Merchants',
@@ -707,7 +748,9 @@ export const en = {
     allowance: 'Each household has a monthly AI allowance. Past it, the app switches to its built-in text until next month.',
     used: (cost: string, cap: string) => `${cost} of ${cap} used`,
     empty: 'No AI activity yet',
-    fallbackFooter: '“fallback” means the app used its built-in text instead of calling the AI (AI off, allowance used up, or no API key yet).',
+    fallbackFooter: '"Built-in text" means the app wrote it itself instead of asking the AI: AI is off, or this month\'s allowance is used up.',
+    usedPct: (pct: number) => `${pct}% of this month\'s allowance used`,
+    status: (s: string): string => (s === 'ok' ? 'Done' : s === 'fallback' ? 'Built-in text' : 'Failed'),
     agent: { classifier: 'Categorize purchase', monthly_report: 'Monthly report', advisor: 'Suggestions' },
     tokens: (n: number) => `${n} tokens`,
     lastError: (error: string) => `Last error: ${error}`,

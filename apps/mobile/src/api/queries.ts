@@ -93,7 +93,7 @@ export function useCategories() {
       (await must(
         supabase
           .from('categories')
-          .select('id,name,sf_symbol,kind,sort_order,archived_at,budget_acknowledged,created_via,rollover,rollover_overspend')
+          .select('id,name,sf_symbol,kind,sort_order,archived_at,budget_acknowledged,created_via,rollover,rollover_overspend,color,icon,hidden')
           .eq('kind', 'expense')
           .order('sort_order')
           .order('name'),
@@ -579,6 +579,11 @@ export const useSaveCategory = () =>
       // P1-14: carry what's left (and, with overspend, what's over) into next month
       rollover?: boolean;
       rolloverOverspend?: boolean;
+      // P2 (design): the household's own colour and icon, and hiding without deleting
+      color?: string;
+      icon?: string;
+      hidden?: boolean;
+      sortOrder?: number;
     }) =>
       v.id
         ? must(
@@ -591,13 +596,19 @@ export const useSaveCategory = () =>
                 ...(v.acknowledge ? { budget_acknowledged: true } : {}),
                 ...(v.rollover !== undefined ? { rollover: v.rollover } : {}),
                 ...(v.rolloverOverspend !== undefined ? { rollover_overspend: v.rolloverOverspend } : {}),
+                ...(v.color ? { color: v.color } : {}),
+                ...(v.icon ? { icon: v.icon } : {}),
+                ...(v.hidden !== undefined ? { hidden: v.hidden } : {}),
+                ...(v.sortOrder !== undefined ? { sort_order: v.sortOrder } : {}),
               })
               .eq('id', v.id),
           )
         : must(
             supabase
               .from('categories')
-              .insert({ household_id: v.householdId, name: v.name, sf_symbol: v.sfSymbol, sort_order: 50 }),
+              .insert({ household_id: v.householdId, name: v.name, sf_symbol: v.sfSymbol, sort_order: v.sortOrder ?? 50, ...(v.color ? { color: v.color } : {}), ...(v.icon ? { icon: v.icon } : {}) })
+              .select('id')
+              .single(),
           ),
   );
 

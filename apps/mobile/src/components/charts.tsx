@@ -7,18 +7,21 @@
 import { Platform, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Polyline, Rect, Text as SvgText } from 'react-native-svg';
 
+import { useCategories } from '@/api/queries';
 import type { ReportMetrics } from '@/api/types';
+import { lookOf } from '@/lib/category-look';
 import { isRTL, locale, t } from '@/lib/i18n';
 import { type TrendMonth, trendSummary } from '@/lib/budget';
 import { formatMoney } from '@/lib/money';
 import { dirProps } from '@/lib/rtl';
-import { useColors } from '@/lib/theme';
+import { tokens, useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
+import { useScheme } from '@/lib/appearance';
 
 // SVG text doesn't inherit the app font on web; iOS already uses the system font.
 const FONT = Platform.OS === 'web' ? 'system-ui, -apple-system, sans-serif' : undefined;
 
 // Ordered, colorblind-safe categorical palette; "Other" slices share the last swatch.
-const PALETTE = ['#4E79A7', '#F28E2B', '#59A14F', '#E15759', '#B07AA1', '#76B7B2', '#EDC948', '#9C755F'];
 const monthShort = (ym: string) =>
   new Date(Number(ym.slice(0, 4)), Number(ym.slice(5, 7)) - 1, 1).toLocaleDateString(locale(), { month: 'short' });
 const monthLong = (ym: string) =>
@@ -48,6 +51,11 @@ export function ChartCard({ title, children }: { title: string; children: React.
 // 1. Where the money went: donut of category share.
 export function CategoryDonut({ m, onCategory }: { m: ReportMetrics; onCategory?: (id: string | null) => void }) {
   const c = useColors();
+  // K5: each slice in its category's own colour (F2), so a chart and an envelope agree; "other" neutral.
+  const dark = useScheme() === 'dark';
+  const own = new Map((useCategories().data ?? []).map((x) => [x.id, x]));
+  const colorOf = (id: string | null) =>
+    id ? tokens.categoryColors[lookOf(own.get(id) ?? { sf_symbol: null }).color][dark ? 'dark' : 'light'].base : (c.text3 as string);
   const cats = m.categories.filter((x) => x.spent > 0);
   const top = cats.slice(0, 7);
   const rest = cats.slice(7).reduce((a, x) => a + x.spent, 0);
@@ -73,7 +81,7 @@ export function CategoryDonut({ m, onCategory }: { m: ReportMetrics; onCategory?
       sweep >= Math.PI * 2 - 1e-6
         ? `M ${p(0, R)} A ${R} ${R} 0 1 1 ${p(Math.PI, R)} A ${R} ${R} 0 1 1 ${p(0, R)} M ${p(0, r)} A ${r} ${r} 0 1 0 ${p(Math.PI, r)} A ${r} ${r} 0 1 0 ${p(0, r)}`
         : `M ${p(a0, R)} A ${R} ${R} 0 ${large} 1 ${p(a1, R)} L ${p(a1, r)} A ${r} ${r} 0 ${large} 0 ${p(a0, r)} Z`;
-    return { d, color: PALETTE[Math.min(i, PALETTE.length - 1)], ...sl };
+    return { d, color: colorOf(sl.id), ...sl };
   });
   return (
     <ChartCard title={t.charts.whereItWent}>
@@ -249,7 +257,10 @@ function LineChart({
 // 3. Six-month spending trend; a month opens its Overview.
 export function TrendLine({ m, onMonth }: { m: ReportMetrics; onMonth?: (month: string) => void }) {
   const c = useColors();
-  const points = m.trend.map((p) => ({
+  // D1: months before the household started (nothing spent yet) aren't a flat line of zeros.
+  const first = m.trend.findIndex((p) => p.spent !== 0);
+  const trend = first > 0 ? m.trend.slice(first) : m.trend;
+  const points = trend.map((p) => ({
     label: monthShort(p.month),
     v: p.spent,
     a11y: t.charts.pointA11y(monthLong(p.month), formatMoney(p.spent, m.currency)),
@@ -260,7 +271,7 @@ export function TrendLine({ m, onMonth }: { m: ReportMetrics; onMonth?: (month: 
         points={points}
         currency={m.currency}
         color={c.tint as string}
-        onPoint={onMonth ? (i) => onMonth(`${m.trend[i].month.slice(0, 7)}-01`) : undefined}
+        onPoint={onMonth ? (i) => onMonth(`${trend[i].month.slice(0, 7)}-01`) : undefined}
       />
     </ChartCard>
   );
@@ -354,12 +365,12 @@ export function CategoryTrend({ months, currency, onMonth }: { months: TrendMont
 
 const s = StyleSheet.create({
   card: { marginHorizontal: 16, marginTop: 16, borderRadius: 14, padding: 16, gap: 10 },
-  title: { fontSize: 17, fontWeight: '600' },
+  title: { fontFamily: fontFamily.body, fontSize: 17, fontWeight: '600' },
   donutRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   legend: { flex: 1, gap: 6 },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   swatch: { width: 10, height: 10, borderRadius: 3 },
-  legendText: { flex: 1, fontSize: 13 },
-  legendPct: { fontSize: 13, fontVariant: ['tabular-nums'] },
-  caption: { fontSize: 13 },
+  legendText: { fontFamily: fontFamily.body, flex: 1, fontSize: 13 },
+  legendPct: { fontFamily: fontFamily.body, fontSize: 13, fontVariant: ['tabular-nums'] },
+  caption: { fontFamily: fontFamily.body, fontSize: 13 },
 });

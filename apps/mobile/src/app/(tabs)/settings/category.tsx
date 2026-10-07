@@ -1,25 +1,24 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 
 import { useCategories, useCategoryTrend, useHousehold, useOverview, useSaveCategory, useSetBudget } from '@/api/queries';
 import type { Fund } from '@/api/types';
 import { BudgetBreakdown } from '@/components/budget-breakdown';
 import { CategoryTrend } from '@/components/charts';
+import { Envelope } from '@/components/envelope';
 import { Button, CategoryIcon, ErrorText, Field, ProgressBar, Row, Screen, Section } from '@/components/ui';
 import { budgetStatus, incomePlan } from '@/lib/budget';
 import { useCategoryActions } from '@/lib/category-actions';
+import { CATEGORY_COLORS, lookOf, sfFor } from '@/lib/category-look';
+import { ICON_INFO } from '@/lib/icon-info';
 import { monthPace } from '@/lib/dates';
-import { t } from '@/lib/i18n';
+import { isRTL, t } from '@/lib/i18n';
 import { formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
-import { budgetTone, moneyText, radius, useColors } from '@/lib/theme';
-
-const SYMBOLS = [
-  'cart', 'fork.knife', 'cup.and.saucer', 'car', 'fuelpump', 'bus', 'house', 'bolt', 'drop', 'wifi',
-  'cross.case', 'pills', 'figure.and.child.holdinghands', 'pawprint', 'bag', 'tshirt', 'popcorn', 'gamecontroller',
-  'arrow.triangle.2.circlepath', 'airplane', 'gift', 'graduationcap', 'dumbbell', 'scissors', 'wrench.and.screwdriver',
-  'creditcard', 'building.columns', 'heart', 'tag', 'ellipsis.circle',
-];
+import { budgetTone, moneyText, radius, tokens, useColors } from '@/lib/theme';
+import type { CategoryColor } from '@/lib/tokens/palette.gen';
+import { fontFamily } from '@/lib/tokens';
+import { useScheme } from '@/lib/appearance';
 
 export default function CategoryEdit() {
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -42,7 +41,13 @@ function Editor({ id }: { id?: string }) {
   const current = overview.data?.categories.find((x) => x.id === id);
 
   const [name, setName] = useState(cat?.name ?? '');
-  const [symbol, setSymbol] = useState(cat?.sf_symbol ?? 'tag');
+  // P2: the envelope's own icon and colour (migration 46); a new one starts from "other".
+  const start = lookOf(cat ?? { sf_symbol: 'tag' });
+  const [icon, setIcon] = useState(start.icon ?? 'tag');
+  const [color, setColor] = useState<CategoryColor>(cat ? start.color : CATEGORY_COLORS[(cats.data?.length ?? 0) % CATEGORY_COLORS.length]);
+  const [hidden, setHidden] = useState(cat?.hidden ?? false);
+  const [query, setQuery] = useState('');
+  const dark = useScheme() === 'dark';
   // The budget that was set; what carried in from last month (P1-14) comes on top of it.
   const baseCap = current?.base_cap ?? null;
   const carry = current?.carry ?? 0;
@@ -60,16 +65,21 @@ function Editor({ id }: { id?: string }) {
 
   async function onSave() {
     if (!householdId || !name.trim()) return;
-    await save.mutateAsync({
+    const saved = (await save.mutateAsync({
       id,
       householdId,
       name: name.trim(),
-      sfSymbol: symbol,
+      sfSymbol: sfFor(icon),
+      icon,
+      color,
+      hidden,
       acknowledge: !!id,
       ...(id ? { rollover, rolloverOverspend: overspend } : {}),
-    });
-    if (id && capMinor != null && capMinor !== baseCap) {
-      await setBudget.mutateAsync({ categoryId: id, capMinor });
+    })) as { id: string } | null;
+    // D3: a new category takes its budget in the same step, not after saving and reopening.
+    const target = id ?? saved?.id;
+    if (target && capMinor != null && capMinor !== (id ? baseCap : null)) {
+      await setBudget.mutateAsync({ categoryId: target, capMinor });
     }
     router.back();
   }
@@ -77,8 +87,18 @@ function Editor({ id }: { id?: string }) {
   return (
     <Screen>
       <Stack.Screen options={{ title: id ? t.categories.editTitle : t.categories.newTitle, headerLargeTitle: false }} />
-      <View style={s.preview}>
-        <CategoryIcon symbol={symbol} size={64} />
+      {/* P2: the envelope as it will look, with everything chosen below. */}
+      <Text style={[s.label, { color: c.secondaryLabel }]}>{t.categories.preview}</Text>
+      <View style={s.preview} pointerEvents="none">
+        <Envelope
+          name={name.trim() || t.categories.namePlaceholder}
+          symbol={sfFor(icon)}
+          icon={icon}
+          color={color}
+          cap={capMinor && capMinor > 0 ? capMinor + carry + reserve : null}
+          spent={current?.spent ?? 0}
+          currency={cur}
+        />
       </View>
       {id && current ? (
         <MonthStatus
@@ -100,10 +120,8 @@ function Editor({ id }: { id?: string }) {
         />
       ) : null}
       <Section>
-        <Field label={t.review.name} value={name} onChangeText={setName} maxLength={30} placeholder={t.categories.namePlaceholder} last={!id} />
-        {id ? (
-          <Field label={t.categories.monthlyBudget} value={cap} onChangeText={setCap} keyboardType="decimal-pad" placeholder={t.overview.noBudget} last />
-        ) : null}
+        <Field label={t.review.name} value={name} onChangeText={setName} maxLength={30} placeholder={t.categories.namePlaceholder} />
+        <Field label={t.categories.monthlyBudget} value={cap} onChangeText={setCap} keyboardType="decimal-pad" placeholder={t.overview.noBudget} last />
       </Section>
       {id && plan.kind !== 'none' ? (
         <Text
@@ -137,18 +155,70 @@ function Editor({ id }: { id?: string }) {
         </Text>
       ) : null}
 
-      <Text style={[s.label, { color: c.secondaryLabel }]}>{t.categories.icon}</Text>
-      <View style={[s.grid, { backgroundColor: c.cell }]}>
-        {SYMBOLS.map((sym) => (
-          <Pressable
-            key={sym}
-            onPress={() => setSymbol(sym)}
-            style={[s.symbol, symbol === sym && { backgroundColor: c.fill }]}
-            accessibilityLabel={sym}>
-            <CategoryIcon symbol={sym} size={36} />
-          </Pressable>
-        ))}
+      <Text style={[s.label, { color: c.secondaryLabel }]}>{t.categories.color}</Text>
+      <View style={[s.colors, { backgroundColor: c.cell }]} accessibilityRole="radiogroup">
+        {CATEGORY_COLORS.map((k) => {
+          const look = tokens.categoryColors[k][dark ? 'dark' : 'light'];
+          const on = k === color;
+          return (
+            <Pressable
+              key={k}
+              onPress={() => setColor(k)}
+              accessibilityRole="radio"
+              accessibilityState={{ checked: on }}
+              accessibilityLabel={t.categories.colors[k]}
+              style={[s.swatchWrap, on && { borderColor: c.text }]}>
+              <View style={[s.swatch, { backgroundColor: look.base }]} />
+            </Pressable>
+          );
+        })}
       </View>
+      {(() => {
+        const same = (cats.data ?? []).find((x) => x.id !== id && !x.archived_at && lookOf(x).color === color);
+        return same ? <Text style={[s.hint, { color: c.secondaryLabel }]}>{t.categories.sameColor(same.name)}</Text> : null;
+      })()}
+
+      <Text style={[s.label, { color: c.secondaryLabel }]}>{t.categories.icon}</Text>
+      <View style={[s.icons, { backgroundColor: c.cell }]}>
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder={t.categories.iconSearch}
+          placeholderTextColor={c.tertiaryLabel as string}
+          accessibilityLabel={t.categories.iconSearch}
+          style={[s.search, { color: c.text, backgroundColor: c.bg, textAlign: isRTL() ? 'right' : 'left' }]}
+        />
+        {(() => {
+          const q = query.trim().toLowerCase().replace(/["׳']/g, '');
+          const found = ICON_INFO.filter((x) => !q || `${x.he} ${x.en} ${x.words}`.toLowerCase().replace(/["׳']/g, '').includes(q));
+          if (!found.length) return <Text style={[s.hint, { color: c.secondaryLabel }]}>{t.categories.noIcon(query.trim())}</Text>;
+          return (
+            <View style={s.iconGrid} accessibilityRole="radiogroup">
+              {found.map((x) => (
+                <Pressable
+                  key={x.id}
+                  onPress={() => setIcon(x.id)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: icon === x.id }}
+                  accessibilityLabel={isRTL() ? x.he : x.en}
+                  style={[s.iconCell, icon === x.id && { backgroundColor: c.actionSoft, borderColor: c.action }]}>
+                  <CategoryIcon symbol={sfFor(x.id)} icon={x.id} color={color} size={36} />
+                  <Text numberOfLines={1} style={[s.iconName, { color: c.text }]}>
+                    {isRTL() ? x.he : x.en}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          );
+        })()}
+      </View>
+
+      {/* P2: hide without deleting: not relevant now, history kept. */}
+      {id ? (
+        <Section footer={t.categories.hiddenFooter}>
+          <Row title={t.categories.hidden} right={<Switch value={hidden} onValueChange={setHidden} accessibilityLabel={t.categories.hidden} />} last />
+        </Section>
+      ) : null}
 
       <ErrorText error={save.error ?? setBudget.error} />
       <View style={s.actions}>
@@ -228,12 +298,20 @@ function MonthStatus({
 
 const s = StyleSheet.create({
   status: { marginHorizontal: 16, marginTop: 16, borderRadius: radius.hero, padding: 16, gap: 8 },
-  statusLabel: { fontSize: 13 },
+  statusLabel: { fontFamily: fontFamily.body, fontSize: 13 },
   statusAmount: { fontSize: 28, fontWeight: '700', ...moneyText },
   statusMeta: { fontSize: 13, ...moneyText },
-  preview: { alignItems: 'center', marginTop: 16 },
-  hint: { fontSize: 13, marginHorizontal: 32, marginTop: 6 },
-  label: { fontSize: 13, marginStart: 32, marginTop: 22, marginBottom: 6 },
+  preview: { marginHorizontal: 16, marginTop: 4 },
+  colors: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginHorizontal: 16, borderRadius: tokens.radius.envelope, padding: 10, justifyContent: 'center' },
+  swatchWrap: { width: 48, height: 48, borderRadius: 24, borderWidth: 2, borderColor: 'transparent', alignItems: 'center', justifyContent: 'center' },
+  swatch: { width: 36, height: 36, borderRadius: 18 },
+  icons: { marginHorizontal: 16, borderRadius: tokens.radius.envelope, padding: 10, gap: 10 },
+  search: { ...tokens.type.body, minHeight: 44, borderRadius: tokens.radius.tile, paddingHorizontal: 12 },
+  iconGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  iconCell: { width: '23.4%', minHeight: 76, alignItems: 'center', justifyContent: 'center', gap: 4, borderRadius: tokens.radius.tile, borderWidth: 2, borderColor: 'transparent', paddingHorizontal: 2 },
+  iconName: { ...tokens.type.caption, fontSize: 12 },
+  hint: { fontFamily: fontFamily.body, fontSize: 13, marginHorizontal: 32, marginTop: 6 },
+  label: { fontFamily: fontFamily.body, fontSize: 13, marginStart: 32, marginTop: 22, marginBottom: 6 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: 16, borderRadius: 10, padding: 8 },
   symbol: { width: '16.66%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center', borderRadius: 10 },
   actions: { marginHorizontal: 16, marginTop: 24, gap: 8 },

@@ -10,6 +10,7 @@ import { t } from '@/lib/i18n';
 import { formatSigned } from '@/lib/money';
 import { appDirText, textStart } from '@/lib/rtl';
 import { moneyText, useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 export function TransactionRow({
   tx,
@@ -39,7 +40,7 @@ export function TransactionRow({
       onAccessibilityAction={(e) => actions?.find((x) => x.name === e.nativeEvent.actionName)?.run()}
       style={({ pressed }) => [s.row, pressed && { backgroundColor: c.fill }]}>
       <View>
-        <CategoryIcon symbol={tx.categories?.sf_symbol ?? 'tag'} />
+        <CategoryIcon symbol={tx.categories?.sf_symbol ?? 'tag'} categoryId={tx.category_id} />
         {by ? (
           <View style={[s.who, { backgroundColor: c.tint, borderColor: c.cell }]} accessibilityLabel={t.tx.addedBy(by)}>
             <Text style={[s.whoText, { color: c.onTint }]}>{by.trim().charAt(0).toUpperCase()}</Text>
@@ -78,13 +79,13 @@ export function TransactionRow({
 const s = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', paddingStart: 16, gap: 12 },
   body: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, paddingEnd: 16, minHeight: 56 },
-  title: { fontSize: 17 },
+  title: { fontFamily: fontFamily.body, fontSize: 17 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  sub: { fontSize: 13, fontVariant: ['tabular-nums'], flexShrink: 1 },
+  sub: { fontFamily: fontFamily.body, fontSize: 13, fontVariant: ['tabular-nums'], flexShrink: 1 },
   amount: { fontSize: 17, ...moneyText },
   who: {
     position: 'absolute', end: -5, bottom: -5, width: 17, height: 17, borderRadius: 9, borderWidth: 2,
     alignItems: 'center', justifyContent: 'center',
   },
-  whoText: { fontSize: 9, fontWeight: '700' },
+  whoText: { fontFamily: fontFamily.body, fontSize: 9, fontWeight: '700' },
 });

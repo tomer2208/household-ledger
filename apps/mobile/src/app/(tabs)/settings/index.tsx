@@ -1,13 +1,13 @@
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
-import { Switch } from 'react-native';
+import { Switch, View } from 'react-native';
 
 import { useDevices, useHousehold, useOverview, useRecurring, useSetAiConsent, useSetReportNotices } from '@/api/queries';
 import { useSession } from '@/api/session';
 import { LanguageRows } from '@/components/language-picker';
 import { SwipeRow } from '@/components/swipe-row';
-import { CategoryIcon, ErrorText, Row, Screen, Section } from '@/components/ui';
+import { CategoryIcon, ErrorText, Icon, Row, Screen, Section } from '@/components/ui';
 import { aiDisclosure } from '@/lib/ai-disclosure';
 import { confirm } from '@/lib/confirm';
 import { exportExpenses } from '@/lib/export-csv';
@@ -17,9 +17,13 @@ import { deviceLang } from '@/lib/lang-store';
 import { formatMoney } from '@/lib/money';
 import { disableNotifications, enableNotifications, usePushState } from '@/lib/push';
 import { APP_URL, FUNCTIONS_URL, supabase } from '@/lib/supabase';
+import { setAppearance, useAppearanceChoice } from '@/lib/appearance';
+import { useColors } from '@/lib/theme';
 
 export default function SettingsScreen() {
   const { session } = useSession();
+  const c = useColors();
+  const appearance = useAppearanceChoice();
   const hh = useHousehold();
   const reportNotices = useSetReportNotices();
   const notifyReports = hh.data?.me?.notify_reports ?? true;
@@ -191,6 +195,19 @@ export default function SettingsScreen() {
       </Section>
 
       {/* P1-6: Hebrew or English; switching reloads the app in the new language. */}
+      {/* P5: light, dark, or like the phone */}
+      <Section title={t.settings.appearance}>
+        {(['system', 'light', 'dark'] as const).map((k, i) => (
+          <Row
+            key={k}
+            title={k === 'system' ? t.settings.appearanceSystem : k === 'light' ? t.settings.appearanceLight : t.settings.appearanceDark}
+            right={appearance === k ? <Icon name="checkmark" size={18} color={c.tint} /> : null}
+            onPress={() => setAppearance(k)}
+            chevron={false}
+            last={i === 2}
+          />
+        ))}
+      </Section>
       <Section title={t.settings.language} footer={t.settings.languageFooter}>
         <LanguageRows systemLabel={t.settings.languageSystem(deviceLang() === 'he' ? 'עברית' : 'English')} />
       </Section>
@@ -236,7 +253,11 @@ export default function SettingsScreen() {
       </Section>
 
       <Section title={t.settings.account} footer={session?.user.email ?? undefined}>
-        <Row title={t.settings.signOut} onPress={() => supabase.auth.signOut()} chevron={false} />
+        <Row title={t.settings.signOut} onPress={() => supabase.auth.signOut()} chevron={false} last />
+      </Section>
+      {/* D1 / F4: deleting the account sits apart from Sign Out, never a slip of the thumb away. */}
+      <View style={{ height: 32 }} />
+      <Section>
         <Row
           title={accountBusy === 'delete' ? t.settings.deleting : t.settings.deleteAccount}
           destructive
