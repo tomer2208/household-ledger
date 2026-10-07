@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- A: an envelope whose flap is a tick. The long arm runs off the top edge. -->
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9A4C7B"/><stop offset="1" stop-color="#6B2F54"/></linearGradient></defs><rect width="1024" height="1024" fill="url(#bg)"/>
+  <rect x="212" y="322" width="600" height="420" rx="64" fill="#FDFFFD"/>
+  <path d="M268 386 L452 552 L800 268" fill="none" stroke="#7E3964" stroke-width="58" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

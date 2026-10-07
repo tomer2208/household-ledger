@@ -9,6 +9,7 @@ import { SessionProvider, useSession } from '@/api/session';
 import { ToastProvider } from '@/components/toast';
 import { UpdateBanner } from '@/components/update-banner';
 import { dark, light, type Palette } from '@/lib/colors';
+import { fontFamily } from '@/lib/tokens';
 import { setAppTimeZone } from '@/lib/dates';
 import { isRTL, t } from '@/lib/i18n';
 import { bootLanguage, bootLanguageSync } from '@/lib/lang-store';
@@ -18,8 +19,11 @@ import { QueryProvider } from '@/lib/query';
 SplashScreen.preventAutoHideAsync();
 
 // Headers, back buttons and screen backgrounds take the FinPace palette instead of iOS blue.
+// F3: header titles and back buttons in Assistant, like the rest of the text.
+const body = (fontWeight: '400' | '600' | '700') => ({ fontFamily: fontFamily.body, fontWeight });
 const navTheme = (base: Theme, p: Palette): Theme => ({
   ...base,
+  fonts: { regular: body('400'), medium: body('600'), bold: body('700'), heavy: body('700') },
   colors: {
     ...base.colors,
     primary: p.tint as string,

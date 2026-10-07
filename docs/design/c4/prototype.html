@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מעטפות פשוטות</title>
+<!-- C4 (docs/DESIGN_GANTT.md): direction D. Every category is an envelope with one of three states,
+     said in words: fine, close to the limit (80% spent), over. Adding an expense: amount on our own
+     keypad, then a tap on an envelope saves. Made-up household, 12 October. Nothing here is app code. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Rubik:wght@400;500;600;700&family=Secular+One&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  :root {
+    --page: #E4E7E2; --page-ink: #1E2B25; --page-ink2: #5A6660; --page-card: #FFFFFF; --page-line: #CBD2CC;
+    /* direction tokens, light (docs/design/directions.md, envelopes) */
+    --bg: #EEF1EC; --surf: #FFFFFF; --ink: #1E2B25; --ink2: #5A6660; --line: #DCE2DD; --fill: #E3E8E3;
+    --action: #6A2C5B; --onAction: #FFFFFF; --close: #94580C; --closeBg: #FBF0DF; --over: #B3362B; --overBg: #FBE5E2;
+    --key: #FFFFFF; --keyPress: #E3E8E3; --scrim: rgba(17,23,20,.36); --toast: #1E2B25; --onToast: #FFFFFF;
+  }
+  :root[data-theme="dark"] {
+    --page: #0B0F0D; --page-ink: #E6ECE7; --page-ink2: #9AA69F; --page-card: #161D19; --page-line: #26302B;
+    --bg: #111714; --surf: #1A221E; --ink: #E6ECE7; --ink2: #9AA69F; --line: #26302B; --fill: #26302B;
+    --action: #E0A6D0; --onAction: #2A1025; --close: #E5A54B; --closeBg: #3A2C14; --over: #F08273; --overBg: #3D1E1A;
+    --key: #222B26; --keyPress: #2E3933; --scrim: rgba(0,0,0,.55); --toast: #E6ECE7; --onToast: #111714;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #0B0F0D; --page-ink: #E6ECE7; --page-ink2: #9AA69F; --page-card: #161D19; --page-line: #26302B;
+      --bg: #111714; --surf: #1A221E; --ink: #E6ECE7; --ink2: #9AA69F; --line: #26302B; --fill: #26302B;
+      --action: #E0A6D0; --onAction: #2A1025; --close: #E5A54B; --closeBg: #3A2C14; --over: #F08273; --overBg: #3D1E1A;
+      --key: #222B26; --keyPress: #2E3933; --scrim: rgba(0,0,0,.55); --toast: #E6ECE7; --onToast: #111714;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--page-ink); font-family: Assistant, system-ui, sans-serif; }
+  button { font: inherit; color: inherit; }
+  button:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
+  .num { font-family: Rubik, sans-serif; font-variant-numeric: tabular-nums; }
+
+  /* ---------- page around the phone ---------- */
+  .page { max-width: 1040px; margin: 0 auto; padding: 32px 16px 60px; display: grid; grid-template-columns: 1fr 375px; gap: 40px; align-items: start; }
+  .about h1 { font-family: 'Secular One', sans-serif; font-size: 30px; margin: 0 0 8px; font-weight: 400; }
+  .about p, .about li { color: var(--page-ink2); line-height: 1.55; font-size: 16px; }
+  .about h2 { font-size: 17px; margin: 22px 0 6px; }
+  .about ol, .about ul { padding-inline-start: 20px; margin: 0; }
+  .about .tools { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+  .about .tools button { min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--page-line); background: var(--page-card); cursor: pointer; font-size: 15px; }
+  .legend { display: grid; gap: 8px; margin-top: 8px; }
+  .legend div { display: flex; gap: 10px; align-items: center; font-size: 15px; }
+  .legend i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+  @media (max-width: 860px) { .page { grid-template-columns: 1fr; } .phone { margin: 0 auto; } }
+
+  /* ---------- phone ---------- */
+  .phone { width: 375px; max-width: 100%; height: 812px; position: relative; border-radius: 30px; overflow: hidden; background: var(--bg); color: var(--ink);
+           box-shadow: 0 0 0 1px var(--page-line), 0 16px 40px rgba(0,0,0,.16); }
+  .screen { position: absolute; inset: 0; overflow-y: auto; padding-bottom: 170px; scrollbar-width: none; }
+  .screen::-webkit-scrollbar { display: none; }
+  .status { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 26px; font: 600 15px system-ui; direction: ltr; }
+  .head { display: flex; align-items: center; gap: 2px; padding: 4px 10px 0 20px; padding-inline: 20px 10px; }
+  .head h2 { flex: 1; margin: 0; font-family: 'Secular One', sans-serif; font-weight: 400; font-size: 28px; }
+  .icon-btn { width: 44px; height: 44px; display: grid; place-items: center; border: 0; background: none; border-radius: 12px; cursor: pointer; color: var(--ink2); }
+  .icon-btn svg { width: 22px; height: 22px; }
+
+  /* hero */
+  .hero { margin: 10px 16px 0; background: var(--surf); border-radius: 20px; padding: 18px 18px 16px; display: grid; gap: 4px; }
+  .hero .lbl { font-size: 16px; color: var(--ink2); }
+  .hero .amt { font-size: 46px; font-weight: 600; line-height: 1.1; letter-spacing: -.5px; }
+  .hero .day { font-size: 16px; color: var(--ink2); }
+  .hero .day b { color: var(--ink); font-weight: 600; font-size: 18px; }
+  .hero .bar { margin-top: 10px; }
+  .say { display: flex; gap: 8px; align-items: center; margin-top: 8px; font-size: 15px; font-weight: 600; border-radius: 10px; padding: 8px 10px; }
+  .say svg { width: 18px; height: 18px; flex: none; }
+  .say.ok { background: var(--fill); color: var(--ink); }
+  .say span { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .pill { font-size: 13px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+  .pill.close { background: var(--closeBg); color: var(--close); }
+  .pill.over { background: var(--overBg); color: var(--over); }
+  .say.close { background: var(--closeBg); color: var(--close); }
+  .say.over { background: var(--overBg); color: var(--over); }
+
+  /* the bar fills from 0 to the budget, like everyone expects */
+  .bar { height: 8px; border-radius: 4px; background: var(--fill); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 4px; background: var(--fillc); width: 0; transition: width .45s cubic-bezier(.2,.8,.2,1), background-color .3s; }
+  .over .bar i { background: repeating-linear-gradient(135deg, var(--over) 0 6px, color-mix(in srgb, var(--over) 75%, var(--surf)) 6px 10px); }
+
+  /* envelopes */
+  .sec { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 20px 10px; }
+  .sec h3 { margin: 0; font-family: 'Secular One', sans-serif; font-weight: 400; font-size: 19px; }
+  .sec span { font-size: 14px; color: var(--ink2); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 16px; }
+  .env { position: relative; border: 0; text-align: start; background: var(--surf); border-radius: 16px; padding: 24px 12px 12px; display: grid; gap: 6px;
+         cursor: pointer; overflow: hidden; min-height: 132px; align-content: start; transition: transform .15s, box-shadow .3s; }
+  .env::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 18px; background: color-mix(in srgb, var(--cat) 30%, var(--surf));
+                 clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  .env:active { transform: scale(.98); }
+  .env .top { display: flex; align-items: center; gap: 8px; }
+  .env .ico { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: color-mix(in srgb, var(--cat) 16%, transparent); color: var(--catInk); flex: none; }
+  .env .ico svg { width: 16px; height: 16px; }
+  .env .name { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .env .left { font-size: 20px; font-weight: 600; line-height: 1.15; }
+  .env .of { font-size: 13px; color: var(--ink2); }
+  .env .tag { justify-self: start; font-size: 13px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+  .env.close { box-shadow: inset 0 0 0 2px var(--close); }
+  .env.close .left, .env.close .tag { color: var(--close); }
+  .env.close .tag { background: var(--closeBg); }
+  .env.over { box-shadow: inset 0 0 0 2px var(--over); }
+  .env.over .left, .env.over .tag { color: var(--over); }
+  .env.over .tag { background: var(--overBg); }
+  .env .hint { font-size: 13px; color: var(--ink2); line-height: 1.3; }
+  .env.flash { animation: flash .9s ease-out; }
+  @keyframes flash { 0% { box-shadow: inset 0 0 0 3px var(--action); } 100% { box-shadow: inset 0 0 0 0 transparent; } }
+
+  /* bottom: add button and tab bar */
+  .fab { position: absolute; left: 0; right: 0; bottom: 99px; display: flex; justify-content: center; z-index: 5; pointer-events: none; }
+  .fab button { pointer-events: auto; display: inline-flex; align-items: center; gap: 8px; min-height: 58px; padding: 0 28px; border: 0; border-radius: 999px;
+                background: var(--action); color: var(--onAction); font-size: 18px; font-weight: 700; box-shadow: 0 6px 18px rgba(0,0,0,.22); cursor: pointer; }
+  .fab svg { width: 22px; height: 22px; }
+  .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: 83px; display: flex; justify-content: space-around; padding-top: 8px; z-index: 4;
+          background: color-mix(in srgb, var(--bg) 92%, transparent); border-top: 1px solid var(--line); backdrop-filter: blur(12px); }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; color: var(--ink2); width: 72px; }
+  .tab.on { color: var(--action); }
+  .tab svg { width: 24px; height: 24px; }
+
+  /* ---------- add sheet ---------- */
+  .scrim { position: absolute; inset: 0; background: var(--scrim); opacity: 0; pointer-events: none; transition: opacity .3s; z-index: 10; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 11; background: var(--bg); border-radius: 22px 22px 0 0; padding: 8px 16px 26px;
+           transform: translateY(105%); transition: transform .34s cubic-bezier(.2,.8,.2,1); display: grid; gap: 10px; }
+  .open .scrim { opacity: 1; pointer-events: auto; }
+  .open .sheet { transform: none; }
+  .grab { width: 40px; height: 5px; border-radius: 3px; background: var(--line); justify-self: center; }
+  .sh-head { display: flex; align-items: center; justify-content: space-between; }
+  .sh-head h3 { margin: 0; font-size: 17px; font-weight: 700; }
+  .amount { text-align: center; font-size: 48px; font-weight: 600; min-height: 60px; line-height: 60px; direction: ltr; unicode-bidi: isolate; }
+  .amount.empty { color: var(--ink2); }
+  .amount .caret { display: inline-block; width: 2px; height: 40px; background: var(--action); vertical-align: -6px; margin-inline-start: 2px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .amount.shake { animation: shake .35s; }
+  @keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+  .prompt { text-align: center; font-size: 15px; color: var(--ink2); min-height: 20px; margin-top: -6px; }
+  .prompt.warn { color: var(--close); font-weight: 600; }
+  .more { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .chip { min-height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid var(--line); background: var(--surf); cursor: pointer; font-size: 15px; display: inline-flex; align-items: center; gap: 6px; }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .chip svg { width: 16px; height: 16px; }
+  .extra { display: none; gap: 8px; }
+  .extra.show { display: grid; }
+  .extra input { font: inherit; font-size: 16px; min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surf); color: var(--ink); padding: 0 12px; }
+  .row-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .picks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .pick { position: relative; border: 0; background: var(--surf); border-radius: 12px; padding: 14px 4px 6px; display: grid; justify-items: center; gap: 3px; cursor: pointer; min-height: 72px; overflow: hidden; }
+  .pick::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 11px; background: color-mix(in srgb, var(--cat) 30%, var(--surf)); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  .pick .ico { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: color-mix(in srgb, var(--cat) 16%, transparent); color: var(--catInk); }
+  .pick .ico svg { width: 15px; height: 15px; }
+  .pick .nm { font-size: 13px; font-weight: 600; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 2px; }
+  .pick .lf { font-size: 11px; color: var(--ink2); }
+  .pick.close .lf { color: var(--close); font-weight: 700; }
+  .pick.over .lf { color: var(--over); font-weight: 700; }
+  .pick[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--action); }
+  .pick[aria-pressed="true"]::after { content: "✓"; position: absolute; top: 3px; inset-inline-end: 6px; font-size: 12px; font-weight: 700; color: var(--action); }
+
+  .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; direction: ltr; }
+  .keys button { min-height: 50px; border: 0; border-radius: 12px; background: var(--key); font-family: Rubik, sans-serif; font-size: 24px; cursor: pointer; }
+  .keys button:active { background: var(--keyPress); }
+  .keys svg { width: 24px; height: 24px; vertical-align: middle; }
+  .save { min-height: 54px; border: 0; border-radius: 14px; background: var(--action); color: var(--onAction); font-size: 18px; font-weight: 700; cursor: pointer; }
+  .save[aria-disabled="true"] { background: var(--fill); color: var(--ink2); cursor: default; }
+
+  /* toast */
+  .toast { position: absolute; left: 12px; right: 12px; bottom: 168px; z-index: 12; background: var(--toast); color: var(--onToast); border-radius: 14px; padding: 12px 14px;
+           display: flex; align-items: center; gap: 10px; font-size: 15px; line-height: 1.35; transform: translateY(20px); opacity: 0; pointer-events: none; transition: .3s; }
+  .toast.show { transform: none; opacity: 1; pointer-events: auto; }
+  .toast span { flex: 1; }
+  .toast button { border: 0; background: none; color: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; min-height: 44px; padding: 0 6px; cursor: pointer; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="about">
+    <h1>מעטפות פשוטות</h1>
+    <p>כל קטגוריה היא מעטפה עם כסף לחודש. מה שצריך לדעת כתוב במילים, ולא מסתתר בשרטוט.</p>
+    <div class="legend" aria-label="שלושת המצבים">
+      <div><i style="background:var(--ink)"></i><span><b>בסדר:</b> "נשאר ₪640"</span></div>
+      <div><i style="background:var(--close)"></i><span><b>קרוב לגבול:</b> אחרי 80% מהתקציב</span></div>
+      <div><i style="background:var(--over)"></i><span><b>עברתם:</b> "עברתם ב-₪40"</span></div>
+    </div>
+    <h2>לנסות</h2>
+    <ol>
+      <li>"הוספת הוצאה", מקלידים סכום, ומקישים על מעטפה. זה שומר.</li>
+      <li>או: מקלידים סכום ו"שמירה" בתחתית, למעטפה המסומנת.</li>
+      <li>הקשה על מעטפה במסך הראשי פותחת הוספה ישר אליה.</li>
+      <li>נסו להוסיף ₪200 למסעדות: היא תעבור ל"קרוב לגבול".</li>
+    </ol>
+    <h2>מה לבדוק</h2>
+    <ul>
+      <li>האם ברור מיד מה בסדר, מה קרוב ומה עבר?</li>
+      <li>האם ההוספה מרגישה מהירה ביד אחת?</li>
+      <li>האם ההודעה אחרי השמירה עוזרת להבין את החודש?</li>
+    </ul>
+    <div class="tools">
+      <button type="button" id="theme">מצב כהה</button>
+      <button type="button" id="reset">איפוס הנתונים</button>
+    </div>
+  </section>
+
+  <div class="phone" id="phone">
+    <div class="screen" id="screen">
+      <div class="status"><span>9:41</span><span>●●●</span></div>
+      <div class="head">
+        <h2>אוקטובר</h2>
+        <button class="icon-btn" type="button" aria-label="החודש הקודם"><i data-lucide="chevron-right"></i></button>
+        <button class="icon-btn" type="button" aria-label="החודש הבא" disabled><i data-lucide="chevron-left"></i></button>
+      </div>
+      <div class="hero" id="hero"></div>
+      <div class="sec"><h3>המעטפות</h3><span id="secNote"></span></div>
+      <div class="grid" id="grid"></div>
+    </div>
+    <div class="fab"><button type="button" id="addBtn"><i data-lucide="plus"></i>הוספת הוצאה</button></div>
+    <nav class="tabs" aria-label="ניווט">
+      <div class="tab on"><i data-lucide="mail"></i><span>מעטפות</span></div>
+      <div class="tab"><i data-lucide="list"></i><span>הוצאות</span></div>
+      <div class="tab"><i data-lucide="file-search"></i><span>דוחות</span></div>
+      <div class="tab"><i data-lucide="settings"></i><span>הגדרות</span></div>
+    </nav>
+
+    <div class="scrim" id="scrim"></div>
+    <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle" aria-hidden="true">
+      <div class="grab"></div>
+      <div class="sh-head">
+        <h3 id="shTitle">הוספת הוצאה</h3>
+        <button class="icon-btn" type="button" id="closeBtn" aria-label="סגירה"><i data-lucide="x"></i></button>
+      </div>
+      <div class="amount num empty" id="amount" aria-live="polite"></div>
+      <div class="prompt" id="prompt">מקלידים סכום, ובוחרים מעטפה</div>
+      <div class="more">
+        <button class="chip" type="button" id="dateChip" aria-pressed="false"><i data-lucide="calendar"></i><span>היום</span></button>
+        <button class="chip" type="button" id="moreChip" aria-pressed="false" aria-expanded="false"><i data-lucide="sliders-horizontal"></i>עוד פרטים</button>
+      </div>
+      <div class="extra" id="extra">
+        <div class="row-chips" role="group" aria-label="מתי">
+          <button class="chip" type="button" data-day="היום" aria-pressed="true">היום</button>
+          <button class="chip" type="button" data-day="אתמול" aria-pressed="false">אתמול</button>
+          <button class="chip" type="button" data-day="שלשום" aria-pressed="false">שלשום</button>
+        </div>
+        <input id="note" placeholder="איפה? למשל: שופרסל" aria-label="שם ההוצאה">
+        <div class="row-chips" role="group" aria-label="תשלומים">
+          <button class="chip" type="button" data-pay="1" aria-pressed="true">תשלום אחד</button>
+          <button class="chip" type="button" data-pay="3" aria-pressed="false">3</button>
+          <button class="chip" type="button" data-pay="6" aria-pressed="false">6</button>
+          <button class="chip" type="button" data-pay="12" aria-pressed="false">12</button>
+        </div>
+      </div>
+      <div class="picks" id="picks" role="group" aria-label="מעטפה"></div>
+      <div class="keys" id="keys"></div>
+      <button class="save" type="button" id="saveBtn"></button>
+    </div>
+    <div class="toast" id="toast" role="status"><span id="toastText"></span><button type="button" id="undoBtn">ביטול</button></div>
+  </div>
+</div>
+
+<script>
+// ---------- data: a made-up household, 12 October ----------
+const DAY = 12, DAYS = 31, LEFT_DAYS = DAYS - DAY + 1, CLOSE_AT = 80;
+const START = [
+  { id: 'super', name: 'סופר', icon: 'shopping-cart', cap: 3200, spent: 1150, hue: '#3B6FB6', uses: 9 },
+  { id: 'food', name: 'מסעדות', icon: 'utensils', cap: 900, spent: 610, hue: '#C2477A', uses: 6 },
+  { id: 'fuel', name: 'דלק', icon: 'fuel', cap: 1000, spent: 820, hue: '#9A6B2F', uses: 4 },
+  { id: 'kids', name: 'ילדים וחוגים', icon: 'baby', cap: 1400, spent: 520, hue: '#5B5BD6', uses: 3 },
+  { id: 'fun', name: 'בילויים', icon: 'ticket', cap: 600, spent: 640, hue: '#D0643B', uses: 3 },
+  { id: 'pharm', name: 'פארם', icon: 'pill', cap: 400, spent: 180, hue: '#8A4FB8', uses: 2 },
+  { id: 'home', name: 'חשמל ומים', icon: 'zap', cap: 650, spent: 210, hue: '#1F8A8A', uses: 1 },
+  { id: 'clothes', name: 'בגדים', icon: 'shirt', cap: 500, spent: 120, hue: '#6B7F2A', uses: 1 },
+];
+let cats = structuredClone(START);
+let last = 'super';
+
+// ---------- helpers ----------
+const ils = new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 });
+const ils2 = new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 2 });
+// Whole shekels stay whole; agorot only when typed.
+const fmtV = (v) => (Number.isInteger(v) ? ils.format(v) : ils2.format(v));
+const money = (n) => `<span class="num">${ils.format(n)}</span>`;
+const icon = (n) => `<i data-lucide="${n}"></i>`;
+const dark = () => document.documentElement.dataset.theme === 'dark';
+const catVars = (c) => `--cat:${c.hue};--catInk:${dark() ? `color-mix(in srgb, ${c.hue} 55%, white)` : `color-mix(in srgb, ${c.hue} 85%, black)`}`;
+// The three states, by how much of the budget is gone. Nothing about pace.
+const stateOf = (spent, cap) => (spent > cap ? 'over' : (spent * 100) / cap >= CLOSE_AT ? 'close' : 'ok');
+// Said only when it matters: at this rate, when does the envelope run out?
+function runsOut(c) {
+  if (c.spent >= c.cap || c.spent === 0) return null;
+  const day = Math.ceil(c.cap / (c.spent / DAY));
+  return day < DAYS ? day : null;
+}
+function leftLine(c) {
+  const st = stateOf(c.spent, c.cap), left = c.cap - c.spent;
+  if (st === 'over') return `עברתם ב-${money(-left)}`;
+  if (st === 'close') return `נשארו רק ${money(left)}`;
+  return `נשאר ${money(left)}`;
+}
+
+// ---------- overview ----------
+function renderHero() {
+  const cap = cats.reduce((a, c) => a + c.cap, 0), spent = cats.reduce((a, c) => a + c.spent, 0);
+  const st = stateOf(spent, cap), left = cap - spent, pct = Math.min(100, (spent * 100) / cap);
+  const overCats = cats.filter((c) => stateOf(c.spent, c.cap) === 'over'), closeCats = cats.filter((c) => stateOf(c.spent, c.cap) === 'close');
+  let say;
+  if (st === 'over') say = ['over', 'circle-alert', `עברתם את התקציב החודשי ב-${money(-left)}`];
+  else if (st === 'close') say = ['close', 'triangle-alert', `קרוב לגבול: הוצאתם ${Math.round((spent * 100) / cap)}% מהתקציב`];
+  else if (overCats.length || closeCats.length) {
+    // The month is fine; the envelopes that aren't get small tags, not a red banner.
+    const tags = [];
+    if (overCats.length) tags.push(`<span class="pill over">${overCats.length === 1 ? 'מעטפה אחת עברה' : `${overCats.length} מעטפות עברו`}</span>`);
+    if (closeCats.length) tags.push(`<span class="pill close">${closeCats.length === 1 ? 'אחת קרובה לגבול' : `${closeCats.length} קרובות לגבול`}</span>`);
+    say = ['ok', 'circle-check', `החודש בסדר ${tags.join('')}`];
+  } else say = ['ok', 'circle-check', 'הכול בסדר החודש'];
+  document.getElementById('hero').innerHTML = `
+    <div class="lbl">${st === 'over' ? 'עברתם את התקציב' : 'נשאר החודש'}</div>
+    <div class="amt num" style="color:${st === 'over' ? 'var(--over)' : 'var(--ink)'}">${ils.format(Math.abs(left))}</div>
+    ${st === 'over' ? '' : `<div class="day"><b class="num">${ils.format(Math.floor(left / LEFT_DAYS))}</b> ליום · עוד ${LEFT_DAYS} ימים</div>`}
+    <div class="bar ${st}" style="--fillc:${st === 'ok' ? 'var(--ink)' : `var(--${st})`}"><i style="width:${pct}%"></i></div>
+    <div class="say ${say[0]}">${icon(say[1])}<span>${say[2]}</span></div>`;
+  document.getElementById('secNote').innerHTML = `${money(spent)} מתוך ${money(cap)}`;
+}
+
+function renderGrid(flashId) {
+  document.getElementById('grid').innerHTML = cats.map((c) => {
+    const st = stateOf(c.spent, c.cap), pct = Math.min(100, (c.spent * 100) / c.cap), out = st === 'ok' ? runsOut(c) : null;
+    return `<button type="button" class="env ${st}${c.id === flashId ? ' flash' : ''}" data-id="${c.id}" style="${catVars(c)}"
+              aria-label="${c.name}: ${leftLine(c).replace(/<[^>]+>/g, '')}. הוספת הוצאה למעטפה">
+      <div class="top"><span class="ico">${icon(c.icon)}</span><span class="name">${c.name}</span></div>
+      ${st === 'ok' ? '' : `<span class="tag">${st === 'over' ? 'עברתם' : 'קרוב לגבול'}</span>`}
+      <div class="left">${leftLine(c)}</div>
+      <div class="bar ${st}" style="--fillc:${st === 'ok' ? 'var(--cat)' : `var(--${st})`}"><i style="width:${pct}%"></i></div>
+      <div class="of">${money(c.spent)} מתוך ${money(c.cap)}</div>
+      ${out ? `<div class="hint">בקצב הזה ייגמר ב-${out} לחודש</div>` : ''}
+    </button>`;
+  }).join('');
+  document.querySelectorAll('.env').forEach((b) => b.addEventListener('click', () => openSheet(b.dataset.id)));
+}
+
+function render(flashId) {
+  renderHero();
+  renderGrid(flashId);
+  lucide.createIcons();
+  // Bars grow from their old width: set it after paint.
+}
+
+// ---------- add sheet ----------
+let input = '', selected = last, payments = 1, day = 'היום';
+const phone = document.getElementById('phone'), sheet = document.getElementById('sheet');
+const amountEl = document.getElementById('amount'), promptEl = document.getElementById('prompt'), saveBtn = document.getElementById('saveBtn');
+const value = () => (input === '' || input === '.' ? 0 : parseFloat(input));
+
+function renderAmount() {
+  const v = value();
+  amountEl.classList.toggle('empty', !input);
+  // As typed: thousands separators on the whole part, the decimals exactly as entered.
+  const [whole, frac] = (input || '0').split('.');
+  const shown = Number(whole).toLocaleString('en-US') + (frac !== undefined ? '.' + frac : '');
+  amountEl.innerHTML = `${shown}<span class="caret"></span> ₪`;
+  const c = cats.find((x) => x.id === selected);
+  saveBtn.textContent = `שמירה ב${c.name}`;
+  saveBtn.setAttribute('aria-disabled', String(!v));
+  promptEl.classList.remove('warn');
+  if (!v) promptEl.textContent = 'מקלידים סכום, ובוחרים מעטפה';
+  else {
+    // Before saving: what this expense does to the chosen envelope.
+    const after = c.spent + v, st = stateOf(after, c.cap);
+    promptEl.textContent = st === 'over' ? `${c.name} תעבור את התקציב ב-${ils.format(after - c.cap)}`
+      : st === 'close' ? `${c.name}: יישארו רק ${ils.format(c.cap - after)}` : `${c.name}: יישארו ${ils.format(c.cap - after)}`;
+    if (st !== 'ok') promptEl.classList.add('warn');
+  }
+}
+
+function renderPicks() {
+  const order = [...cats].sort((a, b) => b.uses - a.uses);
+  document.getElementById('picks').innerHTML = order.map((c) => {
+    const st = stateOf(c.spent, c.cap), left = c.cap - c.spent;
+    return `<button type="button" class="pick ${st}" data-id="${c.id}" aria-pressed="${c.id === selected}" style="${catVars(c)}"
+              aria-label="${c.name}, ${st === 'over' ? `עברה ב-${ils.format(-left)}` : `נשארו ${ils.format(left)}`}">
+      <span class="ico">${icon(c.icon)}</span><span class="nm">${c.name}</span>
+      <span class="lf num">${st === 'over' ? `+${ils.format(-left)}` : ils.format(left)}</span></button>`;
+  }).join('');
+  document.querySelectorAll('.pick').forEach((b) => b.addEventListener('click', () => {
+    selected = b.dataset.id;
+    // A tap on an envelope saves, once there is an amount. Without one it just picks the envelope.
+    if (value()) save();
+    else { renderPicks(); renderAmount(); nudge(); }
+  }));
+  lucide.createIcons();
+}
+
+function nudge() {
+  amountEl.classList.remove('shake'); void amountEl.offsetWidth; amountEl.classList.add('shake');
+  promptEl.textContent = 'קודם סכום, ואז המעטפה';
+  promptEl.classList.add('warn');
+}
+
+function press(k) {
+  if (k === 'del') input = input.slice(0, -1);
+  else if (k === '.') { if (!input.includes('.')) input = (input || '0') + '.'; }
+  else {
+    const [whole, frac] = input.split('.');
+    if (frac !== undefined && frac.length >= 2) return;
+    if (frac === undefined && whole.length >= 6) return;
+    input = input === '0' ? k : input + k;
+  }
+  renderAmount();
+}
+
+function buildKeys() {
+  const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'del'];
+  const el = document.getElementById('keys');
+  el.innerHTML = keys.map((k) => `<button type="button" data-k="${k}" aria-label="${k === 'del' ? 'מחיקה' : k === '.' ? 'נקודה' : k}">${k === 'del' ? icon('delete') : k}</button>`).join('');
+  el.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => press(b.dataset.k)));
+}
+
+function openSheet(id) {
+  input = ''; selected = id ?? last; payments = 1; day = 'היום';
+  document.getElementById('note').value = '';
+  setExtra(false);
+  syncChips();
+  renderPicks(); renderAmount();
+  phone.classList.add('open');
+  sheet.setAttribute('aria-hidden', 'false');
+  hideToast();
+  setTimeout(() => saveBtn.focus({ preventScroll: true }), 50);
+}
+function closeSheet() {
+  phone.classList.remove('open');
+  sheet.setAttribute('aria-hidden', 'true');
+}
+
+function setExtra(show) {
+  document.getElementById('extra').classList.toggle('show', show);
+  const m = document.getElementById('moreChip');
+  m.setAttribute('aria-pressed', String(show)); m.setAttribute('aria-expanded', String(show));
+}
+function syncChips() {
+  document.querySelectorAll('[data-day]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.day === day)));
+  document.querySelectorAll('[data-pay]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.pay === payments)));
+  document.querySelector('#dateChip span').textContent = day;
+}
+
+// ---------- save, toast, undo ----------
+let undo = null, toastTimer = null;
+function save() {
+  const v = value();
+  if (!v) return nudge();
+  const c = cats.find((x) => x.id === selected);
+  // Installments: this month carries one payment.
+  const now = Math.round((v / payments) * 100) / 100;
+  const before = { spent: c.spent, uses: c.uses, last };
+  c.spent = Math.round((c.spent + now) * 100) / 100; c.uses += 1; last = c.id;
+  undo = () => { c.spent = before.spent; c.uses = before.uses; last = before.last; render(); };
+  closeSheet();
+  render(c.id);
+  const st = stateOf(c.spent, c.cap), left = c.cap - c.spent;
+  const pay = payments > 1 ? ` (${payments} תשלומים, ${ils.format(now)} החודש)` : '';
+  showToast(st === 'over' ? `נוסף ${fmtV(v)} ל${c.name}${pay}. עברתם את התקציב ב-${ils.format(-left)}`
+    : st === 'close' ? `נוסף ${fmtV(v)} ל${c.name}${pay}. קרוב לגבול: נשארו ${ils.format(left)}`
+    : `נוסף ${fmtV(v)} ל${c.name}${pay}. נשארו ${ils.format(left)}`);
+}
+function showToast(text) {
+  document.getElementById('toastText').textContent = text;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, 5000);
+}
+function hideToast() { document.getElementById('toast').classList.remove('show'); }
+
+// ---------- wiring ----------
+document.getElementById('addBtn').addEventListener('click', () => openSheet());
+document.getElementById('closeBtn').addEventListener('click', closeSheet);
+document.getElementById('scrim').addEventListener('click', closeSheet);
+saveBtn.addEventListener('click', save);
+document.getElementById('undoBtn').addEventListener('click', () => { if (undo) undo(); undo = null; hideToast(); });
+document.getElementById('moreChip').addEventListener('click', () => setExtra(!document.getElementById('extra').classList.contains('show')));
+document.getElementById('dateChip').addEventListener('click', () => setExtra(true));
+document.querySelectorAll('[data-day]').forEach((b) => b.addEventListener('click', () => { day = b.dataset.day; syncChips(); }));
+document.querySelectorAll('[data-pay]').forEach((b) => b.addEventListener('click', () => { payments = +b.dataset.pay; syncChips(); }));
+document.addEventListener('keydown', (e) => {
+  if (!phone.classList.contains('open') || e.target.tagName === 'INPUT') return;
+  if (/^[0-9]$/.test(e.key)) press(e.key);
+  else if (e.key === '.') press('.');
+  else if (e.key === 'Backspace') press('del');
+  else if (e.key === 'Enter') { e.preventDefault(); save(); }
+  else if (e.key === 'Escape') closeSheet();
+});
+document.getElementById('theme').addEventListener('click', (e) => {
+  const d = !dark();
+  document.documentElement.dataset.theme = d ? 'dark' : 'light';
+  e.target.textContent = d ? 'מצב בהיר' : 'מצב כהה';
+  render();
+});
+document.getElementById('reset').addEventListener('click', () => { cats = structuredClone(START); last = 'super'; closeSheet(); hideToast(); render(); });
+
+if (!document.documentElement.dataset.theme)
+  document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+document.getElementById('theme').textContent = dark() ? 'מצב בהיר' : 'מצב כהה';
+buildKeys();
+render();
+document.fonts.ready.then(() => render());
+</script>
+</body>
+</html>

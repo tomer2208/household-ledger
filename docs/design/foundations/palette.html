@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>פלטת FinPace</title>
+<!-- F1 (docs/DESIGN_GANTT.md). Every value comes from the palette-data block, which palette.py writes. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Rubik:wght@400;500;600&family=Secular+One&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script id="palette-data">
+// palette:start
+window.PALETTE = {"scales": {"stone": {"50": "#F4F8F3", "100": "#EDF0EB", "150": "#E4E7E2", "200": "#DADED8", "300": "#C5C8C3", "400": "#A9ACA7", "500": "#8C8F8A", "600": "#727671", "700": "#5C5F5A", "800": "#464944", "900": "#30332E", "950": "#1F211E", "1000": "#121511", "0": "#FDFFFD"}, "plum": {"50": "#FFF3F9", "100": "#FEE8F4", "150": "#FFDAED", "200": "#FFCBE7", "300": "#F4AFD5", "400": "#DB8FBA", "500": "#C26D9F", "600": "#A65485", "700": "#88416C", "800": "#6B2F54", "900": "#4E1D3B", "950": "#370F28", "1000": "#26051A"}, "amber": {"50": "#FFF5EC", "100": "#FFEBDB", "150": "#FEE0C7", "200": "#FED3AE", "300": "#FAB87D", "400": "#E29852", "500": "#C97717", "600": "#A96001", "700": "#884D02", "800": "#693A02", "900": "#4B2700", "950": "#331901", "1000": "#210F00"}, "red": {"50": "#FEF4F3", "100": "#FFEAE7", "150": "#FEDED9", "200": "#FED0CA", "300": "#FEB0A7", "400": "#F7857A", "500": "#DE6056", "600": "#C1443D", "700": "#9F332D", "800": "#7E221E", "900": "#5D100F", "950": "#430304", "1000": "#2E0001"}, "green": {"50": "#E4FFEA", "100": "#CCFED7", "150": "#C0F6CD", "200": "#B4EDC2", "300": "#99D9AA", "400": "#74BE89", "500": "#4BA368", "600": "#2E894F", "700": "#1E6F3D", "800": "#0E562C", "900": "#013D1B", "950": "#002910", "1000": "#001A08"}}, "tokens": {"light": {"bg": "#EDF0EB", "surface": "#FDFFFD", "raised": "#FDFFFD", "fill": "#E4E7E2", "line": "#DADED8", "lineStrong": "#C5C8C3", "text": "#1F211E", "text2": "#5C5F5A", "text3": "#8C8F8A", "action": "#88416C", "actionPressed": "#6B2F54", "onAction": "#FDFFFD", "actionSoft": "#FEE8F4", "focus": "#A65485", "close": "#884D02", "closeSoft": "#FFEBDB", "closeBar": "#A96001", "over": "#9F332D", "overSoft": "#FFEAE7", "overBar": "#7E221E", "positive": "#1E6F3D", "positiveSoft": "#CCFED7", "disabledBg": "#E4E7E2", "disabledText": "#727671", "toast": "#1F211E", "onToast": "#F4F8F3", "scrim": "rgba(20,26,23,.38)"}, "dark": {"bg": "#121511", "surface": "#1F211E", "raised": "#272A26", "fill": "#30332E", "line": "#3D3F3B", "lineStrong": "#464944", "text": "#F4F8F3", "text2": "#A9ACA7", "text3": "#727671", "action": "#F4AFD5", "actionPressed": "#FFCBE7", "onAction": "#26051A", "actionSoft": "#4E1D3B", "focus": "#F4AFD5", "close": "#FAB87D", "closeSoft": "#331901", "closeBar": "#FAB87D", "over": "#FEB0A7", "overSoft": "#430304", "overBar": "#DE6056", "positive": "#99D9AA", "positiveSoft": "#002910", "disabledBg": "#30332E", "disabledText": "#8C8F8A", "toast": "#F4F8F3", "onToast": "#121511", "scrim": "rgba(0,0,0,.55)"}}, "checks": [{"mode": "light", "fg": "text", "bg": "bg", "ratio": 14.11, "need": 4.5, "ok": true, "label": "טקסט"}, {"mode": "light", "fg": "text", "bg": "surface", "ratio": 16.14, "need": 4.5, "ok": true, "label": "טקסט"}, {"mode": "light", "fg": "text", "bg": "fill", "ratio": 13.0, "need": 4.5, "ok": true, "label": "טקסט"}, {"mode": "light", "fg": "text", "bg": "raised", "ratio": 16.14, "need": 4.5, "ok": true, "label": "טקסט"}, {"mode": "light", "fg": "text2", "bg": "bg", "ratio": 5.64, "need": 4.5, "ok": true, "label": "טקסט משני"}, {"mode": "light", "fg": "text2", "bg": "surface", "ratio": 6.45, "need": 4.5, "ok": true, "label": "טקסט משני"}, {"mode": "light", "fg": "text2", "bg": "fill", "ratio": 5.19, "need": 4.5, "ok": true, "label": "טקסט משני"}, {"mode": "light", "fg": "text2", "bg": "raised", "ratio": 6.45, "need": 4.5, "ok": true, "label": "טקסט משני"}, {"mode": "light", "fg": "action", "bg": "bg", "ratio": 6.05, "need": 4.5, "ok": true, "label": "קישור / פעולה כטקסט"}, {"mode": "light", "fg": "action", "bg": "surface", "ratio": 6.92, "need": 4.5, "ok": true, "label": "קישור / פעולה כטקסט"}, {"mode": "light", "fg": "action", "bg": "raised", "ratio": 6.92, "need": 4.5, "ok": true, "label": "קישור / פעולה כטקסט"}, {"mode": "light", "fg": "onAction", "bg": "action", "ratio": 6.92, "need": 4.5, "ok": true, "label": "טקסט על כפתור"}, {"mode": "light", "fg": "onAction", "bg": "actionPressed", "ratio": 9.68, "need": 4.5, "ok": true, "label": "טקסט על כפתור"}, {"mode": "light", "fg": "action", "bg": "actionSoft", "ratio": 5.98, "need": 4.5, "ok": true, "label": "פעולה על רקע עדין"}, {"mode": "light", "fg": "close", "bg": "surface", "ratio": 6.72, "need": 4.5, "ok": true, "label": "קרוב לגבול"}, {"mode": "light", "fg": "close", "bg": "bg", "ratio": 5.87, "need": 4.5, "ok": true, "label": "קרוב לגבול"}, {"mode": "light", "fg": "close", "bg": "closeSoft", "ratio": 5.84, "need": 4.5, "ok": true, "label": "קרוב לגבול"}, {"mode": "light", "fg": "over", "bg": "surface", "ratio": 7.0, "need": 4.5, "ok": true, "label": "עברתם"}, {"mode": "light", "fg": "over", "bg": "bg", "ratio": 6.12, "need": 4.5, "ok": true, "label": "עברתם"}, {"mode": "light", "fg": "over", "bg": "overSoft", "ratio": 6.09, "need": 4.5, "ok": true, "label": "עברתם"}, {"mode": "light", "fg": "positive", "bg": "surface", "ratio": 6.15, "need": 4.5, "ok": true, "label": "חיובי"}, {"mode": "light", "fg": "positive", "bg": "bg", "ratio": 5.38, "need": 4.5, "ok": true, "label": "חיובי"}, {"mode": "light", "fg": "positive", "bg": "positiveSoft", "ratio": 5.51, "need": 4.5, "ok": true, "label": "חיובי"}, {"mode": "light", "fg": "onToast", "bg": "toast", "ratio": 15.12, "need": 4.5, "ok": true, "label": "הודעה"}, {"mode": "light", "fg": "closeBar", "bg": "surface", "ratio": 4.79, "need": 3, "ok": true, "label": "פס קרוב לגבול"}, {"mode": "light", "fg": "closeBar", "bg": "fill", "ratio": 3.86, "need": 3, "ok": true, "label": "פס קרוב לגבול"}, {"mode": "light", "fg": "overBar", "bg": "surface", "ratio": 9.79, "need": 3, "ok": true, "label": "פס עברתם"}, {"mode": "light", "fg": "overBar", "bg": "fill", "ratio": 7.88, "need": 3, "ok": true, "label": "פס עברתם"}, {"mode": "light", "fg": "focus", "bg": "bg", "ratio": 4.32, "need": 3, "ok": true, "label": "טבעת פוקוס"}, {"mode": "light", "fg": "focus", "bg": "surface", "ratio": 4.94, "need": 3, "ok": true, "label": "טבעת פוקוס"}, {"mode": "light", "fg": "lineStrong", "bg": "surface", "ratio": 1.68, "need": 1.5, "ok": true, "label": "קו מודגש (קישוטי)"}, {"mode": "light", "fg": "disabledText", "bg": "disabledBg", "ratio": 3.7, "need": 3, "ok": true, "label": "טקסט מושבת"}, {"mode": "dark", "fg": "text", "bg": "bg", "ratio": 17.15, "need": 4.5, "ok": true, "label": "טקסט"}, {"mode": "dark", "fg": "text", "bg": "surface", "ratio": 15.12, "need": 4.5, "ok": true, "label": "טקסט"}, {"mode": "dark", "fg": "text", "bg": "fill", "ratio": 11.94, "need": 4.5, "ok": true, "label": "טקסט"}, {"mode": "dark", "fg": "text", "bg": "raised", "ratio": 13.54, "need": 4.5, "ok": true, "label": "טקסט"}, {"mode": "dark", "fg": "text2", "bg": "bg", "ratio": 8.02, "need": 4.5, "ok": true, "label": "טקסט משני"}, {"mode": "dark", "fg": "text2", "bg": "surface", "ratio": 7.07, "need": 4.5, "ok": true, "label": "טקסט משני"}, {"mode": "dark", "fg": "text2", "bg": "fill", "ratio": 5.58, "need": 4.5, "ok": true, "label": "טקסט משני"}, {"mode": "dark", "fg": "text2", "bg": "raised", "ratio": 6.33, "need": 4.5, "ok": true, "label": "טקסט משני"}, {"mode": "dark", "fg": "action", "bg": "bg", "ratio": 10.46, "need": 4.5, "ok": true, "label": "קישור / פעולה כטקסט"}, {"mode": "dark", "fg": "action", "bg": "surface", "ratio": 9.22, "need": 4.5, "ok": true, "label": "קישור / פעולה כטקסט"}, {"mode": "dark", "fg": "action", "bg": "raised", "ratio": 8.26, "need": 4.5, "ok": true, "label": "קישור / פעולה כטקסט"}, {"mode": "dark", "fg": "onAction", "bg": "action", "ratio": 10.67, "need": 4.5, "ok": true, "label": "טקסט על כפתור"}, {"mode": "dark", "fg": "onAction", "bg": "actionPressed", "ratio": 13.36, "need": 4.5, "ok": true, "label": "טקסט על כפתור"}, {"mode": "dark", "fg": "action", "bg": "actionSoft", "ratio": 7.64, "need": 4.5, "ok": true, "label": "פעולה על רקע עדין"}, {"mode": "dark", "fg": "close", "bg": "surface", "ratio": 9.44, "need": 4.5, "ok": true, "label": "קרוב לגבול"}, {"mode": "dark", "fg": "close", "bg": "bg", "ratio": 10.71, "need": 4.5, "ok": true, "label": "קרוב לגבול"}, {"mode": "dark", "fg": "close", "bg": "closeSoft", "ratio": 9.54, "need": 4.5, "ok": true, "label": "קרוב לגבול"}, {"mode": "dark", "fg": "over", "bg": "surface", "ratio": 9.26, "need": 4.5, "ok": true, "label": "עברתם"}, {"mode": "dark", "fg": "over", "bg": "bg", "ratio": 10.5, "need": 4.5, "ok": true, "label": "עברתם"}, {"mode": "dark", "fg": "over", "bg": "overSoft", "ratio": 9.56, "need": 4.5, "ok": true, "label": "עברתם"}, {"mode": "dark", "fg": "positive", "bg": "surface", "ratio": 9.93, "need": 4.5, "ok": true, "label": "חיובי"}, {"mode": "dark", "fg": "positive", "bg": "bg", "ratio": 11.27, "need": 4.5, "ok": true, "label": "חיובי"}, {"mode": "dark", "fg": "positive", "bg": "positiveSoft", "ratio": 9.71, "need": 4.5, "ok": true, "label": "חיובי"}, {"mode": "dark", "fg": "onToast", "bg": "toast", "ratio": 17.15, "need": 4.5, "ok": true, "label": "הודעה"}, {"mode": "dark", "fg": "closeBar", "bg": "surface", "ratio": 9.44, "need": 3, "ok": true, "label": "פס קרוב לגבול"}, {"mode": "dark", "fg": "closeBar", "bg": "fill", "ratio": 7.46, "need": 3, "ok": true, "label": "פס קרוב לגבול"}, {"mode": "dark", "fg": "overBar", "bg": "surface", "ratio": 4.57, "need": 3, "ok": true, "label": "פס עברתם"}, {"mode": "dark", "fg": "overBar", "bg": "fill", "ratio": 3.61, "need": 3, "ok": true, "label": "פס עברתם"}, {"mode": "dark", "fg": "focus", "bg": "bg", "ratio": 10.46, "need": 3, "ok": true, "label": "טבעת פוקוס"}, {"mode": "dark", "fg": "focus", "bg": "surface", "ratio": 9.22, "need": 3, "ok": true, "label": "טבעת פוקוס"}, {"mode": "dark", "fg": "lineStrong", "bg": "surface", "ratio": 1.77, "need": 1.5, "ok": true, "label": "קו מודגש (קישוטי)"}, {"mode": "dark", "fg": "disabledText", "bg": "disabledBg", "ratio": 3.91, "need": 3, "ok": true, "label": "טקסט מושבת"}], "cvd": [{"mode": "light", "kind": "normal", "closeVsOver": 0.179, "overVsAction": 0.119, "positiveVsClose": 0.155, "lumCloseOver": 2.04, "seen": {"closeBar": "#A96001", "overBar": "#7E221E", "action": "#88416C", "positive": "#1E6F3D", "close": "#884D02", "over": "#9F332D", "surface": "#FDFFFD", "fill": "#E4E7E2"}}, {"mode": "light", "kind": "protan", "closeVsOver": 0.191, "overVsAction": 0.137, "positiveVsClose": 0.071, "lumCloseOver": 2.04, "seen": {"closeBar": "#776800", "overBar": "#3D371D", "action": "#47526D", "positive": "#6F6539", "close": "#5F5300", "over": "#514A2B", "surface": "#FFFFFD", "fill": "#E8E6E2"}}, {"mode": "light", "kind": "deutan", "closeVsOver": 0.17, "overVsAction": 0.114, "positiveVsClose": 0.056, "lumCloseOver": 2.04, "seen": {"closeBar": "#887902", "overBar": "#534B1B", "action": "#5A5E6A", "positive": "#655E40", "close": "#6D6103", "over": "#6C612A", "surface": "#FFFEFD", "fill": "#E7E6E2"}}, {"mode": "light", "kind": "tritan", "closeVsOver": 0.165, "overVsAction": 0.096, "positiveVsClose": 0.2, "lumCloseOver": 2.04, "seen": {"closeBar": "#BA4F51", "overBar": "#8B0122", "action": "#904051", "positive": "#006D63", "close": "#963F41", "over": "#AF1533", "surface": "#FDFFFE", "fill": "#E4E7E5"}}, {"mode": "dark", "kind": "normal", "closeVsOver": 0.209, "overVsAction": 0.215, "positiveVsClose": 0.142, "lumCloseOver": 2.07, "seen": {"closeBar": "#FAB87D", "overBar": "#DE6056", "action": "#F4AFD5", "positive": "#99D9AA", "close": "#FAB87D", "over": "#FEB0A7", "surface": "#1F211E", "fill": "#30332E"}}, {"mode": "dark", "kind": "protan", "closeVsOver": 0.231, "overVsAction": 0.247, "positiveVsClose": 0.067, "lumCloseOver": 2.07, "seen": {"closeBar": "#CDBD78", "overBar": "#807754", "action": "#B3BDD6", "positive": "#D9CFA7", "close": "#CDBD78", "over": "#C0BAA6", "surface": "#21201E", "fill": "#34322E"}}, {"mode": "dark", "kind": "deutan", "closeVsOver": 0.183, "overVsAction": 0.201, "positiveVsClose": 0.062, "lumCloseOver": 2.07, "seen": {"closeBar": "#DCCB7E", "overBar": "#9F9253", "action": "#C4C7D3", "positive": "#CFC8AD", "close": "#DCCB7E", "over": "#D3CAA6", "surface": "#21201E", "fill": "#33322E"}}, {"mode": "dark", "kind": "tritan", "closeVsOver": 0.2, "overVsAction": 0.215, "positiveVsClose": 0.173, "lumCloseOver": 2.07, "seen": {"closeBar": "#FFAAA9", "overBar": "#F2485E", "action": "#FDAFBC", "positive": "#8FD7CC", "close": "#FFAAA9", "over": "#FFA6AE", "surface": "#1F2120", "fill": "#303332"}}], "steps": [50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 950, 1000], "categories": [{"id": "teal", "name": "טורקיז", "hue": 195, "light": {"base": "#31A5A5", "soft": "#D0F1F1", "ink": "#036262"}, "dark": {"base": "#50BFBE", "soft": "#0D3737", "ink": "#73DFDF"}}, {"id": "sand", "name": "חול", "hue": 88, "light": {"base": "#D6BB79", "soft": "#F3E9D0", "ink": "#6A5100"}, "dark": {"base": "#A98F4E", "soft": "#3A2F14", "ink": "#E3C885"}}, {"id": "blue", "name": "כחול", "hue": 255, "light": {"base": "#4081D2", "soft": "#DCEBFF", "ink": "#0053A4"}, "dark": {"base": "#589AED", "soft": "#203147", "ink": "#A8CEFF"}}, {"id": "ocean", "name": "ים", "hue": 230, "light": {"base": "#066788", "soft": "#D3EFFD", "ink": "#055E7C"}, "dark": {"base": "#2C7EA1", "soft": "#153443", "ink": "#87D6FC"}}, {"id": "clay", "name": "חימר", "hue": 40, "light": {"base": "#A67A6B", "soft": "#FEE3D9", "ink": "#7B4532"}, "dark": {"base": "#C09283", "soft": "#44281F", "ink": "#EEBEAE"}}, {"id": "olive", "name": "זית", "hue": 115, "light": {"base": "#9CA831", "soft": "#E8EDD3", "ink": "#545B00"}, "dark": {"base": "#B5C24E", "soft": "#2F3317", "ink": "#C8D563"}}, {"id": "indigo", "name": "אינדיגו", "hue": 278, "light": {"base": "#5255B6", "soft": "#E4E8FF", "ink": "#4442B0"}, "dark": {"base": "#737ADE", "soft": "#2B2E47", "ink": "#BEC6FF"}}, {"id": "sage", "name": "מרווה", "hue": 165, "light": {"base": "#588671", "soft": "#D5F1E4", "ink": "#1F634A"}, "dark": {"base": "#6F9E89", "soft": "#18382B", "ink": "#A7D8C1"}}, {"id": "violet", "name": "סגול", "hue": 305, "light": {"base": "#9565C7", "soft": "#EFE4FD", "ink": "#6C329F"}, "dark": {"base": "#AE7EE2", "soft": "#362A43", "ink": "#D9BBFE"}}, {"id": "rose", "name": "ורד", "hue": 8, "light": {"base": "#CC939C", "soft": "#FFE1E5", "ink": "#7E3E4C"}, "dark": {"base": "#A56F78", "soft": "#44262C", "ink": "#F4B8C2"}}], "defaults": [["Groceries", "סופרמרקט", "teal"], ["Dining", "אוכל בחוץ", "sand"], ["Transport", "תחבורה", "blue"], ["Fuel", "דלק", "ocean"], ["Housing", "דיור", "clay"], ["Utilities", "חשבונות", "olive"], ["Health", "בריאות", "indigo"], ["Kids", "ילדים", "sage"], ["Shopping", "קניות", "violet"], ["Entertainment", "בילויים", "rose"], ["Subscriptions", "מנויים", "olive"], ["Travel", "חופשות", "teal"], ["Gifts", "מתנות", "rose"], ["Education", "חינוך", "blue"], ["Other", "אחר", "sand"]], "catChecks": [{"cat": "teal", "mode": "light", "label": "סמל על הרקע שלו", "ratio": 5.99, "need": 4.5, "ok": true}, {"cat": "teal", "mode": "light", "label": "סמל / שם על כרטיס", "ratio": 7.14, "need": 4.5, "ok": true}, {"cat": "teal", "mode": "light", "label": "דש ופס על כרטיס", "ratio": 2.96, "need": 1.5, "ok": true}, {"cat": "teal", "mode": "dark", "label": "סמל על הרקע שלו", "ratio": 8.25, "need": 4.5, "ok": true}, {"cat": "teal", "mode": "dark", "label": "סמל / שם על כרטיס", "ratio": 10.31, "need": 4.5, "ok": true}, {"cat": "teal", "mode": "dark", "label": "דש ופס על כרטיס", "ratio": 7.37, "need": 3, "ok": true}, {"cat": "sand", "mode": "light", "label": "סמל על הרקע שלו", "ratio": 6.23, "need": 4.5, "ok": true}, {"cat": "sand", "mode": "light", "label": "סמל / שם על כרטיס", "ratio": 7.49, "need": 4.5, "ok": true}, {"cat": "sand", "mode": "light", "label": "דש ופס על כרטיס", "ratio": 1.86, "need": 1.5, "ok": true}, {"cat": "sand", "mode": "dark", "label": "סמל על הרקע שלו", "ratio": 8.06, "need": 4.5, "ok": true}, {"cat": "sand", "mode": "dark", "label": "סמל / שם על כרטיס", "ratio": 9.94, "need": 4.5, "ok": true}, {"cat": "sand", "mode": "dark", "label": "דש ופס על כרטיס", "ratio": 5.2, "need": 3, "ok": true}, {"cat": "blue", "mode": "light", "label": "סמל על הרקע שלו", "ratio": 6.26, "need": 4.5, "ok": true}, {"cat": "blue", "mode": "light", "label": "סמל / שם על כרטיס", "ratio": 7.54, "need": 4.5, "ok": true}, {"cat": "blue", "mode": "light", "label": "דש ופס על כרטיס", "ratio": 3.95, "need": 1.5, "ok": true}, {"cat": "blue", "mode": "dark", "label": "סמל על הרקע שלו", "ratio": 8.13, "need": 4.5, "ok": true}, {"cat": "blue", "mode": "dark", "label": "סמל / שם על כרטיס", "ratio": 9.99, "need": 4.5, "ok": true}, {"cat": "blue", "mode": "dark", "label": "דש ופס על כרטיס", "ratio": 5.61, "need": 3, "ok": true}, {"cat": "ocean", "mode": "light", "label": "סמל על הרקע שלו", "ratio": 6.05, "need": 4.5, "ok": true}, {"cat": "ocean", "mode": "light", "label": "סמל / שם על כרטיס", "ratio": 7.21, "need": 4.5, "ok": true}, {"cat": "ocean", "mode": "light", "label": "דש ופס על כרטיס", "ratio": 6.33, "need": 1.5, "ok": true}, {"cat": "ocean", "mode": "dark", "label": "סמל על הרקע שלו", "ratio": 8.14, "need": 4.5, "ok": true}, {"cat": "ocean", "mode": "dark", "label": "סמל / שם על כרטיס", "ratio": 10.08, "need": 4.5, "ok": true}, {"cat": "ocean", "mode": "dark", "label": "דש ופס על כרטיס", "ratio": 3.56, "need": 3, "ok": true}, {"cat": "clay", "mode": "light", "label": "סמל על הרקע שלו", "ratio": 6.28, "need": 4.5, "ok": true}, {"cat": "clay", "mode": "light", "label": "סמל / שם על כרטיס", "ratio": 7.63, "need": 4.5, "ok": true}, {"cat": "clay", "mode": "light", "label": "דש ופס על כרטיס", "ratio": 3.72, "need": 1.5, "ok": true}, {"cat": "clay", "mode": "dark", "label": "סמל על הרקע שלו", "ratio": 8.04, "need": 4.5, "ok": true}, {"cat": "clay", "mode": "dark", "label": "סמל / שם על כרטיס", "ratio": 9.74, "need": 4.5, "ok": true}, {"cat": "clay", "mode": "dark", "label": "דש ופס על כרטיס", "ratio": 5.93, "need": 3, "ok": true}, {"cat": "olive", "mode": "light", "label": "סמל על הרקע שלו", "ratio": 6.09, "need": 4.5, "ok": true}, {"cat": "olive", "mode": "light", "label": "סמל / שם על כרטיס", "ratio": 7.27, "need": 4.5, "ok": true}, {"cat": "olive", "mode": "light", "label": "דש ופס על כרטיס", "ratio": 2.59, "need": 1.5, "ok": true}, {"cat": "olive", "mode": "dark", "label": "סמל על הרקע שלו", "ratio": 8.19, "need": 4.5, "ok": true}, {"cat": "olive", "mode": "dark", "label": "סמל / שם על כרטיס", "ratio": 10.16, "need": 4.5, "ok": true}, {"cat": "olive", "mode": "dark", "label": "דש ופס על כרטיס", "ratio": 8.34, "need": 3, "ok": true}, {"cat": "indigo", "mode": "light", "label": "סמל על הרקע שלו", "ratio": 6.52, "need": 4.5, "ok": true}, {"cat": "indigo", "mode": "light", "label": "סמל / שם על כרטיס", "ratio": 7.88, "need": 4.5, "ok": true}, {"cat": "indigo", "mode": "light", "label": "דש ופס על כרטיס", "ratio": 6.27, "need": 1.5, "ok": true}, {"cat": "indigo", "mode": "dark", "label": "סמל על הרקע שלו", "ratio": 8.02, "need": 4.5, "ok": true}, {"cat": "indigo", "mode": "dark", "label": "סמל / שם על כרטיס", "ratio": 9.82, "need": 4.5, "ok": true}, {"cat": "indigo", "mode": "dark", "label": "דש ופס על כרטיס", "ratio": 4.3, "need": 3, "ok": true}, {"cat": "sage", "mode": "light", "label": "סמל על הרקע שלו", "ratio": 5.96, "need": 4.5, "ok": true}, {"cat": "sage", "mode": "light", "label": "סמל / שם על כרטיס", "ratio": 7.1, "need": 4.5, "ok": true}, {"cat": "sage", "mode": "light", "label": "דש ופס על כרטיס", "ratio": 4.13, "need": 1.5, "ok": true}, {"cat": "sage", "mode": "dark", "label": "סמל על הרקע שלו", "ratio": 8.07, "need": 4.5, "ok": true}, {"cat": "sage", "mode": "dark", "label": "סמל / שם על כרטיס", "ratio": 10.22, "need": 4.5, "ok": true}, {"cat": "sage", "mode": "dark", "label": "דש ופס על כרטיס", "ratio": 5.35, "need": 3, "ok": true}, {"cat": "violet", "mode": "light", "label": "סמל על הרקע שלו", "ratio": 6.62, "need": 4.5, "ok": true}, {"cat": "violet", "mode": "light", "label": "סמל / שם על כרטיס", "ratio": 8.06, "need": 4.5, "ok": true}, {"cat": "violet", "mode": "light", "label": "דש ופס על כרטיס", "ratio": 4.21, "need": 1.5, "ok": true}, {"cat": "violet", "mode": "dark", "label": "סמל על הרקע שלו", "ratio": 7.96, "need": 4.5, "ok": true}, {"cat": "violet", "mode": "dark", "label": "סמל / שם על כרטיס", "ratio": 9.65, "need": 4.5, "ok": true}, {"cat": "violet", "mode": "dark", "label": "דש ופס על כרטיס", "ratio": 5.32, "need": 3, "ok": true}, {"cat": "rose", "mode": "light", "label": "סמל על הרקע שלו", "ratio": 6.4, "need": 4.5, "ok": true}, {"cat": "rose", "mode": "light", "label": "סמל / שם על כרטיס", "ratio": 7.8, "need": 4.5, "ok": true}, {"cat": "rose", "mode": "light", "label": "דש ופס על כרטיס", "ratio": 2.54, "need": 1.5, "ok": true}, {"cat": "rose", "mode": "dark", "label": "סמל על הרקע שלו", "ratio": 8.0, "need": 4.5, "ok": true}, {"cat": "rose", "mode": "dark", "label": "סמל / שם על כרטיס", "ratio": 9.64, "need": 4.5, "ok": true}, {"cat": "rose", "mode": "dark", "label": "דש ופס על כרטיס", "ratio": 3.97, "need": 3, "ok": true}], "catDistance": {"normal": {"pairs": [[0.079, "sand", "clay"], [0.083, "blue", "indigo"], [0.092, "indigo", "violet"], [0.096, "sand", "sage"]], "status": [[0.097, "clay", "closeBar"], [0.1, "olive", "positive"], [0.106, "rose", "overBar"]], "seen": {"teal": ["#31A5A5", "#50BFBE"], "sand": ["#D6BB79", "#A98F4E"], "blue": ["#4081D2", "#589AED"], "ocean": ["#066788", "#2C7EA1"], "clay": ["#A67A6B", "#C09283"], "olive": ["#9CA831", "#B5C24E"], "indigo": ["#5255B6", "#737ADE"], "sage": ["#588671", "#6F9E89"], "violet": ["#9565C7", "#AE7EE2"], "rose": ["#CC939C", "#A56F78"]}}, "protan": {"pairs": [[0.008, "clay", "sage"], [0.013, "teal", "rose"], [0.036, "indigo", "violet"], [0.045, "blue", "violet"]], "status": [[0.034, "teal", "action"], [0.05, "olive", "closeBar"], [0.052, "rose", "overBar"]], "seen": {"teal": ["#9A9DA5", "#B4B6BE"], "sand": ["#C9B974", "#9C8E48"], "blue": ["#5C87D5", "#76A0F0"], "ocean": ["#56658A", "#6C7CA3"], "clay": ["#857F6A", "#9D9782"], "olive": ["#B49F1D", "#CFB941"], "indigo": ["#1E64B9", "#5188E2"], "sage": ["#848070", "#9C9888"], "violet": ["#497ACA", "#6492E6"], "rose": ["#9C9C9C", "#777878"]}}, "deutan": {"pairs": [[0.025, "blue", "violet"], [0.054, "clay", "sage"], [0.057, "sage", "rose"], [0.06, "blue", "indigo"]], "status": [[0.012, "sand", "overBar"], [0.057, "olive", "closeBar"], [0.06, "ocean", "action"]], "seen": {"teal": ["#8990A6", "#A2A9BF"], "sand": ["#D0C17B", "#A39550"], "blue": ["#4679D0", "#6291EB"], "ocean": ["#465A88", "#5C71A1"], "clay": ["#8F886B", "#A8A083"], "olive": ["#B3A13A", "#CEBB55"], "indigo": ["#085CB4", "#487FDC"], "sage": ["#7D7A72", "#94928A"], "violet": ["#567BC5", "#7094DF"], "rose": ["#A9A69B", "#848177"]}}, "tritan": {"pairs": [[0.03, "ocean", "indigo"], [0.045, "sand", "clay"], [0.054, "sand", "violet"], [0.057, "blue", "sage"]], "status": [[0.024, "ocean", "positive"], [0.049, "indigo", "positive"], [0.082, "clay", "closeBar"]], "seen": {"teal": ["#00AAA5", "#00C4BE"], "sand": ["#E3B1AB", "#B58580"], "blue": ["#00949F", "#00ADB8"], "ocean": ["#007072", "#00888A"], "clay": ["#B17376", "#CB8B8E"], "olive": ["#A69E91", "#C0B8A9"], "indigo": ["#216B7D", "#4B8FA1"], "sage": ["#4D8680", "#649E98"], "violet": ["#8D768D", "#A68FA5"], "rose": ["#D78F96", "#AF6B72"]}}}};
+// palette:end
+</script>
+<style>
+  :root { --page: #EDF0EB; --card: #FDFFFD; --ink: #1F211E; --ink2: #5C5F5A; --line: #DADED8; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page: #121511; --card: #1F211E; --ink: #F4F8F3; --ink2: #A9ACA7; --line: #30332E; } }
+  :root[data-theme="dark"] { --page: #121511; --card: #1F211E; --ink: #F4F8F3; --ink2: #A9ACA7; --line: #30332E; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font-family: Assistant, system-ui, sans-serif; font-size: 16px; line-height: 1.5; }
+  .page { max-width: 1120px; margin: 0 auto; padding: 32px 16px 80px; }
+  h1 { font-family: 'Secular One', sans-serif; font-weight: 400; font-size: 34px; margin: 0 0 6px; }
+  h2 { font-family: 'Secular One', sans-serif; font-weight: 400; font-size: 22px; margin: 44px 0 4px; }
+  .lede, .note { color: var(--ink2); max-width: 72ch; margin: 0 0 16px; }
+  .num, code { font-family: Rubik, sans-serif; font-variant-numeric: tabular-nums; }
+  code { font-size: 13px; direction: ltr; unicode-bidi: isolate; }
+
+  /* scales */
+  .scale { display: grid; grid-template-columns: 90px repeat(13, minmax(0, 1fr)); gap: 4px; align-items: stretch; margin-bottom: 6px; direction: ltr; }
+  .scale .nm { direction: rtl; font-weight: 700; align-self: center; text-align: right; }
+  .sw { border-radius: 8px; min-height: 56px; display: flex; flex-direction: column; justify-content: flex-end; padding: 4px 5px; font: 500 10px Rubik, sans-serif; }
+  .sw small { font-size: 9px; opacity: .9; }
+  @media (max-width: 760px) { .scale { grid-template-columns: repeat(7, minmax(0, 1fr)); } .scale .nm { grid-column: 1 / -1; } }
+
+  /* light and dark side by side */
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .pair { grid-template-columns: 1fr; } }
+  .mode { border-radius: 20px; padding: 18px; background: var(--bg); color: var(--text); border: 1px solid var(--line); }
+  .mode h3 { margin: 0 0 12px; font-size: 15px; color: var(--text2); font-weight: 600; }
+  .tok { display: grid; grid-template-columns: 36px 1fr auto; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .tok:last-child { border-bottom: 0; }
+  .tok i { width: 36px; height: 36px; border-radius: 9px; box-shadow: inset 0 0 0 1px rgba(128,128,128,.25); }
+  .tok b { font-weight: 600; display: block; }
+  .tok span { color: var(--text2); font-size: 13px; }
+  .tok code { color: var(--text2); }
+  .group-title { margin: 16px 0 2px; font-size: 13px; font-weight: 700; color: var(--text2); }
+
+  /* in context */
+  .ctx { display: grid; gap: 12px; }
+  .envs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .env { position: relative; background: var(--surface); border-radius: 16px; padding: 22px 12px 12px; display: grid; gap: 6px; overflow: hidden; }
+  .env::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 16px; background: var(--fill); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  .env .name { font-weight: 600; }
+  .env .left { font: 600 19px Rubik, sans-serif; }
+  .env .of { font-size: 13px; color: var(--text2); }
+  .env .tag { justify-self: start; font-size: 13px; font-weight: 700; padding: 1px 8px; border-radius: 6px; }
+  .env.close { box-shadow: inset 0 0 0 2px var(--closeBar); } .env.close .left, .env.close .tag { color: var(--close); } .env.close .tag { background: var(--closeSoft); }
+  .env.over { box-shadow: inset 0 0 0 2px var(--overBar); } .env.over .left, .env.over .tag { color: var(--over); } .env.over .tag { background: var(--overSoft); }
+  .bar { height: 8px; border-radius: 4px; background: var(--fill); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 4px; }
+  .env.over .bar i { background: repeating-linear-gradient(135deg, var(--overBar) 0 6px, color-mix(in srgb, var(--overBar) 70%, var(--surface)) 6px 10px) !important; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .btn { min-height: 48px; padding: 0 20px; border-radius: 14px; border: 0; font: 700 16px Assistant, sans-serif; }
+  .btn.primary { background: var(--action); color: var(--onAction); }
+  .btn.pressed { background: var(--actionPressed); color: var(--onAction); }
+  .btn.soft { background: var(--actionSoft); color: var(--action); }
+  .btn.disabled { background: var(--disabledBg); color: var(--disabledText); }
+  .btn.focus { background: var(--action); color: var(--onAction); outline: 2px solid var(--focus); outline-offset: 3px; }
+  .why { font-size: 13px; color: var(--text2); width: 100%; }
+  .toast { background: var(--toast); color: var(--onToast); border-radius: 14px; padding: 12px 14px; display: flex; gap: 10px; font-size: 15px; }
+  .toast u { font-weight: 700; margin-inline-start: auto; }
+  .pos { display: flex; justify-content: space-between; background: var(--surface); border-radius: 12px; padding: 10px 12px; }
+  .pos b { color: var(--positive); font: 600 16px Rubik, sans-serif; }
+  .chip { font-size: 13px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+
+  /* checks */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--card); border-radius: 14px; overflow: hidden; }
+  th, td { text-align: start; padding: 7px 10px; border-bottom: 1px solid var(--line); }
+  th { font-size: 13px; color: var(--ink2); }
+  td .dot { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-inline-end: 6px; box-shadow: inset 0 0 0 1px rgba(128,128,128,.3); }
+  .ok { color: #1E6F3D; font-weight: 700; } .bad { color: #9F332D; font-weight: 700; }
+  :root[data-theme="dark"] .ok { color: #99D9AA; } :root[data-theme="dark"] .bad { color: #FEB0A7; }
+  .scroll { overflow-x: auto; }
+
+  .cvd { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 760px) { .cvd { grid-template-columns: 1fr 1fr; } }
+  .cv { border-radius: 14px; padding: 12px; display: grid; gap: 8px; }
+  .cv h4 { margin: 0; font-size: 14px; }
+  .cv .bars { display: grid; gap: 6px; }
+  .cv .bars div { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+  .cv .bars i { height: 10px; border-radius: 5px; flex: 1; }
+  .cv small { font-size: 12px; }
+
+  .cenv { position: relative; background: var(--surface); border-radius: 16px; padding: 22px 12px 12px; display: grid; gap: 6px; overflow: hidden; }
+  .cenv::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 16px; background: var(--cb); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  .cenv .top { display: flex; align-items: center; gap: 8px; }
+  .cenv .ci { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--cs); color: var(--ci); flex: none; }
+  .cenv .ci svg { width: 17px; height: 17px; }
+  .cenv b { font-weight: 600; }
+  .cenv code { margin-inline-start: auto; color: var(--text2); font-size: 11px; }
+  .cenvs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .crow { display: grid; grid-template-columns: 130px repeat(10, minmax(0, 1fr)); gap: 4px; align-items: center; margin-bottom: 4px; }
+  .crow .k { font-size: 13px; font-weight: 600; }
+  .crow i { height: 34px; border-radius: 8px; display: grid; place-items: center; font: 600 10px Assistant, sans-serif; font-style: normal; }
+  .warn { font-size: 13px; color: var(--ink2); margin: 2px 0 10px; }
+  @media (max-width: 760px) { .crow { grid-template-columns: repeat(5, minmax(0, 1fr)); } .crow .k { grid-column: 1 / -1; } }
+  .tools { display: flex; gap: 8px; margin: 16px 0 0; }
+  .tools button { min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; cursor: pointer; }
+  button:focus-visible { outline: 2px solid #A65485; outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>פלטת הצבעים</h1>
+  <p class="lede">F1. כל הצבעים נבנים ב-OKLCH מחמש משפחות: אבן (ניטרליים עם גוון מרווה קל), שזיף (מותג ופעולה), ענבר (קרוב לגבול), אדום (עברתם), וירוק (רק לדברים טובים). כל ערך כאן נוצר על ידי <code>palette.py</code>, וכל זוג נמדד.</p>
+  <div class="tools"><button type="button" id="theme">החלפת רקע הדף</button></div>
+
+  <h2>הסולמות</h2>
+  <p class="note">13 דרגות לכל משפחה, מ-50 (הכי בהיר) עד 1000 (הכי כהה). אותה בהירות בכל דרגה, בכל המשפחות.</p>
+  <div id="scales"></div>
+
+  <h2>התפקידים</h2>
+  <p class="note">מה הקוד משתמש בו. רכיב לא בוחר "amber 700", אלא "קרוב לגבול".</p>
+  <div class="pair" id="tokens"></div>
+
+  <h2>בשימוש</h2>
+  <p class="note">מעטפות בשלושת המצבים, כפתורים בכל מצב, הודעה, וסכום חיובי.</p>
+  <div class="pair" id="context"></div>
+
+  <h2>ראייה אחרת</h2>
+  <p class="note">הפסים של "קרוב לגבול" ו"עברתם" כמו שהם נראים לאנשים עם עיוורון צבעים. ההבדל ביניהם בנוי על בהירות, ולא רק על גוון: בבהיר הכתום בהיר והאדום כהה, ובכהה הכתום בהיר מאוד. המרחק נמדד ב-OKLab, ומתחת ל-0.08 צבעים מתחילים להתמזג.</p>
+  <div id="cvd"></div>
+
+  <h2>צבעי הקטגוריות</h2>
+  <p class="note">F2. עשרה צבעים שמשק הבית בוחר מהם למעטפות. הצבע מופיע בשלושה מקומות: בדש, בפס (כשהמעטפה בסדר), וברקע הסמל. הסמל עצמו בגרסה הכהה של אותו צבע, ועובר 4.5:1. כשמעטפה קרובה לגבול או עברה, הפס והמסגרת מקבלים את צבע הסטטוס, וצבע הקטגוריה נשאר רק בדש ובסמל.</p>
+  <div class="pair" id="cats"></div>
+  <h3 style="font-size:16px;margin:24px 0 6px">ראייה אחרת</h3>
+  <p class="note">בראייה רגילה כל העשרה נבדלים. בעיוורון אדום-ירוק כמה זוגות מתמזגים (מסומנים). עם עשרה צבעים מחוץ לטווחי הסטטוס אי אפשר אחרת, ולכן הצבע אף פעם לא לבד: לכל מעטפה יש סמל ושם, והזוגות הקרובים לא מקבלים מעטפות שכנות בברירת המחדל.</p>
+  <div id="catcvd"></div>
+  <h3 style="font-size:16px;margin:24px 0 6px">ברירת המחדל</h3>
+  <p class="note">16 הקטגוריות שנוצרות היום עם משק בית חדש. לשמונה הראשונות שמונה צבעים שונים. חיסכון לא מקבל צבע קטגוריה, אלא את הירוק החיובי.</p>
+  <div class="scroll"><table id="defaults"></table></div>
+
+  <h2>כל המדידות</h2>
+  <p class="note">טקסט צריך 4.5:1. פסים, מסגרות וטבעת פוקוס צריכים 3:1. טקסט מושבת חייב לפי WCAG פחות, אבל כאן הוא צריך 3:1, כדי שכפתור מושבת ייראה "לא זמין" ולא שבור.</p>
+  <div class="scroll"><table id="checks"></table></div>
+</div>
+
+<script>
+const P = window.PALETTE;
+const NAMES = { stone: 'אבן', plum: 'שזיף', amber: 'ענבר', red: 'אדום', green: 'ירוק' };
+const ROLES = {
+  'משטחים': { bg: 'רקע המסך', surface: 'כרטיס, מעטפה', raised: 'חלונית, מקשים', fill: 'מסילת פס, שדה', line: 'קו מפריד', lineStrong: 'קו מודגש' },
+  'טקסט': { text: 'טקסט', text2: 'טקסט משני', text3: 'רמז, מקום ריק (לא למידע)' },
+  'פעולה': { action: 'כפתור ראשי, קישור', actionPressed: 'כפתור לחוץ', onAction: 'טקסט על כפתור', actionSoft: 'כפתור משני, בחירה', focus: 'טבעת פוקוס' },
+  'מצבים': { close: 'קרוב לגבול: טקסט', closeSoft: 'קרוב לגבול: רקע תג', closeBar: 'קרוב לגבול: פס ומסגרת', over: 'עברתם: טקסט', overSoft: 'עברתם: רקע תג', overBar: 'עברתם: פס ומסגרת', positive: 'חיובי: טקסט (במשורה)', positiveSoft: 'חיובי: רקע' },
+  'מערכת': { disabledBg: 'מושבת: רקע', disabledText: 'מושבת: טקסט', toast: 'הודעה', onToast: 'טקסט בהודעה', scrim: 'הכהיה מאחורי חלונית' },
+};
+const L = (hx) => { const c = [1, 3, 5].map((i) => parseInt(hx.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+const inkOn = (hx) => (L(hx) > 0.28 ? '#1F211E' : '#F4F8F3');
+const vars = (t) => Object.entries(t).map(([k, v]) => `--${k}:${v}`).join(';');
+const MODE = { light: 'בהיר', dark: 'כהה' };
+
+document.getElementById('scales').innerHTML = Object.entries(P.scales).map(([name, sc]) => `
+  <div class="scale"><div class="nm">${NAMES[name]}</div>${P.steps.map((st) => `
+    <div class="sw" style="background:${sc[st]};color:${inkOn(sc[st])}"><span>${st}</span><small>${sc[st]}</small></div>`).join('')}</div>`).join('');
+
+document.getElementById('tokens').innerHTML = ['light', 'dark'].map((m) => {
+  const t = P.tokens[m];
+  return `<div class="mode" style="${vars(t)}"><h3>${MODE[m]}</h3>${Object.entries(ROLES).map(([g, roles]) => `
+    <div class="group-title">${g}</div>${Object.entries(roles).map(([k, label]) => `
+      <div class="tok"><i style="background:${t[k]}"></i><div><b>${label}</b><span><code>${k}</code></span></div><code>${t[k]}</code></div>`).join('')}`).join('')}</div>`;
+}).join('');
+
+const env = (cls, name, left, spent, cap, color) => `
+  <div class="env ${cls}">
+    <div class="name">${name}</div>
+    ${cls ? `<span class="tag">${cls === 'over' ? 'עברתם' : 'קרוב לגבול'}</span>` : ''}
+    <div class="left">${left}</div>
+    <div class="bar"><i style="width:${Math.min(100, (spent * 100) / cap)}%;background:${color}"></i></div>
+    <div class="of num">${spent.toLocaleString('en-US')} ₪ מתוך ${cap.toLocaleString('en-US')} ₪</div>
+  </div>`;
+document.getElementById('context').innerHTML = ['light', 'dark'].map((m) => `
+  <div class="mode ctx" style="${vars(P.tokens[m])}">
+    <h3>${MODE[m]}</h3>
+    <div class="envs">
+      ${env('', 'סופר', 'נשאר 2,050 ₪', 1150, 3200, P.scales.plum[m === 'light' ? 500 : 400])}
+      ${env('close', 'מסעדות', 'נשארו רק 90 ₪', 810, 900, 'var(--closeBar)')}
+      ${env('over', 'דלק', 'עברתם ב-120 ₪', 1120, 1000, 'var(--overBar)')}
+      ${env('', 'פארם', 'נשאר 220 ₪', 180, 400, P.scales.green[m === 'light' ? 500 : 400])}
+    </div>
+    <div class="row">
+      <button class="btn primary" type="button">שמירה בסופר</button>
+      <button class="btn pressed" type="button">לחוץ</button>
+      <button class="btn soft" type="button">עוד פרטים</button>
+      <button class="btn focus" type="button">פוקוס</button>
+    </div>
+    <div class="row">
+      <button class="btn disabled" type="button" aria-disabled="true">שמירה בסופר</button>
+      <span class="why">מושבת: הטקסט נשאר קריא, ולידו כתוב למה ("קודם סכום").</span>
+    </div>
+    <div class="toast"><span>נוסף 200 ₪ למסעדות. קרוב לגבול: נשארו 90 ₪</span><u>ביטול</u></div>
+    <div class="pos"><span>החזר מ-Zara</span><b>+ 120 ₪</b></div>
+    <div class="row">
+      <span class="chip" style="background:var(--closeSoft);color:var(--close)">אחת קרובה לגבול</span>
+      <span class="chip" style="background:var(--overSoft);color:var(--over)">מעטפה אחת עברה</span>
+      <span class="chip" style="background:var(--positiveSoft);color:var(--positive)">400 ₪ עברו לחיסכון</span>
+    </div>
+  </div>`).join('');
+document.querySelector('#context').insertAdjacentHTML('afterend', '<p class="note">צבעי המעטפות "סופר" ו"פארם" כאן זמניים. הם ייקבעו ב-F2.</p>');
+
+const KIND = { normal: 'ראייה רגילה', protan: 'פרוטנופיה (אדום)', deutan: 'דויטרנופיה (ירוק)', tritan: 'טריטנופיה (כחול)' };
+document.getElementById('cvd').innerHTML = ['light', 'dark'].map((m) => `
+  <h3 style="font-size:15px;margin:16px 0 8px">${MODE[m]}</h3>
+  <div class="cvd">${P.cvd.filter((c) => c.mode === m).map((c) => `
+    <div class="cv" style="background:${c.seen.surface};color:${inkOn(c.seen.surface)};box-shadow:inset 0 0 0 1px var(--line)">
+      <h4>${KIND[c.kind]}</h4>
+      <div class="bars">
+        <div><span style="width:72px">קרוב לגבול</span><i style="background:${c.seen.closeBar}"></i></div>
+        <div><span style="width:72px">עברתם</span><i style="background:${c.seen.overBar}"></i></div>
+        <div><span style="width:72px">פעולה</span><i style="background:${c.seen.action}"></i></div>
+      </div>
+      <small class="num">מרחק קרוב/עברתם: ${c.closeVsOver} · עברתם/פעולה: ${c.overVsAction}</small>
+    </div>`).join('')}</div>`).join('');
+
+document.getElementById('checks').innerHTML = `<tr><th>מצב</th><th>מה</th><th>טקסט / סימן</th><th>על רקע</th><th>יחס</th><th>נדרש</th><th></th></tr>` +
+  P.checks.map((c) => { const t = P.tokens[c.mode]; return `<tr>
+    <td>${MODE[c.mode]}</td><td>${c.label}</td>
+    <td><span class="dot" style="background:${t[c.fg]}"></span><code>${c.fg}</code></td>
+    <td><span class="dot" style="background:${t[c.bg]}"></span><code>${c.bg}</code></td>
+    <td class="num">${c.ratio.toFixed(2)}</td><td class="num">${c.need}</td>
+    <td class="${c.ok ? 'ok' : 'bad'}">${c.ok ? 'עובר' : 'נכשל'}</td></tr>`; }).join('');
+
+// ---------- F2: category colours ----------
+const ICONS = { teal: 'shopping-cart', sand: 'utensils', blue: 'car', ocean: 'fuel', clay: 'house', olive: 'zap', indigo: 'stethoscope', sage: 'baby', violet: 'shopping-bag', rose: 'popcorn' };
+const SAMPLE = { teal: 'סופרמרקט', sand: 'אוכל בחוץ', blue: 'תחבורה', ocean: 'דלק', clay: 'דיור', olive: 'חשבונות', indigo: 'בריאות', sage: 'ילדים', violet: 'קניות', rose: 'בילויים' };
+document.getElementById('cats').innerHTML = ['light', 'dark'].map((m) => `
+  <div class="mode" style="${vars(P.tokens[m])}"><h3>${MODE[m]}</h3><div class="cenvs">${P.categories.map((c) => `
+    <div class="cenv" style="--cb:${c[m].base};--cs:${c[m].soft};--ci:${c[m].ink}">
+      <div class="top"><span class="ci"><i data-lucide="${ICONS[c.id]}"></i></span><b>${SAMPLE[c.id]}</b><code>${c.name}</code></div>
+      <div class="bar"><i style="width:${30 + ((c.hue * 7) % 45)}%;background:${c[m].base}"></i></div>
+    </div>`).join('')}</div></div>`).join('');
+
+const near = new Set();
+document.getElementById('catcvd').innerHTML = ['normal', 'protan', 'deutan', 'tritan'].map((k) => {
+  const d = P.catDistance[k];
+  const close = d.pairs.filter((x) => x[0] < 0.06);
+  return `<div class="crow"><span class="k">${KIND[k]}</span>${P.categories.map((c) => `
+    <i style="background:${d.seen[c.id][0]};color:${inkOn(d.seen[c.id][0])}">${c.name}</i>`).join('')}</div>
+    <div class="crow"><span class="k"></span>${P.categories.map((c) => `
+    <i style="background:${d.seen[c.id][1]};color:${inkOn(d.seen[c.id][1])}">${c.name}</i>`).join('')}</div>
+    <p class="warn">${close.length ? 'מתמזגים: ' + close.map((x) => `${P.categories.find((c) => c.id === x[1]).name} ו${P.categories.find((c) => c.id === x[2]).name} (${x[0]})`).join(' · ') : `הזוג הקרוב ביותר: ${d.pairs[0][0]}. כולם נבדלים.`}</p>`;
+}).join('');
+
+document.getElementById('defaults').innerHTML = `<tr><th>#</th><th>קטגוריה</th><th>צבע</th></tr>` + P.defaults.map(([en, he, id], i) => {
+  const c = P.categories.find((x) => x.id === id);
+  return `<tr><td class="num">${i + 1}</td><td>${he} <code>${en}</code></td><td><span class="dot" style="background:${c.light.base}"></span><span class="dot" style="background:${c.dark.base}"></span>${c.name}</td></tr>`;
+}).join('') + `<tr><td class="num">16</td><td>חיסכון <code>Savings</code></td><td><span class="dot" style="background:${P.tokens.light.positive}"></span><span class="dot" style="background:${P.tokens.dark.positive}"></span>ירוק חיובי (לא צבע קטגוריה)</td></tr>`;
+
+document.getElementById('checks').insertAdjacentHTML('beforeend', P.catChecks.map((c) => `<tr>
+  <td>${MODE[c.mode]}</td><td>קטגוריה: ${c.label}</td><td colspan="2"><span class="dot" style="background:${P.categories.find((x) => x.id === c.cat)[c.mode].base}"></span>${P.categories.find((x) => x.id === c.cat).name}</td>
+  <td class="num">${c.ratio.toFixed(2)}</td><td class="num">${c.need}</td><td class="${c.ok ? 'ok' : 'bad'}">${c.ok ? 'עובר' : 'נכשל'}</td></tr>`).join(''));
+lucide.createIcons();
+
+const themeBtn = document.getElementById('theme');
+themeBtn.addEventListener('click', () => {
+  const dark = document.documentElement.dataset.theme === 'dark' || (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.dataset.theme = dark ? 'light' : 'dark';
+});
+</script>
+</body>
+</html>

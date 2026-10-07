@@ -2,23 +2,29 @@ import { Redirect, Stack } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { ADD_BUTTON_SPACE, AddButton } from '@/components/add-button';
-import { BudgetRow } from '@/components/budget-row';
+import { Envelope, EnvelopeGrid } from '@/components/envelope';
 import { SwipeRow } from '@/components/swipe-row';
 import { useToast } from '@/components/toast';
 import { IncomePlanCard } from '@/components/income-plan';
 import { Badge, Button, CategoryIcon, Empty, ProgressBar, Row, Screen, Section } from '@/components/ui';
 import { daysToGo, perDay } from '@/lib/budget';
-import { monthPace } from '@/lib/dates';
+import { runsOutOn } from '@/lib/envelope';
+import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { budgetTone, moneyText, radius, useColors } from '@/lib/theme';
 
 // Dev builds only: the design system on sample data, so UI work can be checked in the
 // web preview without signing in to a real household. Production redirects home.
+// K1: the eight seeded envelopes in every state: fine, fine but running out early, close, over.
 const SAMPLE = [
-  { name: 'Groceries', symbol: 'cart', spent: 138000, cap: 200000 },
-  { name: 'Eating out', symbol: 'fork.knife', spent: 89000, cap: 80000 },
-  { name: 'Fuel', symbol: 'fuelpump', spent: 45500, cap: 50000 },
-  { name: 'Kids', symbol: 'figure.and.child.holdinghands', spent: 30000, cap: 150000 },
+  { name: 'Groceries', symbol: 'cart', spent: 115000, cap: 320000 },
+  { name: 'Eating out', symbol: 'fork.knife', spent: 61000, cap: 90000 },
+  { name: 'Transport', symbol: 'car', spent: 38000, cap: 80000 },
+  { name: 'Fuel', symbol: 'fuelpump', spent: 112000, cap: 100000 },
+  { name: 'Housing', symbol: 'house', spent: 0, cap: 520000 },
+  { name: 'Utilities', symbol: 'bolt', spent: 54000, cap: 65000 },
+  { name: 'Health', symbol: 'cross.case', spent: 12000, cap: 40000 },
+  { name: 'Kids', symbol: 'figure.and.child.holdinghands', spent: 52000, cap: 140000 },
 ];
 const CAP = SAMPLE.reduce((n, x) => n + x.cap, 0);
 const SPENT = SAMPLE.reduce((n, x) => n + x.spent, 0);
@@ -27,15 +33,14 @@ export default function DevPreview() {
   const c = useColors();
   const toast = useToast();
   if (!__DEV__) return <Redirect href="/" />;
-  const pace = monthPace();
   return (
     <View style={{ flex: 1 }}>
       <Screen bottomSpace={ADD_BUTTON_SPACE}>
         <Stack.Screen options={{ title: 'Design preview', headerShown: true }} />
         <View style={[s.hero, { backgroundColor: c.cell }]}>
           <Text style={{ color: c.secondaryLabel, fontSize: 15 }}>Left this month</Text>
-          <Text style={[s.heroAmount, { color: budgetTone(Math.round((SPENT * 100) / CAP), c, pace) }]}>{formatMoney(CAP - SPENT, 'ILS')}</Text>
-          <ProgressBar pct={Math.round((SPENT * 100) / CAP)} color={budgetTone(Math.round((SPENT * 100) / CAP), c, pace)} pace={pace} />
+          <Text style={[s.heroAmount, { color: c.text }]}>{formatMoney(CAP - SPENT, 'ILS')}</Text>
+          <ProgressBar pct={Math.round((SPENT * 100) / CAP)} color={budgetTone(Math.round((SPENT * 100) / CAP), c)} />
           <View style={s.heroRow}>
             <Text style={[s.meta, { color: c.secondaryLabel }]}>
               {formatMoney(SPENT, 'ILS')} of {formatMoney(CAP, 'ILS')}
@@ -45,22 +50,30 @@ export default function DevPreview() {
             </Text>
           </View>
         </View>
-        <Section title="Budgets" action={{ label: 'Edit', onPress: () => toast({ message: 'Edit categories' }) }}>
-          {SAMPLE.map((x, i) => (
-            <SwipeRow
-              key={x.name}
-              onEdit={() => toast({ message: `Edit ${x.name}` })}
-              onDelete={() => toast({ message: `${x.name} deleted`, action: { label: 'Undo', onPress: () => {} } })}>
-              {(open) => (
-                <BudgetRow name={x.name} symbol={x.symbol} cap={x.cap} spent={x.spent} currency="ILS" pace={pace} onPress={() => {}} onLongPress={open} last={i === SAMPLE.length - 1} />
-              )}
-            </SwipeRow>
-          ))}
-        </Section>
-        <Section title="Without a budget">
-          <BudgetRow name="Pets" symbol="pawprint" cap={null} spent={34000} currency="ILS" onPress={() => {}} />
-          <BudgetRow name="Gifts" symbol="gift" cap={null} spent={12000} noBudget currency="ILS" onPress={() => {}} last />
-        </Section>
+        <Text style={[s.group, { color: c.text }]}>{t.envelope.envelopes}</Text>
+        <EnvelopeGrid>
+          {SAMPLE.map((x) => {
+            const out = runsOutOn(x.cap, x.spent, 12, 31);
+            return (
+              <Envelope
+                key={x.name}
+                name={x.name}
+                symbol={x.symbol}
+                cap={x.cap}
+                spent={x.spent}
+                currency="ILS"
+                hint={out ? t.envelope.runsOut(out) : null}
+                onPress={() => toast({ message: `Add to ${x.name}` })}
+                onLongPress={() => toast({ message: `Edit ${x.name}` })}
+              />
+            );
+          })}
+        </EnvelopeGrid>
+        <Text style={[s.group, { color: c.text }]}>Without a budget</Text>
+        <EnvelopeGrid>
+          <Envelope name="Pets" symbol="pawprint" cap={null} spent={34000} currency="ILS" onPress={() => {}} />
+          <Envelope name="Gifts" symbol="gift" cap={null} spent={12000} currency="ILS" onPress={() => {}} />
+        </EnvelopeGrid>
         {/* Income plan: healthy, thin savings, over-assigned, not set */}
         <SwipeRow
           onEdit={() => toast({ message: 'Edit income' })}
@@ -97,5 +110,6 @@ const s = StyleSheet.create({
   meta: { fontSize: 14, ...moneyText },
   heroRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', columnGap: 12, rowGap: 2 },
   actions: { marginHorizontal: 16, marginTop: 24, gap: 8 },
+  group: { fontFamily: 'Secular One', fontSize: 19, marginHorizontal: 20, marginTop: 24, marginBottom: 8 },
   incomeSwipe: { marginHorizontal: 16, marginTop: 16, borderRadius: radius.hero, overflow: 'hidden' },
 });

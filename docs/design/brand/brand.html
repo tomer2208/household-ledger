@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מותג FinPace</title>
+<!-- F6 (docs/DESIGN_GANTT.md): three marks, at every size and on a Home Screen, the wordmark and
+     the launch screen. The SVGs are inlined from marks/ so the page works opened from disk. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Secular+One&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #EDF0EB; --surface: #FDFFFD; --line: #DADED8; --text: #1F211E; --text2: #5C5F5A; --action: #88416C; }
+  :root[data-theme="dark"] { --bg: #121511; --surface: #1F211E; --line: #3D3F3B; --text: #F4F8F3; --text2: #A9ACA7; --action: #F4AFD5; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme]) { --bg: #121511; --surface: #1F211E; --line: #3D3F3B; --text: #F4F8F3; --text2: #A9ACA7; --action: #F4AFD5; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 400 16px/1.5 Assistant, sans-serif; }
+  .page { max-width: 1120px; margin: 0 auto; padding: 32px 16px 80px; }
+  h1 { font: 400 34px/1.2 'Secular One', sans-serif; margin: 0 0 6px; }
+  h2 { font: 400 22px/1.3 'Secular One', sans-serif; margin: 44px 0 4px; }
+  .note { color: var(--text2); max-width: 72ch; margin: 0 0 14px; }
+  .tools button { min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; cursor: pointer; }
+  button:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
+  code { font: 500 13px ui-monospace, monospace; direction: ltr; unicode-bidi: isolate; color: var(--text2); }
+
+  .marks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 900px) { .marks { grid-template-columns: 1fr; } }
+  .mark { background: var(--surface); border-radius: 20px; padding: 18px; display: grid; gap: 12px; }
+  .mark h3 { margin: 0; font-size: 17px; }
+  .mark p { margin: 0; color: var(--text2); font-size: 15px; }
+  .mark.rec { box-shadow: inset 0 0 0 2px var(--action); }
+  .rec-tag { font-size: 13px; font-weight: 700; color: var(--action); }
+  .sizes { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
+  .sizes figure { margin: 0; display: grid; justify-items: center; gap: 4px; font-size: 12px; color: var(--text2); }
+  .sizes svg { display: block; border-radius: 22%; }
+  .sizes .s16 svg { border-radius: 3px; } .sizes .s32 svg { border-radius: 6px; }
+
+  /* Home Screen */
+  .home { width: 375px; max-width: 100%; border-radius: 34px; padding: 56px 22px 40px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px 16px;
+          background: linear-gradient(160deg, #F7D9B8, #C9D9F0 55%, #9FB7D9); }
+  .home.dark { background: linear-gradient(160deg, #2B2A3A, #141821 60%, #0D1015); }
+  .app { display: grid; justify-items: center; gap: 5px; font: 500 11.5px -apple-system, system-ui, sans-serif; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+  .app .ico { width: 62px; height: 62px; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,.18); }
+  .app .ico svg { width: 100%; height: 100%; display: block; }
+  .homes { display: flex; gap: 20px; flex-wrap: wrap; }
+
+  .word { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .word { grid-template-columns: 1fr; } }
+  .word > div { background: var(--surface); border-radius: 20px; padding: 24px; display: flex; align-items: center; gap: 14px; }
+  .word svg { width: 56px; height: 56px; border-radius: 13px; flex: none; }
+  .word b { font: 400 34px/1 'Secular One', sans-serif; }
+  .word small { display: block; color: var(--text2); font-size: 14px; margin-top: 6px; }
+
+  .splashes { display: flex; gap: 20px; flex-wrap: wrap; }
+  .splash { width: 200px; height: 433px; border-radius: 28px; display: grid; place-items: center; box-shadow: 0 0 0 1px var(--line); }
+  .splash svg { width: 72px; height: 72px; border-radius: 16px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>מותג</h1>
+  <p class="note">F6. שלוש הצעות לסמל, כולן מעטפה בשזיף. ההיום (בית כחול עם עמודות) מופיע בסוף לשם השוואה. אף קובץ באפליקציה עוד לא הוחלף.</p>
+  <div class="tools"><button type="button" id="theme">החלפת בהיר / כהה</button></div>
+
+  <h2>שלוש הצעות</h2>
+  <p class="note">כל סמל ב-180 (אייקון אפליקציה), 60 (מסך הבית), 32 ו-16 (לשונית בדפדפן). הקטנים הם המבחן האמיתי.</p>
+  <div class="marks" id="marks"></div>
+
+  <h2>על מסך הבית</h2>
+  <p class="note">בין אייקונים אחרים, על רקע בהיר ועל רקע כהה. "מייל" ו"הודעות" כאן כדי לבדוק שהסמל לא נראה כמו אפליקציית דואר.</p>
+  <div class="homes" id="homes"></div>
+
+  <h2>השם</h2>
+  <p class="note">FinPace נשאר, באותיות לטיניות גם בממשק העברי. Secular One, כמו כותרות המסך.</p>
+  <div class="word" id="word"></div>
+
+  <h2>מסך פתיחה</h2>
+  <p class="note">צבע הרקע של האפליקציה, והסמל באמצע. ככה המעבר למסך הראשון חלק.</p>
+  <div class="splashes" id="splashes"></div>
+</div>
+
+<script>
+const BG = (id) => `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9A4C7B"/><stop offset="1" stop-color="#6B2F54"/></linearGradient></defs><rect width="1024" height="1024" fill="url(#${id})"/>`;
+let n = 0;
+// Each call gets its own ids: several copies of a mark live on one page.
+const MARKS = {
+  a: () => { const k = n++; return `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="סמל א'">${BG('g' + k)}
+    <rect x="212" y="322" width="600" height="420" rx="64" fill="#FDFFFD"/>
+    <path d="M268 386 L452 552 L800 268" fill="none" stroke="#7E3964" stroke-width="58" stroke-linecap="round" stroke-linejoin="round"/></svg>`; },
+  b: () => { const k = n++; return `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="סמל ב'">${BG('g' + k)}
+    <clipPath id="c${k}"><rect x="212" y="322" width="600" height="420" rx="64"/></clipPath>
+    <rect x="212" y="322" width="600" height="420" rx="64" fill="#FDFFFD"/>
+    <rect x="212" y="600" width="600" height="142" fill="#F4AFD5" clip-path="url(#c${k})"/>
+    <path d="M268 386 L512 560 L756 386" fill="none" stroke="#7E3964" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/></svg>`; },
+  c: () => { const k = n++; return `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="סמל ג'">${BG('g' + k)}
+    <clipPath id="c${k}"><rect x="200" y="272" width="624" height="480" rx="72"/></clipPath>
+    <rect x="200" y="272" width="624" height="480" rx="72" fill="#FDFFFD"/>
+    <path d="M200 272 H824 L512 492 Z" fill="#F4AFD5" clip-path="url(#c${k})"/>
+    <rect x="276" y="584" width="472" height="84" rx="42" fill="#E4E7E2"/>
+    <rect x="276" y="584" width="300" height="84" rx="42" fill="#88416C"/></svg>`; },
+  today: () => `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="הסמל של היום"><rect width="1024" height="1024" fill="#1A7EF0"/>
+    <path d="M512 214 L812 452 Q828 465 828 486 L828 772 Q828 810 790 810 L234 810 Q196 810 196 772 L196 486 Q196 465 212 452 Z" fill="#fff"/>
+    <rect x="372" y="620" width="68" height="120" rx="20" fill="#0A84FF"/><rect x="478" y="540" width="68" height="200" rx="20" fill="#0A84FF"/><rect x="584" y="460" width="68" height="280" rx="20" fill="#0A84FF"/></svg>`,
+};
+const INFO = {
+  a: ["א'. מעטפה עם ✓", 'הדש הוא סימן וי. "הכסף מסודר". אבל מעטפה עם וי היא גם הסמל של "נשלח" בכל אפליקציית מייל.'],
+  b: ["ב'. מעטפה מלאה", 'הפס הוורוד בתחתית הוא הכסף שבמעטפה. בגדלים קטנים זו פשוט מעטפה, ושוב נראה כמו מייל.'],
+  c: ["ג'. המעטפה של האפליקציה", 'בדיוק כמו המעטפה במסך: דש צבעוני ופס. הפס הוא מה שמבדיל אותה ממייל, והיא מקשרת בין האייקון לבין מה שרואים אחרי שפותחים.'],
+};
+const sizes = (k) => [180, 60, 32, 16].map((s) => `<figure class="s${s}"><div style="width:${s}px;height:${s}px">${MARKS[k]().replace('<svg', `<svg width="${s}" height="${s}"`)}</div><figcaption>${s}</figcaption></figure>`).join('');
+document.getElementById('marks').innerHTML = ['a', 'b', 'c'].map((k) => `
+  <div class="mark${k === 'c' ? ' rec' : ''}">${k === 'c' ? '<span class="rec-tag">ההמלצה</span>' : ''}<h3>${INFO[k][0]}</h3><div class="sizes">${sizes(k)}</div><p>${INFO[k][1]}</p></div>`).join('');
+
+// Other apps on the Home Screen: plain shapes in the system's usual colours, no logos.
+const other = (bg, glyph, name) => ({ html: `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="${bg}"/>${glyph}</svg>`, name });
+const OTHERS = [
+  other('#2E8CF0', '<rect x="12" y="18" width="36" height="25" rx="4" fill="#fff"/><path d="M14 21 L30 33 L46 21" stroke="#2E8CF0" stroke-width="3" fill="none"/>', 'מייל'),
+  other('#34C759', '<path d="M30 14c-9 0-16 6-16 13 0 4 2 7 5 9l-1 7 7-4c2 .5 3 .7 5 .7 9 0 16-6 16-13S39 14 30 14z" fill="#fff"/>', 'הודעות'),
+  other('#FF9500', '<circle cx="30" cy="30" r="14" fill="#fff"/>', 'תמונות'),
+  other('#1C1C1E', '<rect x="16" y="14" width="28" height="32" rx="4" fill="#fff"/>', 'ארנק'),
+  other('#E8463E', '<rect x="14" y="16" width="32" height="28" rx="4" fill="#fff"/><rect x="14" y="16" width="32" height="8" fill="#fff" opacity=".6"/>', 'לוח שנה'),
+  other('#5856D6', '<circle cx="30" cy="30" r="12" fill="none" stroke="#fff" stroke-width="5"/>', 'הגדרות'),
+  other('#00A6A6', '<path d="M18 40 L28 28 L34 34 L44 20" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/>', 'בנק'),
+];
+const home = (dark, k) => `<div class="home${dark ? ' dark' : ''}">${OTHERS.slice(0, 5).map((o) => `<div class="app"><div class="ico">${o.html}</div>${o.name}</div>`).join('')}
+  <div class="app"><div class="ico">${MARKS[k]()}</div>FinPace</div>${OTHERS.slice(5).map((o) => `<div class="app"><div class="ico">${o.html}</div>${o.name}</div>`).join('')}</div>`;
+document.getElementById('homes').innerHTML = ['c', 'a', 'b'].map((k) => `<div><p class="note" style="margin:0 0 6px">${INFO[k][0]}</p>${home(false, k)}</div>`).join('') +
+  `<div><p class="note" style="margin:0 0 6px">ג', על רקע כהה</p>${home(true, 'c')}</div><div><p class="note" style="margin:0 0 6px">היום</p>${home(false, 'today')}</div>`;
+
+document.getElementById('word').innerHTML = `
+  <div>${MARKS.c()}<div><b>FinPace</b><small>ממשק באנגלית</small></div></div>
+  <div>${MARKS.c()}<div><b>FinPace</b><small>ממשק בעברית: אותו שם, ואחריו "התקציב של הבית"</small></div></div>`;
+document.getElementById('splashes').innerHTML = [['#EDF0EB', 'בהיר'], ['#121511', 'כהה']].map(([bg, l]) => `
+  <figure style="margin:0;display:grid;gap:6px;justify-items:center"><div class="splash" style="background:${bg}">${MARKS.c()}</div><figcaption class="note" style="margin:0">${l} <code>${bg}</code></figcaption></figure>`).join('');
+
+document.getElementById('theme').addEventListener('click', () => {
+  const r = document.documentElement, d = r.dataset.theme === 'dark' || (!r.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+  r.dataset.theme = d ? 'light' : 'dark';
+});
+</script>
+</body>
+</html>

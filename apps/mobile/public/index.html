@@ -14,8 +14,8 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="FinPace" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F5F4" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A1113" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#EDF0EB" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121511" />
     <meta name="color-scheme" content="light dark" />
     <meta name="format-detection" content="telephone=no" />
     <!-- T15: stamped by scripts/build-web.sh; the open app compares it with /version.json. -->
@@ -46,13 +46,23 @@
 
     <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
     <style id="expo-reset">
+      /* F7: the three bundled families (lib/tokens fontFamily). One name per family, so fontWeight
+         picks the file, as it does on iOS and Android (app.json). Same origin, so the service
+         worker keeps them for offline use. */
+      @font-face { font-family: 'Rubik'; font-weight: 400; font-style: normal; font-display: swap; src: url('/fonts/Rubik-Regular.ttf') format('truetype'); }
+      @font-face { font-family: 'Rubik'; font-weight: 500; font-style: normal; font-display: swap; src: url('/fonts/Rubik-Medium.ttf') format('truetype'); }
+      @font-face { font-family: 'Rubik'; font-weight: 600; font-style: normal; font-display: swap; src: url('/fonts/Rubik-SemiBold.ttf') format('truetype'); }
+      @font-face { font-family: 'Assistant'; font-weight: 400; font-style: normal; font-display: swap; src: url('/fonts/Assistant-Regular.ttf') format('truetype'); }
+      @font-face { font-family: 'Assistant'; font-weight: 600; font-style: normal; font-display: swap; src: url('/fonts/Assistant-SemiBold.ttf') format('truetype'); }
+      @font-face { font-family: 'Assistant'; font-weight: 700; font-style: normal; font-display: swap; src: url('/fonts/Assistant-Bold.ttf') format('truetype'); }
+      @font-face { font-family: 'Secular One'; font-weight: 400; font-style: normal; font-display: swap; src: url('/fonts/SecularOne-Regular.ttf') format('truetype'); }
       html,
       body {
         height: 100%;
       }
       body {
         overflow: hidden;
-        background-color: #f2f5f4;
+        background-color: #edf0eb;
         /* No grey flash on tap, no callout on long-press: feels like an app, not a page. */
         -webkit-tap-highlight-color: transparent;
         -webkit-touch-callout: none;
@@ -60,7 +70,7 @@
       }
       @media (prefers-color-scheme: dark) {
         body {
-          background-color: #0a1113;
+          background-color: #121511;
         }
       }
       #root {

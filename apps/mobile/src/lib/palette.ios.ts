@@ -1,27 +1,10 @@
-import { DynamicColorIOS, PlatformColor } from 'react-native';
+import { DynamicColorIOS } from 'react-native';
 
 import { dark, light, type Palette } from './colors';
 
-// iOS-only file: PlatformColor does not exist on web, so the semantic palette lives here
-// and Metro only bundles it for iOS. Neutrals follow the system (increased contrast, grouped
-// lists); the brand and status colors come from theme.ts in both appearances.
-const brand = (k: keyof Palette) => DynamicColorIOS({ light: light[k] as string, dark: dark[k] as string });
-
-export const iosPalette: Palette | null = {
-  label: PlatformColor('label'),
-  secondaryLabel: PlatformColor('secondaryLabel'),
-  tertiaryLabel: PlatformColor('tertiaryLabel'),
-  background: PlatformColor('systemBackground'),
-  groupedBackground: PlatformColor('systemGroupedBackground'),
-  cell: PlatformColor('secondarySystemGroupedBackground'),
-  separator: PlatformColor('separator'),
-  fill: PlatformColor('tertiarySystemFill'),
-  tint: brand('tint'),
-  onTint: brand('onTint'),
-  tintFill: brand('tintFill'),
-  green: brand('green'),
-  orange: brand('orange'),
-  red: brand('red'),
-  onRed: brand('onRed'),
-  paceMarker: brand('paceMarker'),
-};
+// iOS-only file: DynamicColorIOS does not exist on web, so Metro only bundles this for iOS.
+// Every colour follows the system appearance without a re-render. F7: the neutrals are the
+// FinPace stone scale now, not the system greys, so iPhone and the web app look the same.
+export const iosPalette: Palette = Object.fromEntries(
+  (Object.keys(light) as (keyof Palette)[]).map((k) => [k, DynamicColorIOS({ light: light[k] as string, dark: dark[k] as string })]),
+) as Palette;

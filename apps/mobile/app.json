@@ -18,7 +18,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#6B2F54",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -30,6 +30,69 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-font",
+        {
+          "ios": {
+            "fonts": [
+              "./assets/fonts/Rubik-Regular.ttf",
+              "./assets/fonts/Rubik-Medium.ttf",
+              "./assets/fonts/Rubik-SemiBold.ttf",
+              "./assets/fonts/Assistant-Regular.ttf",
+              "./assets/fonts/Assistant-SemiBold.ttf",
+              "./assets/fonts/Assistant-Bold.ttf",
+              "./assets/fonts/SecularOne-Regular.ttf"
+            ]
+          },
+          "android": {
+            "fonts": [
+              {
+                "fontFamily": "Rubik",
+                "fontDefinitions": [
+                  {
+                    "path": "./assets/fonts/Rubik-Regular.ttf",
+                    "weight": 400
+                  },
+                  {
+                    "path": "./assets/fonts/Rubik-Medium.ttf",
+                    "weight": 500
+                  },
+                  {
+                    "path": "./assets/fonts/Rubik-SemiBold.ttf",
+                    "weight": 600
+                  }
+                ]
+              },
+              {
+                "fontFamily": "Assistant",
+                "fontDefinitions": [
+                  {
+                    "path": "./assets/fonts/Assistant-Regular.ttf",
+                    "weight": 400
+                  },
+                  {
+                    "path": "./assets/fonts/Assistant-SemiBold.ttf",
+                    "weight": 600
+                  },
+                  {
+                    "path": "./assets/fonts/Assistant-Bold.ttf",
+                    "weight": 700
+                  }
+                ]
+              },
+              {
+                "fontFamily": "Secular One",
+                "fontDefinitions": [
+                  {
+                    "path": "./assets/fonts/SecularOne-Regular.ttf",
+                    "weight": 400
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
       "expo-router",
       "expo-secure-store",
       "expo-apple-authentication",
@@ -37,9 +100,13 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#EDF0EB",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 76,
+          "dark": {
+            "backgroundColor": "#121511",
+            "image": "./assets/images/splash-icon.png"
+          }
         }
       ],
       [

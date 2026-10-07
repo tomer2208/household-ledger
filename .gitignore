@@ -5,3 +5,6 @@ apps/mobile/.expo/
 apps/mobile/dist/
 supabase/.temp/
 .schema-types/
+
+# Design audit screenshots: may show a real household, stay local
+docs/design/screens/

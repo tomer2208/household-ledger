@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>השוואת כיוונים</title>
+<!-- C2 (docs/DESIGN_GANTT.md): three directions from docs/design/directions.md on a real Overview.
+     Made-up household, 12 October, 31-day month. Nothing here is app code. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Heebo:wght@400;500;600;700&family=IBM+Plex+Sans+Hebrew:wght@400;500;600;700&family=Playpen+Sans+Hebrew:wght@400;500&family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Rubik:wght@400;500;600;700&family=Secular+One&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  :root {
+    --page: #E9E9EC; --page-ink: #1B1B20; --page-ink2: #5C5C66; --page-card: #FFFFFF; --page-line: #D3D3DA;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --page: #0E0E11; --page-ink: #EDEDF0; --page-ink2: #A2A2AD; --page-card: #18181D; --page-line: #2C2C34; }
+  }
+  :root[data-theme="dark"] { --page: #0E0E11; --page-ink: #EDEDF0; --page-ink2: #A2A2AD; --page-card: #18181D; --page-line: #2C2C34; }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--page-ink); font-family: Heebo, system-ui, sans-serif; }
+  .page { max-width: 1240px; margin: 0 auto; padding: 32px 16px 80px; }
+  h1 { font-size: 28px; margin: 0 0 6px; }
+  .lede { color: var(--page-ink2); margin: 0 0 20px; max-width: 70ch; line-height: 1.5; }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; position: sticky; top: 0; z-index: 5; background: var(--page); padding: 10px 0; }
+  .seg { display: inline-flex; background: var(--page-card); border: 1px solid var(--page-line); border-radius: 10px; padding: 3px; }
+  .seg button { font: inherit; font-size: 15px; border: 0; background: transparent; color: var(--page-ink); padding: 8px 14px; border-radius: 7px; cursor: pointer; min-height: 40px; }
+  .seg button[aria-pressed="true"] { background: var(--page-ink); color: var(--page); }
+  .seg button:focus-visible { outline: 2px solid var(--page-ink); outline-offset: 2px; }
+
+  .dir { display: grid; grid-template-columns: 260px 1fr; gap: 24px; padding: 28px 0; border-top: 1px solid var(--page-line); }
+  .dir h2 { font-size: 22px; margin: 0 0 4px; }
+  .dir .sub { color: var(--page-ink2); font-size: 14px; margin: 0 0 14px; }
+  .dir dl { margin: 0; font-size: 14px; line-height: 1.5; }
+  .dir dt { font-weight: 700; margin-top: 10px; }
+  .dir dd { margin: 0; color: var(--page-ink2); }
+  .phones { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+  .cap { font-size: 13px; color: var(--page-ink2); margin: 0 0 6px; }
+  @media (max-width: 900px) { .dir { grid-template-columns: 1fr; } }
+
+  /* ---------- phone shell (shared) ---------- */
+  .ph { width: 375px; max-width: calc(100vw - 32px); position: relative; border-radius: 28px; overflow: hidden;
+        background: var(--bg); color: var(--ink); box-shadow: 0 0 0 1px var(--page-line), 0 10px 30px rgba(0,0,0,.12); }
+  .ph .scroll { padding-bottom: 24px; }
+  .ph .status { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 26px; font: 600 15px system-ui; direction: ltr; }
+  .ph .fold { position: absolute; left: 0; right: 0; top: 812px; border-top: 2px dashed #E0457B; z-index: 4; pointer-events: none; }
+  .ph .fold span { position: absolute; top: 4px; right: 10px; background: #E0457B; color: #fff; font: 600 11px Heebo, sans-serif; padding: 2px 6px; border-radius: 4px; }
+  .ph .below { position: absolute; left: 0; right: 0; top: 812px; bottom: 0; background: var(--bg); opacity: .55; z-index: 3; pointer-events: none; }
+  .ph .tabs { position: absolute; top: 729px; left: 0; right: 0; height: 83px; z-index: 6; display: flex; justify-content: space-around; padding-top: 8px;
+              background: var(--tabbar); border-top: 1px solid var(--line); backdrop-filter: blur(12px); }
+  .ph .tab { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; color: var(--ink2); width: 70px; }
+  .ph .tab.on { color: var(--tabOn); }
+  .ph .tab svg { width: 24px; height: 24px; }
+  .ph .fab { position: absolute; top: 653px; left: 0; right: 0; display: flex; justify-content: center; z-index: 6; }
+  .ph .fab b { display: inline-flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 24px; border-radius: 999px;
+               background: var(--action); color: var(--onAction); font-size: 17px; font-weight: 600; box-shadow: 0 4px 14px rgba(0,0,0,.2); }
+  .ph .fab svg { width: 20px; height: 20px; }
+  .ph .month { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 6px 0 2px; color: var(--ink); }
+  .ph .month svg { width: 20px; height: 20px; color: var(--ink2); }
+  .ph .ico { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; flex: none;
+             background: color-mix(in srgb, var(--cat) 16%, transparent); color: var(--catInk); }
+  .ph .ico svg { width: 18px; height: 18px; }
+  .num { font-variant-numeric: tabular-nums; }
+  .ph .head { display: flex; align-items: center; gap: 4px; padding-top: 6px; padding-inline: 20px 10px; }
+  .B .head { padding-top: 0; height: 36px; }
+  .ph .head .title { flex: 1; padding: 0; }
+  .ph .head svg { width: 26px; height: 26px; color: var(--ink2); padding: 2px; }
+  .ph .foot { margin: 10px 20px 0; font-size: 14px; color: var(--ink2); }
+
+  /* ---------- היום (the app as it is) ---------- */
+  .T { font-family: system-ui, -apple-system, sans-serif; }
+  .T .title { font-size: 17px; font-weight: 600; padding: 4px 16px 0; text-align: center; }
+  .T .month { font-size: 15px; font-weight: 600; }
+  .T .hero { margin: 12px 16px 0; background: var(--surf); border-radius: 14px; padding: 18px; display: grid; gap: 8px; }
+  .T .hero .lbl { font-size: 15px; color: var(--ink2); }
+  .T .hero .amt { font-size: 40px; font-weight: 700; }
+  .T .meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; font-size: 14px; color: var(--ink2); }
+  .T .plan { font-size: 14px; color: var(--ok); }
+  .T .bar { position: relative; height: 8px; border-radius: 4px; background: var(--fill); }
+  .T .bar i { position: absolute; inset-block: 0; inset-inline-start: 0; border-radius: 4px; }
+  .T .bar u { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--paceMark); }
+  .T .sec { display: flex; justify-content: space-between; margin: 22px 32px 6px; font-size: 13px; color: var(--ink2); }
+  .T .sec a { color: var(--action); }
+  .T .group { margin: 0 16px; background: var(--surf); border-radius: 10px; overflow: hidden; }
+  .T .row { display: flex; align-items: center; gap: 12px; padding-inline-start: 16px; }
+  .T .row .body { flex: 1; padding: 12px 0; padding-inline-end: 16px; display: grid; gap: 6px; border-bottom: 1px solid var(--line); }
+  .T .row:last-child .body { border-bottom: 0; }
+  .T .top { display: flex; justify-content: space-between; align-items: center; }
+  .T .name { font-size: 17px; }
+  .T .ramt { font-size: 20px; font-weight: 600; }
+  .T .small { font-size: 13px; color: var(--ink2); text-align: end; }
+
+  /* ---------- א'. מעטפות ---------- */
+  .A { font-family: Assistant, sans-serif; }
+  .A .num { font-family: Rubik, sans-serif; }
+  .A .title { font-family: 'Secular One', sans-serif; font-size: 26px; padding: 6px 20px 0; }
+  .A .month { justify-content: flex-start; padding: 2px 20px 0; font-size: 16px; color: var(--ink2); gap: 10px; }
+  .A .hero { margin: 12px 16px 0; background: var(--surf); border-radius: 18px; padding: 20px; display: grid; gap: 6px; }
+  .A .hero .lbl { font-size: 16px; color: var(--ink2); }
+  .A .hero .amt { font-size: 48px; font-weight: 600; line-height: 1.05; letter-spacing: -0.5px; }
+  .A .hero .day { font-size: 20px; font-weight: 600; }
+  .A .hero .day small { font-family: Assistant, sans-serif; font-size: 15px; font-weight: 400; color: var(--ink2); }
+  .A .drain { position: relative; height: 14px; border-radius: 7px; background: var(--fill); margin-top: 8px; }
+  .A .drain i { position: absolute; inset-block: 0; inset-inline-start: 0; border-radius: 7px; }
+  .A .drain u { position: absolute; top: -4px; bottom: -4px; border-inline-start: 2px dashed var(--ink); opacity: .7; }
+  .A .drain.thin { height: 8px; margin-top: 2px; }
+  .A .drain.thin u { top: -3px; bottom: -3px; }
+  .A .legend { font-size: 13px; color: var(--ink2); display: flex; justify-content: space-between; }
+  .A .plan { font-size: 14px; color: var(--ink2); }
+  .A .sec { margin: 20px 20px 8px; font-family: 'Secular One', sans-serif; font-size: 18px; display: flex; justify-content: space-between; align-items: baseline; }
+  .A .sec a { font-family: Assistant, sans-serif; font-size: 16px; font-weight: 600; color: var(--action); }
+  .A .group { margin: 0 16px; background: var(--surf); border-radius: 18px; overflow: hidden; }
+  .A .row { padding: 11px 16px; display: grid; gap: 5px; border-bottom: 1px solid var(--line); }
+  .A .row:last-child { border-bottom: 0; }
+  .A .ico { position: relative; border-radius: 5px; }
+  .A .ico::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 13px; background: color-mix(in srgb, var(--cat) 38%, transparent);
+                    clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  .A .ico svg { position: relative; margin-top: 6px; width: 15px; height: 15px; }
+  .A .top { display: flex; align-items: center; gap: 10px; }
+  .A .name { font-size: 17px; font-weight: 600; flex: 1; }
+  .A .ramt { font-size: 18px; font-weight: 600; }
+  .A .small { font-size: 13px; color: var(--ink2); }
+  .A .drain s { position: absolute; inset-block: 0; text-decoration: none;
+                background: repeating-linear-gradient(135deg, var(--gap) 0 3px, transparent 3px 7px); border-radius: 7px; }
+
+  /* ---------- ב'. הפנקס על המקרר ---------- */
+  .B { font-family: 'IBM Plex Sans Hebrew', sans-serif;
+       background-image: repeating-linear-gradient(to bottom, transparent 0 35px, var(--rule) 35px 36px); background-position: 0 44px; }
+  .B .title { font-size: 24px; font-weight: 700; height: 36px; line-height: 36px; }
+  .B .month { justify-content: flex-start; padding: 0 20px; height: 36px; font-size: 16px; font-weight: 500; gap: 10px; }
+  .B .hero { padding: 0 20px; }
+  .B .hero .lbl { height: 36px; display: flex; align-items: flex-end; padding-bottom: 6px; font-size: 16px; color: var(--ink2); }
+  .B .hero .amt { font-size: 50px; font-weight: 600; line-height: 72px; height: 72px; letter-spacing: -1px; }
+  .B .hero .day { height: 36px; display: flex; align-items: center; font-size: 18px; font-weight: 600; gap: 6px; }
+  .B .hero .day small { font-size: 15px; font-weight: 400; color: var(--ink2); }
+  .B .hl { position: relative; height: 36px; display: flex; align-items: center; }
+  .B .hl i { display: block; height: 18px; border-radius: 3px 9px 4px 11px / 9px 3px 10px 4px; transform: skewX(-8deg); opacity: .95; }
+  .B .hl u { position: absolute; top: 5px; height: 26px; width: 2px; background: var(--ink); opacity: .75; transform: rotate(8deg); border-radius: 1px; }
+  .B .hl.thin { height: 24px; }
+  .B .hl.thin i { height: 12px; }
+  .B .hl.thin u { top: 2px; height: 20px; }
+  .B .note { font-family: 'Playpen Sans Hebrew', sans-serif; font-size: 15px; height: 36px; line-height: 36px; color: var(--ink2); }
+  .B .note .num { font-family: 'IBM Plex Sans Hebrew', sans-serif; font-weight: 600; color: var(--ink); }
+  .B .plan { height: 36px; line-height: 36px; font-size: 14px; color: var(--ink2); }
+  .B .sec { margin: 0 20px; height: 36px; display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 6px; font-size: 14px; font-weight: 600; color: var(--ink2); }
+  .B .sec a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+  .B .row { padding: 0 20px; }
+  .B .top { display: flex; align-items: center; gap: 10px; height: 48px; }
+  .B .name { font-size: 17px; font-weight: 500; flex: 1; }
+  .B .ramt { font-size: 18px; font-weight: 600; }
+  .B .who { font-family: 'Playpen Sans Hebrew', sans-serif; font-size: 16px; width: 28px; height: 28px; border: 1.5px solid var(--ink2); border-radius: 50% 46% 52% 48%;
+            display: grid; place-items: center; color: var(--ink2); line-height: 1; }
+  .B .row .small { font-size: 13px; color: var(--ink2); height: 24px; }
+  .B .row { border-bottom: 0; padding-bottom: 0; }
+  .B .row + .row { margin-top: 0; }
+  .B .rowpad { height: 12px; }
+
+  /* ---------- ג'. לוח החודש ---------- */
+  .C { font-family: Heebo, sans-serif; }
+  .C .num, .C .title, .C .amt { font-family: 'M PLUS Rounded 1c', sans-serif; }
+  .C .title { font-size: 26px; font-weight: 800; padding: 6px 20px 0; }
+  .C .month { justify-content: flex-start; padding: 0 20px; font-size: 15px; color: var(--ink2); gap: 10px; }
+  .C .hero { margin: 12px 16px 0; background: var(--surf); border-radius: 22px; padding: 20px; display: grid; gap: 6px; }
+  .C .hero .lbl { font-size: 15px; color: var(--ink2); }
+  .C .hero .amt { font-size: 48px; font-weight: 800; line-height: 1.1; }
+  .C .hero .day { font-size: 19px; font-weight: 700; }
+  .C .hero .day small { font-family: Heebo, sans-serif; font-size: 15px; font-weight: 400; color: var(--ink2); }
+  .C .strip { display: grid; grid-template-columns: repeat(31, 1fr); gap: 2px; margin-top: 10px; }
+  .C .strip b { height: 16px; border-radius: 3px; background: var(--fill); }
+  .C .strip b.today { box-shadow: 0 0 0 2px var(--ink); background: var(--today); position: relative; z-index: 1; }
+  .C .strip b.today.f { background: var(--tc); }
+  .C .strip.thin { gap: 1.5px; margin-top: 4px; }
+  .C .strip.thin b { height: 7px; border-radius: 2px; }
+  .C .strip.thin b.today { box-shadow: 0 0 0 1.5px var(--ink); }
+  .C .says { font-size: 14px; color: var(--ink2); }
+  .C .says strong { color: var(--ink); font-weight: 600; }
+  .C .plan { font-size: 14px; color: var(--ink2); }
+  .C .sec { margin: 24px 20px 8px; display: flex; justify-content: space-between; align-items: baseline; font-size: 18px; font-weight: 700; }
+  .C .sec a { font-size: 16px; font-weight: 500; color: var(--action); }
+  .C .group { margin: 0 16px; background: var(--surf); border-radius: 18px; overflow: hidden; }
+  .C .row { padding: 12px 16px; display: grid; gap: 4px; border-bottom: 1px solid var(--line); }
+  .C .row:last-child { border-bottom: 0; }
+  .C .top { display: flex; align-items: center; gap: 10px; }
+  .C .name { font-size: 17px; font-weight: 500; flex: 1; }
+  .C .ramt { font-size: 18px; font-weight: 700; }
+  .C .small { font-size: 13px; color: var(--ink2); }
+
+  @media (prefers-reduced-motion: no-preference) { .seg button { transition: background .2s; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>שלושה כיוונים על מסך הסקירה</h1>
+  <p class="lede">משק בית לדוגמה: 12 באוקטובר, הכנסה של ‎12,000 ₪ ושמונה קטגוריות עם תקציב. כל כיוון מוצג בבהיר ובכהה ברוחב 375, ולידו המסך כמו שהוא היום. הקו הוורוד המקווקו הוא סוף המסך באייפון: מה שמתחתיו דורש גלילה. צבעי הקטגוריות זמניים (הם ייקבעו ב-F2).</p>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="מצב החודש">
+      <button type="button" data-state="normal" aria-pressed="true">חודש רגיל</button>
+      <button type="button" data-state="tight" aria-pressed="false">רוב הקטגוריות ב"לשים לב"</button>
+    </div>
+    <div class="seg" role="group" aria-label="ערכת צבעים">
+      <button type="button" data-mode="both" aria-pressed="true">בהיר וכהה</button>
+      <button type="button" data-mode="light" aria-pressed="false">רק בהיר</button>
+      <button type="button" data-mode="dark" aria-pressed="false">רק כהה</button>
+    </div>
+  </div>
+  <div id="dirs"></div>
+</div>
+
+<script>
+// ---------- data: a made-up household ----------
+const DAY = 12, DAYS = 31, LEFT_DAYS = DAYS - DAY + 1, PACE = (DAY / DAYS) * 100, INCOME = 12000;
+const CATS = [
+  { name: 'סופר', icon: 'shopping-cart', cap: 3200, hue: '#3B6FB6', who: 'נ' },
+  { name: 'מסעדות', icon: 'utensils', cap: 900, hue: '#C2477A', who: 'א' },
+  { name: 'דלק', icon: 'fuel', cap: 1000, hue: '#9A6B2F', who: 'א' },
+  { name: 'חשמל ומים', icon: 'zap', cap: 650, hue: '#1F8A8A', who: 'נ' },
+  { name: 'ילדים וחוגים', icon: 'baby', cap: 1400, hue: '#5B5BD6', who: 'נ' },
+  { name: 'בילויים', icon: 'ticket', cap: 600, hue: '#D0643B', who: 'א' },
+  { name: 'בגדים', icon: 'shirt', cap: 500, hue: '#6B7F2A', who: 'נ' },
+  { name: 'פארם', icon: 'pill', cap: 400, hue: '#8A4FB8', who: 'נ' },
+];
+const SPENT = {
+  normal: [1150, 610, 350, 210, 520, 640, 120, 180],
+  tight:  [1900, 700, 560, 300, 820, 640, 310, 260],
+};
+
+// ---------- tokens (docs/design/directions.md; "today" = apps/mobile/src/lib/colors.ts) ----------
+const T = {
+  T: {
+    light: { bg: '#F2F5F4', surf: '#FFFFFF', ink: '#0F1B24', ink2: 'rgba(15,27,36,0.62)', line: 'rgba(15,27,36,0.16)', fill: 'rgba(15,27,36,0.07)',
+             action: '#0F766E', onAction: '#FFFFFF', ok: '#15803D', watch: '#B45309', over: '#DC2626', paceMark: 'rgba(15,27,36,0.55)', tabbar: 'rgba(249,250,250,.92)' },
+    dark:  { bg: '#0A1113', surf: '#141D20', ink: '#F1F5F4', ink2: 'rgba(241,245,244,0.62)', line: 'rgba(241,245,244,0.14)', fill: 'rgba(241,245,244,0.10)',
+             action: '#2DD4BF', onAction: '#04201D', ok: '#4ADE80', watch: '#FBBF24', over: '#F87171', paceMark: 'rgba(241,245,244,0.55)', tabbar: 'rgba(20,29,32,.92)' },
+  },
+  A: {
+    light: { bg: '#EEF1EC', surf: '#FFFFFF', ink: '#1E2B25', ink2: '#5A6660', line: '#DCE2DD', fill: '#E3E8E3', action: '#6A2C5B', onAction: '#FFFFFF',
+             ok: '#2F7A57', watch: '#A0600E', over: '#B3362B', tabbar: 'rgba(238,241,236,.94)' },
+    dark:  { bg: '#111714', surf: '#1A221E', ink: '#E6ECE7', ink2: '#9AA69F', line: '#26302B', fill: '#26302B', action: '#E0A6D0', onAction: '#2A1025',
+             ok: '#6CC79A', watch: '#E5A54B', over: '#F08273', tabbar: 'rgba(17,23,20,.94)' },
+  },
+  B: {
+    light: { bg: '#F6F7F5', surf: '#FFFFFF', ink: '#25282D', ink2: '#5E636B', line: '#D6DEE2', rule: '#E9EEF0', fill: '#E6EAEC', action: '#25282D', onAction: '#FFFFFF',
+             ok: '#2D7A5F', watch: '#946200', over: '#B42B45', hiOk: '#B8EBD4', hiWatch: '#FFE680', hiOver: '#FFC2CE', tabbar: 'rgba(246,247,245,.94)' },
+    dark:  { bg: '#15171A', surf: '#1F2226', ink: '#ECEEF0', ink2: '#A0A5AC', line: '#2C3036', rule: '#1D2024', fill: '#2C3036', action: '#ECEEF0', onAction: '#15171A',
+             ok: '#7FD4AE', watch: '#F2C94C', over: '#FF8FA6', hiOk: '#2A6A52', hiWatch: '#6B5A18', hiOver: '#6E2A3A', tabbar: 'rgba(21,23,26,.94)' },
+  },
+  C: {
+    light: { bg: '#F3F2F7', surf: '#FFFFFF', ink: '#23202E', ink2: '#5F5B6E', line: '#E6E4EE', fill: '#E9E7F0', action: '#4A3AA0', onAction: '#FFFFFF',
+             ok: '#2B7A62', watch: '#A65A14', over: '#C0344A', today: '#F2B33D', base: '#8E89A3', tabbar: 'rgba(243,242,247,.94)' },
+    dark:  { bg: '#14121B', surf: '#1E1B28', ink: '#ECEAF3', ink2: '#A39FB3', line: '#2B2738', fill: '#2B2738', action: '#B3A6FF', onAction: '#1A1433',
+             ok: '#6FD0AE', watch: '#F0A35E', over: '#FF8597', today: '#F2B33D', base: '#6C6782', tabbar: 'rgba(20,18,27,.94)' },
+  },
+};
+
+const DIRS = [
+  { id: 'T', name: 'היום', sub: 'המסך כמו שהוא עכשיו, בלי באנרים ובלי כרטיס ההקמה. ב-Chrome הפונט נופל לפונט המערכת.',
+    notes: [['מה רואים', 'הכרטיס הראשי והפס, ואחריהם רשימה מקובצת בסגנון iOS. כל הסמלים באותו teal.'],
+            ['מה לבדוק מולו', 'כמה מהר נקרא "כמה נשאר", וכמה מהמסך צבוע בצבע סטטוס במצב "לשים לב".']] },
+  { id: 'A', name: "א'. מעטפות", sub: 'הפס מראה מה שנשאר ומתרוקן. הקו המקווקו מראה כמה אמור להישאר היום.',
+    notes: [['תוקן ב-C3', 'כשנשאר פחות ממה שצריך, הפער עד הקו מקווקו באלכסון ובצבע הסטטוס. המקרא אומר כמה אמור להישאר היום. המעטפות בכרטיס אחד, והסמל בצורת מעטפה.'], ['לבדוק', 'האם פס שמתרוקן מובן בלי הסבר? אם הפס ארוך מהקו המקווקו, אנחנו בסדר.'],
+            ['פונטים', 'Secular One לכותרות, Assistant לגוף, Rubik לסכומים.'],
+            ['פעולה', 'שזיף']] },
+  { id: 'B', name: "ב'. הפנקס על המקרר", sub: 'ההוצאה מסומנת במרקר, והקצב הוא סימון עיפרון. בני הבית בכתב יד.',
+    notes: [['תוקן ב-C3', 'כתב היד עבר ל-Playpen Sans Hebrew, והסכומים נשארים בפונט הרגיל. הקווים בהירים יותר.'], ['לבדוק', 'האם זה נשאר מאופק, או גולש לילדותי? האם כתב היד קריא?'],
+            ['פונטים', 'IBM Plex Sans Hebrew לכל המסך, Playpen Sans Hebrew רק לבני הבית.'],
+            ['פעולה', 'גרפיט, כמו עט']] },
+  { id: 'C', name: "ג'. לוח החודש", sub: 'משבצת לכל יום. המשבצות הצבועות הן ההוצאה, והמשבצת המוקפת היא היום.',
+    notes: [['תוקן ב-C3', 'רק הימים שאחרי היום נצבעים בסטטוס. כל השאר בגוון ניטרלי.'], ['לבדוק', 'האם 31 משבצות בכל שורה צפופות מדי? האם "הוצאתם כמו ב-X ימים" מובן?'],
+            ['פונטים', 'M PLUS Rounded 1c לכותרות ולסכומים, Heebo לגוף.'],
+            ['פעולה', 'סגול עמוק, וזעפרן רק למשבצת של היום']] },
+];
+
+// ---------- helpers ----------
+const ils = new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 });
+const money = (n) => `<span class="num">${ils.format(n)}</span>`;
+const icon = (name) => `<i data-lucide="${name}"></i>`;
+// Same rule as budgetTone() in lib/theme.ts.
+const status = (pct) => (pct >= 100 ? 'over' : pct >= 90 || pct - PACE >= 15 ? 'watch' : 'ok');
+const clamp = (n) => Math.max(0, Math.min(100, n));
+
+function model(state) {
+  const rows = CATS.map((c, i) => {
+    const spent = SPENT[state][i], pct = (spent / c.cap) * 100;
+    return { ...c, spent, pct, st: status(pct), left: c.cap - spent };
+  });
+  const cap = rows.reduce((a, r) => a + r.cap, 0), spent = rows.reduce((a, r) => a + r.spent, 0);
+  const pct = (spent / cap) * 100;
+  return { rows, cap, spent, pct, st: status(pct), left: cap - spent, perDay: Math.floor((cap - spent) / LEFT_DAYS), unassigned: INCOME - cap };
+}
+const leftText = (r) => (r.left >= 0 ? `נשאר ${money(r.left)}` : `חריגה ${money(-r.left)}`);
+const catVars = (c, mode) =>
+  `--cat:${c.hue};--catInk:${mode === 'dark' ? `color-mix(in srgb, ${c.hue} 55%, white)` : `color-mix(in srgb, ${c.hue} 85%, black)`}`;
+
+function shell(id, mode, inner) {
+  const t = T[id][mode];
+  const vars = Object.entries(t).map(([k, v]) => `--${k}:${v}`).join(';') + `;--tabOn:${t.action}`;
+  const tabs = [['chart-pie', 'סקירה', 1], ['list', 'הוצאות'], ['file-search', 'דוחות'], ['settings', 'הגדרות']]
+    .map(([i, l, on]) => `<div class="tab${on ? ' on' : ''}">${icon(i)}<span>${l}</span></div>`).join('');
+  return `<div class="ph ${id}" style="${vars}">
+    <div class="status"><span>9:41</span><span>●●●</span></div>
+    <div class="scroll">${inner}</div>
+    <div class="fab"><b>${icon('plus')}הוספת הוצאה</b></div>
+    <div class="tabs">${tabs}</div>
+    <div class="below"></div><div class="fold"><span>סוף המסך</span></div>
+  </div>`;
+}
+// C3: the month sits in the title row; one line less above the numbers.
+const head = (title) => `<div class="head"><span class="title">${title}</span>${icon('chevron-right')}${icon('chevron-left')}</div>`;
+const foot = (m) => `<div class="foot">${money(m.unassigned)} מההכנסה עוד לא שובצו לתקציב</div>`;
+const monthBar = () => `<div class="month">${icon('chevron-right')}<span>אוקטובר 2026</span>${icon('chevron-left')}</div>`;
+
+// ---------- היום ----------
+function today(m, mode) {
+  const tone = (st) => `var(--${st})`;
+  const bar = (pct, st) => `<div class="bar"><i style="width:${clamp(pct)}%;background:${tone(st)}"></i><u style="inset-inline-start:${PACE}%"></u></div>`;
+  const rows = m.rows.map((r) => `
+    <div class="row" style="--cat:#0F766E;--catInk:var(--action)">
+      <div class="ico">${icon(r.icon)}</div>
+      <div class="body">
+        <div class="top"><span class="name">${r.name}</span><span class="ramt" style="color:${tone(r.st)}">${leftText(r)}</span></div>
+        ${bar(r.pct, r.st)}
+        <div class="small">${money(r.spent)} מתוך ${money(r.cap)}</div>
+      </div>
+    </div>`).join('');
+  return shell('T', mode, `
+    <div class="title">סקירה</div>
+    ${monthBar()}
+    <div class="hero">
+      <div class="lbl">נשאר החודש</div>
+      <div class="amt num" style="color:${tone(m.st)}">${ils.format(m.left)}</div>
+      ${bar(m.pct, m.st)}
+      <div class="meta"><span>${money(m.spent)} מתוך ${money(m.cap)}</span><span>${money(m.perDay)} ליום · עוד ${LEFT_DAYS} ימים</span></div>
+      <div class="plan">${money(m.unassigned)} לא שובצו, ילכו לחיסכון (${Math.round((m.unassigned / INCOME) * 100)}%)</div>
+    </div>
+    <div class="sec"><span>תקציבים</span><a>עריכה</a></div>
+    <div class="group">${rows}</div>`);
+}
+
+// ---------- א'. מעטפות ----------
+function envelopes(m, mode) {
+  // The bar is what's left; the dashed crease is what should be left today. C3: when less is
+  // left than should be, the gap up to the crease is hatched in the status colour.
+  const drain = (pct, st, thin) => {
+    const rem = clamp(100 - pct), exp = 100 - PACE;
+    const gap = rem < exp ? `<s style="inset-inline-start:${rem}%;width:${exp - rem}%;--gap:var(--${st === 'ok' ? 'ink2' : st})"></s>` : '';
+    return `<div class="drain${thin ? ' thin' : ''}"><i style="width:${rem}%;background:var(--${st})"></i>${gap}<u style="inset-inline-start:${exp}%"></u></div>`;
+  };
+  const rows = m.rows.map((r) => `
+    <div class="row" style="${catVars(r, mode)}">
+      <div class="top"><div class="ico">${icon(r.icon)}</div><span class="name">${r.name}</span>
+        <span class="ramt num" style="color:var(--${r.st === 'ok' ? 'ink' : r.st})">${leftText(r)}</span></div>
+      ${drain(r.pct, r.st, true)}
+      <div class="small">${money(r.spent)} מתוך ${money(r.cap)}</div>
+    </div>`).join('');
+  return shell('A', mode, `
+    ${head('אוקטובר')}
+    <div class="hero">
+      <div class="lbl">נשאר החודש</div>
+      <div class="amt num">${ils.format(m.left)}</div>
+      <div class="day num">${ils.format(m.perDay)} <small>ליום · עוד ${LEFT_DAYS} ימים</small></div>
+      ${drain(m.pct, m.st)}
+      <div class="legend"><span>נשאר</span><span>┊ היום אמור להישאר ${money(Math.round(m.cap * (1 - PACE / 100)))}</span></div>
+    </div>
+    <div class="sec"><span>המעטפות</span><a>עדכון תקציבים</a></div>
+    <div class="group">${rows}</div>
+    ${foot(m)}`);
+}
+
+// ---------- ב'. הפנקס ----------
+function notebook(m, mode) {
+  const hi = { ok: 'var(--hiOk)', watch: 'var(--hiWatch)', over: 'var(--hiOver)' };
+  // Marker for what's spent, a pencil tick where it should be today.
+  const mark = (pct, st, thin) =>
+    `<div class="hl${thin ? ' thin' : ''}"><i style="width:${clamp(pct)}%;background:${hi[st]}"></i><u style="inset-inline-start:${PACE}%"></u></div>`;
+  const rows = m.rows.map((r) => `
+    <div class="row" style="${catVars(r, mode)}">
+      <div class="top"><div class="ico">${icon(r.icon)}</div><span class="name">${r.name}</span>
+        <span class="ramt num" style="color:var(--${r.st === 'ok' ? 'ink' : r.st})">${leftText(r)}</span>
+        <span class="who" title="הוסיף אחרון">${r.who}</span></div>
+      ${mark(r.pct, r.st, true)}
+      <div class="small">${money(r.spent)} מתוך ${money(r.cap)}</div>
+      <div class="rowpad"></div>
+    </div>`).join('');
+  return shell('B', mode, `
+    ${head('אוקטובר')}
+    <div class="hero">
+      <div class="lbl">נשאר החודש</div>
+      <div class="amt num">${ils.format(m.left)}</div>
+      <div class="day num">${ils.format(m.perDay)} <small>ליום · עוד ${LEFT_DAYS} ימים</small></div>
+      ${mark(m.pct, m.st)}
+      <div class="note">נועה הוסיפה ${money(86)} בסופר, לפני שעה</div>
+    </div>
+    <div class="sec"><span>תקציבים</span><a>עדכון</a></div>
+    ${rows}
+    ${foot(m)}`);
+}
+
+// ---------- ג'. לוח החודש ----------
+function calendar(m, mode) {
+  // One cell per day; spend fills them in days' worth. The outlined cell is today.
+  const strip = (pct, st, thin) => {
+    const filled = Math.min(DAYS, Math.round((pct / 100) * DAYS));
+    let cells = '';
+    for (let d = 1; d <= DAYS; d++) {
+      // C3: days up to today are neutral; only the lead past today takes the status colour.
+      const f = d <= filled, lead = d > DAY && st !== 'ok';
+      const col = lead ? `var(--${st})` : 'var(--base)';
+      cells += `<b class="${d === DAY ? 'today' : ''}${f ? ' f' : ''}" style="${f ? `background:${col};--tc:${col}` : ''}"></b>`;
+    }
+    return `<div class="strip${thin ? ' thin' : ''}" aria-hidden="true">${cells}</div>`;
+  };
+  const daysWorth = (pct) => Math.round((pct / 100) * DAYS);
+  const rows = m.rows.map((r) => `
+    <div class="row" style="${catVars(r, mode)}">
+      <div class="top"><div class="ico">${icon(r.icon)}</div><span class="name">${r.name}</span>
+        <span class="ramt num" style="color:var(--${r.st === 'ok' ? 'ink' : r.st})">${leftText(r)}</span></div>
+      ${strip(r.pct, r.st, true)}
+    </div>`).join('');
+  return shell('C', mode, `
+    ${head('אוקטובר')}
+    <div class="hero">
+      <div class="lbl">נשאר החודש</div>
+      <div class="amt num">${ils.format(m.left)}</div>
+      <div class="day num">${ils.format(m.perDay)} <small>ליום · עוד ${LEFT_DAYS} ימים</small></div>
+      ${strip(m.pct, m.st)}
+      <div class="says">הוצאתם כמו ב-<strong class="num">${daysWorth(m.pct)}</strong> ימים, ועברו <strong class="num">${DAY}</strong></div>
+    </div>
+    <div class="sec"><span>תקציבים</span><a>עדכון</a></div>
+    <div class="group">${rows}</div>
+    ${foot(m)}`);
+}
+
+const RENDER = { T: today, A: envelopes, B: notebook, C: calendar };
+let state = 'normal', modes = ['light', 'dark'];
+
+function render() {
+  const m = model(state);
+  document.getElementById('dirs').innerHTML = DIRS.map((d) => `
+    <section class="dir">
+      <div>
+        <h2>${d.name}</h2>
+        <p class="sub">${d.sub}</p>
+        <dl>${d.notes.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>
+      </div>
+      <div class="phones">${modes.map((mo) => `<div><p class="cap">${mo === 'light' ? 'בהיר' : 'כהה'}</p>${RENDER[d.id](m, mo)}</div>`).join('')}</div>
+    </section>`).join('');
+  lucide.createIcons({ attrs: { 'stroke-width': 2 } });
+}
+
+document.querySelectorAll('[data-state]').forEach((b) => b.addEventListener('click', () => {
+  state = b.dataset.state;
+  document.querySelectorAll('[data-state]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  render();
+}));
+document.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => {
+  modes = b.dataset.mode === 'both' ? ['light', 'dark'] : [b.dataset.mode];
+  document.querySelectorAll('[data-mode]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  render();
+}));
+document.fonts.ready.then(render);
+render();
+</script>
+</body>
+</html>

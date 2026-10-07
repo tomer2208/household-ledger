@@ -26,8 +26,8 @@ const SCREENS = [
   [414, 736, 3], // 8 Plus
   [375, 667, 2], // SE (2nd, 3rd), 8
 ];
-// The app's grouped background (lib/colors.ts), so the first screen follows without a flash.
-const THEMES = { light: [0xf2, 0xf5, 0xf4], dark: [0x0a, 0x11, 0x13] };
+// The app's background (`bg` in lib/tokens), so the first screen follows without a flash.
+const THEMES = { light: [0xed, 0xf0, 0xeb], dark: [0x12, 0x15, 0x11] };
 const ICON_PT = 96; // icon size in points
 
 // ───────── PNG in ─────────

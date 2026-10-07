@@ -50,7 +50,7 @@ export function BudgetRow({
 }) {
   const c = useColors();
   const st = budgetStatus(cap, spent);
-  const tone = st.kind === 'none' ? c.secondaryLabel : budgetTone(st.pct, c, pace);
+  const tone = st.kind === 'none' ? c.secondaryLabel : budgetTone(st.pct, c);
   const ahead = st.kind === 'left' && pace != null && st.pct - pace >= 15;
   // Only worth a mark when more is still expected than is already spent.
   const heading = forecast != null && forecast > spent ? forecast : null;

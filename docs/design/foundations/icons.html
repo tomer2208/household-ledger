@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>אייקוני קטגוריות</title>
+<!-- F5 (docs/DESIGN_GANTT.md): one icon set for iOS and web. Lucide and Phosphor side by side,
+     on envelopes at real size, with Hebrew search. The list is ICONS below (icons.md). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Rubik:wght@500;600&family=Secular+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  :root { --bg: #EDF0EB; --surface: #FDFFFD; --fill: #E4E7E2; --line: #DADED8; --text: #1F211E; --text2: #5C5F5A; --action: #88416C; --actionSoft: #FEE8F4; }
+  :root[data-theme="dark"] { --bg: #121511; --surface: #1F211E; --fill: #30332E; --line: #3D3F3B; --text: #F4F8F3; --text2: #A9ACA7; --action: #F4AFD5; --actionSoft: #4E1D3B; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme]) { --bg: #121511; --surface: #1F211E; --fill: #30332E; --line: #3D3F3B; --text: #F4F8F3; --text2: #A9ACA7; --action: #F4AFD5; --actionSoft: #4E1D3B; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 400 16px/1.5 Assistant, sans-serif; }
+  .page { max-width: 1120px; margin: 0 auto; padding: 32px 16px 80px; }
+  h1 { font: 400 34px/1.2 'Secular One', sans-serif; margin: 0 0 6px; }
+  h2 { font: 400 22px/1.3 'Secular One', sans-serif; margin: 44px 0 4px; }
+  .note { color: var(--text2); max-width: 72ch; margin: 0 0 14px; }
+  code { font: 500 12px Rubik, monospace; direction: ltr; unicode-bidi: isolate; color: var(--text2); }
+  .tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; position: sticky; top: 0; background: var(--bg); padding: 10px 0; z-index: 5; }
+  .tools button { min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; cursor: pointer; }
+  .tools button[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
+
+  /* the icon, whichever set: one box so both sit the same way */
+  .ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--soft); color: var(--ink); flex: none; }
+  .ic svg { width: 17px; height: 17px; }
+  .ic i.ph, .ic i.ph-duotone { font-size: 19px; line-height: 1; }
+
+  .cmp { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 900px) { .cmp { grid-template-columns: 1fr; } }
+  .col h3 { margin: 0 0 8px; font-size: 16px; }
+  .col h3 small { color: var(--text2); font-weight: 400; }
+  .envs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: var(--bg); padding: 12px; border-radius: 20px; box-shadow: 0 0 0 1px var(--line); }
+  .env { position: relative; background: var(--surface); border-radius: 16px; padding: 22px 12px 12px; display: grid; gap: 4px; overflow: hidden; }
+  .env::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 16px; background: var(--base); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  .env .top { display: flex; align-items: center; gap: 8px; }
+  .env b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .env .left { font: 600 18px Rubik, sans-serif; }
+  .bar { height: 8px; border-radius: 4px; background: var(--fill); overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--base); }
+
+  .picker { background: var(--surface); border-radius: 20px; padding: 16px; }
+  .search { width: 100%; min-height: 48px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; font-size: 17px; padding: 0 14px; margin-bottom: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+  .pick { border: 0; background: var(--bg); border-radius: 12px; min-height: 84px; padding: 10px 4px 8px; display: grid; justify-items: center; gap: 6px; cursor: pointer; color: var(--text); font: inherit; }
+  .pick .ic { width: 40px; height: 40px; border-radius: 12px; }
+  .pick .ic svg { width: 22px; height: 22px; } .pick .ic i.ph, .pick .ic i.ph-duotone { font-size: 25px; }
+  .pick span { font-size: 13px; line-height: 1.25; text-align: center; }
+  .pick[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--action); background: var(--actionSoft); }
+  .empty { color: var(--text2); padding: 12px 0; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 16px; overflow: hidden; font-size: 14px; }
+  th, td { text-align: start; padding: 6px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  th { font-size: 13px; color: var(--text2); }
+  td .ic { width: 28px; height: 28px; }
+  .scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>אייקוני קטגוריות</h1>
+  <p class="note">F5. היום יש שני סטים: SF Symbols באייפון ו-Material ב-web, עם טבלת התאמה ידנית. כאן אחד מהשניים, שיוצג כ-SVG ויראה אותו דבר בכל מכשיר. 54 אייקונים, עם שם בעברית ומילות חיפוש.</p>
+  <div class="tools">
+    <button type="button" id="theme">החלפת בהיר / כהה</button>
+  </div>
+
+  <h2>על מעטפות, בגודל אמיתי</h2>
+  <p class="note">שמונה המעטפות הראשונות של משק בית חדש, עם הצבעים מ-F2. הסמל בגודל 17-19 בתוך רקע של 30, כמו במסך הראשי.</p>
+  <div class="cmp" id="cmp"></div>
+
+  <h2>הבוחר</h2>
+  <p class="note">ככה ייראה הבחירה במנהל הקטגוריות (P2). אפשר לחפש בעברית או באנגלית: "גן", "חשמל", "pet".</p>
+  <div class="tools" style="position:static;padding:0 0 10px">
+    <span>סט:</span>
+    <button type="button" data-set="phd" aria-pressed="true">Phosphor דו-גוני</button>
+    <button type="button" data-set="ph" aria-pressed="false">Phosphor קו</button>
+    <button type="button" data-set="lu" aria-pressed="false">Lucide</button>
+  </div>
+  <div class="picker" style="--soft:var(--fill);--ink:var(--text)">
+    <input class="search" id="q" type="search" placeholder="חיפוש סמל" aria-label="חיפוש סמל">
+    <div class="grid" id="grid" role="group" aria-label="סמלים"></div>
+  </div>
+
+  <h2>מהסמלים של היום</h2>
+  <p class="note">קטגוריות קיימות שומרות שם SF Symbol (<code>sf_symbol</code>). כל אחד מהם עובר לסמל חדש, כך שאף קטגוריה לא מאבדת את הסמל שלה.</p>
+  <div class="scroll"><table id="legacy"></table></div>
+</div>
+
+<script>
+// id, Hebrew, English, extra search words, Lucide, Phosphor, legacy SF Symbols that map here
+const ICONS = [
+  ['supermarket', 'סופרמרקט', 'Groceries', 'סופר מכולת קניות אוכל grocery', 'shopping-cart', 'shopping-cart', ['cart']],
+  ['dining', 'אוכל בחוץ', 'Dining', 'מסעדה מסעדות dining restaurant', 'utensils', 'fork-knife', ['fork.knife']],
+  ['coffee', 'בית קפה', 'Coffee', 'קפה cafe', 'coffee', 'coffee', ['cup.and.saucer']],
+  ['takeaway', 'משלוחים', 'Takeaway', 'פיצה וולט משלוח delivery', 'pizza', 'pizza', []],
+  ['car', 'רכב', 'Car', 'אוטו תחבורה transport', 'car', 'car', ['car']],
+  ['fuel', 'דלק', 'Fuel', 'תדלוק בנזין gas', 'fuel', 'gas-pump', ['fuelpump']],
+  ['bus', 'תחבורה ציבורית', 'Public transport', 'אוטובוס רב קו bus', 'bus', 'bus', ['bus']],
+  ['train', 'רכבת', 'Train', 'רכבת קלה train', 'train-front', 'train', []],
+  ['parking', 'חניה', 'Parking', 'חניון פנגו parking', 'square-parking', 'letter-circle-p', []],
+  ['housing', 'דיור', 'Housing', 'בית שכירות שכר דירה rent', 'house', 'house', ['house']],
+  ['mortgage', 'משכנתא', 'Mortgage', 'בנק הלוואה loan', 'landmark', 'bank', ['building.columns']],
+  ['building', 'ועד בית', 'Building fees', 'בניין ועד', 'building', 'buildings', []],
+  ['tax', 'ארנונה', 'Council tax', 'עירייה חשבון', 'receipt', 'receipt', []],
+  ['electricity', 'חשמל', 'Electricity', 'חשבונות חברת חשמל utilities bills', 'zap', 'lightning', ['bolt']],
+  ['water', 'מים', 'Water', 'תאגיד מים', 'droplet', 'drop', ['drop']],
+  ['gas', 'גז', 'Gas', 'בלון גז', 'flame', 'flame', []],
+  ['internet', 'אינטרנט', 'Internet', 'וייפיי ראוטר wifi', 'wifi', 'wifi-high', ['wifi']],
+  ['phone', 'סלולר', 'Phone', 'טלפון פלאפון mobile', 'smartphone', 'device-mobile', []],
+  ['subscriptions', 'מנויים', 'Subscriptions', 'מנוי חודשי recurring', 'repeat', 'repeat', ['arrow.triangle.2.circlepath']],
+  ['streaming', 'טלוויזיה', 'TV & streaming', 'נטפליקס yes hot streaming', 'tv', 'television', []],
+  ['health', 'בריאות', 'Health', 'רופא קופת חולים doctor', 'stethoscope', 'stethoscope', ['cross.case']],
+  ['pharmacy', 'פארם', 'Pharmacy', 'תרופות סופר פארם pills', 'pill', 'pill', ['pills']],
+  ['fitness', 'כושר', 'Fitness', 'חדר כושר ספורט gym', 'dumbbell', 'barbell', ['dumbbell']],
+  ['wellbeing', 'טיפולים', 'Wellbeing', 'פסיכולוג טיפול therapy', 'heart-pulse', 'heartbeat', []],
+  ['insurance', 'ביטוח', 'Insurance', 'ביטוח רכב ביטוח בריאות', 'shield-check', 'shield-check', []],
+  ['kids', 'ילדים', 'Kids', 'תינוק ילד baby', 'baby', 'baby', ['figure.and.child.holdinghands']],
+  ['daycare', 'גן וצהרון', 'Daycare', 'גן צהרון מעון בית ספר', 'backpack', 'backpack', []],
+  ['hobbies', 'חוגים', 'Hobbies', 'חוג ציור פעילות', 'palette', 'palette', []],
+  ['education', 'חינוך', 'Education', 'לימודים אוניברסיטה school', 'graduation-cap', 'graduation-cap', ['graduationcap']],
+  ['books', 'ספרים', 'Books', 'ספר קריאה', 'book-open', 'book-open', []],
+  ['shopping', 'קניות', 'Shopping', 'חנות קניון', 'shopping-bag', 'shopping-bag', ['bag']],
+  ['clothes', 'בגדים', 'Clothes', 'ביגוד אופנה', 'shirt', 't-shirt', ['tshirt']],
+  ['shoes', 'נעליים', 'Shoes', 'נעל', 'footprints', 'sneaker', []],
+  ['grooming', 'טיפוח', 'Grooming', 'תספורת מספרה קוסמטיקה', 'scissors', 'scissors', ['scissors']],
+  ['entertainment', 'בילויים', 'Entertainment', 'סרט קולנוע יציאה', 'popcorn', 'popcorn', ['popcorn']],
+  ['music', 'מוזיקה', 'Music', 'הופעה ספוטיפיי', 'music', 'music-notes', []],
+  ['games', 'משחקים', 'Games', 'גיימינג פלייסטיישן', 'gamepad-2', 'game-controller', ['gamecontroller']],
+  ['travel', 'חופשות', 'Travel', 'טיסה חו"ל נופש flight', 'plane', 'airplane', ['airplane']],
+  ['hotel', 'לינה', 'Hotel', 'מלון צימר', 'bed', 'bed', []],
+  ['gifts', 'מתנות', 'Gifts', 'מתנה יום הולדת', 'gift', 'gift', ['gift']],
+  ['holidays', 'חגים', 'Holidays', 'חג אירוע מסיבה', 'party-popper', 'confetti', []],
+  ['donations', 'תרומות', 'Donations', 'צדקה תרומה', 'hand-heart', 'hand-heart', ['heart']],
+  ['pets', 'חיות מחמד', 'Pets', 'כלב חתול וטרינר pet dog cat', 'paw-print', 'paw-print', ['pawprint']],
+  ['repairs', 'תיקונים', 'Repairs', 'אינסטלטור שיפוץ', 'wrench', 'wrench', ['wrench.and.screwdriver']],
+  ['garden', 'גינה', 'Garden', 'צמחים משתלה', 'sprout', 'plant', []],
+  ['furniture', 'ריהוט', 'Furniture', 'רהיטים ספה איקאה', 'sofa', 'couch', []],
+  ['appliances', 'מכשירי חשמל', 'Appliances', 'מכונת כביסה מקרר', 'washing-machine', 'washing-machine', []],
+  ['tech', 'מחשבים', 'Tech', 'מחשב אלקטרוניקה', 'laptop', 'laptop', []],
+  ['work', 'עבודה', 'Work', 'עסק משרד', 'briefcase', 'briefcase', []],
+  ['cash', 'מזומן', 'Cash', 'כסף מזומנים', 'banknote', 'money', ['banknote']],
+  ['card', 'כרטיס אשראי', 'Card fees', 'עמלות כרטיס', 'credit-card', 'credit-card', ['creditcard']],
+  ['savings', 'חיסכון', 'Savings', 'חיסכון קופה', 'piggy-bank', 'piggy-bank', []],
+  ['tag', 'תגית', 'Tag', 'כללי תווית', 'tag', 'tag', ['tag']],
+  ['other', 'אחר', 'Other', 'שונות כללי', 'ellipsis', 'dots-three', ['ellipsis.circle']],
+];
+const COL = {"teal": {"l": {"base": "#31A5A5", "soft": "#D0F1F1", "ink": "#036262"}, "d": {"base": "#50BFBE", "soft": "#0D3737", "ink": "#73DFDF"}}, "sand": {"l": {"base": "#D6BB79", "soft": "#F3E9D0", "ink": "#6A5100"}, "d": {"base": "#A98F4E", "soft": "#3A2F14", "ink": "#E3C885"}}, "blue": {"l": {"base": "#4081D2", "soft": "#DCEBFF", "ink": "#0053A4"}, "d": {"base": "#589AED", "soft": "#203147", "ink": "#A8CEFF"}}, "ocean": {"l": {"base": "#066788", "soft": "#D3EFFD", "ink": "#055E7C"}, "d": {"base": "#2C7EA1", "soft": "#153443", "ink": "#87D6FC"}}, "clay": {"l": {"base": "#A67A6B", "soft": "#FEE3D9", "ink": "#7B4532"}, "d": {"base": "#C09283", "soft": "#44281F", "ink": "#EEBEAE"}}, "olive": {"l": {"base": "#9CA831", "soft": "#E8EDD3", "ink": "#545B00"}, "d": {"base": "#B5C24E", "soft": "#2F3317", "ink": "#C8D563"}}, "indigo": {"l": {"base": "#5255B6", "soft": "#E4E8FF", "ink": "#4442B0"}, "d": {"base": "#737ADE", "soft": "#2B2E47", "ink": "#BEC6FF"}}, "sage": {"l": {"base": "#588671", "soft": "#D5F1E4", "ink": "#1F634A"}, "d": {"base": "#6F9E89", "soft": "#18382B", "ink": "#A7D8C1"}}, "violet": {"l": {"base": "#9565C7", "soft": "#EFE4FD", "ink": "#6C329F"}, "d": {"base": "#AE7EE2", "soft": "#362A43", "ink": "#D9BBFE"}}, "rose": {"l": {"base": "#CC939C", "soft": "#FFE1E5", "ink": "#7E3E4C"}, "d": {"base": "#A56F78", "soft": "#44262C", "ink": "#F4B8C2"}}};
+// The first eight seeded categories (categories.md), with the icon each one gets.
+const SEED = [['supermarket', 'teal', 64], ['dining', 'sand', 82], ['car', 'blue', 40], ['fuel', 'ocean', 104], ['housing', 'clay', 55], ['electricity', 'olive', 32], ['health', 'indigo', 20], ['kids', 'sage', 37]];
+const byId = Object.fromEntries(ICONS.map((x) => [x[0], x]));
+
+const glyph = (row, set) => set === 'lu' ? `<i data-lucide="${row[4]}"></i>`
+  : set === 'phd' ? `<i class="ph-duotone ph-${row[5]}" aria-hidden="true"></i>` : `<i class="ph ph-${row[5]}" aria-hidden="true"></i>`;
+const dark = () => document.documentElement.dataset.theme === 'dark' || (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+const icons = () => lucide.createIcons({ attrs: { 'stroke-width': 2 } });
+
+function renderCmp() {
+  const m = dark() ? 'd' : 'l';
+  document.getElementById('cmp').innerHTML = [['phd', 'Phosphor', 'דו-גוני'], ['ph', 'Phosphor', 'קו'], ['lu', 'Lucide', 'קו 2px']].map(([set, n, sub]) => `
+    <div class="col"><h3>${n} <small>${sub}</small></h3><div class="envs">${SEED.map(([id, col, left]) => {
+      const c = COL[col][m], r = byId[id];
+      return `<div class="env" style="--base:${c.base};--soft:${c.soft};--ink:${c.ink}">
+        <div class="top"><span class="ic">${glyph(r, set)}</span><b>${r[1]}</b></div>
+        <div class="left">נשאר ${(left * 10).toLocaleString('en-US')} ₪</div><div class="bar"><i style="width:${30 + left % 50}%"></i></div></div>`;
+    }).join('')}</div></div>`).join('');
+}
+
+let set = 'phd', chosen = 'supermarket';
+const norm = (s) => s.toLowerCase().replace(/["׳']/g, '');
+function renderGrid() {
+  const q = norm(document.getElementById('q').value.trim());
+  const rows = ICONS.filter((r) => !q || norm(`${r[1]} ${r[2]} ${r[3]}`).includes(q));
+  const grid = document.getElementById('grid');
+  grid.innerHTML = rows.length ? rows.map((r) => `
+    <button type="button" class="pick" aria-pressed="${r[0] === chosen}" aria-label="${r[1]}" data-id="${r[0]}">
+      <span class="ic">${glyph(r, set)}</span><span>${r[1]}</span></button>`).join('')
+    : `<div class="empty">אין סמל ל"${document.getElementById('q').value}". נסו מילה אחרת, או "אחר".</div>`;
+  grid.querySelectorAll('.pick').forEach((b) => b.addEventListener('click', () => { chosen = b.dataset.id; renderGrid(); }));
+  icons();
+}
+
+function renderLegacy() {
+  const rows = ICONS.flatMap((r) => r[6].map((sf) => [sf, r]));
+  document.getElementById('legacy').innerHTML = `<tr><th>היום (<code>sf_symbol</code>)</th><th>סמל חדש</th><th>שם</th><th>Phosphor</th><th>Lucide</th></tr>` +
+    rows.map(([sf, r]) => `<tr><td><code>${sf}</code></td><td><span class="ic" style="--soft:var(--fill);--ink:var(--text)">${glyph(r, 'phd')}</span></td><td>${r[1]}</td><td><code>${r[5]}</code></td><td><code>${r[4]}</code></td></tr>`).join('');
+}
+
+document.getElementById('q').addEventListener('input', renderGrid);
+document.querySelectorAll('[data-set]').forEach((b) => b.addEventListener('click', () => {
+  set = b.dataset.set; document.querySelectorAll('[data-set]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); renderGrid();
+}));
+document.getElementById('theme').addEventListener('click', () => { document.documentElement.dataset.theme = dark() ? 'light' : 'dark'; renderCmp(); icons(); });
+renderCmp(); renderGrid(); renderLegacy(); icons();
+</script>
+</body>
+</html>

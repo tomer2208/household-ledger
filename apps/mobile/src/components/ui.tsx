@@ -15,11 +15,14 @@ import {
   TextInput,
   TextInputProps,
   TextStyle,
+  useColorScheme,
   View,
   ViewStyle,
 } from 'react-native';
 
-import { moneyText, radius, useColors } from '@/lib/theme';
+import { CATEGORY_ICONS, categoryColorId, categoryIconId } from '@/lib/category-look';
+import { moneyText, radius, tokens, useColors } from '@/lib/theme';
+import type { CategoryColor } from '@/lib/tokens/palette.gen';
 import { isRtl } from '@/lib/bidi';
 import { errorMessage } from '@/lib/errors';
 import { t } from '@/lib/i18n';
@@ -37,6 +40,9 @@ const WEB_ICON: Record<string, string> = {
   'square.and.arrow.up': 'ios_share', 'doc.on.doc': 'content_copy', 'checkmark.circle.fill': 'check_circle',
   'exclamationmark.triangle.fill': 'warning', 'wifi.slash': 'wifi_off', 'sparkles': 'auto_awesome',
   'chevron.right': 'chevron_right', 'chevron.left': 'chevron_left', 'chevron.up': 'expand_less', 'chevron.down': 'expand_more', circle: 'radio_button_unchecked', 'person.crop.circle': 'account_circle', 'envelope': 'mail',
+  // the add sheet and the month's status line (S1, O1)
+  calendar: 'calendar_today', 'slider.horizontal.3': 'tune', ellipsis: 'more_horiz', 'delete.left': 'backspace', xmark: 'close',
+  'checkmark.circle': 'check_circle',
   // category picker (settings/category.tsx) and later screens
   'cup.and.saucer': 'local_cafe', bus: 'directions_bus', drop: 'water_drop', wifi: 'wifi', pills: 'medication',
   pawprint: 'pets', tshirt: 'checkroom', gamecontroller: 'sports_esports', dumbbell: 'fitness_center',
@@ -61,11 +67,24 @@ export function Icon({ name, size = 20, color }: { name: string; size?: number; 
   );
 }
 
-export function CategoryIcon({ symbol, size = 30 }: { symbol: string; size?: number }) {
+// F5 + F2: a category's icon (Phosphor, duotone) in its own colour, the same on every platform.
+// Anything that isn't a category (the review tray, devices) keeps the system icon, in neutral.
+export function CategoryIcon({ symbol, size = 30, color }: { symbol: string; size?: number; color?: CategoryColor }) {
   const c = useColors();
+  const dark = useColorScheme() === 'dark';
+  const id = categoryIconId(symbol);
+  const Glyph = id ? CATEGORY_ICONS[id] : null;
+  if (!Glyph) {
+    return (
+      <View style={[styles.catIcon, { width: size, height: size, borderRadius: size * 0.3, backgroundColor: c.fill }]}>
+        <Icon name={symbol} size={size * 0.56} color={c.text2} />
+      </View>
+    );
+  }
+  const look = tokens.categoryColors[color ?? categoryColorId(symbol)][dark ? 'dark' : 'light'];
   return (
-    <View style={[styles.catIcon, { width: size, height: size, borderRadius: size * 0.26, backgroundColor: c.tintFill }]}>
-      <Icon name={symbol} size={size * 0.56} color={c.tint} />
+    <View style={[styles.catIcon, { width: size, height: size, borderRadius: size * 0.3, backgroundColor: look.soft }]}>
+      <Glyph size={Math.round(size * 0.6)} color={look.ink} weight="duotone" />
     </View>
   );
 }
@@ -115,7 +134,7 @@ export function Section({
     <View style={styles.section}>
       {title || action ? (
         <View style={styles.sectionHead}>
-          <Text style={[styles.sectionTitle, { color: c.secondaryLabel }]}>{title?.toUpperCase()}</Text>
+          <Text style={[styles.sectionTitle, { color: c.text }]} accessibilityRole="header">{title}</Text>
           {action ? (
             <Pressable
               accessibilityRole="button"
@@ -250,14 +269,14 @@ export function Button({
       }}
       style={({ pressed }) => [
         styles.button,
-        filled && { backgroundColor: c.tint },
-        (disabled || pressed) && { opacity: disabled ? 0.4 : 0.7 },
+        filled && { backgroundColor: disabled ? c.disabledBg : pressed ? c.actionPressed : c.tint },
+        !filled && (disabled || pressed) && { opacity: disabled ? 0.45 : 0.7 },
         style,
       ]}>
       {loading ? (
         <ActivityIndicator color={(filled ? c.onTint : c.tint) as string} />
       ) : (
-        <Text style={[styles.buttonText, { color: filled ? c.onTint : kind === 'destructive' ? c.red : c.tint }]}>{title}</Text>
+        <Text style={[styles.buttonText, { color: filled ? (disabled ? c.disabledText : c.onTint) : kind === 'destructive' ? c.red : c.tint }]}>{title}</Text>
       )}
     </Pressable>
   );
@@ -366,36 +385,36 @@ export const styles = StyleSheet.create({
   screenContent: { paddingBottom: 48 },
   section: { marginTop: 22, marginHorizontal: 16 },
   sectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginHorizontal: 16, marginBottom: 6 },
-  sectionTitle: { fontSize: 13 },
-  sectionAction: { fontSize: 15, fontWeight: '500' },
-  sectionFooter: { fontSize: 13, marginHorizontal: 16, marginTop: 6, lineHeight: 18 },
-  card: { borderRadius: radius.row, overflow: 'hidden' },
+  sectionTitle: { ...tokens.type.heading },
+  sectionAction: { fontFamily: tokens.fontFamily.body, fontSize: 16, fontWeight: '600' },
+  sectionFooter: { fontFamily: tokens.fontFamily.body, fontSize: 13, marginHorizontal: 16, marginTop: 6, lineHeight: 18 },
+  card: { borderRadius: tokens.radius.envelope, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', paddingStart: 16, minHeight: 44 },
   rowLeft: { marginEnd: 12, paddingVertical: 7 },
   rowBody: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingEnd: 16, paddingVertical: 11, minHeight: 44 },
-  rowTitle: { fontSize: 17 },
-  rowSubtitle: { fontSize: 13, marginTop: 2 },
+  rowTitle: { fontFamily: tokens.fontFamily.body, fontSize: 17 },
+  rowSubtitle: { fontFamily: tokens.fontFamily.body, fontSize: 13, marginTop: 2 },
   rowValue: { fontSize: 17, ...moneyText },
-  fieldLabel: { fontSize: 17, width: 110 },
-  fieldInput: { flex: 1, fontSize: 17, paddingVertical: 0 },
+  fieldLabel: { fontFamily: tokens.fontFamily.body, fontSize: 17, width: 110 },
+  fieldInput: { fontFamily: tokens.fontFamily.body, flex: 1, fontSize: 17, paddingVertical: 0 },
   // minHeight, not height: with a large system text size the label grows instead of clipping.
-  button: { minHeight: 50, paddingVertical: 12, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
-  buttonText: { fontSize: 17, fontWeight: '600' },
+  button: { minHeight: 52, paddingVertical: 12, borderRadius: tokens.radius.tile + 2, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
+  buttonText: { ...tokens.type.label },
   trackWrap: { justifyContent: 'center' },
   track: { height: 8, borderRadius: 4, overflow: 'hidden' },
   fillBar: { height: 8, borderRadius: 4 },
   pace: { position: 'absolute', width: 2, height: 14, marginStart: -1, borderRadius: 1 },
   forecast: { position: 'absolute', width: 10, height: 10, marginStart: -5, borderRadius: 5, borderWidth: 2 },
   badge: { borderWidth: 1, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 1 },
-  badgeText: { fontSize: 12, fontWeight: '600' },
+  badgeText: { fontFamily: tokens.fontFamily.body, fontSize: 13, fontWeight: '700' },
   catIcon: { alignItems: 'center', justifyContent: 'center' },
   empty: { alignItems: 'center', paddingVertical: 60, paddingHorizontal: 32, gap: 8 },
-  emptyTitle: { fontSize: 20, fontWeight: '600', textAlign: 'center' },
-  emptyMessage: { fontSize: 15, textAlign: 'center', lineHeight: 21 },
+  emptyTitle: { ...tokens.type.heading, fontSize: 22, lineHeight: 28, textAlign: 'center' },
+  emptyMessage: { fontFamily: tokens.fontFamily.body, fontSize: 15, textAlign: 'center', lineHeight: 21 },
   emptyAction: { marginTop: 12, alignSelf: 'stretch' },
-  error: { fontSize: 14, marginHorizontal: 32, marginTop: 10, textAlign: 'center' },
+  error: { fontFamily: tokens.fontFamily.body, fontSize: 14, marginHorizontal: 32, marginTop: 10, textAlign: 'center' },
   errorCard: { marginHorizontal: 16, marginTop: 24, borderRadius: radius.hero, padding: 20, alignItems: 'center', gap: 6 },
-  errorTitle: { fontSize: 17, fontWeight: '600', textAlign: 'center', marginTop: 4 },
-  errorBody: { fontSize: 15, lineHeight: 21, textAlign: 'center' },
+  errorTitle: { fontFamily: tokens.fontFamily.body, fontSize: 17, fontWeight: '700', textAlign: 'center', marginTop: 4 },
+  errorBody: { fontFamily: tokens.fontFamily.body, fontSize: 15, lineHeight: 21, textAlign: 'center' },
   errorButton: { alignSelf: 'stretch', marginTop: 6 },
 });

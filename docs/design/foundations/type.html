@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>טיפוגרפיה FinPace</title>
+<!-- F3 (docs/DESIGN_GANTT.md): the type scale, money rules and text-size behaviour. Colours are
+     the F1 tokens (docs/design/foundations/palette.md), copied by hand for this page only. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Rubik:wght@400;500;600;700&family=Secular+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EDF0EB; --surface: #FDFFFD; --fill: #E4E7E2; --line: #DADED8; --text: #1F211E; --text2: #5C5F5A;
+    --action: #88416C; --onAction: #FDFFFD; --close: #884D02; --closeSoft: #FFEBDB; --closeBar: #A96001;
+    --over: #9F332D; --overSoft: #FFEAE7; --overBar: #7E221E; --bad: #9F332D; --good: #1E6F3D;
+    /* the scale (type.md). rem, so the phone's text size moves everything. */
+    --t-display: 600 2.875rem/1.1 Rubik, sans-serif;
+    --t-title: 400 1.75rem/1.2 'Secular One', sans-serif;
+    --t-heading: 400 1.1875rem/1.3 'Secular One', sans-serif;
+    --t-amount: 600 1.25rem/1.2 Rubik, sans-serif;
+    --t-body: 400 1.0625rem/1.5 var(--bodyFont);
+    --t-label: 700 1.0625rem/1.2 var(--bodyFont);
+    --t-secondary: 400 0.9375rem/1.45 var(--bodyFont);
+    --t-caption: 400 0.8125rem/1.4 var(--bodyFont);
+    --bodyFont: Assistant, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #121511; --surface: #1F211E; --fill: #30332E; --line: #30332E; --text: #F4F8F3; --text2: #A9ACA7;
+    --action: #F4AFD5; --onAction: #26051A; --close: #FAB87D; --closeSoft: #331901; --closeBar: #FAB87D;
+    --over: #FEB0A7; --overSoft: #430304; --overBar: #DE6056; --bad: #FEB0A7; --good: #99D9AA; } }
+  :root[data-theme="dark"] {
+    --bg: #121511; --surface: #1F211E; --fill: #30332E; --line: #30332E; --text: #F4F8F3; --text2: #A9ACA7;
+    --action: #F4AFD5; --onAction: #26051A; --close: #FAB87D; --closeSoft: #331901; --closeBar: #FAB87D;
+    --over: #FEB0A7; --overSoft: #430304; --overBar: #DE6056; --bad: #FEB0A7; --good: #99D9AA; }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 400 16px/1.5 Assistant, sans-serif; }
+  .page { max-width: 1120px; margin: 0 auto; padding: 32px 16px 80px; }
+  h1 { font: 400 34px/1.2 'Secular One', sans-serif; margin: 0 0 6px; }
+  h2 { font: 400 22px/1.3 'Secular One', sans-serif; margin: 44px 0 4px; }
+  h3 { font-size: 16px; margin: 20px 0 6px; }
+  .note { color: var(--text2); max-width: 72ch; margin: 0 0 14px; }
+  .num { font-variant-numeric: tabular-nums; }
+  code { font: 500 13px Rubik, monospace; direction: ltr; unicode-bidi: isolate; color: var(--text2); }
+  .card { background: var(--surface); border-radius: 16px; padding: 16px; }
+  .tools { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .tools button, .seg button { min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; cursor: pointer; }
+  .seg { display: inline-flex; gap: 4px; }
+  .seg button[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
+
+  /* scale table */
+  .scale { display: grid; gap: 2px; }
+  .srow { display: grid; grid-template-columns: 150px 1fr 220px; gap: 16px; align-items: baseline; padding: 12px 16px; background: var(--surface); }
+  .srow:first-child { border-radius: 16px 16px 0 0; } .srow:last-child { border-radius: 0 0 16px 16px; }
+  .srow .meta { font-size: 13px; color: var(--text2); }
+  .srow b { display: block; font-size: 15px; color: var(--text); }
+  @media (max-width: 760px) { .srow { grid-template-columns: 1fr; gap: 4px; } }
+  .t-display { font: var(--t-display); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .t-title { font: var(--t-title); }
+  .t-heading { font: var(--t-heading); }
+  .t-amount { font: var(--t-amount); font-variant-numeric: tabular-nums; }
+  .t-body { font: var(--t-body); }
+  .t-label { font: var(--t-label); }
+  .t-secondary { font: var(--t-secondary); color: var(--text2); }
+  .t-caption { font: var(--t-caption); color: var(--text2); }
+
+  /* body font comparison */
+  .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .cmp { grid-template-columns: 1fr; } }
+  .cmp > div { display: grid; gap: 10px; }
+  .cmp h3 { margin: 0; }
+
+  /* phone-sized envelopes */
+  .phone { width: 375px; max-width: 100%; background: var(--bg); border-radius: 26px; padding: 14px 16px 18px; box-shadow: 0 0 0 1px var(--line); display: grid; gap: 10px; }
+  .hero { background: var(--surface); border-radius: 18px; padding: 16px; display: grid; gap: 2px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid.one { grid-template-columns: 1fr; }
+  .env { position: relative; background: var(--surface); border-radius: 16px; padding: 22px 12px 12px; display: grid; gap: 4px; overflow: hidden; align-content: start; }
+  .env::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 16px; background: var(--cat); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  .env .name { font: var(--t-label); font-weight: 600; overflow-wrap: anywhere; }
+  .env.close { box-shadow: inset 0 0 0 2px var(--closeBar); } .env.close .t-amount { color: var(--close); }
+  .env.over { box-shadow: inset 0 0 0 2px var(--overBar); } .env.over .t-amount { color: var(--over); }
+  .tag { justify-self: start; font: 700 0.8125em/1.3 var(--bodyFont); padding: 1px 8px; border-radius: 6px; }
+  .close .tag { background: var(--closeSoft); color: var(--close); } .over .tag { background: var(--overSoft); color: var(--over); }
+  .bar { height: 8px; border-radius: 4px; background: var(--fill); overflow: hidden; margin-top: 4px; }
+  .bar i { display: block; height: 100%; background: var(--cat); }
+  .close .bar i { background: var(--closeBar); } .over .bar i { background: var(--overBar); }
+  .btn { min-height: 52px; border: 0; border-radius: 14px; background: var(--action); color: var(--onAction); font: var(--t-label); padding: 0 16px; }
+
+  /* money rules */
+  .rules { display: grid; gap: 10px; }
+  .rule { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .rule > div { background: var(--surface); border-radius: 14px; padding: 12px 14px; }
+  .rule .k { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .yes .k { color: var(--good); } .no .k { color: var(--bad); }
+  .rule p { margin: 0; font: var(--t-body); }
+  @media (max-width: 760px) { .rule { grid-template-columns: 1fr; } }
+
+  .scaler { display: grid; grid-template-columns: 375px 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 860px) { .scaler { grid-template-columns: 1fr; } }
+  input[type=range] { width: 100%; }
+  /* The text-size test can't change the page's root size, so here the same scale is in em of #scaled. */
+  #scaled {
+    --t-display: 600 2.875em/1.1 Rubik, sans-serif; --t-title: 400 1.75em/1.2 'Secular One', sans-serif;
+    --t-heading: 400 1.1875em/1.3 'Secular One', sans-serif; --t-amount: 600 1.25em/1.2 Rubik, sans-serif;
+    --t-body: 400 1.0625em/1.5 var(--bodyFont); --t-label: 700 1.0625em/1.2 var(--bodyFont);
+    --t-secondary: 400 0.9375em/1.45 var(--bodyFont); --t-caption: 400 0.8125em/1.4 var(--bodyFont);
+  }
+
+  .scaleval { font: 600 20px Rubik, sans-serif; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>טיפוגרפיה</h1>
+  <p class="note">F3. שמונה סגנונות בשמות, במקום 16 גדלים שכתובים בקוד. כל גודל ב-rem, כך שהגדלת טקסט בטלפון מגדילה הכול. הצבעים מ-F1.</p>
+  <div class="tools">
+    <button type="button" id="theme">החלפת בהיר / כהה</button>
+    <span class="seg" role="group" aria-label="פונט הטקסט">
+      <button type="button" data-body="assistant" aria-pressed="true">טקסט ב-Assistant</button>
+      <button type="button" data-body="rubik" aria-pressed="false">טקסט ב-Rubik</button>
+    </span>
+  </div>
+
+  <h2>הסולם</h2>
+  <p class="note">סכומים תמיד ב-Rubik עם ספרות ברוחב שווה. כותרות ב-Secular One, שיש לו משקל אחד בלבד. כל השאר בפונט הטקסט.</p>
+  <div class="scale" id="scale"></div>
+
+  <h2>Assistant או Rubik לטקסט</h2>
+  <p class="note">אותו תוכן, פעמיים. Assistant צר ואוורירי יותר, Rubik עגול ורחב יותר, ואז כל המסך הוא משפחה אחת. הכפתור למעלה מחליף גם את שאר הדף.</p>
+  <div class="cmp">
+    <div><h3>Assistant</h3><div id="cmpA"></div></div>
+    <div><h3>Rubik</h3><div id="cmpR"></div></div>
+  </div>
+
+  <h2>כללי סכומים</h2>
+  <div class="rules" id="rules"></div>
+
+  <h2>הגדלת טקסט</h2>
+  <p class="note">כמו "גודל טקסט" בהגדרות של האייפון. מ-130% והלאה המעטפות עוברות לטור אחד, כי בשניים בשורה השם והסכום נשברים. הסכום הראשי גדל רק עד 150%: הוא כבר גדול, ומעבר לזה הוא דוחף את כל השאר מחוץ למסך.</p>
+  <div class="scaler">
+    <div id="scaled"></div>
+    <div class="card">
+      <label for="fs"><b>גודל טקסט</b></label>
+      <input id="fs" type="range" min="85" max="200" step="5" value="100" aria-describedby="fsv">
+      <div class="scaleval num" id="fsv">100%</div>
+      <p class="t-secondary" id="fsnote"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+const ils = new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 });
+const ilsEn = new Intl.NumberFormat('en-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 });
+// An amount inside a sentence is isolated, so the bidi algorithm keeps it in one piece.
+const money = (n) => `<bdi class="num">${ils.format(n)}</bdi>`;
+
+const SCALE = [
+  ['display', 'סכום ראשי', 'Rubik 600 · 46/1.1', 'נשאר החודש', `${ils.format(4870)}`],
+  ['title', 'כותרת מסך', 'Secular One · 28/1.2', '', 'אוקטובר'],
+  ['heading', 'כותרת קבוצה', 'Secular One · 19/1.3', '', 'המעטפות'],
+  ['amount', 'סכום', 'Rubik 600 · 20/1.2', '', `נשארו רק ${ils.format(90)}`],
+  ['body', 'גוף', 'טקסט 400 · 17/1.5', '', 'מקלידים סכום, ובוחרים מעטפה. הקשה על המעטפה שומרת.'],
+  ['label', 'כפתור, שם מעטפה', 'טקסט 700 · 17/1.2', '', 'שמירה בסופרמרקט'],
+  ['secondary', 'משני', 'טקסט 400 · 15/1.45', '', `${ils.format(243)} ליום · עוד 20 ימים`],
+  ['caption', 'כיתוב', 'טקסט 400 · 13/1.4', '', `${ils.format(1150)} מתוך ${ils.format(3200)} · בקצב הזה ייגמר ב-18 לחודש`],
+];
+document.getElementById('scale').innerHTML = SCALE.map(([id, he, spec, pre, sample]) => `
+  <div class="srow"><div class="meta"><b>${he}</b><code>--t-${id}</code></div>
+  <div class="t-${id}">${sample}</div><div class="meta">${spec}</div></div>`).join('');
+
+// A small envelope screen, used for the comparison and the text-size test.
+const ENVS = [
+  { name: 'סופרמרקט', cat: '#31A5A5', st: '', left: 2050, spent: 1150, cap: 3200 },
+  { name: 'אוכל בחוץ', cat: '#D6BB79', st: 'close', left: 90, spent: 810, cap: 900 },
+  { name: 'ילדים, חוגים ופעילויות', cat: '#588671', st: '', left: 128450, spent: 21550, cap: 150000 },
+  { name: 'דלק', cat: '#066788', st: 'over', left: -1240, spent: 2240, cap: 1000 },
+];
+const envHtml = (e) => `
+  <div class="env ${e.st}" style="--cat:${e.cat}">
+    <div class="name">${e.name}</div>
+    ${e.st ? `<span class="tag">${e.st === 'over' ? 'עברתם' : 'קרוב לגבול'}</span>` : ''}
+    <div class="t-amount">${e.left < 0 ? `עברתם ב-${money(-e.left)}` : e.st ? `נשארו רק ${money(e.left)}` : `נשאר ${money(e.left)}`}</div>
+    <div class="bar"><i style="width:${Math.min(100, (e.spent * 100) / e.cap)}%"></i></div>
+    <div class="t-caption">${money(e.spent)} מתוך ${money(e.cap)}</div>
+  </div>`;
+function screen(oneCol) {
+  return `<div class="phone">
+    <div class="t-title">אוקטובר</div>
+    <div class="hero"><div class="t-secondary">נשאר החודש</div><div class="t-display hero-amt">${ils.format(4870)}</div>
+      <div class="t-secondary">${money(243)} ליום · עוד 20 ימים</div></div>
+    <div class="t-heading">המעטפות</div>
+    <div class="grid${oneCol ? ' one' : ''}">${ENVS.map(envHtml).join('')}</div>
+    <button class="btn" type="button">הוספת הוצאה</button>
+  </div>`;
+}
+const cmpBody = (font) => `<div style="--bodyFont:${font}">${screen(false)}
+  <div class="card" style="margin-top:10px"><p class="t-body" style="margin:0 0 8px">כל קטגוריה היא מעטפה עם כסף לחודש. כשהוצאתם 80% מהתקציב, המעטפה נצבעת כתום וכתוב כמה נשאר. מעל 100% היא נצבעת אדום.</p>
+  <p class="t-body" style="margin:0" dir="ltr" lang="en">Every category is an envelope with money for the month. At 80% it turns amber and says what's left.</p></div></div>`;
+document.getElementById('cmpA').innerHTML = cmpBody('Assistant, sans-serif');
+document.getElementById('cmpR').innerHTML = cmpBody('Rubik, sans-serif');
+
+const RULES = [
+  ['שקלים שלמים בסכום הראשי ובתחזית', `<span class="num">${ils.format(4870)}</span>`, `<span class="num">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', minimumFractionDigits: 2 }).format(4870.4)}</span>`],
+  ['אגורות רק בפרטי הוצאה אחת', `הוצאה: <span class="num">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', minimumFractionDigits: 2 }).format(86.9)}</span>`, `תחזית: <span class="num">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', minimumFractionDigits: 2 }).format(7333.68)}</span>`],
+  ['₪ אחרי המספר בעברית, לפניו באנגלית', `<span class="num">${ils.format(640)}</span> · <span dir="ltr" class="num">${ilsEn.format(640)}</span>`, `<span class="num">₪640</span> בממשק עברי`],
+  // The wrong one is what an unisolated negative number does in Hebrew: the minus jumps.
+  ['סכום שלילי: מילים, לא מינוס', `עברתם ב-${money(1240)}`, `נשאר ${ils.format(-1240)}`],
+  ['סכום בתוך משפט מבודד (bdi)', `החזר מ-Zara: ${money(120)}.`, `<span>החזר מ-Zara: </span><span dir="ltr">${ils.format(120)}.</span>`],
+  ['מספרים ברוחב שווה, כדי שעמודה לא תרקוד', `<span class="num" style="font-family:Rubik">1,111 ₪<br>8,888 ₪</span>`, `<span style="font-family:Assistant;font-variant-numeric:proportional-nums">1,111 ₪<br>8,888 ₪</span>`],
+];
+document.getElementById('rules').innerHTML = RULES.map(([k, yes, no]) => `
+  <div class="rule"><div class="yes"><div class="k">✓ ${k}</div><p>${yes}</p></div><div class="no"><div class="k">✗ לא ככה</div><p>${no}</p></div></div>`).join('');
+const fs = document.getElementById('fs');
+function rescale() {
+  const v = +fs.value, one = v >= 130;
+  document.getElementById('fsv').textContent = `${v}%`;
+  const host = document.getElementById('scaled');
+  host.style.fontSize = `${(16 * v) / 100}px`;
+  host.innerHTML = screen(one);
+  // The hero amount stops growing at 150%.
+  const cap = Math.min(v, 150) / v;
+  host.querySelector('.hero-amt').style.fontSize = `calc(2.875em * ${cap})`;
+  document.getElementById('fsnote').textContent = one
+    ? `טור אחד${v > 150 ? '. הסכום הראשי נעצר ב-150%' : ''}.`
+    : 'שתי מעטפות בשורה.';
+}
+fs.addEventListener('input', rescale);
+rescale();
+
+document.querySelectorAll('[data-body]').forEach((b) => b.addEventListener('click', () => {
+  document.documentElement.style.setProperty('--bodyFont', b.dataset.body === 'rubik' ? 'Rubik, sans-serif' : 'Assistant, sans-serif');
+  document.body.style.fontFamily = b.dataset.body === 'rubik' ? 'Rubik, sans-serif' : 'Assistant, sans-serif';
+  document.querySelectorAll('[data-body]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+}));
+document.getElementById('theme').addEventListener('click', () => {
+  const r = document.documentElement, dark = r.dataset.theme === 'dark' || (!r.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+  r.dataset.theme = dark ? 'light' : 'dark';
+});
+</script>
+</body>
+</html>

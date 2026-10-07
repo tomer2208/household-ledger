@@ -117,6 +117,13 @@ export function monthPace(now = new Date()) {
   return Math.round((p.d * 100) / daysIn(p.y, p.m));
 }
 
+// K1: today's day of the month and the month's length, in the household's clock, for "at this
+// rate it runs out on the 18th" (lib/envelope runsOutOn).
+export function monthDay(now = new Date()) {
+  const p = parts(now);
+  return { day: p.d, days: daysIn(p.y, p.m) };
+}
+
 // P1-5: step a budget month ('YYYY-MM-01') by n months, for Overview's month switcher.
 export function addMonths(month: string, n: number) {
   const [y, m] = month.split('-').map(Number);

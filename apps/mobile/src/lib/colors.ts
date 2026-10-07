@@ -1,65 +1,50 @@
 import type { ColorValue } from 'react-native';
 
-// FinPace palette (docs/DESIGN_PLAN.md §3.1): Pace Teal on cool ink/gray. Status colors are
-// a shade darker than iOS's so "₪120 left" passes 4.5:1 on white. On iOS the neutrals stay
-// system semantic colors (palette.ios.ts); tint and status use these same hex values.
-export type Palette = {
-  label: ColorValue;
-  secondaryLabel: ColorValue;
-  tertiaryLabel: ColorValue;
-  background: ColorValue;
-  groupedBackground: ColorValue;
-  cell: ColorValue;
-  separator: ColorValue;
-  fill: ColorValue;
-  tint: ColorValue;
-  // Text/icons drawn on a tint background (white on teal, dark ink on the bright dark-mode teal).
-  onTint: ColorValue;
-  // Soft teal wash behind category icons.
-  tintFill: ColorValue;
-  green: ColorValue;
-  orange: ColorValue;
-  red: ColorValue;
-  // Text on a red fill (the swipe Delete action).
-  onRed: ColorValue;
-  // Where spending "should" be today, drawn across budget bars.
-  paceMarker: ColorValue;
+import { darkColors, lightColors, type SemanticColors } from './tokens';
+
+// F7: the palette is the semantic tokens (docs/design/foundations/palette.md), plus the names
+// the screens used before them. Those older names map onto the tokens so every screen takes
+// the new colours at once; each moves to the semantic name when its component is rebuilt (K2).
+type Legacy = {
+  /** @deprecated use `text` */ label: ColorValue;
+  /** @deprecated use `text2` */ secondaryLabel: ColorValue;
+  /** @deprecated use `text3` */ tertiaryLabel: ColorValue;
+  /** @deprecated use `surface` */ background: ColorValue;
+  /** @deprecated use `bg` */ groupedBackground: ColorValue;
+  /** @deprecated use `surface` */ cell: ColorValue;
+  /** @deprecated use `line` */ separator: ColorValue;
+  /** @deprecated use `action` */ tint: ColorValue;
+  /** @deprecated use `onAction` */ onTint: ColorValue;
+  /** @deprecated use `actionSoft` */ tintFill: ColorValue;
+  /** @deprecated use `positive` */ green: ColorValue;
+  /** @deprecated use `close` */ orange: ColorValue;
+  /** @deprecated use `over` */ red: ColorValue;
+  /** Text on an `over` fill (the swipe Delete action). */ onRed: ColorValue;
+  /** @deprecated the pace marker goes with the envelope redesign (K1) */ paceMarker: ColorValue;
 };
 
-export const light: Palette = {
-  label: '#0F1B24',
-  secondaryLabel: 'rgba(15,27,36,0.62)',
-  tertiaryLabel: 'rgba(15,27,36,0.32)',
-  background: '#FFFFFF',
-  groupedBackground: '#F2F5F4',
-  cell: '#FFFFFF',
-  separator: 'rgba(15,27,36,0.16)',
-  fill: 'rgba(15,27,36,0.07)',
-  tint: '#0F766E',
-  onTint: '#FFFFFF',
-  tintFill: 'rgba(15,118,110,0.12)',
-  green: '#15803D',
-  orange: '#B45309',
-  red: '#DC2626',
-  onRed: '#FFFFFF',
-  paceMarker: 'rgba(15,27,36,0.55)',
-};
+export type Palette = { [K in keyof SemanticColors]: ColorValue } & Legacy;
 
-export const dark: Palette = {
-  label: '#F1F5F4',
-  secondaryLabel: 'rgba(241,245,244,0.62)',
-  tertiaryLabel: 'rgba(241,245,244,0.32)',
-  background: '#0A1113',
-  groupedBackground: '#0A1113',
-  cell: '#141D20',
-  separator: 'rgba(241,245,244,0.14)',
-  fill: 'rgba(241,245,244,0.10)',
-  tint: '#2DD4BF',
-  onTint: '#04201D',
-  tintFill: 'rgba(45,212,191,0.16)',
-  green: '#4ADE80',
-  orange: '#FBBF24',
-  red: '#F87171',
-  onRed: '#2A0808',
-  paceMarker: 'rgba(241,245,244,0.55)',
-};
+function palette(t: SemanticColors, onOver: string): Palette {
+  return {
+    ...t,
+    label: t.text,
+    secondaryLabel: t.text2,
+    tertiaryLabel: t.text3,
+    background: t.surface,
+    groupedBackground: t.bg,
+    cell: t.surface,
+    separator: t.line,
+    tint: t.action,
+    onTint: t.onAction,
+    tintFill: t.actionSoft,
+    green: t.positive,
+    orange: t.close,
+    red: t.over,
+    onRed: onOver,
+    paceMarker: t.text2,
+  };
+}
+
+export const light: Palette = palette(lightColors, lightColors.surface);
+export const dark: Palette = palette(darkColors, darkColors.bg);

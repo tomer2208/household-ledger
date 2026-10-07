@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מרווחים ותנועה</title>
+<!-- F4 (docs/DESIGN_GANTT.md): spacing, radius, elevation and motion tokens (tokens.md).
+     Colours and type are F1/F3, copied by hand for this page only. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Rubik:wght@400;500;600&family=Secular+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* spacing */
+    --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px;
+    /* radius */
+    --r-chip: 8px; --r-tile: 12px; --r-env: 16px; --r-card: 20px; --r-pill: 999px;
+    /* motion */
+    --m-press: 100ms; --m-fast: 150ms; --m-base: 250ms; --m-enter: 340ms; --m-exit: 220ms; --m-emph: 600ms;
+    --e-standard: cubic-bezier(.2, 0, 0, 1); --e-enter: cubic-bezier(.2, .8, .2, 1); --e-exit: cubic-bezier(.4, 0, 1, 1);
+    /* colour (F1) */
+    --bg: #EDF0EB; --surface: #FDFFFD; --raised: #FDFFFD; --fill: #E4E7E2; --line: #DADED8; --text: #1F211E; --text2: #5C5F5A;
+    --action: #88416C; --onAction: #FDFFFD; --close: #884D02; --closeSoft: #FFEBDB; --closeBar: #A96001; --toast: #1F211E; --onToast: #F4F8F3;
+    --scrim: rgba(20,26,23,.38);
+    /* elevation: a shadow in light */
+    --elev-1: 0 6px 18px rgba(20,26,23,.18); --elev-2: 0 -8px 30px rgba(20,26,23,.16);
+  }
+  :root[data-theme="dark"] {
+    --bg: #121511; --surface: #1F211E; --raised: #272A26; --fill: #30332E; --line: #3D3F3B; --text: #F4F8F3; --text2: #A9ACA7;
+    --action: #F4AFD5; --onAction: #26051A; --close: #FAB87D; --closeSoft: #331901; --closeBar: #FAB87D; --toast: #F4F8F3; --onToast: #121511;
+    --scrim: rgba(0,0,0,.55);
+    /* elevation: lightness in dark, with a hairline instead of a shadow nobody can see */
+    --elev-1: 0 0 0 1px var(--line); --elev-2: 0 -1px 0 var(--line);
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme]) {
+    --bg: #121511; --surface: #1F211E; --raised: #272A26; --fill: #30332E; --line: #3D3F3B; --text: #F4F8F3; --text2: #A9ACA7;
+    --action: #F4AFD5; --onAction: #26051A; --close: #FAB87D; --closeSoft: #331901; --closeBar: #FAB87D; --toast: #F4F8F3; --onToast: #121511;
+    --scrim: rgba(0,0,0,.55); --elev-1: 0 0 0 1px var(--line); --elev-2: 0 -1px 0 var(--line); } }
+  /* the "reduce motion" switch on this page mirrors the system setting */
+  .reduced { --m-press: 0ms; --m-base: 0ms; --m-enter: 0ms; --m-exit: 0ms; --m-emph: 0ms; }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 400 16px/1.5 Assistant, sans-serif; }
+  .page { max-width: 1120px; margin: 0 auto; padding: 32px 16px 80px; }
+  h1 { font: 400 34px/1.2 'Secular One', sans-serif; margin: 0 0 6px; }
+  h2 { font: 400 22px/1.3 'Secular One', sans-serif; margin: 44px 0 4px; }
+  .note { color: var(--text2); max-width: 72ch; margin: 0 0 14px; }
+  .num { font-family: Rubik, sans-serif; font-variant-numeric: tabular-nums; }
+  code { font: 500 13px Rubik, monospace; direction: ltr; unicode-bidi: isolate; color: var(--text2); }
+  .tools { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; position: sticky; top: 0; background: var(--bg); padding: 8px 0; z-index: 20; }
+  .tools button { min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; cursor: pointer; }
+  .tools button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+  button:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
+
+  .rows { display: grid; gap: 2px; }
+  .r { display: grid; grid-template-columns: 170px 70px 1fr; gap: 16px; align-items: center; background: var(--surface); padding: 10px 16px; }
+  .r:first-child { border-radius: 16px 16px 0 0; } .r:last-child { border-radius: 0 0 16px 16px; }
+  .r b { display: block; } .r small { color: var(--text2); }
+  .sp { height: 16px; background: var(--action); border-radius: 3px; opacity: .8; }
+  .rad { width: 72px; height: 48px; background: var(--fill); border: 2px solid var(--action); }
+  @media (max-width: 700px) { .r { grid-template-columns: 1fr 60px; } .r > :last-child { grid-column: 1 / -1; } }
+
+  .elev { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .elev > div { background: var(--raised); border-radius: var(--r-card); padding: var(--s-4); min-height: 96px; }
+  .elev .e0 { background: var(--surface); }
+  .elev .e1 { box-shadow: var(--elev-1); }
+  .elev .e2 { box-shadow: var(--elev-2); }
+  @media (max-width: 700px) { .elev { grid-template-columns: 1fr; } }
+
+  /* ---- the save sequence demo ---- */
+  .demo { display: grid; grid-template-columns: 375px 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 860px) { .demo { grid-template-columns: 1fr; } }
+  .phone { position: relative; width: 375px; max-width: 100%; height: 600px; overflow: hidden; border-radius: 28px; background: var(--bg); box-shadow: 0 0 0 1px var(--line); padding: var(--s-4); }
+  .env { position: relative; background: var(--surface); border-radius: var(--r-env); padding: 22px var(--s-3) var(--s-3); display: grid; gap: var(--s-1); width: calc(50% - var(--s-3) / 2);
+         transition: box-shadow var(--m-base) var(--e-standard); }
+  .env::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 16px; background: #D6BB79; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  .env .left { font: 600 20px/1.2 Rubik, sans-serif; transition: color var(--m-base) var(--e-standard); }
+  .env .tag { justify-self: start; font: 700 13px Assistant; padding: 1px 8px; border-radius: 6px; background: var(--closeSoft); color: var(--close);
+              opacity: 0; transform: translateY(-4px); transition: opacity var(--m-base) var(--e-standard), transform var(--m-base) var(--e-enter); }
+  .env.close { box-shadow: inset 0 0 0 2px var(--closeBar); }
+  .env.close .left { color: var(--close); }
+  .env.close .tag { opacity: 1; transform: none; }
+  .bar { height: 8px; border-radius: 4px; background: var(--fill); overflow: hidden; margin-top: var(--s-1); }
+  /* the bar grows with transform, not width: no layout work per frame */
+  .bar i { display: block; height: 100%; background: #D6BB79; transform-origin: right; transition: transform var(--m-emph) var(--e-enter), background-color var(--m-base); }
+  .env.close .bar i { background: var(--closeBar); }
+  .env.flash { animation: flash var(--m-emph) var(--e-standard); }
+  @keyframes flash { from { box-shadow: inset 0 0 0 3px var(--action); } }
+  .reduced .env.flash { animation: none; }
+  .fab { position: absolute; bottom: var(--s-6); left: 0; right: 0; display: flex; justify-content: center; }
+  .fab button { min-height: 56px; padding: 0 var(--s-6); border: 0; border-radius: var(--r-pill); background: var(--action); color: var(--onAction); font: 700 18px Assistant; box-shadow: var(--elev-1); cursor: pointer;
+                transition: transform var(--m-press) var(--e-standard); }
+  .fab button:active { transform: scale(.97); }
+  .scrim { position: absolute; inset: 0; background: var(--scrim); opacity: 0; pointer-events: none; transition: opacity var(--m-exit) var(--e-exit); }
+  .sheet { position: absolute; inset: auto 0 0 0; height: 380px; background: var(--raised); border-radius: var(--r-card) var(--r-card) 0 0; box-shadow: var(--elev-2); padding: var(--s-4);
+           transform: translateY(100%); transition: transform var(--m-exit) var(--e-exit); display: grid; align-content: start; gap: var(--s-3); }
+  .open .scrim { opacity: 1; transition: opacity var(--m-enter) var(--e-enter); }
+  .open .sheet { transform: none; transition: transform var(--m-enter) var(--e-enter); }
+  /* Reduced motion: no slide. The sheet still has to appear, so it fades quickly instead. */
+  .reduced .sheet { transform: none; opacity: 0; visibility: hidden; transition: opacity 120ms linear, visibility 0s 120ms; }
+  .reduced .open .sheet { opacity: 1; visibility: visible; transition: opacity 120ms linear; }
+  .sheet .amt { text-align: center; font: 600 44px Rubik; }
+  .sheet button { min-height: 52px; border: 0; border-radius: var(--r-tile); background: var(--action); color: var(--onAction); font: 700 17px Assistant; cursor: pointer; }
+  .toast { position: absolute; inset: auto var(--s-3) 100px; background: var(--toast); color: var(--onToast); border-radius: 14px; padding: var(--s-3) 14px; font-size: 15px;
+           opacity: 0; transform: translateY(12px); transition: opacity var(--m-exit) var(--e-exit), transform var(--m-exit) var(--e-exit); }
+  .toast.show { opacity: 1; transform: none; transition: opacity var(--m-base) var(--e-enter), transform var(--m-base) var(--e-enter); }
+  .reduced .toast { transform: none; }
+  .log { background: var(--surface); border-radius: 16px; padding: 16px; font-size: 15px; }
+  .log ol { margin: 6px 0 0; padding-inline-start: 22px; }
+  .log li { margin: 4px 0; }
+  .log li.on { font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="page" id="page">
+  <h1>מרווחים, רדיוסים, גובה ותנועה</h1>
+  <p class="note">F4. במקום 321 ערכי מרווח ו-15 רדיוסים שכתובים בקוד (D2): שמונה מרווחים, חמישה רדיוסים, שלוש דרגות גובה, ושישה משכים.</p>
+  <div class="tools">
+    <button type="button" id="theme">החלפת בהיר / כהה</button>
+    <button type="button" id="reduce" aria-pressed="false">הפחתת תנועה</button>
+  </div>
+
+  <h2>מרווחים</h2>
+  <p class="note">על בסיס 4. לכל שימוש שם, כדי שאף אחד לא יבחר "14" כי זה נראה בסדר.</p>
+  <div class="rows" id="space"></div>
+
+  <h2>רדיוסים</h2>
+  <p class="note">ככל שהדבר גדול יותר, הפינה עגולה יותר. אלמנט בתוך אלמנט מקבל רדיוס קטן יותר מהעוטף שלו.</p>
+  <div class="rows" id="radius"></div>
+
+  <h2>גובה</h2>
+  <p class="note">בבהיר, צל. בכהה צל לא נראה, ולכן מה שגבוה יותר בהיר יותר, עם קו דק במקום צל.</p>
+  <div class="elev">
+    <div class="e0"><b>0: שטוח</b><br><small>מעטפות וכרטיסים. נבדלים מהרקע בצבע בלבד.</small></div>
+    <div class="e1"><b>1: צף</b><br><small>כפתור ההוספה, הודעה.</small></div>
+    <div class="e2"><b>2: חלונית</b><br><small>חלונית ההוספה. עם הכהיה מאחוריה.</small></div>
+  </div>
+
+  <h2>תנועה: השמירה</h2>
+  <p class="note">הרגע הכי חשוב באפליקציה. הקש "הוספת הוצאה" ו"שמירה" כדי לראות את הרצף, ונסה גם עם "הפחתת תנועה" דלוק.</p>
+  <div class="demo">
+    <div class="phone" id="phone">
+      <div class="env" id="env">
+        <div style="font:600 17px Assistant">אוכל בחוץ</div>
+        <span class="tag">קרוב לגבול</span>
+        <div class="left num" id="left">נשאר 290 ₪</div>
+        <div class="bar"><i id="fill" style="transform:scaleX(.68)"></i></div>
+      </div>
+      <div class="fab"><button type="button" id="add">הוספת הוצאה</button></div>
+      <div class="scrim" id="scrim"></div>
+      <div class="sheet" id="sheet" role="dialog" aria-label="הוספת הוצאה" aria-hidden="true">
+        <div class="amt num">200 ₪</div>
+        <div style="text-align:center;color:var(--close);font-weight:600">אוכל בחוץ: יישארו רק 90 ₪</div>
+        <button type="button" id="save">שמירה באוכל בחוץ</button>
+      </div>
+      <div class="toast" id="toast" role="status">נוסף 200 ₪ לאוכל בחוץ. קרוב לגבול: נשארו 90 ₪</div>
+    </div>
+    <div class="log">
+      <b>מה קורה, ובאיזה משך</b>
+      <ol id="steps">
+        <li>הקשה על הכפתור: מתכווץ ל-97% · <code>press 100ms</code> · רטט קל</li>
+        <li>החלונית עולה, ההכהיה נכנסת · <code>enter 340ms</code></li>
+        <li>שמירה: החלונית יורדת, מהר יותר מהכניסה · <code>exit 220ms</code> · רטט הצלחה, או אזהרה כשהמעטפה עוברת מצב</li>
+        <li>הפס גדל, הסכום יורד, המעטפה מהבהבת · <code>emphasis 600ms</code></li>
+        <li>המעטפה משנה מצב: מסגרת ותג נכנסים · <code>base 250ms</code></li>
+        <li>הודעה עולה · <code>base 250ms</code>, נשארת 5 שניות</li>
+      </ol>
+      <p style="color:var(--text2);margin:10px 0 0">עם הפחתת תנועה: בלי החלקות ובלי הבהוב. החלונית מופיעה ב-120ms של שקיפות, והמצב החדש מופיע מיד.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const SPACE = [
+  ['--s-1', 4, 'הדוק', 'בין שורות בתוך מעטפה'], ['--s-2', 8, 'פנימי', 'בין סמל לטקסט, בין צ\'יפים'], ['--s-3', 12, 'מעטפה', 'ריפוד מעטפה, מרווח בין מעטפות'],
+  ['--s-4', 16, 'מסך', 'שוליים של המסך, ריפוד כרטיס'], ['--s-5', 20, 'כרטיס גדול', 'ריפוד הכרטיס הראשי'], ['--s-6', 24, 'קבוצה', 'בין קבוצות במסך'],
+  ['--s-8', 32, 'פרק', 'לפני פעולה מסוכנת, בין פרקים'], ['--s-10', 40, 'סוף', 'בסוף גלילה, מעל הכפתור הצף'],
+];
+document.getElementById('space').innerHTML = SPACE.map(([t, px, n, use]) => `
+  <div class="r"><div><b>${n}</b><code>${t}</code></div><span class="num">${px}</span><div style="display:flex;gap:12px;align-items:center"><div class="sp" style="width:${px}px"></div><small>${use}</small></div></div>`).join('');
+const RADIUS = [
+  ['--r-chip', 8, 'צ\'יפ, תג', 'תגים, צ\'יפים של תאריך'], ['--r-tile', 12, 'אריח', 'מקשים, סמל, כפתור'], ['--r-env', 16, 'מעטפה', 'מעטפה, הודעה'],
+  ['--r-card', 20, 'כרטיס גדול', 'הכרטיס הראשי, החלונית'], ['--r-pill', 999, 'כדור', 'כפתור ההוספה'],
+];
+document.getElementById('radius').innerHTML = RADIUS.map(([t, px, n, use]) => `
+  <div class="r"><div><b>${n}</b><code>${t}</code></div><span class="num">${px === 999 ? '∞' : px}</span><div style="display:flex;gap:12px;align-items:center"><div class="rad" style="border-radius:${px}px"></div><small>${use}</small></div></div>`).join('');
+
+const page = document.getElementById('page'), phone = document.getElementById('phone'), sheet = document.getElementById('sheet');
+const env = document.getElementById('env'), fill = document.getElementById('fill'), left = document.getElementById('left'), toast = document.getElementById('toast');
+const steps = [...document.querySelectorAll('#steps li')];
+const reduced = () => page.classList.contains('reduced');
+const mark = (i) => steps.forEach((s, j) => s.classList.toggle('on', j === i));
+let toastTimer;
+function reset() {
+  env.classList.remove('close', 'flash'); fill.style.transform = 'scaleX(.68)'; left.textContent = 'נשאר 290 ₪';
+}
+document.getElementById('add').addEventListener('click', () => {
+  reset(); toast.classList.remove('show'); mark(0);
+  setTimeout(() => { phone.classList.add('open'); sheet.setAttribute('aria-hidden', 'false'); mark(1); }, reduced() ? 0 : 100);
+});
+document.getElementById('scrim').addEventListener('click', () => phone.classList.remove('open'));
+document.getElementById('save').addEventListener('click', () => {
+  phone.classList.remove('open'); sheet.setAttribute('aria-hidden', 'true'); mark(2);
+  const r = reduced();
+  setTimeout(() => {
+    mark(3);
+    fill.style.transform = 'scaleX(.9)';
+    // The amount counts down in step with the bar.
+    if (r) left.textContent = 'נשארו רק 90 ₪';
+    else { const t0 = performance.now(); const tick = (t) => { const k = Math.min(1, (t - t0) / 600); const e = 1 - (1 - k) ** 3; left.textContent = `${k < 1 ? 'נשאר' : 'נשארו רק'} ${Math.round(290 - 200 * e)} ₪`; if (k < 1) requestAnimationFrame(tick); }; requestAnimationFrame(tick); }
+    env.classList.remove('flash'); void env.offsetWidth; env.classList.add('flash');
+    setTimeout(() => { env.classList.add('close'); mark(4); }, r ? 0 : 350);
+    setTimeout(() => { toast.classList.add('show'); mark(5); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 5000); }, r ? 0 : 450);
+  }, r ? 0 : 220);
+});
+document.getElementById('reduce').addEventListener('click', (e) => {
+  const on = page.classList.toggle('reduced'); e.target.setAttribute('aria-pressed', String(on));
+});
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.getElementById('reduce').click();
+document.getElementById('theme').addEventListener('click', () => {
+  const r = document.documentElement, dark = r.dataset.theme === 'dark' || (!r.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+  r.dataset.theme = dark ? 'light' : 'dark';
+});
+</script>
+</body>
+</html>

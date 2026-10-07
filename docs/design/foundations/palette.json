@@ -1,0 +1,1924 @@
+{
+ "scales": {
+  "stone": {
+   "50": "#F4F8F3",
+   "100": "#EDF0EB",
+   "150": "#E4E7E2",
+   "200": "#DADED8",
+   "300": "#C5C8C3",
+   "400": "#A9ACA7",
+   "500": "#8C8F8A",
+   "600": "#727671",
+   "700": "#5C5F5A",
+   "800": "#464944",
+   "900": "#30332E",
+   "950": "#1F211E",
+   "1000": "#121511",
+   "0": "#FDFFFD"
+  },
+  "plum": {
+   "50": "#FFF3F9",
+   "100": "#FEE8F4",
+   "150": "#FFDAED",
+   "200": "#FFCBE7",
+   "300": "#F4AFD5",
+   "400": "#DB8FBA",
+   "500": "#C26D9F",
+   "600": "#A65485",
+   "700": "#88416C",
+   "800": "#6B2F54",
+   "900": "#4E1D3B",
+   "950": "#370F28",
+   "1000": "#26051A"
+  },
+  "amber": {
+   "50": "#FFF5EC",
+   "100": "#FFEBDB",
+   "150": "#FEE0C7",
+   "200": "#FED3AE",
+   "300": "#FAB87D",
+   "400": "#E29852",
+   "500": "#C97717",
+   "600": "#A96001",
+   "700": "#884D02",
+   "800": "#693A02",
+   "900": "#4B2700",
+   "950": "#331901",
+   "1000": "#210F00"
+  },
+  "red": {
+   "50": "#FEF4F3",
+   "100": "#FFEAE7",
+   "150": "#FEDED9",
+   "200": "#FED0CA",
+   "300": "#FEB0A7",
+   "400": "#F7857A",
+   "500": "#DE6056",
+   "600": "#C1443D",
+   "700": "#9F332D",
+   "800": "#7E221E",
+   "900": "#5D100F",
+   "950": "#430304",
+   "1000": "#2E0001"
+  },
+  "green": {
+   "50": "#E4FFEA",
+   "100": "#CCFED7",
+   "150": "#C0F6CD",
+   "200": "#B4EDC2",
+   "300": "#99D9AA",
+   "400": "#74BE89",
+   "500": "#4BA368",
+   "600": "#2E894F",
+   "700": "#1E6F3D",
+   "800": "#0E562C",
+   "900": "#013D1B",
+   "950": "#002910",
+   "1000": "#001A08"
+  }
+ },
+ "tokens": {
+  "light": {
+   "bg": "#EDF0EB",
+   "surface": "#FDFFFD",
+   "raised": "#FDFFFD",
+   "fill": "#E4E7E2",
+   "line": "#DADED8",
+   "lineStrong": "#C5C8C3",
+   "text": "#1F211E",
+   "text2": "#5C5F5A",
+   "text3": "#8C8F8A",
+   "action": "#88416C",
+   "actionPressed": "#6B2F54",
+   "onAction": "#FDFFFD",
+   "actionSoft": "#FEE8F4",
+   "focus": "#A65485",
+   "close": "#884D02",
+   "closeSoft": "#FFEBDB",
+   "closeBar": "#A96001",
+   "over": "#9F332D",
+   "overSoft": "#FFEAE7",
+   "overBar": "#7E221E",
+   "positive": "#1E6F3D",
+   "positiveSoft": "#CCFED7",
+   "disabledBg": "#E4E7E2",
+   "disabledText": "#727671",
+   "toast": "#1F211E",
+   "onToast": "#F4F8F3",
+   "scrim": "rgba(20,26,23,.38)"
+  },
+  "dark": {
+   "bg": "#121511",
+   "surface": "#1F211E",
+   "raised": "#272A26",
+   "fill": "#30332E",
+   "line": "#3D3F3B",
+   "lineStrong": "#464944",
+   "text": "#F4F8F3",
+   "text2": "#A9ACA7",
+   "text3": "#727671",
+   "action": "#F4AFD5",
+   "actionPressed": "#FFCBE7",
+   "onAction": "#26051A",
+   "actionSoft": "#4E1D3B",
+   "focus": "#F4AFD5",
+   "close": "#FAB87D",
+   "closeSoft": "#331901",
+   "closeBar": "#FAB87D",
+   "over": "#FEB0A7",
+   "overSoft": "#430304",
+   "overBar": "#DE6056",
+   "positive": "#99D9AA",
+   "positiveSoft": "#002910",
+   "disabledBg": "#30332E",
+   "disabledText": "#8C8F8A",
+   "toast": "#F4F8F3",
+   "onToast": "#121511",
+   "scrim": "rgba(0,0,0,.55)"
+  }
+ },
+ "checks": [
+  {
+   "mode": "light",
+   "fg": "text",
+   "bg": "bg",
+   "ratio": 14.11,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט"
+  },
+  {
+   "mode": "light",
+   "fg": "text",
+   "bg": "surface",
+   "ratio": 16.14,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט"
+  },
+  {
+   "mode": "light",
+   "fg": "text",
+   "bg": "fill",
+   "ratio": 13.0,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט"
+  },
+  {
+   "mode": "light",
+   "fg": "text",
+   "bg": "raised",
+   "ratio": 16.14,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט"
+  },
+  {
+   "mode": "light",
+   "fg": "text2",
+   "bg": "bg",
+   "ratio": 5.64,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט משני"
+  },
+  {
+   "mode": "light",
+   "fg": "text2",
+   "bg": "surface",
+   "ratio": 6.45,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט משני"
+  },
+  {
+   "mode": "light",
+   "fg": "text2",
+   "bg": "fill",
+   "ratio": 5.19,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט משני"
+  },
+  {
+   "mode": "light",
+   "fg": "text2",
+   "bg": "raised",
+   "ratio": 6.45,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט משני"
+  },
+  {
+   "mode": "light",
+   "fg": "action",
+   "bg": "bg",
+   "ratio": 6.05,
+   "need": 4.5,
+   "ok": true,
+   "label": "קישור / פעולה כטקסט"
+  },
+  {
+   "mode": "light",
+   "fg": "action",
+   "bg": "surface",
+   "ratio": 6.92,
+   "need": 4.5,
+   "ok": true,
+   "label": "קישור / פעולה כטקסט"
+  },
+  {
+   "mode": "light",
+   "fg": "action",
+   "bg": "raised",
+   "ratio": 6.92,
+   "need": 4.5,
+   "ok": true,
+   "label": "קישור / פעולה כטקסט"
+  },
+  {
+   "mode": "light",
+   "fg": "onAction",
+   "bg": "action",
+   "ratio": 6.92,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט על כפתור"
+  },
+  {
+   "mode": "light",
+   "fg": "onAction",
+   "bg": "actionPressed",
+   "ratio": 9.68,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט על כפתור"
+  },
+  {
+   "mode": "light",
+   "fg": "action",
+   "bg": "actionSoft",
+   "ratio": 5.98,
+   "need": 4.5,
+   "ok": true,
+   "label": "פעולה על רקע עדין"
+  },
+  {
+   "mode": "light",
+   "fg": "close",
+   "bg": "surface",
+   "ratio": 6.72,
+   "need": 4.5,
+   "ok": true,
+   "label": "קרוב לגבול"
+  },
+  {
+   "mode": "light",
+   "fg": "close",
+   "bg": "bg",
+   "ratio": 5.87,
+   "need": 4.5,
+   "ok": true,
+   "label": "קרוב לגבול"
+  },
+  {
+   "mode": "light",
+   "fg": "close",
+   "bg": "closeSoft",
+   "ratio": 5.84,
+   "need": 4.5,
+   "ok": true,
+   "label": "קרוב לגבול"
+  },
+  {
+   "mode": "light",
+   "fg": "over",
+   "bg": "surface",
+   "ratio": 7.0,
+   "need": 4.5,
+   "ok": true,
+   "label": "עברתם"
+  },
+  {
+   "mode": "light",
+   "fg": "over",
+   "bg": "bg",
+   "ratio": 6.12,
+   "need": 4.5,
+   "ok": true,
+   "label": "עברתם"
+  },
+  {
+   "mode": "light",
+   "fg": "over",
+   "bg": "overSoft",
+   "ratio": 6.09,
+   "need": 4.5,
+   "ok": true,
+   "label": "עברתם"
+  },
+  {
+   "mode": "light",
+   "fg": "positive",
+   "bg": "surface",
+   "ratio": 6.15,
+   "need": 4.5,
+   "ok": true,
+   "label": "חיובי"
+  },
+  {
+   "mode": "light",
+   "fg": "positive",
+   "bg": "bg",
+   "ratio": 5.38,
+   "need": 4.5,
+   "ok": true,
+   "label": "חיובי"
+  },
+  {
+   "mode": "light",
+   "fg": "positive",
+   "bg": "positiveSoft",
+   "ratio": 5.51,
+   "need": 4.5,
+   "ok": true,
+   "label": "חיובי"
+  },
+  {
+   "mode": "light",
+   "fg": "onToast",
+   "bg": "toast",
+   "ratio": 15.12,
+   "need": 4.5,
+   "ok": true,
+   "label": "הודעה"
+  },
+  {
+   "mode": "light",
+   "fg": "closeBar",
+   "bg": "surface",
+   "ratio": 4.79,
+   "need": 3,
+   "ok": true,
+   "label": "פס קרוב לגבול"
+  },
+  {
+   "mode": "light",
+   "fg": "closeBar",
+   "bg": "fill",
+   "ratio": 3.86,
+   "need": 3,
+   "ok": true,
+   "label": "פס קרוב לגבול"
+  },
+  {
+   "mode": "light",
+   "fg": "overBar",
+   "bg": "surface",
+   "ratio": 9.79,
+   "need": 3,
+   "ok": true,
+   "label": "פס עברתם"
+  },
+  {
+   "mode": "light",
+   "fg": "overBar",
+   "bg": "fill",
+   "ratio": 7.88,
+   "need": 3,
+   "ok": true,
+   "label": "פס עברתם"
+  },
+  {
+   "mode": "light",
+   "fg": "focus",
+   "bg": "bg",
+   "ratio": 4.32,
+   "need": 3,
+   "ok": true,
+   "label": "טבעת פוקוס"
+  },
+  {
+   "mode": "light",
+   "fg": "focus",
+   "bg": "surface",
+   "ratio": 4.94,
+   "need": 3,
+   "ok": true,
+   "label": "טבעת פוקוס"
+  },
+  {
+   "mode": "light",
+   "fg": "lineStrong",
+   "bg": "surface",
+   "ratio": 1.68,
+   "need": 1.5,
+   "ok": true,
+   "label": "קו מודגש (קישוטי)"
+  },
+  {
+   "mode": "light",
+   "fg": "disabledText",
+   "bg": "disabledBg",
+   "ratio": 3.7,
+   "need": 3,
+   "ok": true,
+   "label": "טקסט מושבת"
+  },
+  {
+   "mode": "dark",
+   "fg": "text",
+   "bg": "bg",
+   "ratio": 17.15,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט"
+  },
+  {
+   "mode": "dark",
+   "fg": "text",
+   "bg": "surface",
+   "ratio": 15.12,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט"
+  },
+  {
+   "mode": "dark",
+   "fg": "text",
+   "bg": "fill",
+   "ratio": 11.94,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט"
+  },
+  {
+   "mode": "dark",
+   "fg": "text",
+   "bg": "raised",
+   "ratio": 13.54,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט"
+  },
+  {
+   "mode": "dark",
+   "fg": "text2",
+   "bg": "bg",
+   "ratio": 8.02,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט משני"
+  },
+  {
+   "mode": "dark",
+   "fg": "text2",
+   "bg": "surface",
+   "ratio": 7.07,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט משני"
+  },
+  {
+   "mode": "dark",
+   "fg": "text2",
+   "bg": "fill",
+   "ratio": 5.58,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט משני"
+  },
+  {
+   "mode": "dark",
+   "fg": "text2",
+   "bg": "raised",
+   "ratio": 6.33,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט משני"
+  },
+  {
+   "mode": "dark",
+   "fg": "action",
+   "bg": "bg",
+   "ratio": 10.46,
+   "need": 4.5,
+   "ok": true,
+   "label": "קישור / פעולה כטקסט"
+  },
+  {
+   "mode": "dark",
+   "fg": "action",
+   "bg": "surface",
+   "ratio": 9.22,
+   "need": 4.5,
+   "ok": true,
+   "label": "קישור / פעולה כטקסט"
+  },
+  {
+   "mode": "dark",
+   "fg": "action",
+   "bg": "raised",
+   "ratio": 8.26,
+   "need": 4.5,
+   "ok": true,
+   "label": "קישור / פעולה כטקסט"
+  },
+  {
+   "mode": "dark",
+   "fg": "onAction",
+   "bg": "action",
+   "ratio": 10.67,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט על כפתור"
+  },
+  {
+   "mode": "dark",
+   "fg": "onAction",
+   "bg": "actionPressed",
+   "ratio": 13.36,
+   "need": 4.5,
+   "ok": true,
+   "label": "טקסט על כפתור"
+  },
+  {
+   "mode": "dark",
+   "fg": "action",
+   "bg": "actionSoft",
+   "ratio": 7.64,
+   "need": 4.5,
+   "ok": true,
+   "label": "פעולה על רקע עדין"
+  },
+  {
+   "mode": "dark",
+   "fg": "close",
+   "bg": "surface",
+   "ratio": 9.44,
+   "need": 4.5,
+   "ok": true,
+   "label": "קרוב לגבול"
+  },
+  {
+   "mode": "dark",
+   "fg": "close",
+   "bg": "bg",
+   "ratio": 10.71,
+   "need": 4.5,
+   "ok": true,
+   "label": "קרוב לגבול"
+  },
+  {
+   "mode": "dark",
+   "fg": "close",
+   "bg": "closeSoft",
+   "ratio": 9.54,
+   "need": 4.5,
+   "ok": true,
+   "label": "קרוב לגבול"
+  },
+  {
+   "mode": "dark",
+   "fg": "over",
+   "bg": "surface",
+   "ratio": 9.26,
+   "need": 4.5,
+   "ok": true,
+   "label": "עברתם"
+  },
+  {
+   "mode": "dark",
+   "fg": "over",
+   "bg": "bg",
+   "ratio": 10.5,
+   "need": 4.5,
+   "ok": true,
+   "label": "עברתם"
+  },
+  {
+   "mode": "dark",
+   "fg": "over",
+   "bg": "overSoft",
+   "ratio": 9.56,
+   "need": 4.5,
+   "ok": true,
+   "label": "עברתם"
+  },
+  {
+   "mode": "dark",
+   "fg": "positive",
+   "bg": "surface",
+   "ratio": 9.93,
+   "need": 4.5,
+   "ok": true,
+   "label": "חיובי"
+  },
+  {
+   "mode": "dark",
+   "fg": "positive",
+   "bg": "bg",
+   "ratio": 11.27,
+   "need": 4.5,
+   "ok": true,
+   "label": "חיובי"
+  },
+  {
+   "mode": "dark",
+   "fg": "positive",
+   "bg": "positiveSoft",
+   "ratio": 9.71,
+   "need": 4.5,
+   "ok": true,
+   "label": "חיובי"
+  },
+  {
+   "mode": "dark",
+   "fg": "onToast",
+   "bg": "toast",
+   "ratio": 17.15,
+   "need": 4.5,
+   "ok": true,
+   "label": "הודעה"
+  },
+  {
+   "mode": "dark",
+   "fg": "closeBar",
+   "bg": "surface",
+   "ratio": 9.44,
+   "need": 3,
+   "ok": true,
+   "label": "פס קרוב לגבול"
+  },
+  {
+   "mode": "dark",
+   "fg": "closeBar",
+   "bg": "fill",
+   "ratio": 7.46,
+   "need": 3,
+   "ok": true,
+   "label": "פס קרוב לגבול"
+  },
+  {
+   "mode": "dark",
+   "fg": "overBar",
+   "bg": "surface",
+   "ratio": 4.57,
+   "need": 3,
+   "ok": true,
+   "label": "פס עברתם"
+  },
+  {
+   "mode": "dark",
+   "fg": "overBar",
+   "bg": "fill",
+   "ratio": 3.61,
+   "need": 3,
+   "ok": true,
+   "label": "פס עברתם"
+  },
+  {
+   "mode": "dark",
+   "fg": "focus",
+   "bg": "bg",
+   "ratio": 10.46,
+   "need": 3,
+   "ok": true,
+   "label": "טבעת פוקוס"
+  },
+  {
+   "mode": "dark",
+   "fg": "focus",
+   "bg": "surface",
+   "ratio": 9.22,
+   "need": 3,
+   "ok": true,
+   "label": "טבעת פוקוס"
+  },
+  {
+   "mode": "dark",
+   "fg": "lineStrong",
+   "bg": "surface",
+   "ratio": 1.77,
+   "need": 1.5,
+   "ok": true,
+   "label": "קו מודגש (קישוטי)"
+  },
+  {
+   "mode": "dark",
+   "fg": "disabledText",
+   "bg": "disabledBg",
+   "ratio": 3.91,
+   "need": 3,
+   "ok": true,
+   "label": "טקסט מושבת"
+  }
+ ],
+ "cvd": [
+  {
+   "mode": "light",
+   "kind": "normal",
+   "closeVsOver": 0.179,
+   "overVsAction": 0.119,
+   "positiveVsClose": 0.155,
+   "lumCloseOver": 2.04,
+   "seen": {
+    "closeBar": "#A96001",
+    "overBar": "#7E221E",
+    "action": "#88416C",
+    "positive": "#1E6F3D",
+    "close": "#884D02",
+    "over": "#9F332D",
+    "surface": "#FDFFFD",
+    "fill": "#E4E7E2"
+   }
+  },
+  {
+   "mode": "light",
+   "kind": "protan",
+   "closeVsOver": 0.191,
+   "overVsAction": 0.137,
+   "positiveVsClose": 0.071,
+   "lumCloseOver": 2.04,
+   "seen": {
+    "closeBar": "#776800",
+    "overBar": "#3D371D",
+    "action": "#47526D",
+    "positive": "#6F6539",
+    "close": "#5F5300",
+    "over": "#514A2B",
+    "surface": "#FFFFFD",
+    "fill": "#E8E6E2"
+   }
+  },
+  {
+   "mode": "light",
+   "kind": "deutan",
+   "closeVsOver": 0.17,
+   "overVsAction": 0.114,
+   "positiveVsClose": 0.056,
+   "lumCloseOver": 2.04,
+   "seen": {
+    "closeBar": "#887902",
+    "overBar": "#534B1B",
+    "action": "#5A5E6A",
+    "positive": "#655E40",
+    "close": "#6D6103",
+    "over": "#6C612A",
+    "surface": "#FFFEFD",
+    "fill": "#E7E6E2"
+   }
+  },
+  {
+   "mode": "light",
+   "kind": "tritan",
+   "closeVsOver": 0.165,
+   "overVsAction": 0.096,
+   "positiveVsClose": 0.2,
+   "lumCloseOver": 2.04,
+   "seen": {
+    "closeBar": "#BA4F51",
+    "overBar": "#8B0122",
+    "action": "#904051",
+    "positive": "#006D63",
+    "close": "#963F41",
+    "over": "#AF1533",
+    "surface": "#FDFFFE",
+    "fill": "#E4E7E5"
+   }
+  },
+  {
+   "mode": "dark",
+   "kind": "normal",
+   "closeVsOver": 0.209,
+   "overVsAction": 0.215,
+   "positiveVsClose": 0.142,
+   "lumCloseOver": 2.07,
+   "seen": {
+    "closeBar": "#FAB87D",
+    "overBar": "#DE6056",
+    "action": "#F4AFD5",
+    "positive": "#99D9AA",
+    "close": "#FAB87D",
+    "over": "#FEB0A7",
+    "surface": "#1F211E",
+    "fill": "#30332E"
+   }
+  },
+  {
+   "mode": "dark",
+   "kind": "protan",
+   "closeVsOver": 0.231,
+   "overVsAction": 0.247,
+   "positiveVsClose": 0.067,
+   "lumCloseOver": 2.07,
+   "seen": {
+    "closeBar": "#CDBD78",
+    "overBar": "#807754",
+    "action": "#B3BDD6",
+    "positive": "#D9CFA7",
+    "close": "#CDBD78",
+    "over": "#C0BAA6",
+    "surface": "#21201E",
+    "fill": "#34322E"
+   }
+  },
+  {
+   "mode": "dark",
+   "kind": "deutan",
+   "closeVsOver": 0.183,
+   "overVsAction": 0.201,
+   "positiveVsClose": 0.062,
+   "lumCloseOver": 2.07,
+   "seen": {
+    "closeBar": "#DCCB7E",
+    "overBar": "#9F9253",
+    "action": "#C4C7D3",
+    "positive": "#CFC8AD",
+    "close": "#DCCB7E",
+    "over": "#D3CAA6",
+    "surface": "#21201E",
+    "fill": "#33322E"
+   }
+  },
+  {
+   "mode": "dark",
+   "kind": "tritan",
+   "closeVsOver": 0.2,
+   "overVsAction": 0.215,
+   "positiveVsClose": 0.173,
+   "lumCloseOver": 2.07,
+   "seen": {
+    "closeBar": "#FFAAA9",
+    "overBar": "#F2485E",
+    "action": "#FDAFBC",
+    "positive": "#8FD7CC",
+    "close": "#FFAAA9",
+    "over": "#FFA6AE",
+    "surface": "#1F2120",
+    "fill": "#303332"
+   }
+  }
+ ],
+ "steps": [
+  50,
+  100,
+  150,
+  200,
+  300,
+  400,
+  500,
+  600,
+  700,
+  800,
+  900,
+  950,
+  1000
+ ],
+ "categories": [
+  {
+   "id": "teal",
+   "name": "טורקיז",
+   "hue": 195,
+   "light": {
+    "base": "#31A5A5",
+    "soft": "#D0F1F1",
+    "ink": "#036262"
+   },
+   "dark": {
+    "base": "#50BFBE",
+    "soft": "#0D3737",
+    "ink": "#73DFDF"
+   }
+  },
+  {
+   "id": "sand",
+   "name": "חול",
+   "hue": 88,
+   "light": {
+    "base": "#D6BB79",
+    "soft": "#F3E9D0",
+    "ink": "#6A5100"
+   },
+   "dark": {
+    "base": "#A98F4E",
+    "soft": "#3A2F14",
+    "ink": "#E3C885"
+   }
+  },
+  {
+   "id": "blue",
+   "name": "כחול",
+   "hue": 255,
+   "light": {
+    "base": "#4081D2",
+    "soft": "#DCEBFF",
+    "ink": "#0053A4"
+   },
+   "dark": {
+    "base": "#589AED",
+    "soft": "#203147",
+    "ink": "#A8CEFF"
+   }
+  },
+  {
+   "id": "ocean",
+   "name": "ים",
+   "hue": 230,
+   "light": {
+    "base": "#066788",
+    "soft": "#D3EFFD",
+    "ink": "#055E7C"
+   },
+   "dark": {
+    "base": "#2C7EA1",
+    "soft": "#153443",
+    "ink": "#87D6FC"
+   }
+  },
+  {
+   "id": "clay",
+   "name": "חימר",
+   "hue": 40,
+   "light": {
+    "base": "#A67A6B",
+    "soft": "#FEE3D9",
+    "ink": "#7B4532"
+   },
+   "dark": {
+    "base": "#C09283",
+    "soft": "#44281F",
+    "ink": "#EEBEAE"
+   }
+  },
+  {
+   "id": "olive",
+   "name": "זית",
+   "hue": 115,
+   "light": {
+    "base": "#9CA831",
+    "soft": "#E8EDD3",
+    "ink": "#545B00"
+   },
+   "dark": {
+    "base": "#B5C24E",
+    "soft": "#2F3317",
+    "ink": "#C8D563"
+   }
+  },
+  {
+   "id": "indigo",
+   "name": "אינדיגו",
+   "hue": 278,
+   "light": {
+    "base": "#5255B6",
+    "soft": "#E4E8FF",
+    "ink": "#4442B0"
+   },
+   "dark": {
+    "base": "#737ADE",
+    "soft": "#2B2E47",
+    "ink": "#BEC6FF"
+   }
+  },
+  {
+   "id": "sage",
+   "name": "מרווה",
+   "hue": 165,
+   "light": {
+    "base": "#588671",
+    "soft": "#D5F1E4",
+    "ink": "#1F634A"
+   },
+   "dark": {
+    "base": "#6F9E89",
+    "soft": "#18382B",
+    "ink": "#A7D8C1"
+   }
+  },
+  {
+   "id": "violet",
+   "name": "סגול",
+   "hue": 305,
+   "light": {
+    "base": "#9565C7",
+    "soft": "#EFE4FD",
+    "ink": "#6C329F"
+   },
+   "dark": {
+    "base": "#AE7EE2",
+    "soft": "#362A43",
+    "ink": "#D9BBFE"
+   }
+  },
+  {
+   "id": "rose",
+   "name": "ורד",
+   "hue": 8,
+   "light": {
+    "base": "#CC939C",
+    "soft": "#FFE1E5",
+    "ink": "#7E3E4C"
+   },
+   "dark": {
+    "base": "#A56F78",
+    "soft": "#44262C",
+    "ink": "#F4B8C2"
+   }
+  }
+ ],
+ "defaults": [
+  [
+   "Groceries",
+   "סופרמרקט",
+   "teal"
+  ],
+  [
+   "Dining",
+   "אוכל בחוץ",
+   "sand"
+  ],
+  [
+   "Transport",
+   "תחבורה",
+   "blue"
+  ],
+  [
+   "Fuel",
+   "דלק",
+   "ocean"
+  ],
+  [
+   "Housing",
+   "דיור",
+   "clay"
+  ],
+  [
+   "Utilities",
+   "חשבונות",
+   "olive"
+  ],
+  [
+   "Health",
+   "בריאות",
+   "indigo"
+  ],
+  [
+   "Kids",
+   "ילדים",
+   "sage"
+  ],
+  [
+   "Shopping",
+   "קניות",
+   "violet"
+  ],
+  [
+   "Entertainment",
+   "בילויים",
+   "rose"
+  ],
+  [
+   "Subscriptions",
+   "מנויים",
+   "olive"
+  ],
+  [
+   "Travel",
+   "חופשות",
+   "teal"
+  ],
+  [
+   "Gifts",
+   "מתנות",
+   "rose"
+  ],
+  [
+   "Education",
+   "חינוך",
+   "blue"
+  ],
+  [
+   "Other",
+   "אחר",
+   "sand"
+  ]
+ ],
+ "catChecks": [
+  {
+   "cat": "teal",
+   "mode": "light",
+   "label": "סמל על הרקע שלו",
+   "ratio": 5.99,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "teal",
+   "mode": "light",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 7.14,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "teal",
+   "mode": "light",
+   "label": "דש ופס על כרטיס",
+   "ratio": 2.96,
+   "need": 1.5,
+   "ok": true
+  },
+  {
+   "cat": "teal",
+   "mode": "dark",
+   "label": "סמל על הרקע שלו",
+   "ratio": 8.25,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "teal",
+   "mode": "dark",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 10.31,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "teal",
+   "mode": "dark",
+   "label": "דש ופס על כרטיס",
+   "ratio": 7.37,
+   "need": 3,
+   "ok": true
+  },
+  {
+   "cat": "sand",
+   "mode": "light",
+   "label": "סמל על הרקע שלו",
+   "ratio": 6.23,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "sand",
+   "mode": "light",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 7.49,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "sand",
+   "mode": "light",
+   "label": "דש ופס על כרטיס",
+   "ratio": 1.86,
+   "need": 1.5,
+   "ok": true
+  },
+  {
+   "cat": "sand",
+   "mode": "dark",
+   "label": "סמל על הרקע שלו",
+   "ratio": 8.06,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "sand",
+   "mode": "dark",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 9.94,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "sand",
+   "mode": "dark",
+   "label": "דש ופס על כרטיס",
+   "ratio": 5.2,
+   "need": 3,
+   "ok": true
+  },
+  {
+   "cat": "blue",
+   "mode": "light",
+   "label": "סמל על הרקע שלו",
+   "ratio": 6.26,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "blue",
+   "mode": "light",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 7.54,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "blue",
+   "mode": "light",
+   "label": "דש ופס על כרטיס",
+   "ratio": 3.95,
+   "need": 1.5,
+   "ok": true
+  },
+  {
+   "cat": "blue",
+   "mode": "dark",
+   "label": "סמל על הרקע שלו",
+   "ratio": 8.13,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "blue",
+   "mode": "dark",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 9.99,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "blue",
+   "mode": "dark",
+   "label": "דש ופס על כרטיס",
+   "ratio": 5.61,
+   "need": 3,
+   "ok": true
+  },
+  {
+   "cat": "ocean",
+   "mode": "light",
+   "label": "סמל על הרקע שלו",
+   "ratio": 6.05,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "ocean",
+   "mode": "light",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 7.21,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "ocean",
+   "mode": "light",
+   "label": "דש ופס על כרטיס",
+   "ratio": 6.33,
+   "need": 1.5,
+   "ok": true
+  },
+  {
+   "cat": "ocean",
+   "mode": "dark",
+   "label": "סמל על הרקע שלו",
+   "ratio": 8.14,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "ocean",
+   "mode": "dark",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 10.08,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "ocean",
+   "mode": "dark",
+   "label": "דש ופס על כרטיס",
+   "ratio": 3.56,
+   "need": 3,
+   "ok": true
+  },
+  {
+   "cat": "clay",
+   "mode": "light",
+   "label": "סמל על הרקע שלו",
+   "ratio": 6.28,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "clay",
+   "mode": "light",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 7.63,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "clay",
+   "mode": "light",
+   "label": "דש ופס על כרטיס",
+   "ratio": 3.72,
+   "need": 1.5,
+   "ok": true
+  },
+  {
+   "cat": "clay",
+   "mode": "dark",
+   "label": "סמל על הרקע שלו",
+   "ratio": 8.04,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "clay",
+   "mode": "dark",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 9.74,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "clay",
+   "mode": "dark",
+   "label": "דש ופס על כרטיס",
+   "ratio": 5.93,
+   "need": 3,
+   "ok": true
+  },
+  {
+   "cat": "olive",
+   "mode": "light",
+   "label": "סמל על הרקע שלו",
+   "ratio": 6.09,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "olive",
+   "mode": "light",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 7.27,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "olive",
+   "mode": "light",
+   "label": "דש ופס על כרטיס",
+   "ratio": 2.59,
+   "need": 1.5,
+   "ok": true
+  },
+  {
+   "cat": "olive",
+   "mode": "dark",
+   "label": "סמל על הרקע שלו",
+   "ratio": 8.19,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "olive",
+   "mode": "dark",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 10.16,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "olive",
+   "mode": "dark",
+   "label": "דש ופס על כרטיס",
+   "ratio": 8.34,
+   "need": 3,
+   "ok": true
+  },
+  {
+   "cat": "indigo",
+   "mode": "light",
+   "label": "סמל על הרקע שלו",
+   "ratio": 6.52,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "indigo",
+   "mode": "light",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 7.88,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "indigo",
+   "mode": "light",
+   "label": "דש ופס על כרטיס",
+   "ratio": 6.27,
+   "need": 1.5,
+   "ok": true
+  },
+  {
+   "cat": "indigo",
+   "mode": "dark",
+   "label": "סמל על הרקע שלו",
+   "ratio": 8.02,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "indigo",
+   "mode": "dark",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 9.82,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "indigo",
+   "mode": "dark",
+   "label": "דש ופס על כרטיס",
+   "ratio": 4.3,
+   "need": 3,
+   "ok": true
+  },
+  {
+   "cat": "sage",
+   "mode": "light",
+   "label": "סמל על הרקע שלו",
+   "ratio": 5.96,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "sage",
+   "mode": "light",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 7.1,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "sage",
+   "mode": "light",
+   "label": "דש ופס על כרטיס",
+   "ratio": 4.13,
+   "need": 1.5,
+   "ok": true
+  },
+  {
+   "cat": "sage",
+   "mode": "dark",
+   "label": "סמל על הרקע שלו",
+   "ratio": 8.07,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "sage",
+   "mode": "dark",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 10.22,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "sage",
+   "mode": "dark",
+   "label": "דש ופס על כרטיס",
+   "ratio": 5.35,
+   "need": 3,
+   "ok": true
+  },
+  {
+   "cat": "violet",
+   "mode": "light",
+   "label": "סמל על הרקע שלו",
+   "ratio": 6.62,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "violet",
+   "mode": "light",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 8.06,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "violet",
+   "mode": "light",
+   "label": "דש ופס על כרטיס",
+   "ratio": 4.21,
+   "need": 1.5,
+   "ok": true
+  },
+  {
+   "cat": "violet",
+   "mode": "dark",
+   "label": "סמל על הרקע שלו",
+   "ratio": 7.96,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "violet",
+   "mode": "dark",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 9.65,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "violet",
+   "mode": "dark",
+   "label": "דש ופס על כרטיס",
+   "ratio": 5.32,
+   "need": 3,
+   "ok": true
+  },
+  {
+   "cat": "rose",
+   "mode": "light",
+   "label": "סמל על הרקע שלו",
+   "ratio": 6.4,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "rose",
+   "mode": "light",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 7.8,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "rose",
+   "mode": "light",
+   "label": "דש ופס על כרטיס",
+   "ratio": 2.54,
+   "need": 1.5,
+   "ok": true
+  },
+  {
+   "cat": "rose",
+   "mode": "dark",
+   "label": "סמל על הרקע שלו",
+   "ratio": 8.0,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "rose",
+   "mode": "dark",
+   "label": "סמל / שם על כרטיס",
+   "ratio": 9.64,
+   "need": 4.5,
+   "ok": true
+  },
+  {
+   "cat": "rose",
+   "mode": "dark",
+   "label": "דש ופס על כרטיס",
+   "ratio": 3.97,
+   "need": 3,
+   "ok": true
+  }
+ ],
+ "catDistance": {
+  "normal": {
+   "pairs": [
+    [
+     0.079,
+     "sand",
+     "clay"
+    ],
+    [
+     0.083,
+     "blue",
+     "indigo"
+    ],
+    [
+     0.092,
+     "indigo",
+     "violet"
+    ],
+    [
+     0.096,
+     "sand",
+     "sage"
+    ]
+   ],
+   "status": [
+    [
+     0.097,
+     "clay",
+     "closeBar"
+    ],
+    [
+     0.1,
+     "olive",
+     "positive"
+    ],
+    [
+     0.106,
+     "rose",
+     "overBar"
+    ]
+   ],
+   "seen": {
+    "teal": [
+     "#31A5A5",
+     "#50BFBE"
+    ],
+    "sand": [
+     "#D6BB79",
+     "#A98F4E"
+    ],
+    "blue": [
+     "#4081D2",
+     "#589AED"
+    ],
+    "ocean": [
+     "#066788",
+     "#2C7EA1"
+    ],
+    "clay": [
+     "#A67A6B",
+     "#C09283"
+    ],
+    "olive": [
+     "#9CA831",
+     "#B5C24E"
+    ],
+    "indigo": [
+     "#5255B6",
+     "#737ADE"
+    ],
+    "sage": [
+     "#588671",
+     "#6F9E89"
+    ],
+    "violet": [
+     "#9565C7",
+     "#AE7EE2"
+    ],
+    "rose": [
+     "#CC939C",
+     "#A56F78"
+    ]
+   }
+  },
+  "protan": {
+   "pairs": [
+    [
+     0.008,
+     "clay",
+     "sage"
+    ],
+    [
+     0.013,
+     "teal",
+     "rose"
+    ],
+    [
+     0.036,
+     "indigo",
+     "violet"
+    ],
+    [
+     0.045,
+     "blue",
+     "violet"
+    ]
+   ],
+   "status": [
+    [
+     0.034,
+     "teal",
+     "action"
+    ],
+    [
+     0.05,
+     "olive",
+     "closeBar"
+    ],
+    [
+     0.052,
+     "rose",
+     "overBar"
+    ]
+   ],
+   "seen": {
+    "teal": [
+     "#9A9DA5",
+     "#B4B6BE"
+    ],
+    "sand": [
+     "#C9B974",
+     "#9C8E48"
+    ],
+    "blue": [
+     "#5C87D5",
+     "#76A0F0"
+    ],
+    "ocean": [
+     "#56658A",
+     "#6C7CA3"
+    ],
+    "clay": [
+     "#857F6A",
+     "#9D9782"
+    ],
+    "olive": [
+     "#B49F1D",
+     "#CFB941"
+    ],
+    "indigo": [
+     "#1E64B9",
+     "#5188E2"
+    ],
+    "sage": [
+     "#848070",
+     "#9C9888"
+    ],
+    "violet": [
+     "#497ACA",
+     "#6492E6"
+    ],
+    "rose": [
+     "#9C9C9C",
+     "#777878"
+    ]
+   }
+  },
+  "deutan": {
+   "pairs": [
+    [
+     0.025,
+     "blue",
+     "violet"
+    ],
+    [
+     0.054,
+     "clay",
+     "sage"
+    ],
+    [
+     0.057,
+     "sage",
+     "rose"
+    ],
+    [
+     0.06,
+     "blue",
+     "indigo"
+    ]
+   ],
+   "status": [
+    [
+     0.012,
+     "sand",
+     "overBar"
+    ],
+    [
+     0.057,
+     "olive",
+     "closeBar"
+    ],
+    [
+     0.06,
+     "ocean",
+     "action"
+    ]
+   ],
+   "seen": {
+    "teal": [
+     "#8990A6",
+     "#A2A9BF"
+    ],
+    "sand": [
+     "#D0C17B",
+     "#A39550"
+    ],
+    "blue": [
+     "#4679D0",
+     "#6291EB"
+    ],
+    "ocean": [
+     "#465A88",
+     "#5C71A1"
+    ],
+    "clay": [
+     "#8F886B",
+     "#A8A083"
+    ],
+    "olive": [
+     "#B3A13A",
+     "#CEBB55"
+    ],
+    "indigo": [
+     "#085CB4",
+     "#487FDC"
+    ],
+    "sage": [
+     "#7D7A72",
+     "#94928A"
+    ],
+    "violet": [
+     "#567BC5",
+     "#7094DF"
+    ],
+    "rose": [
+     "#A9A69B",
+     "#848177"
+    ]
+   }
+  },
+  "tritan": {
+   "pairs": [
+    [
+     0.03,
+     "ocean",
+     "indigo"
+    ],
+    [
+     0.045,
+     "sand",
+     "clay"
+    ],
+    [
+     0.054,
+     "sand",
+     "violet"
+    ],
+    [
+     0.057,
+     "blue",
+     "sage"
+    ]
+   ],
+   "status": [
+    [
+     0.024,
+     "ocean",
+     "positive"
+    ],
+    [
+     0.049,
+     "indigo",
+     "positive"
+    ],
+    [
+     0.082,
+     "clay",
+     "closeBar"
+    ]
+   ],
+   "seen": {
+    "teal": [
+     "#00AAA5",
+     "#00C4BE"
+    ],
+    "sand": [
+     "#E3B1AB",
+     "#B58580"
+    ],
+    "blue": [
+     "#00949F",
+     "#00ADB8"
+    ],
+    "ocean": [
+     "#007072",
+     "#00888A"
+    ],
+    "clay": [
+     "#B17376",
+     "#CB8B8E"
+    ],
+    "olive": [
+     "#A69E91",
+     "#C0B8A9"
+    ],
+    "indigo": [
+     "#216B7D",
+     "#4B8FA1"
+    ],
+    "sage": [
+     "#4D8680",
+     "#649E98"
+    ],
+    "violet": [
+     "#8D768D",
+     "#A68FA5"
+    ],
+    "rose": [
+     "#D78F96",
+     "#AF6B72"
+    ]
+   }
+  }
+ }
+}

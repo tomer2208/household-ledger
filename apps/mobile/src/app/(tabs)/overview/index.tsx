@@ -5,22 +5,23 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useHousehold, useOverview, useProposals } from '@/api/queries';
 import type { Forecast, OverviewCategory } from '@/api/types';
 import { ADD_BUTTON_SPACE, AddButton } from '@/components/add-button';
-import { BudgetRow } from '@/components/budget-row';
 import { CaptureBanner } from '@/components/capture-banner';
 import { InstallBanner } from '@/components/install-banner';
 import { MonthSwitcher } from '@/components/month-switcher';
 import { SetupCard } from '@/components/setup-card';
 import { OfflineBanner } from '@/components/offline-banner';
+import { Envelope, EnvelopeGrid } from '@/components/envelope';
+import { money } from '@/components/money-text';
 import { ProposalCard } from '@/components/proposal-card';
-import { SwipeRow } from '@/components/swipe-row';
 import { OverviewSkeleton } from '@/components/skeleton';
 import { Badge, CategoryIcon, Empty, Icon, LoadingState, ProgressBar, Row, Screen, Section } from '@/components/ui';
 import { daysToGo, forecastSummary, type ForecastSummary, incomePlan, perDay } from '@/lib/budget';
 import { useCategoryActions } from '@/lib/category-actions';
-import { currentMonth, monthLabel, monthOfInstant, monthPace } from '@/lib/dates';
+import { currentMonth, monthDay, monthLabel, monthOfInstant } from '@/lib/dates';
+import { envelopeStatus, runsOutOn } from '@/lib/envelope';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
-import { budgetTone, moneyText, radius, useColors } from '@/lib/theme';
+import { budgetTone, moneyText, tokens, useColors } from '@/lib/theme';
 
 export default function OverviewScreen() {
   const c = useColors();
@@ -44,61 +45,55 @@ export default function OverviewScreen() {
   const unbudgetedWithSpend = (o?.categories ?? []).filter((x) => (x.cap == null || x.cap === 0) && x.spent !== 0);
   const noBudgetFlags = (o?.categories ?? []).filter((x) => x.no_budget);
   const totalPct = o && o.total_cap > 0 ? Math.round((o.total_spent * 100) / o.total_cap) : null;
-  const pace = monthPace();
   const days = daysToGo();
+  const today = monthDay();
   const actions = useCategoryActions(hh.data?.household?.id);
   const plan = incomePlan(o?.income, o?.total_base_cap ?? 0);
   // P1-17: where the month is heading; the line opens how it adds up.
   const forecast = !past ? forecastSummary(o?.forecast, o?.total_cap ?? 0) : null;
   const [showForecast, setShowForecast] = useState(false);
 
-  // A category's line on Overview. This month: swipe or long press for Edit and Delete, tap
-  // for its expenses. A past month is history: read-only, and tap shows that month's expenses.
-  const categoryRow = (cat: OverviewCategory, cap: number | null, last: boolean) => {
-    const row = (open?: () => void) => (
-      <BudgetRow
-        key={past ? cat.id : undefined}
+  // K1 / O1: a category as an envelope. This month: tap to add an expense to it (C4), long press
+  // for the category (its budget, trend and expenses). A past month is history: tap shows that
+  // month's expenses.
+  const envelopeFor = (cat: OverviewCategory, cap: number | null) => {
+    const out = past ? null : runsOutOn(cap, cat.spent, today.day, today.days);
+    return (
+      <Envelope
+        key={cat.id}
         name={cat.name}
         symbol={cat.sf_symbol}
         cap={cap}
-        carry={cat.carry}
-        reserve={cat.reserve}
-        funds={cat.funds}
         spent={cat.spent}
         currency={cur}
-        pace={past || cap == null ? undefined : pace}
-        forecast={past ? undefined : cat.forecast}
+        hint={out ? t.envelope.runsOut(out) : null}
         onPress={() =>
-          router.push({ pathname: '/transactions', params: past && o ? { category: cat.id, month: o.month } : { category: cat.id } })
+          past && o
+            ? router.push({ pathname: '/transactions', params: { category: cat.id, month: o.month } })
+            : router.push({ pathname: '/add', params: { category: cat.id } })
         }
-        onLongPress={open}
+        onLongPress={past ? undefined : () => actions.edit(cat)}
         actions={
           past
             ? undefined
             : [
+                { name: 'expenses', label: t.tabs.expenses, run: () => router.push({ pathname: '/transactions', params: { category: cat.id } }) },
                 { name: 'edit', label: t.common.edit, run: () => actions.edit(cat) },
                 { name: 'delete', label: t.common.delete, run: () => actions.remove(cat) },
               ]
         }
-        last={last}
       />
     );
-    if (past) return row();
-    return (
-      <SwipeRow key={cat.id} onEdit={() => actions.edit(cat)} onDelete={() => actions.remove(cat)}>
-        {(open) => row(open)}
-      </SwipeRow>
-    );
   };
+  const overCount = budgeted.filter((x) => envelopeStatus(x.cap, x.spent).state === 'over').length;
+  const closeCount = budgeted.filter((x) => envelopeStatus(x.cap, x.spent).state === 'close').length;
+  const month$ = o && o.total_cap > 0 ? envelopeStatus(o.total_cap, o.total_spent) : null;
 
   return (
     <View style={s.fill}>
       <Screen onRefresh={() => overview.refetch()} refreshing={overview.isRefetching} bottomSpace={ADD_BUTTON_SPACE}>
         <Stack.Screen options={{ title: t.tabs.overview }} />
         <OfflineBanner />
-        {!past ? <InstallBanner /> : null}
-        {!past ? <CaptureBanner /> : null}
-        {!past ? <SetupCard /> : null}
         <MonthSwitcher month={month ?? o?.month ?? thisMonth} first={firstMonth} current={thisMonth} onChange={goTo} />
 
         {o ? (
@@ -134,31 +129,47 @@ export default function OverviewScreen() {
                     </Pressable>
                   ) : null}
                 </>
-              ) : o.total_cap > 0 ? (
+              ) : o.total_cap > 0 && month$ && month$.state !== 'none' ? (
                 <>
-                  <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>{o.net >= 0 ? t.overview.leftThisMonth : t.overview.overThisMonth}</Text>
-                  <Text style={[s.heroAmount, { color: o.net >= 0 ? budgetTone(totalPct, c, pace) : c.red }]}>
-                    {formatMoney(Math.abs(o.net), cur)}
-                  </Text>
-                  <ProgressBar pct={totalPct ?? 0} color={budgetTone(totalPct, c, pace)} pace={pace} />
-                  <View style={s.heroRow}>
-                    <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>
-                      {t.common.of(formatMoney(o.total_spent, cur), formatMoney(o.total_cap, cur))}
+                  <Text style={[s.heroLabel, { color: c.text2 }]}>{o.net >= 0 ? t.overview.leftThisMonth : t.overview.overThisMonth}</Text>
+                  {/* The number in ink: the state is said under it, not painted over it (D1). */}
+                  <Text style={[s.heroAmount, { color: o.net >= 0 ? c.text : c.over }]}>{money(Math.abs(o.net), cur)}</Text>
+                  {o.net > 0 ? (
+                    <Text style={[s.heroDay, { color: c.text2 }]}>
+                      <Text style={[s.heroDayAmount, { color: c.text }]}>{money(perDay(o.net, days), cur)}</Text>
+                      {` ${t.overview.perDayPlain} · ${t.overview.daysToGo(days)}`}
                     </Text>
-                    <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>
-                      {o.net > 0 ? `${t.overview.perDay(formatMoney(perDay(o.net, days), cur))} · ` : ''}
-                      {t.overview.daysToGo(days)}
-                    </Text>
-                  </View>
-                  {plan.kind !== 'none' ? (
-                    <Pressable onPress={() => router.push('/settings/income')} accessibilityRole="button" hitSlop={6}>
-                      <Text style={[s.heroMeta, { color: plan.health === 'over' ? c.red : plan.health === 'thin' ? c.orange : c.green }]}>
-                        {plan.kind === 'over'
-                          ? t.overview.budgetsOverIncome(formatMoney(-plan.unassigned, cur))
-                          : t.overview.unassignedToSavings(formatMoney(plan.unassigned, cur), plan.savingsPct)}
-                      </Text>
-                    </Pressable>
                   ) : null}
+                  <View style={[s.track, { backgroundColor: c.fill }]}>
+                    <View
+                      style={[
+                        s.trackFill,
+                        { width: `${Math.min(100, month$.pct)}%`, backgroundColor: month$.state === 'over' ? c.overBar : month$.state === 'close' ? c.closeBar : c.text },
+                      ]}
+                    />
+                  </View>
+                  <View
+                    style={[s.say, { backgroundColor: month$.state === 'over' ? c.overSoft : month$.state === 'close' ? c.closeSoft : c.fill }]}
+                    accessibilityRole="text">
+                    <Icon
+                      name={month$.state === 'ok' ? 'checkmark.circle' : 'exclamationmark.triangle.fill'}
+                      size={17}
+                      color={month$.state === 'over' ? c.over : month$.state === 'close' ? c.close : c.text}
+                    />
+                    <Text style={[s.sayText, { color: month$.state === 'over' ? c.over : month$.state === 'close' ? c.close : c.text }]}>
+                      {month$.state === 'over'
+                        ? t.envelope.monthOver(money(-month$.left, cur))
+                        : month$.state === 'close'
+                          ? t.envelope.monthClose(Math.round(month$.pct))
+                          : t.envelope.monthFine}
+                    </Text>
+                    {month$.state === 'ok' && overCount > 0 ? (
+                      <Text style={[s.pill, { backgroundColor: c.overSoft, color: c.over }]}>{t.envelope.someOver(overCount)}</Text>
+                    ) : null}
+                    {month$.state === 'ok' && closeCount > 0 ? (
+                      <Text style={[s.pill, { backgroundColor: c.closeSoft, color: c.close }]}>{t.envelope.someClose(closeCount)}</Text>
+                    ) : null}
+                  </View>
                   {forecast && o.forecast ? (
                     <ForecastLine f={o.forecast} summary={forecast} currency={cur} open={showForecast} onToggle={() => setShowForecast((x) => !x)} />
                   ) : null}
@@ -176,6 +187,10 @@ export default function OverviewScreen() {
                 </>
               )}
             </View>
+
+            {!past ? <InstallBanner /> : null}
+            {!past ? <CaptureBanner /> : null}
+            {!past ? <SetupCard /> : null}
 
             {!past && o.pending_review > 0 ? (
               <Section>
@@ -213,19 +228,47 @@ export default function OverviewScreen() {
             ) : null}
 
             {budgeted.length > 0 ? (
-              <Section
-                title={t.overview.budgets}
-                action={
-                  past ? undefined : { label: t.common.edit, accessibilityLabel: t.overview.editBudgets, onPress: () => router.push('/settings/categories') }
-                }>
-                {budgeted.map((cat, i) => categoryRow(cat, cat.cap, i === budgeted.length - 1))}
-              </Section>
+              <>
+                <View style={s.groupHead}>
+                  <Text style={[s.groupTitle, { color: c.text }]} accessibilityRole="header">
+                    {t.envelope.envelopes}
+                  </Text>
+                  {past ? (
+                    <Text style={[s.groupMeta, { color: c.text2 }]}>{t.envelope.ofTotal(money(o.total_spent, cur), money(o.total_cap, cur))}</Text>
+                  ) : (
+                    <Pressable
+                      onPress={() => router.push('/settings/categories')}
+                      accessibilityRole="button"
+                      accessibilityLabel={t.overview.editBudgets}
+                      hitSlop={12}>
+                      <Text style={[s.groupAction, { color: c.action }]}>{t.common.edit}</Text>
+                    </Pressable>
+                  )}
+                </View>
+                <EnvelopeGrid>{budgeted.map((cat) => envelopeFor(cat, cat.cap))}</EnvelopeGrid>
+                {/* C3: how the budgets sit against income, under the envelopes rather than in the hero. */}
+                {!past && plan.kind !== 'none' ? (
+                  <Pressable onPress={() => router.push('/settings/income')} accessibilityRole="button" hitSlop={6}>
+                    <Text style={[s.groupFooter, { color: plan.health === 'over' ? c.over : plan.health === 'thin' ? c.close : c.text2 }]}>
+                      {plan.kind === 'over'
+                        ? t.overview.budgetsOverIncome(money(-plan.unassigned, cur))
+                        : t.overview.unassignedToSavings(money(plan.unassigned, cur), plan.savingsPct)}
+                    </Text>
+                  </Pressable>
+                ) : null}
+              </>
             ) : null}
 
             {unbudgetedWithSpend.length > 0 ? (
-              <Section title={t.overview.withoutBudget} footer={past ? undefined : t.overview.withoutBudgetFooter}>
-                {unbudgetedWithSpend.map((cat, i) => categoryRow(cat, null, i === unbudgetedWithSpend.length - 1))}
-              </Section>
+              <>
+                <View style={s.groupHead}>
+                  <Text style={[s.groupTitle, { color: c.text }]} accessibilityRole="header">
+                    {t.overview.withoutBudget}
+                  </Text>
+                </View>
+                <EnvelopeGrid>{unbudgetedWithSpend.map((cat) => envelopeFor(cat, null))}</EnvelopeGrid>
+                {past ? null : <Text style={[s.groupFooter, { color: c.text2 }]}>{t.overview.withoutBudgetFooter}</Text>}
+              </>
             ) : null}
 
             {/* Checked less often than the month itself, so it sits below the budgets. */}
@@ -314,9 +357,21 @@ function ForecastLine({
 
 const s = StyleSheet.create({
   fill: { flex: 1 },
-  hero: { marginHorizontal: 16, marginTop: 12, borderRadius: radius.hero, padding: 18, gap: 8 },
-  heroLabel: { fontSize: 15 },
-  heroAmount: { fontSize: 40, fontWeight: '700', ...moneyText },
+  hero: { marginHorizontal: tokens.space[4], marginTop: tokens.space[3], borderRadius: tokens.radius.card, padding: tokens.space[5], gap: tokens.space[1] },
+  heroLabel: { ...tokens.type.secondary, fontSize: 16 },
+  heroAmount: { ...tokens.type.display, letterSpacing: -0.5 },
+  heroDay: { ...tokens.type.secondary },
+  heroDayAmount: { ...moneyText, fontSize: 18, fontWeight: '600' },
+  track: { height: 8, borderRadius: 4, overflow: 'hidden', marginTop: tokens.space[2] },
+  trackFill: { height: 8, borderRadius: 4 },
+  say: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: tokens.space[2], borderRadius: tokens.radius.chip + 2, paddingHorizontal: tokens.space[3], paddingVertical: tokens.space[2], marginTop: tokens.space[2] },
+  sayText: { ...tokens.type.secondary, fontWeight: '700', flexShrink: 1 },
+  pill: { ...tokens.type.caption, fontWeight: '700', borderRadius: tokens.radius.chip, paddingHorizontal: tokens.space[2], overflow: 'hidden' },
+  groupHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginHorizontal: tokens.space[5], marginTop: tokens.space[6], marginBottom: tokens.space[2] },
+  groupTitle: { ...tokens.type.heading },
+  groupMeta: { ...tokens.type.caption, ...moneyText },
+  groupAction: { ...tokens.type.label, fontSize: 16, fontWeight: '600' },
+  groupFooter: { ...tokens.type.caption, marginHorizontal: tokens.space[5], marginTop: tokens.space[2] },
   heroRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', columnGap: 12, rowGap: 2 },
   heroMeta: { fontSize: 14, ...moneyText },
   forecast: { borderTopWidth: StyleSheet.hairlineWidth, marginTop: 4, paddingTop: 10, gap: 8 },

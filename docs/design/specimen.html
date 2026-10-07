@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>דף דוגמאות FinPace</title>
+<!-- Gate C (docs/DESIGN_GANTT.md): F1-F6 on one page, with the three open choices as switches.
+     Values are copied from foundations/palette.json, type.md, tokens.md, icons.md and brand/. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Rubik:wght@400;500;600;700&family=Secular+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>
+  :root {
+    --bg: #EDF0EB; --surface: #FDFFFD; --raised: #FDFFFD; --fill: #E4E7E2; --line: #DADED8; --text: #1F211E; --text2: #5C5F5A;
+    --action: #88416C; --actionPressed: #6B2F54; --onAction: #FDFFFD; --actionSoft: #FEE8F4;
+    --close: #884D02; --closeSoft: #FFEBDB; --closeBar: #A96001; --over: #9F332D; --overSoft: #FFEAE7; --overBar: #7E221E;
+    --positive: #1E6F3D; --positiveSoft: #CCFED7; --disabledBg: #E4E7E2; --disabledText: #727671; --toast: #1F211E; --onToast: #F4F8F3;
+    --elev-1: 0 6px 18px rgba(20,26,23,.18); --body: Assistant, sans-serif;
+  }
+  :root[data-theme="dark"] {
+    --bg: #121511; --surface: #1F211E; --raised: #272A26; --fill: #30332E; --line: #3D3F3B; --text: #F4F8F3; --text2: #A9ACA7;
+    --action: #F4AFD5; --actionPressed: #FFCBE7; --onAction: #26051A; --actionSoft: #4E1D3B;
+    --close: #FAB87D; --closeSoft: #331901; --closeBar: #FAB87D; --over: #FEB0A7; --overSoft: #430304; --overBar: #DE6056;
+    --positive: #99D9AA; --positiveSoft: #002910; --disabledBg: #30332E; --disabledText: #8C8F8A; --toast: #F4F8F3; --onToast: #121511;
+    --elev-1: 0 0 0 1px var(--line);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 400 17px/1.5 var(--body); }
+  .page { max-width: 1180px; margin: 0 auto; padding: 28px 16px 80px; }
+  .num { font-family: Rubik, sans-serif; font-variant-numeric: tabular-nums; }
+  h1, h2, .title, .heading { font-family: 'Secular One', sans-serif; font-weight: 400; }
+  h2 { font-size: 22px; margin: 48px 0 6px; }
+  .note { color: var(--text2); max-width: 72ch; margin: 0 0 14px; font-size: 16px; }
+  a { color: var(--action); }
+  button:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
+
+  .top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .top svg { width: 64px; height: 64px; border-radius: 15px; flex: none; }
+  .top h1 { margin: 0; font-size: 40px; line-height: 1; }
+  .top p { margin: 4px 0 0; color: var(--text2); }
+
+  .choices { position: sticky; top: 0; z-index: 10; background: var(--bg); padding: 12px 0; display: flex; gap: 10px 18px; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--line); margin-top: 18px; }
+  .choice { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 15px; }
+  .choice b { margin-inline-end: 2px; }
+  .choice button { min-height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: inherit; cursor: pointer; }
+  .choice button[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .choice button small { opacity: .75; }
+
+  /* ---- phones ---- */
+  .phones { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  .phone { position: relative; width: 375px; max-width: 100%; height: 760px; overflow: hidden; border-radius: 30px; background: var(--bg); box-shadow: 0 0 0 1px var(--line), 0 14px 36px rgba(0,0,0,.14); }
+  .scr { padding: 46px 16px 0; display: grid; gap: 12px; align-content: start; }
+  .hd { display: flex; align-items: center; padding-inline: 4px; }
+  .hd .title { flex: 1; font-size: 28px; }
+  .hd i, .hd svg { color: var(--text2); width: 22px; height: 22px; font-size: 22px; }
+  .hero { background: var(--surface); border-radius: 20px; padding: 18px 20px; display: grid; gap: 2px; }
+  .hero .lbl, .secondary { font-size: 15px; color: var(--text2); }
+  .display { font: 600 46px/1.1 Rubik, sans-serif; font-variant-numeric: tabular-nums; }
+  .say { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 8px; background: var(--fill); border-radius: 10px; padding: 7px 10px; font-size: 15px; font-weight: 600; }
+  .pill { font-size: 13px; font-weight: 700; padding: 1px 8px; border-radius: 8px; }
+  .pill.close { background: var(--closeSoft); color: var(--close); } .pill.over { background: var(--overSoft); color: var(--over); }
+  .bar { height: 8px; border-radius: 4px; background: var(--fill); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 4px; }
+  .sec { display: flex; justify-content: space-between; align-items: baseline; padding-inline: 4px; }
+  .sec .heading { font-size: 19px; } .sec span { font-size: 13px; color: var(--text2); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .env { position: relative; background: var(--surface); border-radius: 16px; padding: 22px 12px 12px; display: grid; gap: 4px; overflow: hidden; }
+  .env::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 16px; background: var(--base); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  .env .row { display: flex; align-items: center; gap: 8px; }
+  .env .name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .env .amt { font: 600 18px/1.2 Rubik, sans-serif; font-variant-numeric: tabular-nums; }
+  .env .of { font-size: 13px; color: var(--text2); }
+  .env .tag { justify-self: start; font-size: 13px; font-weight: 700; padding: 1px 8px; border-radius: 8px; }
+  .env.close { box-shadow: inset 0 0 0 2px var(--closeBar); } .env.close .amt, .env.close .tag { color: var(--close); } .env.close .tag { background: var(--closeSoft); }
+  .env.over { box-shadow: inset 0 0 0 2px var(--overBar); } .env.over .amt, .env.over .tag { color: var(--over); } .env.over .tag { background: var(--overSoft); }
+  .env.over .bar i { background: repeating-linear-gradient(135deg, var(--overBar) 0 6px, color-mix(in srgb, var(--overBar) 70%, var(--surface)) 6px 10px) !important; }
+  .ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--soft); color: var(--ink); flex: none; }
+  .ic svg { width: 17px; height: 17px; } .ic i.ph, .ic i.ph-duotone { font-size: 19px; line-height: 1; }
+  .fab { position: absolute; bottom: 100px; left: 0; right: 0; display: flex; justify-content: center; }
+  .fab b { display: inline-flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 24px; border-radius: 999px; background: var(--action); color: var(--onAction); font-size: 18px; font-weight: 700; box-shadow: var(--elev-1); }
+  .tabs { position: absolute; bottom: 0; left: 0; right: 0; height: 83px; display: flex; justify-content: space-around; padding-top: 8px; background: color-mix(in srgb, var(--bg) 94%, transparent); border-top: 1px solid var(--line); }
+  .tab { display: grid; justify-items: center; gap: 2px; font-size: 11px; color: var(--text2); width: 72px; }
+  .tab.on { color: var(--action); } .tab i, .tab svg { font-size: 24px; width: 24px; height: 24px; }
+
+  /* sheet */
+  .shade { position: absolute; inset: 0; background: rgba(20,26,23,.38); }
+  .sheet { position: absolute; inset: auto 0 0 0; background: var(--raised); border-radius: 20px 20px 0 0; padding: 10px 16px 24px; display: grid; gap: 10px; }
+  .grab { width: 40px; height: 5px; border-radius: 3px; background: var(--line); justify-self: center; }
+  .sheet .amount { text-align: center; font: 600 46px Rubik, sans-serif; direction: ltr; }
+  .prompt { text-align: center; font-size: 15px; color: var(--close); font-weight: 600; margin-top: -6px; }
+  .picks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .pick { position: relative; background: var(--surface); border-radius: 12px; padding: 14px 2px 6px; display: grid; justify-items: center; gap: 2px; overflow: hidden; min-height: 70px; }
+  .pick::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 11px; background: var(--base); opacity: .85; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  .pick .ic { width: 26px; height: 26px; } .pick .ic svg { width: 15px; height: 15px; } .pick .ic i { font-size: 16px !important; }
+  .pick span { font-size: 12.5px; font-weight: 600; } .pick small { font: 500 11px Rubik; color: var(--text2); }
+  .pick.sel { box-shadow: inset 0 0 0 2px var(--action); }
+  .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; direction: ltr; }
+  .keys span { min-height: 46px; border-radius: 12px; background: var(--surface); display: grid; place-items: center; font: 400 22px Rubik; }
+  .save { min-height: 52px; border-radius: 14px; background: var(--action); color: var(--onAction); display: grid; place-items: center; font-weight: 700; font-size: 18px; }
+  .toast { position: absolute; inset: auto 12px 168px; background: var(--toast); color: var(--onToast); border-radius: 14px; padding: 12px 14px; font-size: 15px; display: flex; gap: 8px; }
+  .toast u { margin-inline-start: auto; font-weight: 700; }
+
+  /* foundations strip */
+  .found { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @media (max-width: 860px) { .found { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border-radius: 20px; padding: 18px; }
+  .card h3 { margin: 0 0 10px; font-size: 16px; }
+  .sw { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sw div { width: 64px; display: grid; gap: 3px; font-size: 11px; color: var(--text2); }
+  .sw i { height: 40px; border-radius: 10px; box-shadow: inset 0 0 0 1px rgba(128,128,128,.2); }
+  .typeRow { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-bottom: 1px solid var(--line); padding: 6px 0; }
+  .typeRow:last-child { border: 0; } .typeRow small { color: var(--text2); font-size: 12px; white-space: nowrap; }
+  .icons { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+  .icons div { display: grid; justify-items: center; gap: 4px; font-size: 11.5px; text-align: center; }
+  .icons .ic { width: 38px; height: 38px; border-radius: 11px; } .icons .ic svg { width: 21px; height: 21px; } .icons .ic i { font-size: 23px !important; }
+  .decide { display: grid; gap: 10px; }
+  .decide div { background: var(--surface); border-radius: 14px; padding: 12px 16px; }
+  .decide b { display: block; }
+  .decide span { color: var(--text2); font-size: 15px; }
+  .links { display: flex; gap: 14px; flex-wrap: wrap; font-size: 15px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="top">
+    <span id="logo"></span>
+    <div><h1>FinPace</h1><p>דף הדוגמאות לשער ג: הפלטה, הפונטים, האייקונים והסמל, ביחד, על המסכים עצמם.</p></div>
+  </div>
+
+  <div class="choices">
+    <span class="choice" role="group" aria-label="פונט הטקסט"><b>טקסט:</b>
+      <button type="button" data-body="Assistant" aria-pressed="true">Assistant <small>(המלצה)</small></button>
+      <button type="button" data-body="Rubik" aria-pressed="false">Rubik</button></span>
+    <span class="choice" role="group" aria-label="אייקונים"><b>אייקונים:</b>
+      <button type="button" data-set="phd" aria-pressed="true">Phosphor דו-גוני <small>(המלצה)</small></button>
+      <button type="button" data-set="ph" aria-pressed="false">Phosphor קו</button>
+      <button type="button" data-set="lu" aria-pressed="false">Lucide</button></span>
+    <span class="choice" role="group" aria-label="ערכת צבעים"><b>מצב:</b>
+      <button type="button" data-theme="light" aria-pressed="true">בהיר</button>
+      <button type="button" data-theme="dark" aria-pressed="false">כהה</button></span>
+  </div>
+
+  <h2>על המסכים</h2>
+  <p class="note">המסך הראשי, ואותו מסך עם חלונית ההוספה פתוחה, רגע לפני ששומרים. כל ערך כאן מ-F1 עד F6.</p>
+  <div class="phones" id="phones"></div>
+
+  <h2>היסודות</h2>
+  <div class="found" id="found"></div>
+
+  <h2>מה מחליטים כאן</h2>
+  <div class="decide">
+    <div><b>1. הסמל: המעטפה עם הדש והפס (ג')</b><span>הוא בראש הדף. שתי ההצעות האחרות ונימוקים: <a href="brand/brand.html">brand.html</a>.</span></div>
+    <div><b>2. פונט הטקסט: Assistant או Rubik</b><span>המתג למעלה מחליף את כל הדף. הכותרות (Secular One) והסכומים (Rubik) לא משתנים.</span></div>
+    <div><b>3. האייקונים: Phosphor דו-גוני, Phosphor קו, או Lucide</b><span>המתג למעלה. 54 אייקונים וחיפוש: <a href="foundations/icons.html">icons.html</a>.</span></div>
+    <div><b>4. וכל השאר כפי שהוא:</b><span> הפלטה והסטטוסים, עשרת צבעי הקטגוריות, סולם הטיפוגרפיה, המרווחים והתנועה. או הערות.</span></div>
+  </div>
+  <h2>הפירוט</h2>
+  <div class="links">
+    <a href="foundations/palette.html">פלטה וקטגוריות</a><a href="foundations/type.html">טיפוגרפיה</a><a href="foundations/tokens.html">מרווחים ותנועה</a>
+    <a href="foundations/icons.html">אייקונים</a><a href="brand/brand.html">מותג</a><a href="c4/prototype.html">אב-טיפוס לחיץ</a>
+  </div>
+</div>
+
+<script>
+const COL = {"teal": {"l": {"base": "#31A5A5", "soft": "#D0F1F1", "ink": "#036262"}, "d": {"base": "#50BFBE", "soft": "#0D3737", "ink": "#73DFDF"}}, "sand": {"l": {"base": "#D6BB79", "soft": "#F3E9D0", "ink": "#6A5100"}, "d": {"base": "#A98F4E", "soft": "#3A2F14", "ink": "#E3C885"}}, "blue": {"l": {"base": "#4081D2", "soft": "#DCEBFF", "ink": "#0053A4"}, "d": {"base": "#589AED", "soft": "#203147", "ink": "#A8CEFF"}}, "ocean": {"l": {"base": "#066788", "soft": "#D3EFFD", "ink": "#055E7C"}, "d": {"base": "#2C7EA1", "soft": "#153443", "ink": "#87D6FC"}}, "clay": {"l": {"base": "#A67A6B", "soft": "#FEE3D9", "ink": "#7B4532"}, "d": {"base": "#C09283", "soft": "#44281F", "ink": "#EEBEAE"}}, "olive": {"l": {"base": "#9CA831", "soft": "#E8EDD3", "ink": "#545B00"}, "d": {"base": "#B5C24E", "soft": "#2F3317", "ink": "#C8D563"}}, "indigo": {"l": {"base": "#5255B6", "soft": "#E4E8FF", "ink": "#4442B0"}, "d": {"base": "#737ADE", "soft": "#2B2E47", "ink": "#BEC6FF"}}, "sage": {"l": {"base": "#588671", "soft": "#D5F1E4", "ink": "#1F634A"}, "d": {"base": "#6F9E89", "soft": "#18382B", "ink": "#A7D8C1"}}, "violet": {"l": {"base": "#9565C7", "soft": "#EFE4FD", "ink": "#6C329F"}, "d": {"base": "#AE7EE2", "soft": "#362A43", "ink": "#D9BBFE"}}, "rose": {"l": {"base": "#CC939C", "soft": "#FFE1E5", "ink": "#7E3E4C"}, "d": {"base": "#A56F78", "soft": "#44262C", "ink": "#F4B8C2"}}};
+// [Hebrew name, colour, Lucide, Phosphor, spent, cap]
+const ENVS = [
+  ['סופרמרקט', 'teal', 'shopping-cart', 'shopping-cart', 1150, 3200], ['אוכל בחוץ', 'sand', 'utensils', 'fork-knife', 810, 900],
+  ['תחבורה', 'blue', 'car', 'car', 380, 800], ['דלק', 'ocean', 'fuel', 'gas-pump', 1120, 1000],
+  ['דיור', 'clay', 'house', 'house', 0, 5200], ['חשבונות', 'olive', 'zap', 'lightning', 210, 650],
+  ['בריאות', 'indigo', 'stethoscope', 'stethoscope', 120, 400], ['ילדים', 'sage', 'baby', 'baby', 520, 1400],
+];
+const MORE = [['פארם', 'pill', 'pill'], ['חיות מחמד', 'paw-print', 'paw-print'], ['גן וצהרון', 'backpack', 'backpack'], ['חוגים', 'palette', 'palette'],
+  ['ביטוח', 'shield-check', 'shield-check'], ['חופשות', 'plane', 'airplane'], ['מתנות', 'gift', 'gift'], ['ארנונה', 'receipt', 'receipt']];
+const ils = new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 });
+const m = (n) => `<bdi class="num">${ils.format(n)}</bdi>`;
+let set = 'phd', theme = 'light';
+const glyph = (lu, ph) => set === 'lu' ? `<i data-lucide="${lu}"></i>` : `<i class="${set === 'phd' ? 'ph-duotone' : 'ph'} ph-${ph}" aria-hidden="true"></i>`;
+const sysIcon = (lu, ph) => set === 'lu' ? `<i data-lucide="${lu}"></i>` : `<i class="ph ph-${ph}" aria-hidden="true"></i>`;
+const st = (s, c) => (s > c ? 'over' : s * 100 / c >= 80 ? 'close' : 'ok');
+const cv = (k) => { const c = COL[k][theme === 'dark' ? 'd' : 'l']; return `--base:${c.base};--soft:${c.soft};--ink:${c.ink}`; };
+
+const LOGO = (id) => `<svg viewBox="0 0 1024 1024" role="img" aria-label="FinPace"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9A4C7B"/><stop offset="1" stop-color="#6B2F54"/></linearGradient><clipPath id="${id}c"><rect x="200" y="272" width="624" height="480" rx="72"/></clipPath></defs>
+  <rect width="1024" height="1024" fill="url(#${id})"/><rect x="200" y="272" width="624" height="480" rx="72" fill="#FDFFFD"/>
+  <path d="M200 272 H824 L512 492 Z" fill="#F4AFD5" clip-path="url(#${id}c)"/><rect x="276" y="584" width="472" height="84" rx="42" fill="#E4E7E2"/><rect x="276" y="584" width="300" height="84" rx="42" fill="#88416C"/></svg>`;
+
+function envHtml([n, k, lu, ph, s, c]) {
+  const x = st(s, c), left = c - s;
+  return `<div class="env ${x === 'ok' ? '' : x}" style="${cv(k)}">
+    <div class="row"><span class="ic">${glyph(lu, ph)}</span><span class="name">${n}</span></div>
+    ${x === 'ok' ? '' : `<span class="tag">${x === 'over' ? 'עברתם' : 'קרוב לגבול'}</span>`}
+    <div class="amt">${x === 'over' ? `עברתם ב-${m(-left)}` : x === 'close' ? `נשארו רק ${m(left)}` : `נשאר ${m(left)}`}</div>
+    <div class="bar"><i style="width:${Math.min(100, s * 100 / c)}%;background:${x === 'ok' ? 'var(--base)' : x === 'close' ? 'var(--closeBar)' : 'var(--overBar)'}"></i></div>
+    <div class="of">${m(s)} מתוך ${m(c)}</div></div>`;
+}
+const chrome = () => `<div class="fab"><b>${sysIcon('plus', 'plus')}הוספת הוצאה</b></div>
+  <div class="tabs">${[['mail', 'envelope-simple', 'מעטפות', 1], ['list', 'list', 'הוצאות'], ['file-search', 'file-magnifying-glass', 'דוחות'], ['settings', 'gear', 'הגדרות']]
+    .map(([a, b, l, on]) => `<div class="tab${on ? ' on' : ''}">${sysIcon(a, b)}<span>${l}</span></div>`).join('')}</div>`;
+function overview() {
+  const cap = ENVS.reduce((a, e) => a + e[5], 0), spent = ENVS.reduce((a, e) => a + e[4], 0);
+  return `<div class="scr">
+    <div class="hd"><span class="title">אוקטובר</span>${sysIcon('chevron-right', 'caret-right')}${sysIcon('chevron-left', 'caret-left')}</div>
+    <div class="hero"><div class="lbl">נשאר החודש</div><div class="display">${ils.format(cap - spent)}</div>
+      <div class="secondary">${m(Math.floor((cap - spent) / 20))} ליום · עוד 20 ימים</div>
+      <div class="bar" style="margin-top:10px"><i style="width:${spent * 100 / cap}%;background:var(--text)"></i></div>
+      <div class="say">${sysIcon('circle-check', 'check-circle')}החודש בסדר <span class="pill over">מעטפה אחת עברה</span><span class="pill close">אחת קרובה לגבול</span></div></div>
+    <div class="sec"><span class="heading">המעטפות</span><span>${m(spent)} מתוך ${m(cap)}</span></div>
+    <div class="grid">${ENVS.map(envHtml).join('')}</div></div>${chrome()}`;
+}
+function adding() {
+  return `<div class="scr" style="filter:none">${overview().split('<div class="fab">')[0]}</div>
+    <div class="shade"></div>
+    <div class="sheet"><div class="grab"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-weight:700">הוספת הוצאה ${sysIcon('x', 'x')}</div>
+      <div class="amount">200 ₪</div><div class="prompt" style="color:var(--over)">אוכל בחוץ תעבור את התקציב ב-110 ₪</div>
+      <div class="picks">${ENVS.map(([n, k, lu, ph, s, c], i) => `<div class="pick${i === 1 ? ' sel' : ''}" style="${cv(k)}"><span class="ic">${glyph(lu, ph)}</span><span>${n}</span><small>${c - s < 0 ? '+' + ils.format(s - c) : ils.format(c - s)}</small></div>`).join('')}</div>
+      <div class="keys">${['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫'].map((k) => `<span>${k}</span>`).join('')}</div>
+      <div class="save">שמירה באוכל בחוץ</div></div>`;
+}
+function saved() {
+  const e = ENVS.map((x) => x.slice()); e[1][4] += 200;
+  const cap = e.reduce((a, x) => a + x[5], 0), spent = e.reduce((a, x) => a + x[4], 0);
+  return overview().replace(/<div class="grid">[\s\S]*?<\/div><\/div>(?=<div class="fab">)/, `<div class="grid">${e.map(envHtml).join('')}</div></div>`)
+    .replace(/<div class="fab">/, `<div class="toast">נוסף 200 ₪ לאוכל בחוץ. עברתם את התקציב ב-110 ₪<u>ביטול</u></div><div class="fab">`);
+}
+function found() {
+  const roles = [['רקע', '--bg'], ['כרטיס', '--surface'], ['טקסט', '--text'], ['משני', '--text2'], ['פעולה', '--action'], ['קרוב לגבול', '--closeBar'], ['עברתם', '--overBar'], ['חיובי', '--positive']];
+  const cats = Object.keys(COL);
+  const type = [['46 · סכום ראשי', `<span class="display" style="font-size:34px">${ils.format(4870)}</span>`], ['28 · כותרת מסך', '<span class="title" style="font-size:28px">אוקטובר</span>'],
+    ['19 · כותרת קבוצה', '<span class="heading" style="font-size:19px">המעטפות</span>'], ['20 · סכום', `<span class="num" style="font-weight:600;font-size:20px">נשארו רק ${ils.format(90)}</span>`],
+    ['17 · גוף', 'מקלידים סכום, ובוחרים מעטפה.'], ['15 · משני', `<span class="secondary">${ils.format(243)} ליום</span>`], ['13 · כיתוב', `<span style="font-size:13px;color:var(--text2)">${ils.format(1150)} מתוך ${ils.format(3200)}</span>`]];
+  return `<div class="card"><h3>פלטה (F1)</h3><div class="sw">${roles.map(([l, v]) => `<div><i style="background:var(${v})"></i>${l}</div>`).join('')}</div>
+      <h3 style="margin-top:16px">צבעי קטגוריות (F2)</h3><div class="sw">${cats.map((k) => { const c = COL[k][theme === 'dark' ? 'd' : 'l']; return `<div><i style="background:${c.base}"></i>${{ teal: 'טורקיז', sand: 'חול', blue: 'כחול', ocean: 'ים', clay: 'חימר', olive: 'זית', indigo: 'אינדיגו', sage: 'מרווה', violet: 'סגול', rose: 'ורד' }[k]}</div>`; }).join('')}</div></div>
+    <div class="card"><h3>טיפוגרפיה (F3)</h3>${type.map(([k, v]) => `<div class="typeRow">${v}<small>${k}</small></div>`).join('')}</div>
+    <div class="card" style="grid-column:1/-1"><h3>אייקונים (F5), בצבעי הקטגוריות</h3><div class="icons">${[...ENVS.map((e) => [e[0], e[1], e[2], e[3]]), ...MORE.map((x, i) => [x[0], cats[(i + 2) % 10], x[1], x[2]])]
+      .map(([n, k, lu, ph]) => `<div style="${cv(k)}"><span class="ic">${glyph(lu, ph)}</span>${n}</div>`).join('')}</div></div>`;
+}
+function render() {
+  document.documentElement.dataset.theme = theme;
+  document.getElementById('logo').innerHTML = LOGO('lg');
+  document.getElementById('phones').innerHTML = [['המסך הראשי', overview()], ['הוספה: 200 ₪ לאוכל בחוץ', adding()], ['אחרי השמירה', saved()]]
+    .map(([t, h]) => `<figure style="margin:0"><figcaption class="note" style="margin:0 0 6px">${t}</figcaption><div class="phone">${h}</div></figure>`).join('');
+  document.getElementById('found').innerHTML = found();
+  lucide.createIcons({ attrs: { 'stroke-width': 2 } });
+}
+const group = (attr, fn) => document.querySelectorAll(`[data-${attr}]`).forEach((b) => b.addEventListener('click', () => {
+  document.querySelectorAll(`[data-${attr}]`).forEach((x) => x.setAttribute('aria-pressed', String(x === b))); fn(b.dataset[attr]); render();
+}));
+group('body', (v) => document.documentElement.style.setProperty('--body', `${v}, sans-serif`));
+group('set', (v) => { set = v; });
+group('theme', (v) => { theme = v; });
+render();
+document.fonts.ready.then(render);
+</script>
+</body>
+</html>

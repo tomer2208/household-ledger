@@ -204,7 +204,7 @@ function MonthStatus({
   // the month's budget: the one being typed, plus what carried in and what spread payments
   // set aside or release
   const st = budgetStatus(cap == null && carry === 0 && reserve === 0 ? null : (cap ?? 0) + carry + reserve, spent);
-  const tone = st.kind === 'none' ? c.label : budgetTone(st.pct, c, pace);
+  const tone = st.kind === 'none' ? c.label : budgetTone(st.pct, c);
   return (
     <View style={[s.status, { backgroundColor: c.cell }]} accessibilityLiveRegion="polite">
       <Text style={[s.statusLabel, { color: c.secondaryLabel }]}>{preview ? t.categories.withNewBudget : t.month.thisMonth}</Text>
