@@ -5,7 +5,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from './ui';
 import { t } from '@/lib/i18n';
-import { radius, useColors } from '@/lib/theme';
+import { useScheme } from '@/lib/appearance';
+import { radius, tokens, useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
 
 // The app's main action sits in the thumb zone (docs/DESIGN_PLAN.md §5), floating above the
@@ -15,6 +16,7 @@ export const ADD_BUTTON_SPACE = 88;
 const HEIGHT = 56;
 
 export function AddButton({ href = '/add' }: { href?: Href }) {
+  const scheme = useScheme();
   const c = useColors();
   const insets = useSafeAreaInsets();
   // The web tab bar sits below the screen; the native iOS tab bar floats over it.
@@ -30,7 +32,9 @@ export function AddButton({ href = '/add' }: { href?: Href }) {
         }}
         style={({ pressed }) => [
           s.button,
-          { backgroundColor: c.tint, shadowColor: '#0F1B24' },
+          // F4 elevation 1: a shadow in light, a hairline in dark
+          { backgroundColor: c.tint },
+          scheme === 'dark' ? tokens.elevation.dark.floating : tokens.elevation.light.floating,
           pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
         ]}>
         <Icon name="plus" size={20} color={c.onTint} />
@@ -50,10 +54,6 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
   },
   label: { fontFamily: fontFamily.body, fontSize: 17, fontWeight: '600' },
 });

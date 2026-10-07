@@ -82,7 +82,7 @@ export const en = {
     pushNotReady: 'Notifications are not set up on the server yet.',
   },
   tabs: {
-    overview: 'Overview',
+    overview: 'Envelopes',
     expenses: 'Expenses',
     reports: 'Reports',
     settings: 'Settings',

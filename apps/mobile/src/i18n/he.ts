@@ -85,7 +85,7 @@ export const he: Dict = {
     pushNotReady: 'ההתראות עדיין לא הוגדרו בשרת.',
   },
   tabs: {
-    overview: 'סקירה',
+    overview: 'מעטפות',
     expenses: 'הוצאות',
     reports: 'דוחות',
     settings: 'הגדרות',

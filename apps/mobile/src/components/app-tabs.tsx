@@ -9,7 +9,7 @@ export default function AppTabs() {
   return (
     <NativeTabs>
       <NativeTabs.Trigger name="overview">
-        <NativeTabs.Trigger.Icon sf={{ default: 'chart.pie', selected: 'chart.pie.fill' }} />
+        <NativeTabs.Trigger.Icon sf={{ default: 'envelope', selected: 'envelope.fill' }} />
         <NativeTabs.Trigger.Label>{t.tabs.overview}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="transactions">

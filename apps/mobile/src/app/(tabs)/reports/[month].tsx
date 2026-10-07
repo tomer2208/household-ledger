@@ -81,7 +81,11 @@ export default function MonthReport() {
           </View>
           <Text style={[s.headline, { color: c.label }]}>{say(narrative.headline)}</Text>
           <Text style={[s.summary, { color: c.label }]}>{say(narrative.summary)}</Text>
-          {narrative.highlights.map((h, i) => (
+          {/* D1: the hero already says what moved to savings; a highlight that only repeats that
+              amount is left out, so the month isn't told three times. */}
+          {narrative.highlights
+            .filter((h) => !(close && close.net_minor !== 0 && say(h.text).includes(formatMoney(Math.abs(close.net_minor), cur))))
+            .map((h, i) => (
             <View key={i} style={s.highlight}>
               <Icon name={TONE_ICON[h.tone]} size={16} color={h.tone === 'positive' ? c.green : h.tone === 'warning' ? c.orange : c.tint} />
               <Text style={[s.highlightText, { color: c.label }]}>{say(h.text)}</Text>
@@ -159,7 +163,7 @@ const s = StyleSheet.create({
   writing: { flexDirection: 'row', gap: 12, alignItems: 'center', justifyContent: 'center', padding: 24 },
   story: { marginHorizontal: 16, marginTop: 16, borderRadius: 14, padding: 20, gap: 12 },
   badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  badge: { fontFamily: fontFamily.body, fontSize: 13, fontWeight: '600', textTransform: 'uppercase' },
+  badge: { fontFamily: fontFamily.body, fontSize: 13, fontWeight: '600' },
   headline: { fontFamily: fontFamily.body, fontSize: 22, fontWeight: '700' },
   summary: { fontFamily: fontFamily.body, fontSize: 16, lineHeight: 23 },
   highlight: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },

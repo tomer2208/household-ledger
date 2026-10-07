@@ -21,7 +21,7 @@ import {
 
 import { useCategories } from '@/api/queries';
 import { CATEGORY_ICONS, categoryColorId, categoryIconId, lookOf } from '@/lib/category-look';
-import { moneyText, radius, tokens, useColors } from '@/lib/theme';
+import { moneyText, tokens, useColors } from '@/lib/theme';
 import type { CategoryColor } from '@/lib/tokens/palette.gen';
 import { isRtl } from '@/lib/bidi';
 import { errorMessage } from '@/lib/errors';
@@ -356,7 +356,10 @@ export function Empty({
   const c = useColors();
   return (
     <View style={styles.empty}>
-      <Icon name={icon} size={44} color={c.tertiaryLabel} />
+      {/* K4 (D1: the empty icon was the logo in grey): the subject's own icon, in the action colour. */}
+      <View style={[styles.emptyIcon, { backgroundColor: c.actionSoft }]}>
+        <Icon name={icon} size={30} color={c.action} />
+      </View>
       <Text style={[styles.emptyTitle, { color: c.label }]}>{title}</Text>
       {message ? <Text style={[styles.emptyMessage, { color: c.secondaryLabel }]}>{message}</Text> : null}
       {action ? <Button title={action.label} kind={action.kind ?? 'filled'} onPress={action.onPress} style={styles.emptyAction} /> : null}
@@ -371,7 +374,9 @@ export function ErrorState({ error, onRetry, retrying }: { error: unknown; onRet
   const online = useIsOnline();
   return (
     <View style={[styles.errorCard, { backgroundColor: c.cell }]} accessibilityLiveRegion="polite">
-      <Icon name={online ? 'exclamationmark.triangle.fill' : 'wifi.slash'} size={28} color={online ? c.orange : c.secondaryLabel} />
+      <View style={[styles.emptyIcon, { backgroundColor: online ? c.closeSoft : c.fill }]}>
+        <Icon name={online ? 'exclamationmark.triangle.fill' : 'wifi.slash'} size={26} color={online ? c.close : c.text2} />
+      </View>
       <Text style={[styles.errorTitle, { color: c.label }]}>{online ? t.common.loadFailed : t.common.offlineTitle}</Text>
       <Text style={[styles.errorBody, { color: c.secondaryLabel }]}>{online ? errorMessage(error) : t.common.offlineBody}</Text>
       <Button title={t.common.retry} kind="plain" onPress={onRetry} loading={retrying} style={styles.errorButton} />
@@ -430,12 +435,13 @@ export const styles = StyleSheet.create({
   badge: { borderWidth: 1, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 1 },
   badgeText: { fontFamily: tokens.fontFamily.body, fontSize: 13, fontWeight: '700' },
   catIcon: { alignItems: 'center', justifyContent: 'center' },
-  empty: { alignItems: 'center', paddingVertical: 60, paddingHorizontal: 32, gap: 8 },
+  empty: { alignItems: 'center', paddingVertical: 48, paddingHorizontal: 32, gap: 8 },
+  emptyIcon: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
   emptyTitle: { ...tokens.type.heading, fontSize: 22, lineHeight: 28, textAlign: 'center' },
   emptyMessage: { fontFamily: tokens.fontFamily.body, fontSize: 15, textAlign: 'center', lineHeight: 21 },
   emptyAction: { marginTop: 12, alignSelf: 'stretch' },
   error: { fontFamily: tokens.fontFamily.body, fontSize: 14, marginHorizontal: 32, marginTop: 12, textAlign: 'center' },
-  errorCard: { marginHorizontal: 16, marginTop: 24, borderRadius: radius.hero, padding: 20, alignItems: 'center', gap: 6 },
+  errorCard: { marginHorizontal: 16, marginTop: 24, borderRadius: tokens.radius.card, padding: 20, alignItems: 'center', gap: 6 },
   errorTitle: { fontFamily: tokens.fontFamily.body, fontSize: 17, fontWeight: '700', textAlign: 'center', marginTop: 4 },
   errorBody: { fontFamily: tokens.fontFamily.body, fontSize: 15, lineHeight: 21, textAlign: 'center' },
   errorButton: { alignSelf: 'stretch', marginTop: 6 },

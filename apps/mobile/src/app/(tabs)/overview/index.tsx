@@ -293,7 +293,7 @@ export default function OverviewScreen() {
 
             {!past && o.total_spent === 0 && budgeted.length === 0 ? (
               <Empty
-                icon="chart.pie"
+                icon="envelope"
                 title={t.overview.emptyTitle}
                 message={t.overview.emptyMessage}
                 action={{ label: t.overview.setBudgets, kind: 'plain', onPress: () => router.push('/settings/categories') }}

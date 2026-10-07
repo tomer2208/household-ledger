@@ -9,7 +9,10 @@ import { MenuSheet } from '@/components/sheet';
 import { SwipeRow } from '@/components/swipe-row';
 import { useToast } from '@/components/toast';
 import { IncomePlanCard } from '@/components/income-plan';
-import { Badge, Button, CategoryIcon, Empty, ProgressBar, Row, Screen, Section } from '@/components/ui';
+import { Badge, Button, CategoryIcon, Empty, ErrorState, ProgressBar, Row, Screen, Section } from '@/components/ui';
+import { setAppearance, useAppearanceChoice } from '@/lib/appearance';
+import { setLanguageChoice } from '@/lib/lang-store';
+import { OverviewSkeleton } from '@/components/skeleton';
 import { daysToGo, perDay } from '@/lib/budget';
 import { runsOutOn } from '@/lib/envelope';
 import { t } from '@/lib/i18n';
@@ -35,6 +38,7 @@ const SPENT = SAMPLE.reduce((n, x) => n + x.spent, 0);
 export default function DevPreview() {
   const c = useColors();
   const toast = useToast();
+  const look = useAppearanceChoice();
   // A tap adds ₪100 to an envelope, so the bar's growth and the state changes can be watched.
   const [spent, setSpent] = useState(() => SAMPLE.map((x) => x.spent));
   const [menu, setMenu] = useState<number | null>(null);
@@ -48,6 +52,14 @@ export default function DevPreview() {
     <View style={{ flex: 1 }}>
       <Screen bottomSpace={ADD_BUTTON_SPACE}>
         <Stack.Screen options={{ title: 'Design preview', headerShown: true }} />
+        {/* K7: one place to see every component in both languages and both appearances. */}
+        <Section title="Gallery">
+          <Row title="עברית (RTL)" onPress={() => setLanguageChoice('he')} chevron={false} />
+          <Row title="English (LTR)" onPress={() => setLanguageChoice('en')} chevron={false} />
+          <Row title={`Light${look === 'light' ? ' ✓' : ''}`} onPress={() => setAppearance('light')} chevron={false} />
+          <Row title={`Dark${look === 'dark' ? ' ✓' : ''}`} onPress={() => setAppearance('dark')} chevron={false} />
+          <Row title={`Like the phone${look === 'system' ? ' ✓' : ''}`} onPress={() => setAppearance('system')} chevron={false} last />
+        </Section>
         <View style={[s.hero, { backgroundColor: c.cell }]}>
           <Text style={{ color: c.secondaryLabel, fontSize: 15 }}>Left this month</Text>
           <Text style={[s.heroAmount, { color: c.text }]}>{formatMoney(CAP - SPENT, 'ILS')}</Text>
@@ -109,6 +121,9 @@ export default function DevPreview() {
           <Button title="Save" onPress={() => {}} />
           <Button title="Archive Category" kind="destructive" onPress={() => {}} />
         </View>
+        <Text style={[s.group, { color: c.text }]}>States</Text>
+        <ErrorState error={new Error('Sample error')} onRetry={() => toast({ message: 'Retry' })} />
+        <OverviewSkeleton />
       </Screen>
       <AddButton />
       <MenuSheet
