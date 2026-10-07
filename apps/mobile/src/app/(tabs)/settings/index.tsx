@@ -11,7 +11,7 @@ import { CategoryIcon, ErrorText, Icon, Row, Screen, Section } from '@/component
 import { aiDisclosure } from '@/lib/ai-disclosure';
 import { confirm } from '@/lib/confirm';
 import { exportExpenses } from '@/lib/export-csv';
-import { t } from '@/lib/i18n';
+import { lang, t } from '@/lib/i18n';
 import { useIncomeActions } from '@/lib/income-actions';
 import { deviceLang } from '@/lib/lang-store';
 import { formatMoney } from '@/lib/money';
@@ -244,12 +244,12 @@ export default function SettingsScreen() {
         <Row
           left={<CategoryIcon symbol="hand.raised" />}
           title={t.settings.privacy}
-          onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/privacy.html`)}
+          onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/privacy${lang() === 'he' ? '.he' : ''}.html`)}
         />
         <Row
           left={<CategoryIcon symbol="doc.text.magnifyingglass" />}
           title={t.settings.terms}
-          onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/terms.html`)}
+          onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/terms${lang() === 'he' ? '.he' : ''}.html`)}
           last
         />
       </Section>

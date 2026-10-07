@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LanguageToggle } from '@/components/language-picker';
 import { Button, ErrorText, Field, Section } from '@/components/ui';
-import { t } from '@/lib/i18n';
+import { lang, t } from '@/lib/i18n';
 import { APP_URL, supabase } from '@/lib/supabase';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
@@ -122,11 +122,11 @@ export default function SignIn() {
             </View>
             <Text style={[s.legal, { color: c.secondaryLabel }]}>
               {t.signIn.agreeBefore}
-              <Text style={{ color: c.tint }} onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/terms.html`)}>
+              <Text style={{ color: c.tint }} onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/terms${lang() === 'he' ? '.he' : ''}.html`)}>
                 {t.settings.terms}
               </Text>
               {t.signIn.agreeAnd}
-              <Text style={{ color: c.tint }} onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/privacy.html`)}>
+              <Text style={{ color: c.tint }} onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/privacy${lang() === 'he' ? '.he' : ''}.html`)}>
                 {t.settings.privacy}
               </Text>
               {t.signIn.agreeAfter}
