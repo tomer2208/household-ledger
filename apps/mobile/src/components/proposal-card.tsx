@@ -39,11 +39,11 @@ export function ProposalCard({ p, currency }: { p: Proposal; currency: string })
 }
 
 const s = StyleSheet.create({
-  card: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 16, gap: 10 },
+  card: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 16, gap: 12 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   kind: { fontFamily: fontFamily.body, fontSize: 13, fontWeight: '700', textTransform: 'uppercase' },
   text: { fontFamily: fontFamily.body, fontSize: 16, lineHeight: 22 },
   outcome: { fontFamily: fontFamily.body, fontSize: 13 },
-  buttons: { flexDirection: 'row', gap: 10 },
+  buttons: { flexDirection: 'row', gap: 12 },
   btn: { flex: 1, height: 44 },
 });

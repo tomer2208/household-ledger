@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useCategories, useCreateInvite, useHousehold, useSetBudgetsBulk } from '@/api/queries';
+import { useCategories, useCreateInvite, useHousehold, useSaveCategory, useSetBudgetsBulk } from '@/api/queries';
 import { Button, CategoryIcon, ErrorText, Icon, Section } from '@/components/ui';
 import { SAVINGS_TARGET_PCT, suggestBudgets } from '@/lib/budget';
 import { t } from '@/lib/i18n';
@@ -30,6 +30,9 @@ export default function Setup() {
   const hh = useHousehold();
   const cats = useCategories();
   const save = useSetBudgetsBulk();
+  const saveCategory = useSaveCategory();
+  // P6: which categories are this household's. The rest are hidden (migration 47), not deleted.
+  const [off, setOff] = useState<Set<string>>(new Set());
   const cur = hh.data?.household?.base_currency ?? 'ILS';
   const [step, setStep] = useState<Step>('income');
   const [incomeText, setIncomeText] = useState('');
@@ -45,13 +48,20 @@ export default function Setup() {
   };
 
   const entries = categories
+    .filter((x) => !off.has(x.id))
     .map((x) => ({ categoryId: x.id, capMinor: parseMoneyInput(caps[x.id] ?? '') }))
     .filter((x): x is { categoryId: string; capMinor: number } => x.capMinor != null);
   const total = entries.reduce((a, b) => a + b.capMinor, 0);
   const left = income != null ? income - total : null;
 
-  const saveBudgets = (budgets: typeof entries) =>
+  const saveBudgets = (budgets: typeof entries) => {
+    const household = hh.data?.household;
+    if (household)
+      categories
+        .filter((x) => off.has(x.id))
+        .forEach((x) => saveCategory.mutate({ id: x.id, householdId: household.id, name: x.name, sfSymbol: x.sf_symbol, hidden: true }));
     save.mutate({ budgets, income: income ?? null }, { onSuccess: () => setStep('share') });
+  };
 
   const dots = (
     <View style={s.dots} accessibilityLabel={t.setup.stepOf(['income', 'budgets', 'share'].indexOf(step) + 1, 3)}>
@@ -112,11 +122,20 @@ export default function Setup() {
                 <View
                   key={x.id}
                   style={[s.capRow, i < categories.length - 1 && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+                  <Pressable
+                    onPress={() => setOff((o) => { const n = new Set(o); if (n.has(x.id)) n.delete(x.id); else n.add(x.id); return n; })}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: !off.has(x.id) }}
+                    accessibilityLabel={x.name}
+                    hitSlop={8}>
+                    <Icon name={off.has(x.id) ? 'circle' : 'checkmark.circle.fill'} size={24} color={off.has(x.id) ? c.tertiaryLabel : c.tint} />
+                  </Pressable>
                   <CategoryIcon symbol={x.sf_symbol} categoryId={x.id} />
-                  <Text style={[s.capName, { color: c.label }]} numberOfLines={1}>
+                  <Text style={[s.capName, { color: off.has(x.id) ? c.tertiaryLabel : c.label }]} numberOfLines={1}>
                     {x.name}
                   </Text>
                   <TextInput
+                    editable={!off.has(x.id)}
                     value={caps[x.id] ?? ''}
                     onChangeText={(v) => setCaps((m) => ({ ...m, [x.id]: v }))}
                     placeholder={t.overview.noBudget}
@@ -205,8 +224,8 @@ const s = StyleSheet.create({
   capRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, minHeight: 52 },
   capName: { fontFamily: fontFamily.body, flex: 1, fontSize: 17 },
   // 16px or larger, or iOS Safari zooms the page on focus.
-  capInput: { width: 120, fontSize: 17, paddingVertical: 10, outlineStyle: 'none', ...moneyText } as any,
-  card: { flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 16, marginTop: 12, padding: 14, borderRadius: 14, minHeight: 64 },
+  capInput: { width: 120, fontSize: 17, paddingVertical: 12, outlineStyle: 'none', ...moneyText } as any,
+  card: { flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 16, marginTop: 12, padding: 16, borderRadius: 14, minHeight: 64 },
   cardTitle: { fontFamily: fontFamily.body, fontSize: 17, fontWeight: '600' },
   cardText: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 2 },
   cardAction: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },

@@ -100,6 +100,6 @@ export default function HouseholdScreen() {
 }
 
 const s = StyleSheet.create({
-  codeBox: { alignItems: 'center', paddingVertical: 18 },
+  codeBox: { alignItems: 'center', paddingVertical: 20 },
   code: { fontFamily: fontFamily.body, fontSize: 32, fontWeight: '700', letterSpacing: 3, fontVariant: ['tabular-nums'] },
 });

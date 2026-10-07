@@ -1,18 +1,26 @@
-:root { --bg: #f2f2f7; --card: #fff; --text: #1c1c1e; --muted: #6c6c70; --tint: #0a84ff; --line: #d1d1d6; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #000; --card: #1c1c1e; --text: #f2f2f7; --muted: #98989f; --tint: #0a84ff; --line: #38383a; } }
-:root[data-theme="dark"] { --bg: #000; --card: #1c1c1e; --text: #f2f2f7; --muted: #98989f; --tint: #0a84ff; --line: #38383a; }
+:root { --bg: #EDF0EB; --card: #FDFFFD; --text: #1F211E; --muted: #5C5F5A; --tint: #88416C; --line: #DADED8; --soft: #FEE8F4; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #121511; --card: #1F211E; --text: #F4F8F3; --muted: #A9ACA7; --tint: #F4AFD5; --line: #3D3F3B; --soft: #4E1D3B; } }
+:root[data-theme="dark"] { --bg: #121511; --card: #1F211E; --text: #F4F8F3; --muted: #A9ACA7; --tint: #F4AFD5; --line: #3D3F3B; --soft: #4E1D3B; }
+/* F6 / F7: the app's identity on the web pages too (design-system/finpace/MASTER.md). */
+@font-face { font-family: 'Assistant'; font-weight: 400; font-display: swap; src: url('/fonts/Assistant-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Assistant'; font-weight: 600; font-display: swap; src: url('/fonts/Assistant-SemiBold.ttf') format('truetype'); }
+@font-face { font-family: 'Assistant'; font-weight: 700; font-display: swap; src: url('/fonts/Assistant-Bold.ttf') format('truetype'); }
+@font-face { font-family: 'Secular One'; font-weight: 400; font-display: swap; src: url('/fonts/SecularOne-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Rubik'; font-weight: 600; font-display: swap; src: url('/fonts/Rubik-SemiBold.ttf') format('truetype'); }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.55 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.55 Assistant, system-ui, sans-serif; -webkit-text-size-adjust: 100%; }
 main { max-width: 680px; margin: 0 auto; padding: max(24px, env(safe-area-inset-top)) 16px max(40px, env(safe-area-inset-bottom)); }
-h1 { font-size: 32px; line-height: 1.15; margin: 8px 0 4px; }
-h2 { font-size: 20px; margin: 28px 0 8px; }
+h1, h2 { font-family: 'Secular One', Assistant, sans-serif; font-weight: 400; }
+h1 { font-size: 34px; line-height: 1.15; margin: 8px 0 4px; }
+h2 { font-size: 21px; margin: 28px 0 8px; }
 p, li { color: var(--text); }
 .meta { color: var(--muted); font-size: 15px; margin-bottom: 20px; }
-.card { background: var(--card); border-radius: 14px; padding: 4px 18px; }
-.note { background: var(--card); border-left: 4px solid var(--tint); border-radius: 10px; padding: 12px 16px; color: var(--muted); font-size: 15px; }
+.card { background: var(--card); border-radius: 16px; padding: 4px 18px; }
+.note { background: var(--card); border-inline-start: 4px solid var(--tint); border-radius: 12px; padding: 12px 16px; color: var(--muted); font-size: 15px; }
 table { width: 100%; border-collapse: collapse; font-size: 15px; }
-th, td { text-align: left; padding: 10px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th, td { text-align: start; padding: 10px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
 th { color: var(--muted); font-weight: 600; }
 a { color: var(--tint); }
+a:focus-visible { outline: 2px solid var(--tint); outline-offset: 2px; border-radius: 4px; }
 .back { display: inline-block; margin-bottom: 8px; text-decoration: none; }
 .scroll { overflow-x: auto; }

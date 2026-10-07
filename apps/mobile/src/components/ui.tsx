@@ -405,7 +405,7 @@ export function ErrorText({ error }: { error: unknown }) {
 
 export const styles = StyleSheet.create({
   screenContent: { paddingBottom: 48 },
-  section: { marginTop: 22, marginHorizontal: 16 },
+  section: { marginTop: 24, marginHorizontal: 16 },
   sectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginHorizontal: 16, marginBottom: 6 },
   sectionTitle: { ...tokens.type.heading },
   sectionAction: { fontFamily: tokens.fontFamily.body, fontSize: 16, fontWeight: '600' },
@@ -434,7 +434,7 @@ export const styles = StyleSheet.create({
   emptyTitle: { ...tokens.type.heading, fontSize: 22, lineHeight: 28, textAlign: 'center' },
   emptyMessage: { fontFamily: tokens.fontFamily.body, fontSize: 15, textAlign: 'center', lineHeight: 21 },
   emptyAction: { marginTop: 12, alignSelf: 'stretch' },
-  error: { fontFamily: tokens.fontFamily.body, fontSize: 14, marginHorizontal: 32, marginTop: 10, textAlign: 'center' },
+  error: { fontFamily: tokens.fontFamily.body, fontSize: 14, marginHorizontal: 32, marginTop: 12, textAlign: 'center' },
   errorCard: { marginHorizontal: 16, marginTop: 24, borderRadius: radius.hero, padding: 20, alignItems: 'center', gap: 6 },
   errorTitle: { fontFamily: tokens.fontFamily.body, fontSize: 17, fontWeight: '700', textAlign: 'center', marginTop: 4 },
   errorBody: { fontFamily: tokens.fontFamily.body, fontSize: 15, lineHeight: 21, textAlign: 'center' },

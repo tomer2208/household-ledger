@@ -141,15 +141,15 @@ function Editor({ goal, free }: { goal?: Goal; free: number }) {
 }
 
 const s = StyleSheet.create({
-  hero: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 18, gap: 8 },
+  hero: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 20, gap: 8 },
   heroAmount: { fontSize: 22, fontWeight: '700', ...moneyText },
-  label: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 22, marginBottom: 8, marginStart: 32 },
+  label: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 24, marginBottom: 8, marginStart: 32 },
   chips: { gap: 8, paddingHorizontal: 16 },
-  chip: { paddingHorizontal: 14, minHeight: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  chip: { paddingHorizontal: 16, minHeight: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   chipText: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
   symbols: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginHorizontal: 16 },
   symbol: { padding: 6, borderRadius: 10 },
   actions: { marginHorizontal: 16, marginTop: 16 },
   moveRow: { flexDirection: 'row', gap: 12 },
-  danger: { marginHorizontal: 16, marginTop: 28 },
+  danger: { marginHorizontal: 16, marginTop: 32 },
 });

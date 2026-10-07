@@ -103,7 +103,9 @@ export default function SettingsScreen() {
 
   return (
     <Screen>
-      <Section title={t.settings.budget}>
+      {/* P4 (D1: grouped by system parts): by what people come to do. The month's money first. */}
+      <Section title={t.settings.groupMoney}>
+        <Row left={<CategoryIcon symbol="pencil" />} title={t.budgets.open} onPress={() => router.push('/settings/budgets')} />
         {overview.data?.income ? (
           // Set: swipe (or long press) to edit or remove it.
           <SwipeRow onEdit={income.edit} onDelete={income.remove}>
@@ -130,7 +132,6 @@ export default function SettingsScreen() {
           />
         )}
         <Row left={<CategoryIcon symbol="tag" />} title={t.settings.categories} onPress={() => router.push('/settings/categories')} />
-        <Row left={<CategoryIcon symbol="bag" />} title={t.settings.merchants} onPress={() => router.push('/settings/merchants')} />
         <Row
           left={<CategoryIcon symbol="calendar.badge.clock" />}
           title={t.settings.recurring}
@@ -140,14 +141,15 @@ export default function SettingsScreen() {
         <Row left={<CategoryIcon symbol="banknote" />} title={t.overview.savings} onPress={() => router.push('/settings/savings')} last />
       </Section>
 
-      <Section title="Apple Pay" footer={t.settings.applePayFooter}>
+      {/* How expenses get in: Apple Pay, and the shop names it learned */}
+      <Section title={t.settings.groupCapture} footer={t.settings.applePayFooter}>
         <Row
           left={<CategoryIcon symbol="iphone.gen3" />}
           title={t.settings.devices}
           value={devices.data ? String(activeDevices) : undefined}
           onPress={() => router.push('/settings/devices')}
-          last
         />
+        <Row left={<CategoryIcon symbol="bag" />} title={t.settings.merchants} onPress={() => router.push('/settings/merchants')} last />
       </Section>
 
       {push.state ? (
@@ -196,7 +198,7 @@ export default function SettingsScreen() {
 
       {/* P1-6: Hebrew or English; switching reloads the app in the new language. */}
       {/* P5: light, dark, or like the phone */}
-      <Section title={t.settings.appearance}>
+      <Section title={t.settings.groupLook}>
         {(['system', 'light', 'dark'] as const).map((k, i) => (
           <Row
             key={k}

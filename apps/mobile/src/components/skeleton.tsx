@@ -137,12 +137,12 @@ export function DetailSkeleton() {
 const s = StyleSheet.create({
   envTitle: { marginHorizontal: tokens.space[5], marginTop: tokens.space[6], marginBottom: tokens.space[2] },
   envGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: tokens.envelope.gap, marginHorizontal: tokens.space[4] },
-  env: { width: '47.5%', borderRadius: tokens.envelope.radius, padding: tokens.space[3], paddingTop: 22, gap: tokens.space[2] },
-  section: { marginTop: 22, marginHorizontal: 16 },
+  env: { width: '47.5%', borderRadius: tokens.envelope.radius, padding: tokens.space[3], paddingTop: 24, gap: tokens.space[2] },
+  section: { marginTop: 24, marginHorizontal: 16 },
   sectionTitle: { marginHorizontal: 16, marginBottom: 8 },
   card: { borderRadius: radius.row, overflow: 'hidden' },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, minHeight: 56, paddingVertical: 10 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, minHeight: 56, paddingVertical: 12 },
   rowText: { flex: 1, gap: 7 },
   split: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  hero: { marginHorizontal: 16, marginTop: 12, borderRadius: radius.hero, padding: 18, gap: 10 },
+  hero: { marginHorizontal: 16, marginTop: 12, borderRadius: radius.hero, padding: 20, gap: 12 },
 });

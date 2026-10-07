@@ -399,7 +399,7 @@ const s = StyleSheet.create({
   groupFooter: { ...tokens.type.caption, marginHorizontal: tokens.space[5], marginTop: tokens.space[2] },
   heroRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', columnGap: 12, rowGap: 2 },
   heroMeta: { fontSize: 14, ...moneyText },
-  forecast: { borderTopWidth: StyleSheet.hairlineWidth, marginTop: 4, paddingTop: 10, gap: 8 },
+  forecast: { borderTopWidth: StyleSheet.hairlineWidth, marginTop: 4, paddingTop: 12, gap: 8 },
   forecastHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   forecastText: { fontSize: 15, fontWeight: '600', flexShrink: 1, ...moneyText },
   forecastBody: { gap: 4 },

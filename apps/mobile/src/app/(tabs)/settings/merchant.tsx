@@ -181,7 +181,7 @@ function MergePicker({ visible, others, onPick, onClose }: { visible: boolean; o
 }
 
 const s = StyleSheet.create({
-  label: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 22, marginBottom: 8, marginStart: 32 },
+  label: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 24, marginBottom: 8, marginStart: 32 },
   hint: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 8, marginHorizontal: 32 },
   actions: { marginHorizontal: 16, marginTop: 20 },
   bar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, height: 56, borderBottomWidth: StyleSheet.hairlineWidth },

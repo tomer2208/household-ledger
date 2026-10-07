@@ -20,8 +20,9 @@ export default function RecurringScreen() {
           title: t.settings.recurring,
           headerLargeTitle: false,
           headerRight: () => (
-            <Pressable onPress={() => router.push('/settings/recurring-edit')} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.recurring.addA11y}>
-              <Text style={{ color: c.tint, fontSize: 17 }}>{t.categories.add}</Text>
+            // D1: the header action had no room from the screen edge
+            <Pressable onPress={() => router.push('/settings/recurring-edit')} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.recurring.addA11y} style={{ paddingHorizontal: 16 }}>
+              <Text style={{ color: c.tint, fontSize: 17, fontWeight: '600', fontFamily: 'Assistant' }}>{t.categories.add}</Text>
             </Pressable>
           ),
         }}

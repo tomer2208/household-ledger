@@ -54,7 +54,7 @@ export function InstallmentPicker({
 const s = StyleSheet.create({
   wrap: { gap: 8 },
   row: { gap: 8, paddingHorizontal: 16 },
-  chip: { minHeight: 36, paddingHorizontal: 14, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  chip: { minHeight: 36, paddingHorizontal: 16, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   chipText: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
   summary: { fontSize: 14, marginHorizontal: 32, ...moneyText },
 });

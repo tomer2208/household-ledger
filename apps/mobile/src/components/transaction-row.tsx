@@ -78,7 +78,7 @@ export function TransactionRow({
 
 const s = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', paddingStart: 16, gap: 12 },
-  body: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, paddingEnd: 16, minHeight: 56 },
+  body: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingEnd: 16, minHeight: 56 },
   title: { fontFamily: fontFamily.body, fontSize: 17 },
   meta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   sub: { fontFamily: fontFamily.body, fontSize: 13, fontVariant: ['tabular-nums'], flexShrink: 1 },

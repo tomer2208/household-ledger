@@ -20,6 +20,6 @@ export function OfflineBanner() {
 }
 
 const s = StyleSheet.create({
-  banner: { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: 16, marginTop: 12, padding: 10, borderRadius: 10 },
+  banner: { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: 16, marginTop: 12, padding: 12, borderRadius: 10 },
   text: { fontFamily: fontFamily.body, fontSize: 13, flex: 1 },
 });

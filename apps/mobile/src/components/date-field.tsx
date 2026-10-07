@@ -67,6 +67,6 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', gap: 8, justifyContent: 'center', flexWrap: 'wrap' },
   strip: { gap: 8, paddingHorizontal: 16 },
   // 36 tall plus 4 of hitSlop each side = a 44pt target, like the currency chips.
-  chip: { paddingHorizontal: 14, borderRadius: 18, minHeight: 36, alignItems: 'center', justifyContent: 'center' },
+  chip: { paddingHorizontal: 16, borderRadius: 18, minHeight: 36, alignItems: 'center', justifyContent: 'center' },
   chipText: { fontFamily: fontFamily.body, fontWeight: '600', fontSize: 15 },
 });

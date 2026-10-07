@@ -166,10 +166,10 @@ const s = StyleSheet.create({
   tokenBox: { padding: 16 },
   token: { fontFamily: Platform.select({ ios: 'Menlo', default: 'monospace' }), fontSize: 14 },
   actions: { marginHorizontal: 16, marginTop: 12 },
-  step: { flexDirection: 'row', gap: 12, padding: 14, alignItems: 'flex-start' },
+  step: { flexDirection: 'row', gap: 12, padding: 16, alignItems: 'flex-start' },
   stepNum: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   stepNumText: { fontFamily: fontFamily.body, fontWeight: '700', fontSize: 13 },
   stepText: { fontFamily: fontFamily.body, fontSize: 15, lineHeight: 21 },
-  copy: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8 },
+  copy: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 },
   copyValue: { flex: 1, fontSize: 13, fontFamily: Platform.select({ ios: 'Menlo', default: 'monospace' }) },
 });

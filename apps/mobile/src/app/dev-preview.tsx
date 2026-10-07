@@ -128,7 +128,7 @@ export default function DevPreview() {
 }
 
 const s = StyleSheet.create({
-  hero: { marginHorizontal: 16, marginTop: 12, borderRadius: radius.hero, padding: 18, gap: 8 },
+  hero: { marginHorizontal: 16, marginTop: 12, borderRadius: radius.hero, padding: 20, gap: 8 },
   heroAmount: { fontSize: 40, fontWeight: '700', ...moneyText },
   meta: { fontSize: 14, ...moneyText },
   heroRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', columnGap: 12, rowGap: 2 },

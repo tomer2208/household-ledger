@@ -151,6 +151,6 @@ const s = StyleSheet.create({
   rowLabel: { fontFamily: fontFamily.body, fontSize: 17 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16 },
   chip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 16, minHeight: 36, justifyContent: 'center' },
-  label: { fontFamily: fontFamily.body, fontSize: 13, marginStart: 32, marginTop: 22, marginBottom: 8 },
+  label: { fontFamily: fontFamily.body, fontSize: 13, marginStart: 32, marginTop: 24, marginBottom: 8 },
   actions: { marginHorizontal: 16, marginTop: 24, gap: 8 },
 });

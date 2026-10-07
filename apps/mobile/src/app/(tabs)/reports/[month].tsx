@@ -151,18 +151,18 @@ export default function MonthReport() {
 }
 
 const s = StyleSheet.create({
-  chartHint: { fontFamily: fontFamily.body, fontSize: 13, marginHorizontal: 32, marginTop: 18 },
-  hero: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 18, gap: 6 },
+  chartHint: { fontFamily: fontFamily.body, fontSize: 13, marginHorizontal: 32, marginTop: 20 },
+  hero: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 20, gap: 6 },
   heroLabel: { fontFamily: fontFamily.body, fontSize: 15 },
   heroAmount: { fontSize: 36, fontWeight: '700', ...moneyText },
   heroMeta: { fontFamily: fontFamily.body, fontSize: 14, fontVariant: ['tabular-nums'] },
-  writing: { flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  story: { marginHorizontal: 16, marginTop: 16, borderRadius: 14, padding: 18, gap: 10 },
+  writing: { flexDirection: 'row', gap: 12, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  story: { marginHorizontal: 16, marginTop: 16, borderRadius: 14, padding: 20, gap: 12 },
   badgeRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   badge: { fontFamily: fontFamily.body, fontSize: 13, fontWeight: '600', textTransform: 'uppercase' },
   headline: { fontFamily: fontFamily.body, fontSize: 22, fontWeight: '700' },
   summary: { fontFamily: fontFamily.body, fontSize: 16, lineHeight: 23 },
-  highlight: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
+  highlight: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
   highlightText: { fontFamily: fontFamily.body, flex: 1, fontSize: 15, lineHeight: 21 },
   note: { paddingHorizontal: 16, paddingVertical: 12, gap: 4 },
   noteTitle: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },

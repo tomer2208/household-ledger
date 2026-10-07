@@ -50,7 +50,7 @@ export function InstallBanner() {
 }
 
 const s = StyleSheet.create({
-  banner: { flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 16, marginTop: 12, padding: 14, borderRadius: 14 },
+  banner: { flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 16, marginTop: 12, padding: 16, borderRadius: 14 },
   title: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
   text: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 2 },
 });

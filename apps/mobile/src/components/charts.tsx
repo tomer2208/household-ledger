@@ -364,7 +364,7 @@ export function CategoryTrend({ months, currency, onMonth }: { months: TrendMont
 }
 
 const s = StyleSheet.create({
-  card: { marginHorizontal: 16, marginTop: 16, borderRadius: 14, padding: 16, gap: 10 },
+  card: { marginHorizontal: 16, marginTop: 16, borderRadius: 14, padding: 16, gap: 12 },
   title: { fontFamily: fontFamily.body, fontSize: 17, fontWeight: '600' },
   donutRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   legend: { flex: 1, gap: 6 },

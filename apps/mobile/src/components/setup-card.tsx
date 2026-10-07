@@ -69,11 +69,11 @@ export function SetupCard() {
 }
 
 const s = StyleSheet.create({
-  card: { marginHorizontal: 16, marginTop: 12, padding: 14, borderRadius: 14, gap: 4 },
+  card: { marginHorizontal: 16, marginTop: 12, padding: 16, borderRadius: 14, gap: 4 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   title: { fontFamily: fontFamily.body, flex: 1, fontSize: 17, fontWeight: '600' },
   count: { fontFamily: fontFamily.body, fontSize: 13 },
-  item: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44 },
+  item: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 44 },
   itemText: { fontFamily: fontFamily.body, flex: 1, fontSize: 16 },
   doneText: { textDecorationLine: 'line-through' },
 });

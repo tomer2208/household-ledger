@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import {
   useCategories,
@@ -18,13 +18,14 @@ import { InstallmentPicker } from '@/components/installment-picker';
 import { KindToggle } from '@/components/kind-toggle';
 import { useToast } from '@/components/toast';
 import { DetailSkeleton } from '@/components/skeleton';
-import { Button, ErrorText, Field, LoadingState, Row, Screen, Section } from '@/components/ui';
-import { monthLabel, monthOfDay, onDay, timeLabel, ymd } from '@/lib/dates';
+import { money } from '@/components/money-text';
+import { Button, CategoryIcon, ErrorText, Field, LoadingState, Row, Screen, Section } from '@/components/ui';
+import { dayLabel, monthLabel, monthOfDay, onDay, timeLabel, ymd } from '@/lib/dates';
 import { errorMessage } from '@/lib/errors';
 import { formatSigned, minorToInput, parseMoneyInput } from '@/lib/money';
 import { t } from '@/lib/i18n';
 import { useIsOnline } from '@/lib/query';
-import { useColors } from '@/lib/theme';
+import { tokens, useColors } from '@/lib/theme';
 import { installmentNo } from '@/lib/installments';
 import { useTransactionActions } from '@/lib/transaction-actions';
 import { fontFamily } from '@/lib/tokens';
@@ -85,8 +86,13 @@ function Editor({ tx }: { tx: Transaction }) {
 
   // T7: the change shows at once (this editor re-opens on the edited expense). If the server
   // refuses, the expense goes back to what it was and a toast says why: this editor is gone by then.
+  // S2 (D1: the expense opened as a form): a view first; Edit opens the form, Save sits at the bottom.
+  const [editing, setEditing] = useState(false);
+  const cat = cats.data?.find((x) => x.id === tx.category_id);
+
   async function save() {
     if (!signedMinor || !categoryId) return;
+    setEditing(false);
     await update.mutateAsync({
       id: tx.id,
       patch: {
@@ -110,20 +116,34 @@ function Editor({ tx }: { tx: Transaction }) {
 
   return (
     <Screen>
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <Pressable
-              onPress={save}
-              disabled={!dirty || !online || update.isPending}
-              hitSlop={12}
-              accessibilityRole="button"
-              accessibilityState={{ disabled: !dirty || !online || update.isPending }}>
-              <Text style={{ color: c.tint, fontSize: 17, fontWeight: '600', opacity: dirty && online ? 1 : 0.35 }}>{t.common.save}</Text>
-            </Pressable>
-          ),
-        }}
-      />
+      <Stack.Screen options={{ headerRight: undefined }} />
+      {!editing ? (
+        <>
+          <View style={[s.card, { backgroundColor: c.surface }]}>
+            <View style={s.cardTop}>
+              {cat ? <CategoryIcon symbol={cat.sf_symbol} categoryId={cat.id} size={44} /> : null}
+              <View style={s.cardBody}>
+                <Text style={[s.cardTitle, { color: c.text }]} numberOfLines={2}>
+                  {tx.title}
+                </Text>
+                <Text style={[s.cardMeta, { color: c.text2 }]}>{cat?.name ?? ''}</Text>
+              </View>
+            </View>
+            <Text style={[s.cardAmount, { color: tx.amount_minor < 0 ? c.positive : c.text }]}>
+              {tx.amount_minor < 0 ? `+${money(-tx.amount_minor, tx.currency, true)}` : money(tx.amount_minor, tx.currency, true)}
+            </Text>
+            <Text style={[s.cardMeta, { color: c.text2 }]}>
+              {[dayLabel(tx.occurred_at), timeLabel(tx.occurred_at), addedBy].filter(Boolean).join(' · ')}
+            </Text>
+            {tx.note ? <Text style={[s.cardNote, { color: c.text }]}>{tx.note}</Text> : null}
+          </View>
+          <View style={s.actions}>
+            <Button title={t.common.edit} onPress={() => setEditing(true)} disabled={!online} />
+          </View>
+        </>
+      ) : null}
+      {editing ? (
+      <>
       <View style={s.kind}>
         <KindToggle refund={refund} onChange={setRefund} />
       </View>
@@ -147,11 +167,15 @@ function Editor({ tx }: { tx: Transaction }) {
 
       <Text style={[s.label, { color: c.secondaryLabel }]}>{t.add.category}</Text>
       <CategoryPicker categories={cats.data ?? []} value={categoryId} onChange={setCategoryId} />
+      <View style={s.actions}>
+        <Button title={t.common.save} onPress={save} loading={update.isPending} disabled={!dirty || !online} />
+        <Button title={t.common.cancel} kind="plain" onPress={() => setEditing(false)} />
+      </View>
+      </>
+      ) : null}
 
       <Section title={t.detail.info}>
-        <Row title={t.detail.time} value={timeLabel(tx.occurred_at)} />
         {installment ? <Row title={t.detail.installment} value={t.detail.installmentOf(installment.no, installment.count)} /> : null}
-        {addedBy ? <Row title={t.detail.addedBy} value={addedBy} /> : null}
         {tx.currency !== base ? (
           <Row title={t.detail.inBase(base)} value={t.detail.rate(formatSigned(tx.amount_base_minor, base), Number(tx.fx_rate).toFixed(4))} />
         ) : null}
@@ -221,6 +245,13 @@ const s = StyleSheet.create({
   kind: { marginTop: 16 },
   split: { paddingVertical: 12, gap: 12 },
   splitActions: { marginHorizontal: 16, gap: 6 },
-  label: { fontFamily: fontFamily.body, fontSize: 13, marginStart: 32, marginTop: 22, marginBottom: 8 },
+  label: { fontFamily: fontFamily.body, fontSize: 13, marginStart: 32, marginTop: 24, marginBottom: 8 },
   actions: { marginHorizontal: 16, marginTop: 24, gap: 8 },
+  card: { marginHorizontal: tokens.space[4], marginTop: tokens.space[4], borderRadius: tokens.radius.card, padding: tokens.space[5], gap: tokens.space[2] },
+  cardTop: { flexDirection: 'row', alignItems: 'center', gap: tokens.space[3] },
+  cardBody: { flex: 1 },
+  cardTitle: { ...tokens.type.label },
+  cardMeta: { ...tokens.type.secondary },
+  cardAmount: { ...tokens.type.display, fontSize: 40, lineHeight: 46, marginTop: tokens.space[2] },
+  cardNote: { ...tokens.type.body },
 });

@@ -139,7 +139,7 @@ export default function SavingsScreen() {
 }
 
 const s = StyleSheet.create({
-  hero: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 18, gap: 4 },
+  hero: { marginHorizontal: 16, marginTop: 12, borderRadius: 14, padding: 20, gap: 4 },
   heroLabel: { fontFamily: fontFamily.body, fontSize: 15 },
   heroAmount: { fontSize: 36, fontWeight: '700', ...moneyText },
   heroMeta: { fontFamily: fontFamily.body, fontSize: 14, fontVariant: ['tabular-nums'] },

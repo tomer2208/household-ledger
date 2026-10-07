@@ -91,10 +91,10 @@ function Banner({ d, onSnooze }: { d: CaptureHealth; onSnooze: () => void }) {
 }
 
 const s = StyleSheet.create({
-  banner: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginHorizontal: 16, marginTop: 12, padding: 14, borderRadius: 14, borderWidth: 1 },
+  banner: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginHorizontal: 16, marginTop: 12, padding: 16, borderRadius: 14, borderWidth: 1 },
   title: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
   text: { fontFamily: fontFamily.body, fontSize: 13, marginTop: 2, lineHeight: 18 },
   actions: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
-  button: { minHeight: 36, paddingHorizontal: 14, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  button: { minHeight: 36, paddingHorizontal: 16, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   buttonText: { fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
 });

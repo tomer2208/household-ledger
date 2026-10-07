@@ -67,6 +67,6 @@ const s = StyleSheet.create({
   num: { width: 34, height: 34, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
   stepTitle: { fontFamily: fontFamily.body, fontSize: 16, fontWeight: '600' },
   stepBody: { fontFamily: fontFamily.body, fontSize: 14, lineHeight: 19 },
-  done: { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 16, marginTop: 16, padding: 14, borderRadius: 14 },
+  done: { flexDirection: 'row', alignItems: 'center', gap: 12, marginHorizontal: 16, marginTop: 16, padding: 16, borderRadius: 14 },
   doneText: { fontFamily: fontFamily.body, fontSize: 15, flex: 1 },
 });
