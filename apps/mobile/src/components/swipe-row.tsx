@@ -1,6 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import { Platform, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { ColorValue, Platform, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import ReanimatedSwipeable, { type SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Animated, { runOnJS, SharedValue, useAnimatedReaction, useAnimatedStyle } from 'react-native-reanimated';
 
@@ -23,6 +24,19 @@ const ACTION = 80;
 const FULL = ACTION * 2 + 90;
 
 let openRow: SwipeableMethods | null = null;
+
+// Web: the swipe captures the pointer, so the browser's click (which fires onPress) lands on the
+// swipe box instead of a button, and on touch it never reaches the buttons at all. The buttons
+// listen through the gesture library instead, and a drag doesn't count as a tap on the row.
+let draggedAt = 0;
+const justDragged = () => Date.now() - draggedAt < 400;
+// One tap can reach a button both ways (gesture and click); it acts once.
+let firedAt = 0;
+const once = (fn: () => void) => () => {
+  if (Date.now() - firedAt < 400) return;
+  firedAt = Date.now();
+  fn();
+};
 
 const tap = (kind: 'light' | 'medium') => {
   if (Platform.OS !== 'ios') return;
@@ -49,6 +63,7 @@ export function SwipeRow({
   const fire = useRef(false);
   // Long press asks to open; the effect does it, so render never touches the ref.
   const [openRequest, setOpenRequest] = useState(0);
+
   useEffect(() => {
     if (!openRequest) return;
     if (rtl) ref.current?.openLeft();
@@ -70,8 +85,29 @@ export function SwipeRow({
     <Actions translation={translation} rtl={rtl} onArm={setArmed} onEdit={() => run(onEdit)} onDelete={() => run(onDelete)} />
   );
 
+  // Web: swallow the click that ends a drag, before it reaches the row's own onPress.
+  const box = useRef<View>(null);
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const el = box.current as unknown as HTMLElement | null;
+    const stop = (e: Event) => {
+      if (!justDragged()) return;
+      e.stopPropagation();
+      e.preventDefault();
+    };
+    el?.addEventListener('click', stop, true);
+    // The library always draws an actions box for both sides, the right one over the left. In
+    // Hebrew the buttons are on the left, so the empty right box, invisible, took every tap.
+    // The swipe box is the first one down with three children: left actions, right actions, row.
+    let swipeBox = el?.firstElementChild;
+    while (swipeBox && swipeBox.children.length === 1) swipeBox = swipeBox.firstElementChild;
+    const right = swipeBox?.children.length === 3 ? (swipeBox.children[1] as HTMLElement) : undefined;
+    if (rtl && right && !right.querySelector('[role="button"]')) right.style.pointerEvents = 'none';
+    return () => el?.removeEventListener('click', stop, true);
+  }, [rtl]);
+
   return (
-    <View {...dirProps('ltr')}>
+    <View ref={box} {...dirProps('ltr')}>
       <ReanimatedSwipeable
         ref={ref}
         friction={1.4}
@@ -81,7 +117,10 @@ export function SwipeRow({
         containerStyle={containerStyle}
         // Opaque base: pressed tints are translucent, and the actions sit right behind the row.
         childrenContainerStyle={{ backgroundColor: c.cell }}
+        onSwipeableOpenStartDrag={() => (draggedAt = Date.now())}
+        onSwipeableCloseStartDrag={() => (draggedAt = Date.now())}
         onSwipeableWillOpen={() => {
+          draggedAt = Date.now();
           if (openRow && openRow !== ref.current) openRow.close();
           openRow = ref.current;
           fire.current = armed.current;
@@ -131,18 +170,12 @@ function Actions({
 
   const edit = (
     <Animated.View key="edit" style={[s.slot, editFade]}>
-      <Pressable accessibilityRole="button" accessibilityLabel={t.common.edit} onPress={onEdit} style={[s.button, { backgroundColor: c.tint }]}>
-        <Icon name="pencil" size={20} color={c.onTint} />
-        <Text style={[s.label, { color: c.onTint }]}>{t.common.edit}</Text>
-      </Pressable>
+      <ActionButton label={t.common.edit} icon="pencil" bg={c.tint} fg={c.onTint} onPress={onEdit} />
     </Animated.View>
   );
   const del = (
     <View key="delete" style={s.slot}>
-      <Pressable accessibilityRole="button" accessibilityLabel={t.common.delete} onPress={onDelete} style={[s.button, { backgroundColor: c.red }]}>
-        <Icon name="trash" size={20} color={c.onRed} />
-        <Text style={[s.label, { color: c.onRed }]}>{t.common.delete}</Text>
-      </Pressable>
+      <ActionButton label={t.common.delete} icon="trash" bg={c.red} fg={c.onRed} onPress={onDelete} />
     </View>
   );
 
@@ -152,6 +185,25 @@ function Actions({
       <Animated.View style={[s.filler, rtl ? s.fillerStart : s.fillerEnd, { backgroundColor: c.red }, filler]} />
       {rtl ? [del, edit] : [edit, del]}
     </View>
+  );
+}
+
+// A tap through the gesture library (works under the swipe on touch screens), plus onPress for
+// the keyboard and screen readers; `once` keeps a tap that arrives both ways from acting twice.
+function ActionButton({ label, icon, bg, fg, onPress }: { label: string; icon: string; bg: ColorValue; fg: ColorValue; onPress: () => void }) {
+  const act = once(onPress);
+  const tapGesture = Gesture.Tap()
+    .runOnJS(true)
+    .onEnd((_e, success) => {
+      if (success) act();
+    });
+  return (
+    <GestureDetector gesture={tapGesture}>
+      <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={act} style={[s.button, { backgroundColor: bg }]}>
+        <Icon name={icon} size={20} color={fg} />
+        <Text style={[s.label, { color: fg }]}>{label}</Text>
+      </Pressable>
+    </GestureDetector>
   );
 }
 
