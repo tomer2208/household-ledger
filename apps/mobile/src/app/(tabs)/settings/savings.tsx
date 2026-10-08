@@ -1,6 +1,6 @@
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useAddSavingsEntry, useCategories, useGoals, useHousehold, useOverview, useSavingsLedger } from '@/api/queries';
 import { GoalLine } from '@/components/goal-line';
@@ -11,6 +11,7 @@ import { t } from '@/lib/i18n';
 import { formatMoney, parseMoneyInput } from '@/lib/money';
 import { moneyText, useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // The server writes its own reasons in English ("Month close 2026-09"); entries it made
 // itself are described here instead, in the app's language. Manual ones keep what was typed.

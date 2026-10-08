@@ -1,10 +1,11 @@
-import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 
 import { Icon } from './ui';
 import type { MerchantSummary } from '@/api/types';
 import { t } from '@/lib/i18n';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // A name or any spelling it was learned under, so "PAZ YELLOW" finds "Paz".
 export const matches = (m: MerchantSummary, q: string) =>

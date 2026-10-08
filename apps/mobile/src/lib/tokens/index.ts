@@ -87,3 +87,5 @@ export const fab = { height: 56, radius: radius.pill } as const;
 export const minTouch = 44;
 // Q2: on a tablet or a computer the screen stays an app, centred, instead of stretching.
 export const contentMaxWidth = 720;
+// Q3: how far a tapped control fades while it's held, so every tap shows it registered.
+export const pressedOpacity = 0.6;

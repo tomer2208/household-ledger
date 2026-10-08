@@ -1,8 +1,9 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useColors } from '@/lib/theme';
 import { t } from '@/lib/i18n';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // R4: an expense takes money out, a refund puts it back (stored as a negative amount, H5).
 export function KindToggle({ refund, onChange }: { refund: boolean; onChange: (refund: boolean) => void }) {

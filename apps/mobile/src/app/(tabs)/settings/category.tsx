@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 
 import { useCategories, useCategoryTrend, useHousehold, useOverview, useSaveCategory, useSetBudget } from '@/api/queries';
 import type { Fund } from '@/api/types';
@@ -19,6 +19,7 @@ import { budgetTone, moneyText, radius, tokens, useColors } from '@/lib/theme';
 import type { CategoryColor } from '@/lib/tokens/palette.gen';
 import { fontFamily } from '@/lib/tokens';
 import { useScheme } from '@/lib/appearance';
+import { Pressable } from '@/components/pressable';
 
 export default function CategoryEdit() {
   const { id } = useLocalSearchParams<{ id?: string }>();

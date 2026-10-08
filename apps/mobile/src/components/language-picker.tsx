@@ -1,10 +1,11 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
 import { Icon, Row } from './ui';
 import { lang, type LangChoice } from '@/lib/i18n';
 import { langChoice, setLanguageChoice } from '@/lib/lang-store';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // P1-6: each language is named in itself, so someone who can't read the current one still
 // finds theirs.

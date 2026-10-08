@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Platform, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import ReanimatedSwipeable, { type SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Animated, { runOnJS, SharedValue, useAnimatedReaction, useAnimatedStyle } from 'react-native-reanimated';
 
@@ -9,6 +9,7 @@ import { isRTL, t } from '@/lib/i18n';
 import { dirProps } from '@/lib/rtl';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // Swipe toward the start of a row for Edit and Delete (docs/DESIGN_PLAN.md §7): left in English,
 // right in Hebrew. Dragging past both buttons arms a full-swipe delete: the strip turns red, and

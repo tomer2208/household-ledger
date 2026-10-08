@@ -1,5 +1,5 @@
 import { router, Stack } from 'expo-router';
-import { Pressable, Text } from 'react-native';
+import { Text } from 'react-native';
 
 import { useRecurring } from '@/api/queries';
 import { Badge, CategoryIcon, Empty, Row, Screen, Section } from '@/components/ui';
@@ -8,6 +8,7 @@ import { t } from '@/lib/i18n';
 import { installmentsPaid } from '@/lib/installments';
 import { formatMoney } from '@/lib/money';
 import { useColors } from '@/lib/theme';
+import { Pressable } from '@/components/pressable';
 
 export default function RecurringScreen() {
   const c = useColors();

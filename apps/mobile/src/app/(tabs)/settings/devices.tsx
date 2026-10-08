@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import { Stack } from 'expo-router';
 import { useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { useCaptureHealth, useCreateDeviceToken, useDevices, useHousehold, useRevokeDevice } from '@/api/queries';
 import { silentDays } from '@/components/capture-banner';
@@ -12,6 +12,7 @@ import { FUNCTIONS_URL } from '@/lib/supabase';
 import { confirm } from '@/lib/confirm';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // US-C5 + Shortcut setup (BLUEPRINT §3.11, shortcuts/SPEC.md). The token is shown exactly once.
 // Wallet automations can't be shared by link, so the guide below is how each person builds one.

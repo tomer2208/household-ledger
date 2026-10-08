@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, ScrollView, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, SectionList, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { useCategories, useHousehold, useOverview, useTransactionPages, useTransactionSummary } from '@/api/queries';
 import type { Category, Member, Transaction } from '@/api/types';
@@ -30,6 +30,7 @@ import {
 import { useTransactionActions } from '@/lib/transaction-actions';
 import { useColors } from '@/lib/theme';
 import { contentMaxWidth, fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 export default function TransactionsScreen() {
   const pending = useOverview().data?.pending_review ?? 0;

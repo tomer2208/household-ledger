@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useCategories, useCreateInvite, useHousehold, useSaveCategory, useSetBudgetsBulk } from '@/api/queries';
@@ -14,6 +14,7 @@ import { clearSetupPending } from '@/lib/setup';
 import { APP_URL } from '@/lib/supabase';
 import { moneyText, useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // P1-7: from a new household to a working budget in about two minutes. Three steps, each one
 // skippable: monthly income → suggested budgets (edit or blank any line) → invite a partner and

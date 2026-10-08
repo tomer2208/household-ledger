@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useState } from 'react';
-import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Modal, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DateInput, hasSystemDatePicker } from './date-input';
@@ -22,6 +22,7 @@ import {
 import { textStart } from '@/lib/rtl';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // P1-9: every filter in one sheet. Changes are a draft until Show, and the button counts what
 // the draft would show (summarize_transactions), so nobody applies a filter that finds nothing.

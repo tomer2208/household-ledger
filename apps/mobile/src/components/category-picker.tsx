@@ -1,9 +1,10 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { CategoryIcon } from './ui';
 import type { Category } from '@/api/types';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // A grid rather than a wheel: 15+ categories need to be scannable in one glance
 // while standing at a register.

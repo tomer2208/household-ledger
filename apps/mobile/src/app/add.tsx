@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Polygon } from 'react-native-svg';
 
 import {
@@ -32,6 +32,7 @@ import { CURRENCIES, formatMoney, minorToInput, parseMoneyInput } from '@/lib/mo
 import { useIsOnline } from '@/lib/query';
 import { moneyText, tokens, useColors } from '@/lib/theme';
 import { useScheme } from '@/lib/appearance';
+import { Pressable } from '@/components/pressable';
 
 const DRAFT_KEY = 'hl-add-draft';
 // How many envelopes show before "More": two rows of four, the ones used most (sort order).

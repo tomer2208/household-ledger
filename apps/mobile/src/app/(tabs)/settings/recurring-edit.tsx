@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { StyleSheet, Switch, Text, View } from 'react-native';
 
 import { useCategories, useDeleteRecurring, useHousehold, useRecurring, useSaveRecurring } from '@/api/queries';
 import type { RecurringRule } from '@/api/types';
@@ -12,6 +12,7 @@ import { todayYmd } from '@/lib/dates';
 import { confirm } from '@/lib/confirm';
 import { t } from '@/lib/i18n';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 const INTERVALS = [1, 2, 3, 6, 12] as const;
 

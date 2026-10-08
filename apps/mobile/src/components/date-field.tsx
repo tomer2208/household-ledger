@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { DateInput, hasSystemDatePicker } from './date-input';
 import { addDays, dayChipLabel, todayYmd, yesterdayYmd } from '@/lib/dates';
 import { t } from '@/lib/i18n';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // When an expense happened, on the household's clock (lib/dates.ts): Today and Yesterday are one tap, anything older opens the system
 // date picker. Future days can't be picked; a budget month is only ever in the past or now.

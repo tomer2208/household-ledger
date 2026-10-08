@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { useCategories, useHousehold, usePendingReview, useReviewTransaction } from '@/api/queries';
 import type { Transaction } from '@/api/types';
@@ -12,6 +12,7 @@ import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { moneyText, useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // US-C2 AC4: purchases whose Shortcut menu was dismissed land here. Confirming teaches the
 // merchant memory exactly like the Shortcut does (review_transaction → confirm_pending).

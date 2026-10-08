@@ -1,6 +1,6 @@
 import { router, type Href } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from './ui';
 import { useDevices, useHousehold, useOverview } from '@/api/queries';
@@ -9,6 +9,7 @@ import { forwardIcon } from '@/lib/rtl';
 import { dismissSetupCard, readSetupCardDismissed } from '@/lib/setup';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // P1-7: the three things that make the app work, ticked off as they happen: budgets, a partner
 // (shared households are the point), and Apple Pay logging. Gone once all three are done, or

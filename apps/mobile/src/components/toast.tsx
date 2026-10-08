@@ -1,11 +1,12 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Pressable, StyleSheet, Text, View } from 'react-native';
+import { AccessibilityInfo, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { dark, light, radius, useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
 import { useScheme } from '@/lib/appearance';
+import { Pressable } from '@/components/pressable';
 
 // One bottom toast at a time, with an optional Undo. `onExpire` runs when the toast leaves
 // without its action being used (timeout or replaced by the next toast), which is how a

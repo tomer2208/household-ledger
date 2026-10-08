@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import { Stack } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, Share, StyleSheet, Text, View } from 'react-native';
+import { Share, StyleSheet, Text, View } from 'react-native';
 
 import { useCreateInvite, useHousehold, useLeaveHousehold, useRemoveMember } from '@/api/queries';
 import { ErrorText, Row, Screen, Section } from '@/components/ui';
@@ -11,6 +11,7 @@ import { t } from '@/lib/i18n';
 import { APP_URL } from '@/lib/supabase';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 export default function HouseholdScreen() {
   const c = useColors();

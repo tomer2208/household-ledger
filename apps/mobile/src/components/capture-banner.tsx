@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from './ui';
 import { useCaptureHealth } from '@/api/queries';
@@ -9,6 +9,7 @@ import type { CaptureHealth } from '@/api/types';
 import { t } from '@/lib/i18n';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 const SNOOZE_KEY = 'capture-banner-snooze';
 const SNOOZE_MS = 3 * 86_400_000;

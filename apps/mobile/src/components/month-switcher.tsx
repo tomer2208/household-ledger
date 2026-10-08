@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { Icon } from './ui';
 import { addMonths, monthLabel } from '@/lib/dates';
@@ -6,6 +6,7 @@ import { t } from '@/lib/i18n';
 import { backIcon, forwardIcon } from '@/lib/rtl';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // P1-5: ‹ September 2026 › above Overview. Back as far as the household's first month, never
 // past the current one; "This month" jumps home from anywhere in the past.

@@ -1,10 +1,11 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { INSTALLMENT_CHOICES, splitInstallments } from '@/lib/installments';
 import { t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
 import { moneyText, useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // P1-2: one payment, or 3-36 monthly installments, with what each month will be charged.
 export function InstallmentPicker({

@@ -1,6 +1,6 @@
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useCategories, useHousehold, useOverview, useSaveCategory } from '@/api/queries';
 import type { Category } from '@/api/types';
@@ -14,6 +14,7 @@ import { monthPace } from '@/lib/dates';
 import { lang, t } from '@/lib/i18n';
 import { translatedSeedName } from '@/lib/seed-names';
 import { radius, tokens, useColors } from '@/lib/theme';
+import { Pressable } from '@/components/pressable';
 
 export default function CategoriesScreen() {
   const c = useColors();

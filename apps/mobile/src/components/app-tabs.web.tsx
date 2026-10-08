@@ -1,11 +1,12 @@
 import { TabList, TabSlot, TabTrigger, TabTriggerSlotProps, Tabs } from 'expo-router/ui';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from './ui';
 import { t } from '@/lib/i18n';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // Web (installed PWA): a bottom bar shaped like the iOS one. It sits above the home
 // indicator: viewport-fit=cover draws edge to edge, and the inset pads it back.

@@ -4,20 +4,7 @@
 import * as Haptics from 'expo-haptics';
 import { SymbolView, type SFSymbol } from 'expo-symbols';
 import { ReactNode } from 'react';
-import {
-  ActivityIndicator,
-  Platform,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TextInputProps,
-  TextStyle,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { ActivityIndicator, Platform, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TextInputProps, TextStyle, View, ViewStyle } from 'react-native';
 
 import { useCategories } from '@/api/queries';
 import { CATEGORY_ICONS, categoryColorId, categoryIconId, lookOf } from '@/lib/category-look';
@@ -29,6 +16,7 @@ import { t } from '@/lib/i18n';
 import { useIsOnline } from '@/lib/query';
 import { forwardIcon, textEnd } from '@/lib/rtl';
 import { useScheme } from '@/lib/appearance';
+import { Pressable } from '@/components/pressable';
 
 // Web has no SF Symbols; a few Material names keep the icons meaningful there.
 const WEB_ICON: Record<string, string> = {
@@ -58,13 +46,17 @@ const WEB_ICON: Record<string, string> = {
 
 export function Icon({ name, size = 20, color }: { name: string; size?: number; color?: any }) {
   const c = useColors();
+  // Q3: an icon sits beside its words or inside a named control, so screen readers skip it.
+  // SymbolView doesn't pass accessibility props through on web and Android, hence the wrapper.
   return (
-    <SymbolView
-      name={{ ios: name as SFSymbol, android: (WEB_ICON[name] ?? 'label') as any, web: (WEB_ICON[name] ?? 'label') as any }}
-      size={size}
-      tintColor={color ?? c.tint}
-      type="hierarchical"
-    />
+    <View aria-hidden>
+      <SymbolView
+        name={{ ios: name as SFSymbol, android: (WEB_ICON[name] ?? 'label') as any, web: (WEB_ICON[name] ?? 'label') as any }}
+        size={size}
+        tintColor={color ?? c.tint}
+        type="hierarchical"
+      />
+    </View>
   );
 }
 
@@ -98,14 +90,14 @@ export function CategoryIcon({
   const Glyph = id ? CATEGORY_ICONS[id] : null;
   if (!Glyph) {
     return (
-      <View style={[styles.catIcon, { width: size, height: size, borderRadius: size * 0.3, backgroundColor: c.fill }]}>
+      <View aria-hidden style={[styles.catIcon, { width: size, height: size, borderRadius: size * 0.3, backgroundColor: c.fill }]}>
         <Icon name={symbol} size={size * 0.56} color={c.text2} />
       </View>
     );
   }
   const look = tokens.categoryColors[color ?? categoryColorId(symbol)][dark ? 'dark' : 'light'];
   return (
-    <View style={[styles.catIcon, { width: size, height: size, borderRadius: size * 0.3, backgroundColor: look.soft }]}>
+    <View aria-hidden style={[styles.catIcon, { width: size, height: size, borderRadius: size * 0.3, backgroundColor: look.soft }]}>
       <Glyph size={Math.round(size * 0.6)} color={look.ink} weight="duotone" />
     </View>
   );

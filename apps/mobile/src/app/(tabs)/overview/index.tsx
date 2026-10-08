@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useCategories, useHousehold, useOverview, useProposals } from '@/api/queries';
 import type { Forecast, OverviewCategory } from '@/api/types';
@@ -25,6 +25,7 @@ import { envelopeStatus, runsOutOn } from '@/lib/envelope';
 import { t } from '@/lib/i18n';
 import { budgetTone, moneyText, tokens, useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 export default function OverviewScreen() {
   const c = useColors();

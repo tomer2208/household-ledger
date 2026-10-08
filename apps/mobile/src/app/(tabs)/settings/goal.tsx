@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useCloseGoal, useGoals, useHousehold, useMoveGoal, useSaveGoal } from '@/api/queries';
 import type { Goal } from '@/api/types';
@@ -14,6 +14,7 @@ import { t } from '@/lib/i18n';
 import { formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
 import { moneyText, useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 const SYMBOLS = ['star', 'airplane', 'car', 'house', 'gift', 'graduationcap', 'heart', 'laptopcomputer', 'figure.and.child.holdinghands', 'cross.case'];
 

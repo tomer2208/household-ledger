@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useCreateHousehold, useJoinHousehold } from '@/api/queries';
@@ -13,6 +13,7 @@ import { clearSetupPending, setSetupPending } from '@/lib/setup';
 import { supabase } from '@/lib/supabase';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // US-M1 AC2: create a household or join the partner's with an invite code.
 // An invite link (G3) opened earlier lands here with the code already filled in.

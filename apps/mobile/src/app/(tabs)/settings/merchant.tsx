@@ -1,6 +1,6 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { countMerchantMove, type MerchantUpdate, useCategories, useMergeMerchants, useMerchants, useRemoveMerchantAlias, useUpdateMerchant } from '@/api/queries';
@@ -14,6 +14,7 @@ import { errorMessage } from '@/lib/errors';
 import { t } from '@/lib/i18n';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { Pressable } from '@/components/pressable';
 
 // P1-13: one learned merchant. Rename it, change where its purchases go (optionally its existing
 // expenses too), forget a spelling that belongs to another shop, or merge a duplicate into it.

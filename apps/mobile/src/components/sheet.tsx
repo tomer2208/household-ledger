@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from './ui';
 import { t } from '@/lib/i18n';
 import { tokens, useColors } from '@/lib/theme';
 import { useScheme } from '@/lib/appearance';
+import { Pressable } from '@/components/pressable';
 
 // K3: a sheet from the bottom of the screen, over a dimmed backdrop (F4 elevation 2). Tapping the
 // backdrop or the close button dismisses it; on the web, Escape too (Modal's onRequestClose).
@@ -16,7 +17,7 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={s.fill}>
-        <Pressable style={[s.fill, { backgroundColor: c.scrim }]} onPress={onClose} accessibilityRole="button" accessibilityLabel={t.common.cancel} />
+        <Pressable feedback={false} style={[s.fill, { backgroundColor: c.scrim }]} onPress={onClose} accessibilityRole="button" accessibilityLabel={t.common.cancel} />
         <View
           style={[
             s.sheet,
