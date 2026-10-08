@@ -36,27 +36,16 @@ export function useAppearanceChoice() {
   );
 }
 
-// Web: the phone's light/dark. An installed web app on iOS often hears nothing when it changes
-// (Control Center opens over the app, so it doesn't even leave the front), and screens stayed
-// in the old colours until the app was reopened. The page's CSS does update at once, so a
-// hidden box in public/index.html is 2px wide in dark and 1px in light, and its size is
-// watched. The change event and coming back to the front are checked too.
+// Web: the phone's light/dark, through every signal a page gets: the change event, coming back
+// to the front, and a hidden box in public/index.html that the page's CSS makes 2px wide in
+// dark. Measured on iPhone (iOS 26, 08.10.2026): an installed web app gets none of them while
+// it's open. iOS only applies the new appearance when it loads the app again, so there it
+// follows the phone from the next opening; the in-app choice switches at once.
 const darkQuery = Platform.OS === 'web' && typeof window !== 'undefined' ? window.matchMedia?.('(prefers-color-scheme: dark)') : undefined;
 const probe = darkQuery ? document.getElementById('scheme-probe') : null;
 const readDark = () => (probe ? probe.getBoundingClientRect().width > 1.5 : !!darkQuery?.matches);
 const webListeners = new Set<() => void>();
 let webDark = readDark();
-// TEMP (dark mode on iPhone): what the phone reports, shown at the foot of Settings.
-export const schemeEvents: Record<string, number> = {};
-const count = (name: string) => () => {
-  schemeEvents[name] = (schemeEvents[name] ?? 0) + 1;
-  recheck();
-};
-export const schemeReadings = () => ({
-  css: probe ? probe.getBoundingClientRect().width : -1,
-  js: !!darkQuery?.matches,
-  app: webDark,
-});
 function recheck() {
   const now = readDark();
   if (now === webDark) return;
@@ -64,11 +53,11 @@ function recheck() {
   webListeners.forEach((l) => l());
 }
 if (darkQuery) {
-  darkQuery.addEventListener?.('change', count('change'));
-  window.addEventListener('focus', count('focus'));
-  window.addEventListener('pageshow', count('pageshow'));
-  document.addEventListener('visibilitychange', count('visible'));
-  if (probe && typeof ResizeObserver !== 'undefined') new ResizeObserver(count('size')).observe(probe);
+  darkQuery.addEventListener?.('change', recheck);
+  window.addEventListener('focus', recheck);
+  window.addEventListener('pageshow', recheck);
+  document.addEventListener('visibilitychange', recheck);
+  if (probe && typeof ResizeObserver !== 'undefined') new ResizeObserver(recheck).observe(probe);
 }
 function useWebSystemScheme(): 'light' | 'dark' {
   const dark = useSyncExternalStore(

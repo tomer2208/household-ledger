@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { useEffect, useState } from 'react';
-import { Platform, Switch, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Switch, Text, View } from 'react-native';
 
 import { useDevices, useHousehold, useOverview, useRecurring, useSetAiConsent, useSetReportNotices } from '@/api/queries';
 import { useSession } from '@/api/session';
@@ -18,7 +18,7 @@ import { deviceLang } from '@/lib/lang-store';
 import { formatMoney } from '@/lib/money';
 import { disableNotifications, enableNotifications, usePushState } from '@/lib/push';
 import { APP_URL, FUNCTIONS_URL, supabase } from '@/lib/supabase';
-import { schemeEvents, schemeReadings, setAppearance, useAppearanceChoice } from '@/lib/appearance';
+import { setAppearance, useAppearanceChoice } from '@/lib/appearance';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
 
@@ -273,30 +273,11 @@ export default function SettingsScreen() {
         />
       </Section>
       <ErrorText error={accountError} />
-      <SchemeDebug />
       {buildLabel() ? (
         <Text style={{ fontFamily: fontFamily.body, color: c.secondaryLabel, fontSize: 13, textAlign: 'center', marginTop: 24 }}>
           {t.settings.version(buildLabel()!)}
         </Text>
       ) : null}
     </Screen>
-  );
-}
-
-// TEMP (dark mode on iPhone): what the phone reports about light/dark, live. Removed once fixed.
-function SchemeDebug() {
-  const c = useColors();
-  const [, tick] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => tick((n) => n + 1), 500);
-    return () => clearInterval(id);
-  }, []);
-  if (Platform.OS !== 'web') return null;
-  const r = schemeReadings();
-  const ev = Object.entries(schemeEvents).map(([k, n]) => `${k}:${n}`).join(' ') || '-';
-  return (
-    <Text style={{ fontFamily: fontFamily.body, color: c.secondaryLabel, fontSize: 12, textAlign: 'center', marginTop: 24 }} {...({ dir: 'ltr' } as object)}>
-      {`css:${r.css === 2 ? 'dark' : r.css === 1 ? 'light' : r.css} js:${r.js ? 'dark' : 'light'} app:${r.app ? 'dark' : 'light'} | ${ev}`}
-    </Text>
   );
 }
