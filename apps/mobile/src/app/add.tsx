@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useSyncExternalStore, useState } from 'react';
+import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Svg, { Polygon } from 'react-native-svg';
 
 import {
@@ -27,12 +27,13 @@ import { lookOf } from '@/lib/category-look';
 import { dayChipLabel, onDay, todayYmd, ymd } from '@/lib/dates';
 import { envelopeStatus } from '@/lib/envelope';
 import { errorMessage } from '@/lib/errors';
-import { isRTL, t } from '@/lib/i18n';
+import { t } from '@/lib/i18n';
 import { CURRENCIES, formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
 import { useIsOnline } from '@/lib/query';
 import { moneyText, tokens, useColors } from '@/lib/theme';
 import { useScheme } from '@/lib/appearance';
 import { Pressable } from '@/components/pressable';
+import { appDirText, dirProps } from '@/lib/rtl';
 
 const DRAFT_KEY = 'hl-add-draft';
 // How many envelopes show before "More": two rows of four, the ones used most (sort order).
@@ -207,33 +208,28 @@ export default function AddExpense() {
     else setNudge(true);
   }
 
-  function press(k: string) {
+  // The phone's own number keyboard types the amount: digits and one point (a comma counts as
+  // one), up to 7 whole digits and 2 after the point.
+  function typeAmount(text: string) {
     setNudge(false);
-    if (Platform.OS === 'ios') Haptics.selectionAsync();
-    setAmount((a) => {
-      if (k === 'del') return a.slice(0, -1);
-      if (k === '.') return a.includes('.') ? a : (a || '0') + '.';
-      const [whole, frac] = a.split('.');
-      if (frac !== undefined && frac.length >= 2) return a;
-      if (frac === undefined && whole.length >= 7) return a;
-      return a === '0' ? k : a + k;
-    });
+    const [whole = '', ...rest] = text.replace(/,/g, '.').replace(/[^0-9.]/g, '').split('.');
+    const w = whole.replace(/^0+(?=\d)/, '').slice(0, 7);
+    setAmount(rest.length ? `${w || '0'}.${rest.join('').slice(0, 2)}` : w);
   }
 
-  // On the web a hardware keyboard types into the keypad too.
+  // Web: Escape closes, as the keypad's keyboard shortcuts did.
   useEffect(() => {
     if (Platform.OS !== 'web') return;
     const onKey = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement)?.tagName === 'INPUT' || (e.target as HTMLElement)?.tagName === 'TEXTAREA') return;
-      if (/^[0-9]$/.test(e.key)) press(e.key);
-      else if (e.key === '.' || e.key === ',') press('.');
-      else if (e.key === 'Backspace') press('del');
-      else if (e.key === 'Enter') save();
-      else if (e.key === 'Escape') close();
+      if (e.key === 'Escape') close();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   });
+
+  const keyboardFree = useKeyboardFreeHeight();
+  // A long amount shrinks to fit its half of the row instead of running off the screen.
+  const amountSize = Math.min(type.display.fontSize, Math.floor(170 / (Math.max(amount.length, 1) * 0.62)));
 
   const fx = currency === base ? effect(selected, minor) : null;
   const prompt = nudge
@@ -245,13 +241,11 @@ export default function AddExpense() {
           ? { text: t.add.willLeaveOnly(name(selected), money(fx.after.left, base)), color: c.close }
           : { text: t.add.willLeave(name(selected), money(fx.after.left, base)), color: c.text2 }
       : { text: t.add.prompt, color: c.text2 };
-  const [whole, frac] = (amount || '0').split('.');
-  const shown = `${Number(whole).toLocaleString('en-US')}${frac !== undefined ? `.${frac}` : ''}`;
   const visible = allEnvelopes ? envelopes : envelopes.slice(0, FIRST);
   const canSave = !!minor && !!selected && !busy && (count === 1 || (minor ?? 0) >= count);
 
   return (
-    <View style={{ flex: 1, backgroundColor: c.raised }}>
+    <View style={[keyboardFree ? { height: keyboardFree } : { flex: 1 }, { backgroundColor: c.raised }]}>
       <View style={s.column}>
       <View style={s.head}>
         <Text style={[s.title, { color: c.text }]} accessibilityRole="header">
@@ -263,13 +257,26 @@ export default function AddExpense() {
       </View>
 
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={s.scroll}>
-        <Text
-          style={[s.amount, { color: amount ? (refund ? c.positive : c.text) : c.text3 }]}
-          accessibilityLabel={`${refund ? t.add.refundAmount : t.add.amount}: ${minor ? formatMoney(minor, currency) : '0'}`}
-          accessibilityLiveRegion="polite">
-          {currency === 'ILS' ? `${shown} ₪` : `${shown} ${currency}`}
-        </Text>
-        <Text style={[s.prompt, { color: prompt.color }]} accessibilityLiveRegion="polite">
+        {/* The number ends at the middle and the currency starts there, in both languages. */}
+        <View style={s.amountRow} {...dirProps('ltr')}>
+          <TextInput
+            value={amount}
+            onChangeText={typeAmount}
+            inputMode="decimal"
+            keyboardType="decimal-pad"
+            autoFocus
+            placeholder="0"
+            placeholderTextColor={c.text3 as string}
+            onSubmitEditing={() => save()}
+            accessibilityLabel={refund ? t.add.refundAmount : t.add.amount}
+            nativeID="amount"
+            style={[s.amount, s.amountInput, { color: refund ? c.positive : c.text, fontSize: amountSize, lineHeight: amountSize + 4 }]}
+          />
+          <Text style={[s.amount, s.currency, { color: amount ? (refund ? c.positive : c.text) : c.text3, fontSize: amountSize, lineHeight: amountSize + 4 }]} aria-hidden>
+            {currency === 'ILS' ? '₪' : currency}
+          </Text>
+        </View>
+        <Text {...appDirText()} style={[s.prompt, { color: prompt.color }]} accessibilityLiveRegion="polite">
           {prompt.text}
         </Text>
 
@@ -366,23 +373,6 @@ export default function AddExpense() {
       </ScrollView>
 
       <View style={[s.bottom, { borderTopColor: c.line }]}>
-        {/* 1-2-3 from the left, as on every phone keypad, in Hebrew too. */}
-        <View style={s.keys}>
-          {[['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9'], ['.', '0', 'del']].map((row) => (
-            <View key={row.join('')} style={[s.keyRow, { flexDirection: isRTL() ? 'row-reverse' : 'row' }]}>
-              {row.map((k) => (
-                <Pressable
-                  key={k}
-                  onPress={() => press(k)}
-                  accessibilityRole="button"
-                  accessibilityLabel={k === 'del' ? t.add.keyDelete : k === '.' ? t.add.keyPoint : k}
-                  style={({ pressed }) => [s.key, { backgroundColor: pressed ? c.fill : c.bg }]}>
-                  {k === 'del' ? <Icon name="delete.left" size={22} color={c.text} /> : <Text style={[s.keyText, { color: c.text }]}>{k}</Text>}
-                </Pressable>
-              ))}
-            </View>
-          ))}
-        </View>
         <Pressable
           onPress={() => (online ? save() : saveDraft())}
           accessibilityRole="button"
@@ -398,6 +388,23 @@ export default function AddExpense() {
       </View>
       </View>
     </View>
+  );
+}
+
+// Web: the height the keyboard leaves free, while it's up. iOS lays the keyboard over the page
+// instead of shrinking it, so without this the save button would sit under the keyboard.
+function useKeyboardFreeHeight(): number | null {
+  return useSyncExternalStore(
+    (onChange) => {
+      const vv = Platform.OS === 'web' && typeof window !== 'undefined' ? window.visualViewport : null;
+      vv?.addEventListener('resize', onChange);
+      return () => vv?.removeEventListener('resize', onChange);
+    },
+    () => {
+      const vv = Platform.OS === 'web' && typeof window !== 'undefined' ? window.visualViewport : null;
+      return vv && vv.height < window.innerHeight - 100 ? Math.round(vv.height) : null;
+    },
+    () => null,
   );
 }
 
@@ -423,6 +430,9 @@ const s = StyleSheet.create({
   closeBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   scroll: { paddingBottom: space[4], gap: space[3] },
   amount: { ...type.display, textAlign: 'center', writingDirection: 'ltr' },
+  amountRow: { flexDirection: 'row', alignItems: 'center', gap: space[2] },
+  amountInput: { flex: 1, textAlign: 'right', padding: 0, minWidth: 0 },
+  currency: { flex: 1, textAlign: 'left' },
   prompt: { ...type.secondary, fontWeight: '600', textAlign: 'center', marginTop: -space[2], marginHorizontal: space[4] },
   chips: { flexDirection: 'row', justifyContent: 'center', gap: space[2], flexWrap: 'wrap' },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 36, paddingHorizontal: 16, borderRadius: radius.pill, borderWidth: 1 },
@@ -455,10 +465,6 @@ const s = StyleSheet.create({
   bottom: { paddingHorizontal: space[4], paddingTop: space[2], paddingBottom: space[6], gap: space[2], borderTopWidth: StyleSheet.hairlineWidth },
   // Q2: on a tablet or a computer the pad stays phone-sized, centred.
   column: { flex: 1, width: '100%', maxWidth: contentMaxWidth, alignSelf: 'center' },
-  keys: { gap: 6 },
-  keyRow: { gap: 6 },
-  key: { flex: 1, minHeight: 48, borderRadius: radius.tile, alignItems: 'center', justifyContent: 'center' },
-  keyText: { ...moneyText, fontSize: 24 },
   save: { minHeight: 54, borderRadius: radius.tile + 2, alignItems: 'center', justifyContent: 'center', paddingHorizontal: space[4] },
   saveText: { ...type.label, fontSize: 18 },
 });

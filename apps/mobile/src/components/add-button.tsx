@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from './ui';
 import { t } from '@/lib/i18n';
 import { useScheme } from '@/lib/appearance';
+import { primeKeyboard } from '@/lib/keyboard';
 import { radius, tokens, useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
 
@@ -28,6 +29,7 @@ export function AddButton({ href = '/add' }: { href?: Href }) {
         accessibilityLabel={t.add.addExpense}
         onPress={() => {
           if (Platform.OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          primeKeyboard();
           router.push(href);
         }}
         style={({ pressed }) => [

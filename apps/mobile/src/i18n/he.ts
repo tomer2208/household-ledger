@@ -7,6 +7,9 @@ import type { Dict } from './en';
 // A prefix letter (ב, ל, מ, כ) takes a hyphen before a word that isn't Hebrew or a number:
 // "שמירה ב-Groceries", "ב-10". Names come from people, so either can turn up.
 const pre = (letter: string, word: string) => (/^[\u0590-\u05FF]/.test(word) ? letter + word : `${letter}-${word}`);
+// A name that opens a sentence may be in English; isolated, it doesn't turn the whole line
+// left to right (amounts are already isolated by money()).
+const iso = (name: string) => `\u2068${name}\u2069`;
 
 export const he: Dict = {
   common: {
@@ -181,7 +184,7 @@ export const he: Dict = {
     editBudget: 'שינוי התקציב',
     editEnvelope: 'שם, סמל וצבע',
     expenses: 'ההוצאות שלה',
-    budgetFor: (name: string) => `${name}: תקציב חודשי`,
+    budgetFor: (name: string) => `${iso(name)}: תקציב חודשי`,
     budgetPreview: 'החודש, עם התקציב הזה',
     noBudgetYet: 'עוד אין תקציב',
   },
@@ -277,9 +280,9 @@ export const he: Dict = {
     saveIn: (name: string) => `שמירה ${pre('ב', name)}`,
     moreDetails: 'עוד פרטים',
     moreEnvelopes: 'עוד',
-    willLeave: (name: string, amount: string) => `${name}: יישארו ${amount}`,
-    willLeaveOnly: (name: string, amount: string) => `${name}: יישארו רק ${amount}`,
-    willGoOver: (name: string, amount: string) => `${name} תעבור את התקציב ב-${amount}`,
+    willLeave: (name: string, amount: string) => `${iso(name)}: יישארו ${amount}`,
+    willLeaveOnly: (name: string, amount: string) => `${iso(name)}: יישארו רק ${amount}`,
+    willGoOver: (name: string, amount: string) => `${iso(name)} תעבור את התקציב ב-${amount}`,
     saved: (amount: string, name: string) => `נוסף ${amount} ${pre('ל', name)}.`,
     savedLeft: (amount: string) => ` נשארו ${amount}`,
     savedClose: (amount: string) => ` קרוב לגבול: נשארו ${amount}`,
@@ -326,7 +329,7 @@ export const he: Dict = {
   },
   actions: {
     offlineDelete: 'אין חיבור. אפשר למחוק כשהחיבור חוזר.',
-    deleted: (what: string) => `${what} נמחקה`,
+    deleted: (what: string) => `${iso(what)} נמחקה`,
     restoreFailed: (why: string) => `לא הצלחנו לשחזר: ${why}`,
     cantDelete: (name: string) => `אי אפשר למחוק את ${name}`,
     usedByRecurring: (n: number) =>
@@ -339,7 +342,7 @@ export const he: Dict = {
       `${n === 1 ? 'הוצאה קודמת אחת שומרת' : `${n} הוצאות קודמות שומרות`} על הקטגוריה הזו. היא יוצאת מהרשימות ומהתקציבים, ואפשר לשחזר אותה מהארכיון.`,
     archiveHistory: 'יש לה היסטוריה, ולכן היא עוברת לארכיון ולא נמחקת. אפשר לשחזר אותה מהארכיון.',
     archive: 'העברה לארכיון',
-    archived: (name: string) => `${name} הועברה לארכיון`,
+    archived: (name: string) => `${iso(name)} הועברה לארכיון`,
     deleteTitle: (name: string) => `למחוק את ${name}?`,
     deleteUnused: 'לא השתמשו בה, ולכן היא נמחקת יחד עם התקציב שלה.',
     removeIncomeTitle: 'להסיר את ההכנסה החודשית?',
@@ -494,7 +497,7 @@ export const he: Dict = {
     leaveHousehold: 'עזיבת משק הבית',
     members: 'חברים',
     membersFooter: 'לכולם אותן הרשאות, וכולם רואים הכול.',
-    you: (name: string) => `${name} (את/ה)`,
+    you: (name: string) => `${iso(name)} (את/ה)`,
     joined: (date: string) => `הצטרפות: ${date}`,
     currency: 'מטבע',
     baseCurrency: 'מטבע ראשי',
@@ -597,7 +600,7 @@ export const he: Dict = {
     mergeMessage: (from: string, n: number) =>
       `${n === 1 ? 'ההוצאה שלו' : `${n} ההוצאות שלו`}, התשלומים הקבועים והאיותים יעברו לכאן, ו-${from} יוסר. אי אפשר לבטל את זה.`,
     mergeAction: 'מיזוג',
-    merged: (from: string) => `${from} מוזג`,
+    merged: (from: string) => `${iso(from)} מוזג`,
   },
   recurring: {
     addA11y: 'הוספת הוצאה קבועה',
@@ -675,7 +678,7 @@ export const he: Dict = {
     closeTitle: (name: string) => `לסגור את ${name}?`,
     closeMessage: (amount: string) => `${amount} שמסומנים בו יחזרו לחיסכון הפנוי.`,
     closeAction: 'סגירה',
-    closed: (name: string) => `${name} נסגר`,
+    closed: (name: string) => `${iso(name)} נסגר`,
   },
   devices: {
     defaultName: (name: string | undefined) => (name ? `האייפון של ${name}` : 'האייפון שלי'),

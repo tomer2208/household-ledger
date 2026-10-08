@@ -24,6 +24,7 @@ import { dayLabel, monthLabel, monthOfDay, onDay, timeLabel, ymd } from '@/lib/d
 import { errorMessage } from '@/lib/errors';
 import { formatSigned, minorToInput, parseMoneyInput } from '@/lib/money';
 import { t } from '@/lib/i18n';
+import { primeKeyboard } from '@/lib/keyboard';
 import { useIsOnline } from '@/lib/query';
 import { tokens, useColors } from '@/lib/theme';
 import { installmentNo } from '@/lib/installments';
@@ -221,7 +222,8 @@ function Editor({ tx }: { tx: Transaction }) {
         <Button
           title={t.detail.duplicate}
           kind="plain"
-          onPress={() =>
+          onPress={() => {
+            primeKeyboard();
             router.push({
               pathname: '/add',
               params: {
@@ -231,8 +233,8 @@ function Editor({ tx }: { tx: Transaction }) {
                 category: tx.category_id,
                 ...(tx.amount_minor < 0 ? { refund: '1' } : {}),
               },
-            })
-          }
+            });
+          }}
         />
         <Button title={t.detail.deleteExpense} kind="destructive" onPress={deleteExpense} disabled={!online} />
       </View>

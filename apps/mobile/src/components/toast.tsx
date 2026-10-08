@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { dark, light, radius, useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
 import { useScheme } from '@/lib/appearance';
+import { appDirText } from '@/lib/rtl';
 import { Pressable } from '@/components/pressable';
 
 // One bottom toast at a time, with an optional Undo. `onExpire` runs when the toast leaves
@@ -63,7 +64,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           pointerEvents="box-none"
           style={[s.wrap, { bottom: insets.bottom + TAB_BAR + ADD_BUTTON }]}>
           <View style={[s.toast, { backgroundColor: c.label }]} accessibilityLiveRegion="polite">
-            <Text style={[s.message, { color: c.cell }]} numberOfLines={2}>
+            <Text {...appDirText()} style={[s.message, { color: c.cell }]} numberOfLines={2}>
               {toast.message}
             </Text>
             {toast.action ? (

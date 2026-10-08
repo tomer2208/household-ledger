@@ -23,6 +23,7 @@ import { lookOf } from '@/lib/category-look';
 import { currentMonth, monthDay, monthLabel, monthOfInstant } from '@/lib/dates';
 import { envelopeStatus, runsOutOn } from '@/lib/envelope';
 import { t } from '@/lib/i18n';
+import { primeKeyboard } from '@/lib/keyboard';
 import { budgetTone, moneyText, tokens, useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
 import { Pressable } from '@/components/pressable';
@@ -82,7 +83,7 @@ export default function OverviewScreen() {
         onPress={() =>
           past && o
             ? router.push({ pathname: '/transactions', params: { category: cat.id, month: o.month } })
-            : router.push({ pathname: '/add', params: { category: cat.id } })
+            : (primeKeyboard(), router.push({ pathname: '/add', params: { category: cat.id } }))
         }
         onLongPress={past ? undefined : () => setMenuFor(cat)}
         actions={

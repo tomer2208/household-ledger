@@ -81,6 +81,8 @@
         outline: 2px solid #a65485 !important;
         outline-offset: 2px;
       }
+      /* The amount field shows its own big caret; a ring around half the screen only adds noise. */
+      #root #amount:focus-visible { outline: none !important; }
       @media (prefers-color-scheme: dark) {
         #root [role='button']:focus-visible, #root [role='radio']:focus-visible, #root [role='checkbox']:focus-visible,
         #root [role='switch']:focus-visible, #root [role='tab']:focus-visible, #root [role='link']:focus-visible,
