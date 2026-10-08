@@ -46,6 +46,17 @@ const probe = darkQuery ? document.getElementById('scheme-probe') : null;
 const readDark = () => (probe ? probe.getBoundingClientRect().width > 1.5 : !!darkQuery?.matches);
 const webListeners = new Set<() => void>();
 let webDark = readDark();
+// TEMP (dark mode on iPhone): what the phone reports, shown at the foot of Settings.
+export const schemeEvents: Record<string, number> = {};
+const count = (name: string) => () => {
+  schemeEvents[name] = (schemeEvents[name] ?? 0) + 1;
+  recheck();
+};
+export const schemeReadings = () => ({
+  css: probe ? probe.getBoundingClientRect().width : -1,
+  js: !!darkQuery?.matches,
+  app: webDark,
+});
 function recheck() {
   const now = readDark();
   if (now === webDark) return;
@@ -53,11 +64,11 @@ function recheck() {
   webListeners.forEach((l) => l());
 }
 if (darkQuery) {
-  darkQuery.addEventListener?.('change', recheck);
-  window.addEventListener('focus', recheck);
-  window.addEventListener('pageshow', recheck);
-  document.addEventListener('visibilitychange', recheck);
-  if (probe && typeof ResizeObserver !== 'undefined') new ResizeObserver(recheck).observe(probe);
+  darkQuery.addEventListener?.('change', count('change'));
+  window.addEventListener('focus', count('focus'));
+  window.addEventListener('pageshow', count('pageshow'));
+  document.addEventListener('visibilitychange', count('visible'));
+  if (probe && typeof ResizeObserver !== 'undefined') new ResizeObserver(count('size')).observe(probe);
 }
 function useWebSystemScheme(): 'light' | 'dark' {
   const dark = useSyncExternalStore(
