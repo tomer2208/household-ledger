@@ -16,6 +16,7 @@ import { bootLanguage, bootLanguageSync } from '@/lib/lang-store';
 import { usePushRegistration, useNotificationRouting } from '@/lib/push';
 import { QueryProvider } from '@/lib/query';
 import { bootAppearance, useScheme } from '@/lib/appearance';
+import { useEdgeSwipeBack } from '@/lib/edge-swipe-back';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -73,6 +74,7 @@ function Root() {
   useLanguageSync(hh.data?.me);
   usePushRegistration(session?.user.id, !!household);
   useNotificationRouting();
+  useEdgeSwipeBack();
 
   const ready = !loading && (!session || !hh.isLoading);
   useEffect(() => {
