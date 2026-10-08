@@ -81,6 +81,10 @@
         outline: 2px solid #a65485 !important;
         outline-offset: 2px;
       }
+      /* Light/dark as the page's CSS sees it, which Safari updates at once even when an installed
+         web app hears nothing (lib/appearance.ts watches this box's width). */
+      #scheme-probe { position: fixed; top: 0; left: 0; width: 1px; height: 1px; visibility: hidden; pointer-events: none; }
+      @media (prefers-color-scheme: dark) { #scheme-probe { width: 2px; } }
       /* The amount field shows its own big caret; a ring around half the screen only adds noise. */
       #root #amount:focus-visible { outline: none !important; }
       @media (prefers-color-scheme: dark) {
@@ -104,6 +108,7 @@
   </head>
 
   <body>
+    <div id="scheme-probe" aria-hidden="true"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <script src="/register-sw.js"></script>
