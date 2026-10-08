@@ -26,7 +26,7 @@ export function MerchantSearch({ value, onChange }: { value: string; onChange: (
         accessibilityLabel={t.merchants.search}
       />
       {value ? (
-        <Pressable onPress={() => onChange('')} hitSlop={8} accessibilityLabel={t.expenses.clearSearch}>
+        <Pressable onPress={() => onChange('')} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.expenses.clearSearch}>
           <Icon name="xmark.circle.fill" size={16} color={c.tertiaryLabel} />
         </Pressable>
       ) : null}

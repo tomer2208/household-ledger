@@ -40,7 +40,7 @@ export function SetupCard() {
           {t.detail.installmentOf(doneCount, items.length)}
         </Text>
         <Pressable
-          hitSlop={10}
+          hitSlop={12}
           onPress={() => {
             setDismissed(true);
             dismissSetupCard();

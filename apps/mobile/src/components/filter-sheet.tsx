@@ -238,7 +238,7 @@ function DayChoice({ label, value, max, onChange }: { label: string; value: stri
           <DateInput value={value ?? max} max={max} onChange={onChange} label={label} />
         </View>
         {value ? (
-          <Pressable onPress={() => onChange(null)} hitSlop={10} accessibilityRole="button" accessibilityLabel={t.filters.remove(label)}>
+          <Pressable onPress={() => onChange(null)} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.filters.remove(label)}>
             <Icon name="xmark.circle.fill" size={18} color={c.tint} />
           </Pressable>
         ) : null}

@@ -73,6 +73,19 @@
           background-color: #121511;
         }
       }
+      /* Q1: react-native-web removes the browser's focus ring. With a keyboard, the focused
+         control gets a 2px ring in the action colour (F1 `focus`, 3:1 or more on every surface). */
+      #root [role='button']:focus-visible, #root [role='radio']:focus-visible, #root [role='checkbox']:focus-visible,
+      #root [role='switch']:focus-visible, #root [role='tab']:focus-visible, #root [role='link']:focus-visible,
+      #root a:focus-visible, #root input:focus-visible, #root textarea:focus-visible {
+        outline: 2px solid #a65485 !important;
+        outline-offset: 2px;
+      }
+      @media (prefers-color-scheme: dark) {
+        #root [role='button']:focus-visible, #root [role='radio']:focus-visible, #root [role='checkbox']:focus-visible,
+        #root [role='switch']:focus-visible, #root [role='tab']:focus-visible, #root [role='link']:focus-visible,
+        #root a:focus-visible, #root input:focus-visible, #root textarea:focus-visible { outline-color: #f4afd5 !important; }
+      }
       #root {
         display: flex;
         height: 100%;

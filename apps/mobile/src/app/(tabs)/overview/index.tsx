@@ -136,7 +136,7 @@ export default function OverviewScreen() {
                     <Pressable
                       onPress={() => router.push({ pathname: '/reports/[month]', params: { month: o.month } })}
                       accessibilityRole="button"
-                      hitSlop={8}>
+                      style={s.link}>
                       <Text style={[s.heroMeta, { color: c.tint }]}>{t.overview.reportLink(monthLabel(o.month))}</Text>
                     </Pressable>
                   ) : null}
@@ -191,7 +191,7 @@ export default function OverviewScreen() {
                 <>
                   <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>{t.overview.spentThisMonth}</Text>
                   <Text maxFontSizeMultiplier={1.5} style={[s.heroAmount, { color: c.label }]}>{money(o.total_spent, cur)}</Text>
-                  <Pressable onPress={() => router.push('/settings/categories')} accessibilityRole="button" hitSlop={8}>
+                  <Pressable onPress={() => router.push('/settings/categories')} accessibilityRole="button" style={s.link}>
                     <Text style={[s.heroMeta, { color: c.tint }]}>{t.overview.setBudgetsLink}</Text>
                   </Pressable>
                   {forecast && o.forecast ? (
@@ -257,7 +257,7 @@ export default function OverviewScreen() {
                 <EnvelopeGrid>{budgeted.map((cat) => envelopeFor(cat, cat.cap))}</EnvelopeGrid>
                 {/* C3: how the budgets sit against income, under the envelopes rather than in the hero. */}
                 {!past && plan.kind !== 'none' ? (
-                  <Pressable onPress={() => router.push('/settings/income')} accessibilityRole="button" hitSlop={6}>
+                  <Pressable onPress={() => router.push('/settings/income')} accessibilityRole="button" style={s.link}>
                     <Text style={[s.groupFooter, { color: plan.health === 'over' ? c.over : plan.health === 'thin' ? c.close : c.text2 }]}>
                       {plan.kind === 'over'
                         ? t.overview.budgetsOverIncome(money(-plan.unassigned, cur))
@@ -400,7 +400,9 @@ const s = StyleSheet.create({
   heroRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', columnGap: 12, rowGap: 2 },
   heroMeta: { fontSize: 14, ...moneyText },
   forecast: { borderTopWidth: StyleSheet.hairlineWidth, marginTop: 4, paddingTop: 12, gap: 8 },
-  forecastHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  forecastHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, minHeight: 44 },
+  // Q1: a text link is a 44pt target, not just its line of text
+  link: { minHeight: 44, justifyContent: 'center' },
   forecastText: { fontSize: 15, fontWeight: '600', flexShrink: 1, ...moneyText },
   forecastBody: { gap: 4 },
   forecastRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },

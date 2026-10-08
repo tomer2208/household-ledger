@@ -37,7 +37,7 @@ export function InstallBanner() {
         <Text style={[s.text, { color: c.secondaryLabel }]}>{t.banner.installBody}</Text>
       </View>
       <Pressable
-        hitSlop={10}
+        hitSlop={12}
         onPress={() => {
           setShow(false);
           AsyncStorage.setItem(DISMISSED, '1').catch(() => {});

@@ -119,7 +119,7 @@ function Editor({ m, others }: { m: MerchantSummary; others: MerchantSummary[] }
               title={a.normalized}
               subtitle={t.merchants.sources[a.source]}
               right={
-                <Pressable onPress={() => forget(a.normalized)} hitSlop={10} accessibilityRole="button" accessibilityLabel={t.merchants.removeSpelling(a.normalized)}>
+                <Pressable onPress={() => forget(a.normalized)} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.merchants.removeSpelling(a.normalized)}>
                   <Icon name="trash" size={18} color={c.red} />
                 </Pressable>
               }

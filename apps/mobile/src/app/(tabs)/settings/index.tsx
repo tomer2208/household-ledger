@@ -163,6 +163,7 @@ export default function SettingsScreen() {
                 value={push.state === 'on'}
                 disabled={pushBusy || (push.state !== 'on' && push.state !== 'off')}
                 onValueChange={togglePush}
+                accessibilityLabel={t.settings.budgetAlerts}
               />
             }
           />
@@ -224,6 +225,7 @@ export default function SettingsScreen() {
               value={!!household?.ai_consent_at}
               disabled={!household || consent.isPending}
               onValueChange={toggleAi}
+              accessibilityLabel={t.settings.aiSuggestions}
             />
           }
         />

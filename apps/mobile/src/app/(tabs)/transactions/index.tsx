@@ -108,7 +108,7 @@ export default function TransactionsScreen() {
               <Text style={[s.footerText, { color: c.tint }]}>{t.expenses.moreFailed}</Text>
             </Pressable>
           ) : sections.length > 0 && !txs.hasNextPage ? (
-            <Text style={[s.footerText, s.footer, { color: c.tertiaryLabel }]}>{t.expenses.everything}</Text>
+            <Text style={[s.footerText, s.footer, { color: c.secondaryLabel }]}>{t.expenses.everything}</Text>
           ) : null
         }
         ListHeaderComponent={
@@ -299,7 +299,7 @@ function WebSearch({ value, onChange }: { value: string; onChange: (v: string) =
         accessibilityLabel={t.expenses.search}
       />
       {value ? (
-        <Pressable onPress={() => onChange('')} hitSlop={8} accessibilityLabel={t.expenses.clearSearch}>
+        <Pressable onPress={() => onChange('')} hitSlop={12} accessibilityRole="button" accessibilityLabel={t.expenses.clearSearch}>
           <Icon name="xmark.circle.fill" size={16} color={c.tertiaryLabel} />
         </Pressable>
       ) : null}
