@@ -10,6 +10,7 @@ import { Pressable } from '@/components/pressable';
 
 // Web (installed PWA): a bottom bar shaped like the iOS one. It sits above the home
 // indicator: viewport-fit=cover draws edge to edge, and the inset pads it back.
+// Coming back to a tab opens its main page, not the inner screen it was left on.
 export default function AppTabs() {
   const c = useColors();
   const insets = useSafeAreaInsets();
@@ -17,16 +18,16 @@ export default function AppTabs() {
     <Tabs>
       <TabSlot style={{ flex: 1 }} />
       <TabList style={[styles.bar, { backgroundColor: c.cell, borderTopColor: c.separator, paddingBottom: Math.max(6, insets.bottom) }]}>
-        <TabTrigger name="overview" href="/overview" asChild>
+        <TabTrigger name="overview" href="/overview" resetOnFocus asChild>
           <TabButton icon="envelope">{t.tabs.overview}</TabButton>
         </TabTrigger>
-        <TabTrigger name="transactions" href="/transactions" asChild>
+        <TabTrigger name="transactions" href="/transactions" resetOnFocus asChild>
           <TabButton icon="list.bullet">{t.tabs.expenses}</TabButton>
         </TabTrigger>
-        <TabTrigger name="reports" href="/reports" asChild>
+        <TabTrigger name="reports" href="/reports" resetOnFocus asChild>
           <TabButton icon="doc.text.magnifyingglass">{t.tabs.reports}</TabButton>
         </TabTrigger>
-        <TabTrigger name="settings" href="/settings" asChild>
+        <TabTrigger name="settings" href="/settings" resetOnFocus asChild>
           <TabButton icon="gearshape">{t.tabs.settings}</TabButton>
         </TabTrigger>
       </TabList>
