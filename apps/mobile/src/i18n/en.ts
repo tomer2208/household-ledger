@@ -460,6 +460,7 @@ export const en = {
     account: 'Account',
     signOut: 'Sign Out',
     deleting: 'Deleting…',
+    version: (build: string) => `Version ${build}`,
     deleteAccount: 'Delete Account',
     deleteAccountTitle: 'Delete your account?',
     deleteAlone: (household: string | undefined) =>

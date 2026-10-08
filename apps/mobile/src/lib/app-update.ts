@@ -2,3 +2,4 @@
 // (lib/app-update.web.ts).
 export const useUpdateAvailable = () => false;
 export function applyUpdate() {}
+export const buildLabel = (): string | null => null;

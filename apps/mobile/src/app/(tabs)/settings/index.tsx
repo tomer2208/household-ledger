@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
-import { Switch, View } from 'react-native';
+import { Switch, Text, View } from 'react-native';
 
 import { useDevices, useHousehold, useOverview, useRecurring, useSetAiConsent, useSetReportNotices } from '@/api/queries';
 import { useSession } from '@/api/session';
@@ -9,6 +9,7 @@ import { LanguageRows } from '@/components/language-picker';
 import { SwipeRow } from '@/components/swipe-row';
 import { CategoryIcon, ErrorText, Icon, Row, Screen, Section } from '@/components/ui';
 import { aiDisclosure } from '@/lib/ai-disclosure';
+import { buildLabel } from '@/lib/app-update';
 import { confirm } from '@/lib/confirm';
 import { exportExpenses } from '@/lib/export-csv';
 import { lang, t } from '@/lib/i18n';
@@ -19,6 +20,7 @@ import { disableNotifications, enableNotifications, usePushState } from '@/lib/p
 import { APP_URL, FUNCTIONS_URL, supabase } from '@/lib/supabase';
 import { setAppearance, useAppearanceChoice } from '@/lib/appearance';
 import { useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 export default function SettingsScreen() {
   const { session } = useSession();
@@ -271,6 +273,11 @@ export default function SettingsScreen() {
         />
       </Section>
       <ErrorText error={accountError} />
+      {buildLabel() ? (
+        <Text style={{ fontFamily: fontFamily.body, color: c.secondaryLabel, fontSize: 13, textAlign: 'center', marginTop: 24 }}>
+          {t.settings.version(buildLabel()!)}
+        </Text>
+      ) : null}
     </Screen>
   );
 }

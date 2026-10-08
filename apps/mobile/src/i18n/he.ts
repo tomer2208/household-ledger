@@ -468,6 +468,7 @@ export const he: Dict = {
     account: 'חשבון',
     signOut: 'יציאה מהחשבון',
     deleting: 'מוחק…',
+    version: (build: string) => `גרסה ${build}`,
     deleteAccount: 'מחיקת החשבון',
     deleteAccountTitle: 'למחוק את החשבון?',
     deleteAlone: (household: string | undefined) =>

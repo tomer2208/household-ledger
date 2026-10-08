@@ -8,6 +8,18 @@ const EVERY_MS = 30 * 60 * 1000;
 
 const ownBuild = () => document.querySelector('meta[name="app-build"]')?.getAttribute('content') ?? null;
 
+// The build this page came from, as the time it was built ("08.10 11:42", local time), shown at
+// the foot of Settings so it's easy to tell whether a new version has reached the phone.
+export function buildLabel(): string | null {
+  const b = ownBuild();
+  if (!b || b === '__BUILD__') return 'dev';
+  const m = b.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/);
+  if (!m) return b;
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]));
+  const two = (n: number) => String(n).padStart(2, '0');
+  return `${two(d.getDate())}.${two(d.getMonth() + 1)} ${two(d.getHours())}:${two(d.getMinutes())}`;
+}
+
 async function latestBuild(): Promise<string | null> {
   try {
     // Unique URL + no-store: neither the browser nor an older service worker answers from a cache.
