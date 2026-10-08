@@ -203,7 +203,7 @@ function Editor({ id }: { id?: string }) {
                   accessibilityLabel={isRTL() ? x.he : x.en}
                   style={[s.iconCell, icon === x.id && { backgroundColor: c.actionSoft, borderColor: c.action }]}>
                   <CategoryIcon symbol={sfFor(x.id)} icon={x.id} color={color} size={36} />
-                  <Text numberOfLines={1} style={[s.iconName, { color: c.text }]}>
+                  <Text numberOfLines={2} style={[s.iconName, { color: c.text }]}>
                     {isRTL() ? x.he : x.en}
                   </Text>
                 </Pressable>
@@ -309,7 +309,7 @@ const s = StyleSheet.create({
   search: { ...tokens.type.body, minHeight: 44, borderRadius: tokens.radius.tile, paddingHorizontal: 12 },
   iconGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   iconCell: { width: '23.4%', minHeight: 76, alignItems: 'center', justifyContent: 'center', gap: 4, borderRadius: tokens.radius.tile, borderWidth: 2, borderColor: 'transparent', paddingHorizontal: 2 },
-  iconName: { ...tokens.type.caption, fontSize: 12 },
+  iconName: { ...tokens.type.caption, fontSize: 12, lineHeight: 15, textAlign: 'center' },
   hint: { fontFamily: fontFamily.body, fontSize: 13, marginHorizontal: 32, marginTop: 6 },
   label: { fontFamily: fontFamily.body, fontSize: 13, marginStart: 32, marginTop: 24, marginBottom: 6 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: 16, borderRadius: 10, padding: 8 },

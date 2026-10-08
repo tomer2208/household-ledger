@@ -55,7 +55,7 @@ export default function HouseholdScreen() {
                   hitSlop={8}
                   accessibilityRole="button"
                   accessibilityLabel={t.household.removeTitle(m.display_name)}>
-                  <Text style={{ color: c.red, fontSize: 15 }}>{t.common.remove}</Text>
+                  <Text style={{ fontFamily: fontFamily.body, color: c.red, fontSize: 15 }}>{t.common.remove}</Text>
                 </Pressable>
               ) : undefined
             }

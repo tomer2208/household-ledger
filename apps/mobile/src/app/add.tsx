@@ -251,6 +251,7 @@ export default function AddExpense() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.raised }}>
+      <View style={s.column}>
       <View style={s.head}>
         <Text style={[s.title, { color: c.text }]} accessibilityRole="header">
           {refund ? t.add.newRefund : t.add.addExpense}
@@ -394,6 +395,7 @@ export default function AddExpense() {
           </Text>
         </Pressable>
       </View>
+      </View>
     </View>
   );
 }
@@ -413,7 +415,7 @@ function Chip({ label, icon, selected, onPress }: { label: string; icon?: string
   );
 }
 
-const { space, radius, type } = tokens;
+const { space, radius, type, contentMaxWidth } = tokens;
 const s = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: space[4], paddingTop: space[4], paddingBottom: space[1] },
   title: { ...type.label },
@@ -450,6 +452,8 @@ const s = StyleSheet.create({
   pickName: { ...type.caption, fontWeight: '600' },
   pickLeft: { ...type.caption, ...moneyText, fontSize: 11, lineHeight: 14 },
   bottom: { paddingHorizontal: space[4], paddingTop: space[2], paddingBottom: space[6], gap: space[2], borderTopWidth: StyleSheet.hairlineWidth },
+  // Q2: on a tablet or a computer the pad stays phone-sized, centred.
+  column: { flex: 1, width: '100%', maxWidth: contentMaxWidth, alignSelf: 'center' },
   keys: { gap: 6 },
   keyRow: { gap: 6 },
   key: { flex: 1, minHeight: 48, borderRadius: radius.tile, alignItems: 'center', justifyContent: 'center' },

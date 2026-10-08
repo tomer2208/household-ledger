@@ -18,8 +18,8 @@ import { tokens, useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
 import { useScheme } from '@/lib/appearance';
 
-// SVG text doesn't inherit the app font on web; iOS already uses the system font.
-const FONT = Platform.OS === 'web' ? 'system-ui, -apple-system, sans-serif' : undefined;
+// SVG text doesn't inherit the app font, so the labels name it (F3: Assistant).
+const FONT = Platform.OS === 'web' ? `${fontFamily.body}, system-ui, sans-serif` : fontFamily.body;
 
 // Ordered, colorblind-safe categorical palette; "Other" slices share the last swatch.
 const monthShort = (ym: string) =>

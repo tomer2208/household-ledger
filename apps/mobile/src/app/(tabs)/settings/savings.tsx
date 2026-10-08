@@ -96,7 +96,7 @@ export default function SavingsScreen() {
               accessibilityRole="button"
               accessibilityState={{ selected: direction === d }}
               style={[s.toggleItem, { backgroundColor: direction === d ? c.tint : c.fill }]}>
-              <Text style={{ color: direction === d ? c.onTint : c.label, fontWeight: '600' }}>{d === 'out' ? t.savings.withdraw : t.savings.deposit}</Text>
+              <Text style={{ fontFamily: fontFamily.body, color: direction === d ? c.onTint : c.label, fontWeight: '600' }}>{d === 'out' ? t.savings.withdraw : t.savings.deposit}</Text>
             </Pressable>
           ))}
         </View>

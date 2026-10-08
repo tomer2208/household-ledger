@@ -29,7 +29,7 @@ import {
 } from '@/lib/search-filter';
 import { useTransactionActions } from '@/lib/transaction-actions';
 import { useColors } from '@/lib/theme';
-import { fontFamily } from '@/lib/tokens';
+import { contentMaxWidth, fontFamily } from '@/lib/tokens';
 
 export default function TransactionsScreen() {
   const pending = useOverview().data?.pending_review ?? 0;
@@ -222,7 +222,7 @@ export default function TransactionsScreen() {
             />
           )
         }
-        contentContainerStyle={{ paddingBottom: 40 + ADD_BUTTON_SPACE }}
+        contentContainerStyle={{ paddingBottom: 40 + ADD_BUTTON_SPACE, width: '100%', maxWidth: contentMaxWidth, alignSelf: 'center' }}
       />
       <AddButton />
     </View>

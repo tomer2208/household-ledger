@@ -74,7 +74,7 @@ export default function Onboarding() {
                       accessibilityRole="button"
                       accessibilityState={{ selected: currency === cur }}
                       style={[s.chip, { backgroundColor: currency === cur ? c.tint : c.fill }]}>
-                      <Text style={{ color: currency === cur ? c.onTint : c.label, fontWeight: '600' }}>{cur}</Text>
+                      <Text style={{ fontFamily: fontFamily.body, color: currency === cur ? c.onTint : c.label, fontWeight: '600' }}>{cur}</Text>
                     </Pressable>
                   ))}
                 </View>

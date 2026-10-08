@@ -9,6 +9,7 @@ import { monthLabel } from '@/lib/dates';
 import { fill, flatten } from '@/lib/fill';
 import { lang, t } from '@/lib/i18n';
 import { formatMoney } from '@/lib/money';
+import { money } from '@/components/money-text';
 import { budgetTone, moneyText, useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
 
@@ -47,20 +48,20 @@ export default function MonthReport() {
       {close ? (
         <View style={[s.hero, { backgroundColor: c.cell }]}>
           <Text style={[s.heroLabel, { color: c.secondaryLabel }]}>{close.net_minor >= 0 ? t.reports.moved : t.reports.taken}</Text>
-          <Text style={[s.heroAmount, { color: close.net_minor >= 0 ? c.green : c.red }]}>{formatMoney(Math.abs(close.net_minor), cur)}</Text>
+          <Text style={[s.heroAmount, { color: close.net_minor >= 0 ? c.green : c.red }]}>{money(Math.abs(close.net_minor), cur)}</Text>
           <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>
-            {t.reports.spentOfBudgeted(formatMoney(close.total_spent_minor, cur), formatMoney(close.total_cap_minor, cur))}
+            {t.reports.spentOfBudgeted(money(close.total_spent_minor, cur), money(close.total_cap_minor, cur))}
           </Text>
           {/* P1-16: what went into, or came out of, periodic payments' funds */}
           {close.reserved_minor !== 0 ? (
             <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>
-              {t.reports.reserved(formatMoney(Math.abs(close.reserved_minor), cur), close.reserved_minor > 0 ? 'in' : 'out')}
+              {t.reports.reserved(money(Math.abs(close.reserved_minor), cur), close.reserved_minor > 0 ? 'in' : 'out')}
             </Text>
           ) : null}
           {/* P1-14: what stayed with its category instead of moving to savings */}
           {close.carried_minor !== 0 ? (
             <Text style={[s.heroMeta, { color: c.secondaryLabel }]}>
-              {t.reports.carried(formatMoney(Math.abs(close.carried_minor), cur), close.carried_minor > 0 ? 'left' : 'over')}
+              {t.reports.carried(money(Math.abs(close.carried_minor), cur), close.carried_minor > 0 ? 'left' : 'over')}
             </Text>
           ) : null}
         </View>
@@ -69,7 +70,7 @@ export default function MonthReport() {
       {writing ? (
         <View style={s.writing}>
           <ActivityIndicator />
-          <Text style={{ color: c.secondaryLabel }}>{t.reports.writing}</Text>
+          <Text style={{ fontFamily: fontFamily.body, color: c.secondaryLabel }}>{t.reports.writing}</Text>
         </View>
       ) : null}
 

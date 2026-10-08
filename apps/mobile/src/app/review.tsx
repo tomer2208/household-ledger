@@ -61,7 +61,7 @@ function ReviewCard({ tx }: { tx: Transaction }) {
             {categoryName ?? '…'}
           </Text>
           <Pressable onPress={() => setChanging(true)} accessibilityRole="button" hitSlop={8} style={s.change}>
-            <Text style={{ color: c.action, fontSize: 16, fontWeight: '600' }}>{t.review.change}</Text>
+            <Text style={{ fontFamily: fontFamily.body, color: c.action, fontSize: 16, fontWeight: '600' }}>{t.review.change}</Text>
           </Pressable>
         </View>
       ) : null}
@@ -87,7 +87,7 @@ function ReviewCard({ tx }: { tx: Transaction }) {
       {newCategory === null ? (
         <Pressable onPress={() => setNewCategory('')} style={s.newCat} accessibilityRole="button">
           <Icon name="plus" size={16} color={c.tint} />
-          <Text style={{ color: c.tint, fontSize: 15 }}>{t.review.newCategory}</Text>
+          <Text style={{ fontFamily: fontFamily.body, color: c.tint, fontSize: 15 }}>{t.review.newCategory}</Text>
         </Pressable>
       ) : (
         <TextInput

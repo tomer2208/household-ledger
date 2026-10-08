@@ -157,7 +157,7 @@ function CopyRow({ label, value, copied, onCopy }: { label: string; value: strin
       <Text numberOfLines={1} style={[s.copyValue, { color: c.secondaryLabel }]}>
         {value.replace(/^https:\/\/[^/]+/, '…')}
       </Text>
-      <Text style={{ color: c.tint, fontSize: 15, fontWeight: '600' }}>{copied ? t.devices.copied : t.devices.copy}</Text>
+      <Text style={{ fontFamily: fontFamily.body, color: c.tint, fontSize: 15, fontWeight: '600' }}>{copied ? t.devices.copied : t.devices.copy}</Text>
     </Pressable>
   );
 }

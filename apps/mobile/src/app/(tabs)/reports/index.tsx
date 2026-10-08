@@ -6,6 +6,8 @@ import { ListSkeleton } from '@/components/skeleton';
 import { Empty, LoadingState, Row, Screen, Section } from '@/components/ui';
 import { monthLabel } from '@/lib/dates';
 import { t } from '@/lib/i18n';
+import { money } from '@/components/money-text';
+import { wholeUnits } from '@/lib/envelope';
 import { formatMoney } from '@/lib/money';
 import { moneyText, useColors } from '@/lib/theme';
 
@@ -24,8 +26,8 @@ export default function ReportsScreen() {
         <Section title={t.reports.inProgress} footer={t.reports.inProgressFooter}>
           <Row
             title={monthLabel(overview.data.month)}
-            subtitle={t.reports.spentSoFar(formatMoney(overview.data.total_spent, cur))}
-            value={overview.data.total_cap > 0 ? formatMoney(overview.data.net, cur, { sign: true }) : undefined}
+            subtitle={t.reports.spentSoFar(money(overview.data.total_spent, cur))}
+            value={overview.data.total_cap > 0 ? formatMoney(wholeUnits(overview.data.net), cur, { sign: true }) : undefined}
             onPress={() => router.push('/overview')}
             last
           />
@@ -38,10 +40,10 @@ export default function ReportsScreen() {
             <Row
               key={m.budget_month}
               title={monthLabel(m.budget_month)}
-              subtitle={t.common.of(formatMoney(m.total_spent_minor, cur), formatMoney(m.total_cap_minor, cur))}
+              subtitle={t.common.of(money(m.total_spent_minor, cur), money(m.total_cap_minor, cur))}
               right={
                 <Text style={{ color: m.net_minor >= 0 ? c.green : c.red, fontSize: 17, ...moneyText }}>
-                  {formatMoney(m.net_minor, cur, { sign: true })}
+                  {formatMoney(wholeUnits(m.net_minor), cur, { sign: true })}
                 </Text>
               }
               onPress={() => router.push({ pathname: '/reports/[month]', params: { month: m.budget_month } })}

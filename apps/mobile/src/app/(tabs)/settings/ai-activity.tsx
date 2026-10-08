@@ -6,6 +6,7 @@ import { Badge, Empty, ProgressBar, Row, Screen, Section } from '@/components/ui
 import { shortDate, timeLabel } from '@/lib/dates';
 import { t } from '@/lib/i18n';
 import { budgetTone, useColors } from '@/lib/theme';
+import { fontFamily } from '@/lib/tokens';
 
 // BLUEPRINT §4.5: every AI call, its outcome and cost, visible to the people it's about.
 export default function AiActivity() {
@@ -24,7 +25,7 @@ export default function AiActivity() {
           title={t.month.thisMonth}
           footer={usedPct >= 100 ? t.aiActivity.usedUp : t.aiActivity.allowance}>
           <View style={{ paddingHorizontal: 16, paddingVertical: 12, gap: 8 }}>
-            <Text style={{ color: c.label, fontSize: 17, fontVariant: ['tabular-nums'] }}>
+            <Text style={{ fontFamily: fontFamily.body, color: c.label, fontSize: 17, fontVariant: ['tabular-nums'] }}>
               {t.aiActivity.usedPct(Math.round(usedPct))}
             </Text>
             <ProgressBar pct={usedPct} color={budgetTone(usedPct, c)} />
@@ -48,7 +49,7 @@ export default function AiActivity() {
         </Section>
       )}
       {list.some((r) => r.error) ? (
-        <Text style={{ color: c.secondaryLabel, marginHorizontal: 32, marginTop: 8, fontSize: 13 }}>
+        <Text style={{ fontFamily: fontFamily.body, color: c.secondaryLabel, marginHorizontal: 32, marginTop: 8, fontSize: 13 }}>
           {t.aiActivity.lastError(list.find((r) => r.error)?.error ?? '')}
         </Text>
       ) : null}

@@ -141,7 +141,7 @@ function Chip({ label, on, onPress }: { label: string; on: boolean; onPress: () 
       accessibilityRole="button"
       accessibilityState={{ selected: on }}
       style={[s.chip, { backgroundColor: on ? c.tint : c.fill }]}>
-      <Text style={{ color: on ? c.onTint : c.label, fontWeight: '600', fontSize: 14 }}>{label}</Text>
+      <Text style={{ fontFamily: fontFamily.body, color: on ? c.onTint : c.label, fontWeight: '600', fontSize: 14 }}>{label}</Text>
     </Pressable>
   );
 }

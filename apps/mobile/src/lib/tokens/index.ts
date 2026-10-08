@@ -85,3 +85,5 @@ export const envelope = {
 export const sheet = { radius: radius.card, padding: space[4] } as const;
 export const fab = { height: 56, radius: radius.pill } as const;
 export const minTouch = 44;
+// Q2: on a tablet or a computer the screen stays an app, centred, instead of stretching.
+export const contentMaxWidth = 720;

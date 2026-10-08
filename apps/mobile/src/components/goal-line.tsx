@@ -16,7 +16,7 @@ export function GoalLine({ goal, currency }: { goal: Goal; currency: string }) {
       {goal.monthly_needed != null && goal.target_month ? (
         <Text style={[s.meta, { color: c.secondaryLabel }]}>{t.goals.monthly(formatMoney(Math.ceil(goal.monthly_needed / 100) * 100, currency), monthLabel(goal.target_month))}</Text>
       ) : null}
-      {goal.behind_by > 0 ? <Text style={[s.meta, { color: c.orange }]}>{t.goals.behind(formatMoney(goal.behind_by, currency))}</Text> : null}
+      {goal.behind_by > 0 ? <Text style={[s.meta, { color: c.orange }]}>{t.goals.behind(formatMoney(Math.ceil(goal.behind_by / 100) * 100, currency))}</Text> : null}
     </View>
   );
 }

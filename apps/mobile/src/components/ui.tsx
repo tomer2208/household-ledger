@@ -219,7 +219,7 @@ export function Row({
             {title}
           </Text>
           {subtitle ? (
-            <Text numberOfLines={1} style={[styles.rowSubtitle, { color: c.secondaryLabel }]}>
+            <Text numberOfLines={2} style={[styles.rowSubtitle, { color: c.secondaryLabel }]}>
               {subtitle}
             </Text>
           ) : null}
@@ -409,7 +409,7 @@ export function ErrorText({ error }: { error: unknown }) {
 }
 
 export const styles = StyleSheet.create({
-  screenContent: { paddingBottom: 48 },
+  screenContent: { paddingBottom: 48, width: '100%', maxWidth: tokens.contentMaxWidth, alignSelf: 'center' },
   section: { marginTop: 24, marginHorizontal: 16 },
   sectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginHorizontal: 16, marginBottom: 6 },
   sectionTitle: { ...tokens.type.heading },

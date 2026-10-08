@@ -4,6 +4,10 @@ import type { Dict } from './en';
 // Voice: gender-neutral (nouns for buttons, plural or impersonal phrasing for instructions),
 // arrows point the way Hebrew reads (‹ and ←). iOS screen and action names in the Shortcut
 // guide stay in English where the phone may show either language.
+// A prefix letter (ב, ל, מ, כ) takes a hyphen before a word that isn't Hebrew or a number:
+// "שמירה ב-Groceries", "ב-10". Names come from people, so either can turn up.
+const pre = (letter: string, word: string) => (/^[\u0590-\u05FF]/.test(word) ? letter + word : `${letter}-${word}`);
+
 export const he: Dict = {
   common: {
     cancel: 'ביטול',
@@ -270,13 +274,13 @@ export const he: Dict = {
     offline: 'אין חיבור. הטיוטה נשמרת בטלפון עד שמשמרים אותה.',
     prompt: 'מקלידים סכום, ובוחרים מעטפה',
     amountFirst: 'קודם סכום, ואז המעטפה',
-    saveIn: (name: string) => `שמירה ב${name}`,
+    saveIn: (name: string) => `שמירה ${pre('ב', name)}`,
     moreDetails: 'עוד פרטים',
     moreEnvelopes: 'עוד',
     willLeave: (name: string, amount: string) => `${name}: יישארו ${amount}`,
     willLeaveOnly: (name: string, amount: string) => `${name}: יישארו רק ${amount}`,
     willGoOver: (name: string, amount: string) => `${name} תעבור את התקציב ב-${amount}`,
-    saved: (amount: string, name: string) => `נוסף ${amount} ל${name}.`,
+    saved: (amount: string, name: string) => `נוסף ${amount} ${pre('ל', name)}.`,
     savedLeft: (amount: string) => ` נשארו ${amount}`,
     savedClose: (amount: string) => ` קרוב לגבול: נשארו ${amount}`,
     savedOver: (amount: string) => ` עברתם את התקציב ב-${amount}`,
@@ -352,7 +356,7 @@ export const he: Dict = {
     newCategory: 'קטגוריה חדשה',
     newCategoryName: 'שם הקטגוריה החדשה',
     createAndConfirm: (name: string) => `יצירת "${name}" ואישור`,
-    confirmAs: (name: string) => `אישור כ${name}`,
+    confirmAs: (name: string) => `אישור ${pre('כ', name)}`,
   },
   proposals: {
     title: {
@@ -450,7 +454,7 @@ export const he: Dict = {
     aiSuggestions: 'הצעות AI',
     aiActivity: 'פעילות AI',
     aiTurnOnTitle: 'להפעיל הצעות AI?',
-    aiAppliesTo: (household: string) => `זה חל על כל מי שב${household}.`,
+    aiAppliesTo: (household: string) => `זה חל על כל מי ${pre('שב', household)}.`,
     turnOn: 'הפעלה',
     guide: 'מדריך התקנה',
     yourData: 'הנתונים שלך',
@@ -464,9 +468,9 @@ export const he: Dict = {
     deleteAccount: 'מחיקת החשבון',
     deleteAccountTitle: 'למחוק את החשבון?',
     deleteAlone: (household: string | undefined) =>
-      `אין עוד חברים ב${household ?? 'משק הבית'}, ולכן גם הוא יימחק, עם כל ההוצאות, התקציבים והדוחות.`,
+      `אין עוד חברים ${pre('ב', household ?? 'משק הבית')}, ולכן גם הוא יימחק, עם כל ההוצאות, התקציבים והדוחות.`,
     deleteShared: (household: string | undefined) =>
-      `יציאה מ${household ?? 'משק הבית'}. שאר החברים שומרים על ההוצאות. החשבון שלך נמחק.`,
+      `יציאה ${pre('מ', household ?? 'משק הבית')}. שאר החברים שומרים על ההוצאות. החשבון שלך נמחק.`,
     continue: 'המשך',
     cannotUndo: 'אי אפשר לבטל את זה',
     exportFirst: 'אם רוצים עותק, כדאי לייצא את ההוצאות קודם.',
@@ -480,7 +484,7 @@ export const he: Dict = {
     thisHousehold: 'משק הבית הזה',
     removeTitle: (name: string) => `להסיר את ${name}?`,
     removeBody: (name: string, household: string) =>
-      `ל${name} לא תהיה יותר גישה ל${household}, והשורטקאט שלו או שלה יפסיק לרשום. ההוצאות שנוספו נשארות.`,
+      `${pre('ל', name)} לא תהיה יותר גישה ${pre('ל', household)}, והשורטקאט שלו או שלה יפסיק לרשום. ההוצאות שנוספו נשארות.`,
     deleteTitle: (household: string) => `למחוק את ${household}?`,
     deleteBody: 'אין חברים נוספים, ולכן עזיבה מוחקת את משק הבית עם כל ההוצאות, התקציבים והדוחות. אי אפשר לבטל את זה.',
     deleteHousehold: 'מחיקת משק הבית',
@@ -575,7 +579,7 @@ export const he: Dict = {
     name: 'שם',
     category: 'קטגוריית ברירת מחדל',
     categoryFooter: 'קניות חדשות כאן ייכנסו לקטגוריה הזו.',
-    moveExisting: (n: number, category: string) => (n === 1 ? `להעביר גם את ההוצאה הקיימת ל${category}` : `להעביר גם את ${n} ההוצאות הקיימות ל${category}`),
+    moveExisting: (n: number, category: string) => (n === 1 ? `להעביר גם את ההוצאה הקיימת ${pre('ל', category)}` : `להעביר גם את ${n} ההוצאות הקיימות ${pre('ל', category)}`),
     closedStay: (n: number) => (n === 1 ? 'הוצאה אחת בחודש סגור נשארת כמו שהיא.' : `${n} הוצאות בחודשים סגורים נשארות כמו שהן.`),
     saved: 'נשמר',
     savedMoved: (n: number) => (n === 1 ? 'נשמר. הוצאה אחת הועברה.' : `נשמר. ${n} הוצאות הועברו.`),
@@ -799,7 +803,7 @@ export const he: Dict = {
     budgeted: 'בתקציב',
     leftForSavings: 'נשאר לחיסכון',
     overIncome: 'מעל ההכנסה',
-    capA11y: (name: string) => `תקציב חודשי ל${name}`,
+    capA11y: (name: string) => `תקציב חודשי ${pre('ל', name)}`,
     saveBudgets: (n: number) => (n === 1 ? 'שמירת תקציב אחד' : `שמירת ${n} תקציבים`),
     almost: 'כמעט סיימנו',
     almostLead: 'שני דברים שגורמים ל-FinPace לעבוד לבד. שניהם יכולים לחכות.',
@@ -826,11 +830,11 @@ export const he: Dict = {
   },
   banner: {
     silentTitle: (device: string, days: number) => `${device} לא רשם קנייה כבר ${days} ימים`,
-    setupTitle: (device: string) => `להשלים את הגדרת השורטקאט ב${device}`,
+    setupTitle: (device: string) => `להשלים את הגדרת השורטקאט ${pre('ב', device)}`,
     silentBody: 'אם שילמת ב-Apple Pay מאז, ייתכן שהשורטקאט הפסיק לעבוד. הבדיקה לוקחת דקה.',
     setupBody: 'הטוקן נוצר, אבל עוד לא הגיעה ממנו אף קנייה.',
     check: 'בדיקה',
-    checkA11y: (device: string) => `בדיקת השורטקאט ב${device}`,
+    checkA11y: (device: string) => `בדיקת השורטקאט ${pre('ב', device)}`,
     snooze: 'להזכיר בעוד 3 ימים',
     snoozeA11y: (device: string) => `תזכורת בעוד 3 ימים על ${device}`,
     installA11y: 'הוספת FinPace למסך הבית',
