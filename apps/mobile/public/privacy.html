@@ -4,64 +4,89 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Privacy Policy · FinPace</title>
+<link rel="alternate" hreflang="he" href="/privacy.he.html" />
 <link rel="stylesheet" href="/legal.css" />
 </head>
 <body>
 <main>
 <a class="back" href="/">‹ FinPace</a>
 <h1>Privacy Policy</h1>
-<p class="meta">Last updated: September 27, 2026 · DRAFT, pending legal review · <a href="/privacy.he.html" hreflang="he">עברית</a></p>
+<p class="meta">Last updated: October 10, 2026 · <a href="/privacy.he.html" hreflang="he">עברית</a></p>
 
-<p class="note">This is a working draft written for the app as built. Before public launch it must be reviewed against the Israeli Privacy Protection Law (including Amendment 13) and, if EU users are expected, the GDPR. Fill in the operator details marked in brackets.</p>
+<p>This policy explains what FinPace ("the app") collects, why, who it is shared with, and how you control it. It covers the app and the site finpace-app.vercel.app, and is written to meet the Israeli Privacy Protection Law, 5741-1981 (including Amendment 13) and the EU General Data Protection Regulation (GDPR).</p>
 
-<h2>Who we are</h2>
-<p>FinPace ("the app") is operated by [operator name], [address]. Contact for privacy matters: [privacy contact email].</p>
+<h2>Who is responsible for your data</h2>
+<p>The app is run by Tomer Chibotero, a private individual in Ramat Gan, Israel, who is the database controller under Israeli law and the controller under the GDPR.</p>
+<p>For any privacy question, including exercising your rights: <a href="mailto:tomerchibo01@gmail.com">tomerchibo01@gmail.com</a>.</p>
 
-<h2>What the app collects</h2>
+<h2>What the app collects, and why</h2>
 <div class="card scroll"><table>
-<tr><th>Data</th><th>Why</th></tr>
-<tr><td>Email address</td><td>To sign you in with a one-time code.</td></tr>
-<tr><td>Display name</td><td>So members of your household see who added what.</td></tr>
-<tr><td>Expenses: merchant name as charged, amount, currency, date, card label you type, notes, category</td><td>The core of the app: tracking, budgets and reports.</td></tr>
-<tr><td>Budgets, recurring bills, savings entries</td><td>Budget tracking and monthly close.</td></tr>
-<tr><td>Shortcut device tokens (stored only as a one-way hash)</td><td>So the Apple Pay Shortcut can log purchases for your household.</td></tr>
-<tr><td>Push subscription of your browser or phone</td><td>Only if you turn on budget alerts.</td></tr>
-<tr><td>A change log (who changed which record, when)</td><td>Transparency between household members and fixing mistakes.</td></tr>
+<tr><th>Data</th><th>Why</th><th>Legal basis (GDPR)</th></tr>
+<tr><td>Email address</td><td>Sign-in with a one-time code, and messages about your account.</td><td>Performing our agreement with you</td></tr>
+<tr><td>Display name</td><td>So household members see who added what.</td><td>Performing the agreement</td></tr>
+<tr><td>Expenses: merchant name as charged, amount, currency, date, the card name you typed, notes, category</td><td>The core of the app: tracking, budgets and reports.</td><td>Performing the agreement</td></tr>
+<tr><td>Monthly income, budgets, recurring payments, savings goals and savings entries</td><td>Budget tracking and month close.</td><td>Performing the agreement</td></tr>
+<tr><td>Shortcut device tokens (stored only as a one-way hash)</td><td>So the Apple Pay shortcut can log purchases to your household.</td><td>Performing the agreement</td></tr>
+<tr><td>Browser or phone notification subscription</td><td>Budget alerts.</td><td>Consent, only if you turn them on</td></tr>
+<tr><td>Change log (who changed which record, and when)</td><td>Transparency between household members, and fixing mistakes.</td><td>Legitimate interest: reliable shared records</td></tr>
+<tr><td>Technical logs: IP address, browser type, access times</td><td>Security, preventing abuse, and fixing faults.</td><td>Legitimate interest: securing the service</td></tr>
 </table></div>
-<p>The app never receives card numbers, bank credentials or account balances. It does not use advertising or analytics trackers.</p>
+<p>The app never receives card numbers, bank credentials or account balances. It has no advertising and no tracking or analytics tools.</p>
+<p>You are under no legal obligation to provide any data. Without an email address you can't sign in, and without expenses the app has nothing to show; everything else is optional.</p>
+
+<h2>AI suggestions</h2>
+<p>AI suggestions are off by default and run only with the household's consent (legal basis: consent). When on, the app suggests a category for an expense and writes the monthly report. Suggestions decide nothing about you: each can be changed, and no automated decision with legal or similarly significant effects is made (GDPR Article 22). You can withdraw consent at any time in <strong>Settings → AI suggestions</strong>.</p>
 
 <h2>Who can see your data</h2>
-<p>Everyone in your household sees all of the household's expenses, budgets and reports. That is the purpose of a shared household. Nobody outside your household can see it.</p>
+<p>Everyone in your household sees all of the household's expenses, budgets and reports; that is the point of a shared household. No one outside the household can see it. Your data is never sold or shared with anyone for marketing.</p>
 
 <h2>Service providers</h2>
+<p>The app relies on these providers. Each receives only what it needs to provide its service:</p>
 <ul>
-<li><strong>Supabase</strong> (database, sign-in, server functions). Data is stored in the EU (Frankfurt).</li>
-<li><strong>Anthropic</strong> (Claude AI). Only if your household turns on AI suggestions (off by default): merchant names, expense titles, amounts, currencies, the card name Apple Wallet shows (for example “Max Visa”) and your category names are sent to suggest categories and write the monthly report. Card numbers, notes, member names and emails are never sent. Under its commercial terms, Anthropic does not train its models on API data by default.</li>
-<li><strong>Email delivery</strong> ([email provider]) to send sign-in codes.</li>
-<li><strong>Apple, Google or Mozilla push services</strong> to deliver budget alerts, if you turned them on.</li>
-<li><strong>Frankfurter / European Central Bank</strong> for exchange rates. No personal data is sent.</li>
+<li><strong>Supabase</strong> (database, sign-in, server functions). Data is stored in the European Union (Frankfurt, Germany).</li>
+<li><strong>Vercel</strong> (hosting the site and app). Receives the technical logs of each visit, such as IP address. Its servers are worldwide, including the United States.</li>
+<li><strong>Google (Gmail)</strong>, to send sign-in codes by email. Receives your email address and the code.</li>
+<li><strong>Anthropic</strong> (Claude AI), only if your household turned on AI suggestions. Sent: merchant names, expense titles, amounts, currencies, the card name Apple Wallet shows (e.g. "Max Visa") and category names. Card numbers, notes, member names and email addresses are never sent. Under its commercial terms, Anthropic does not train its models on data sent through its API.</li>
+<li><strong>Apple, Google or Mozilla push services</strong>, to deliver budget alerts, if you turned them on.</li>
+<li><strong>Frankfurter / European Central Bank</strong>, for exchange rates. No personal data is sent.</li>
 </ul>
 
-<h2>How long we keep it</h2>
-<p>For as long as your account exists. Deleted expenses are kept hidden for undo and removed with the household.</p>
+<h2>Transfers outside Israel and the EU</h2>
+<p>Your main data is stored in the EU. Some providers (Vercel, Google, Anthropic) are in the United States, so data may be transferred there. Transfers are made under each provider's data processing terms, which include the European Commission's Standard Contractual Clauses (SCCs), or under the EU-US Data Privacy Framework where the provider is certified. Israel has an EU adequacy decision, so data may move between the EU and Israel.</p>
+
+<h2>What is stored on your device</h2>
+<p>The app uses no advertising or tracking cookies. It keeps in your browser or phone only what it needs to work: your sign-in, the language and appearance you chose, a draft of an expense you started without a connection, and the app's files so it opens offline. All of these are strictly necessary for the service, and are removed when you sign out or clear the site's data in your browser.</p>
+
+<h2>How long we keep data</h2>
+<ul>
+<li>For as long as your account exists.</li>
+<li>Deleted expenses are kept hidden so a deletion can be undone, and are erased with the household.</li>
+<li>When you delete your account, your data is removed from the database at once. Copies in the provider's automatic backups are erased when those backups expire.</li>
+<li>Providers keep technical logs for a short period, under their own retention policies.</li>
+</ul>
 
 <h2>Your rights</h2>
+<p>Under Israeli law and the GDPR you have these rights. Most you can exercise yourself in the app:</p>
 <ul>
-<li><strong>Access and export:</strong> Settings → Export Expenses downloads everything as CSV.</li>
+<li><strong>Access:</strong> to know what data is held about you and receive a copy.</li>
+<li><strong>Portability:</strong> <strong>Settings → Export expenses</strong> downloads all expenses as a CSV file.</li>
 <li><strong>Correction:</strong> edit any expense, category or budget in the app.</li>
-<li><strong>Deletion:</strong> Settings → Delete Account. Your account is deleted immediately. A household you are alone in is deleted with all its data; a household you share stays with the other members, and your name is removed from it.</li>
-<li><strong>Withdraw AI consent:</strong> Settings → AI suggestions, at any time.</li>
+<li><strong>Erasure:</strong> <strong>Settings → Delete account</strong>. Your account is deleted at once. A household where you're the only member is deleted with all its data; a shared household stays with the other members, and your name is removed from it.</li>
+<li><strong>Withdrawing consent:</strong> for AI suggestions and notifications, at any time, in Settings. Withdrawal does not affect what was done before it.</li>
+<li><strong>Restriction and objection</strong> to processing based on legitimate interest.</li>
 </ul>
-<p>You can also contact us at [privacy contact email], or complain to the Israeli Privacy Protection Authority (or your local EU supervisory authority).</p>
+<p>For any other request: <a href="mailto:tomerchibo01@gmail.com">tomerchibo01@gmail.com</a>. We answer within 30 days. You may also complain to the Israeli Privacy Protection Authority or, if you live in the EU, to the data protection authority in your country.</p>
 
 <h2>Security</h2>
-<p>Access is enforced in the database for every request, so one household can never read another's data. Shortcut tokens and invite codes are stored only as hashes.</p>
+<p>Permissions are enforced by the database on every request, so one household can never read another's data. All traffic is encrypted (HTTPS). Shortcut tokens and invite codes are stored only as hashes. If a breach that may harm you is discovered, we will notify you and the authorities as the law requires.</p>
 
-<h2>Children</h2>
-<p>The app is not intended for children under 16.</p>
+<h2>Age</h2>
+<p>The app is intended for people aged 18 and over. If we learn that an account belongs to a minor, we will delete it.</p>
 
 <h2>Changes</h2>
-<p>We will update this page and the date above when this policy changes.</p>
+<p>When this policy changes, we update this page and the date above. For a material change, such as a new use of your data, we will tell you in advance in the app or by email.</p>
+
+<p class="meta">The Hebrew and English versions have equal standing. In case of conflict, the Hebrew version prevails.</p>
 </main>
 </body>
 </html>
