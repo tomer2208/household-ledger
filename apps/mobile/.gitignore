@@ -44,3 +44,8 @@ example
 
 # Supabase env (publishable key is public, but keep per-environment values out of git)
 .env
+
+# E2E (T2): the build against a local Supabase, and Playwright's results
+/dist-e2e
+/test-results
+/playwright-report

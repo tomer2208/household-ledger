@@ -56,3 +56,35 @@ jobs:
           name: database.types
           path: .schema-types/database.types.ts
           if-no-files-found: ignore
+
+  e2e:
+    name: E2E (five main flows, English and Hebrew)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/mobile/package-lock.json
+      - name: Start a local Supabase (database, auth, API) with every migration
+        run: supabase start -x studio,imgproxy,storage-api,edge-runtime,logflare,vector,supavisor,postgres-meta
+      - run: npm ci
+        working-directory: apps/mobile
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/mobile
+      - name: Build the web app against it and run the flows
+        run: npm run e2e
+        working-directory: apps/mobile
+      - name: Upload screenshots and traces of failed flows
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report
+          path: |
+            apps/mobile/playwright-report
+            apps/mobile/test-results
+          if-no-files-found: ignore

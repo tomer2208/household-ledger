@@ -26,7 +26,11 @@ export function QueryProvider({ children }: { children: ReactNode }) {
   return (
     <PersistQueryClientProvider
       client={queryClient}
-      persistOptions={{ persister, maxAge: 7 * 86_400_000, buster: 'v1' }}>
+      persistOptions={{ persister, maxAge: 7 * 86_400_000, buster: 'v1' }}
+      // The saved cache shows at once, but it is as old as the last visit (a partner may have
+      // joined, a budget changed elsewhere): once restored, everything is refreshed behind it
+      // instead of waiting out staleTime.
+      onSuccess={() => queryClient.invalidateQueries()}>
       {children}
     </PersistQueryClientProvider>
   );

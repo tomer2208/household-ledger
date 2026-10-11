@@ -64,7 +64,7 @@
 ## P1: מאחורי הקלעים
 
 - [x] **T1. CI.** בוצע ב-29.09. `.github/workflows/ci.yml` על כל push ו-PR: **app** (`tsc`, lint, בדיקות יחידה בשלושה אזורי זמן, מפרסר הסכומים של השרת, בניית web) ו-**db** (`supabase db start` מחיל את כל ה-migrations מאפס, ו-`supabase/tests/run.sh` משווה כל בדיקת SQL ל-`supabase/tests/expected/*.out`). נבדק שה-CI נכשל על שבירה מכוונת בשני הצדדים. מקומית: `npm test` ב-`apps/mobile`; אחרי שינוי מכוון בתוצאה של בדיקת SQL: `UPDATE=1 supabase/tests/run.sh`.
-- [ ] **T2. בדיקות לקוח.** חלקית (29.09): בדיקות יחידה ל-`dates`, `money` ו-`budget` (`src/lib/*.test.ts`, עם `tsx`). נשאר: E2E ב-Playwright ל-5 הזרימות (כניסה, הוספה, מחיקה ו-Undo, קטגוריה, הזמנה).
+- [x] **T2. בדיקות לקוח.** בדיקות יחידה (`src/lib/*.test.ts`, עם `tsx`), ו-E2E ב-Playwright (11.10) ל-5 הזרימות: כניסה, הוספה, מחיקה ו-Undo, קטגוריה, הזמנה. כל זרימה בעברית ובאנגלית, מול Supabase מקומי (`npm run e2e`, ובשלב E2E ב-CI).
 - [ ] **T3. ניטור שגיאות:** Sentry בלקוח וב-Edge Functions, והתראה על כשל ב-cron (`cron.job_run_details`). היום כשל ב-`daily-maintenance` שקט לגמרי.
 - [ ] **T4. אנליטיקה של מוצר** עם אפשרות opt-out: משפך onboarding, retention שבועי, אחוז קליטה אוטומטית מתוך כל ההוצאות, וזמן עד הוספה. בלי אלה אי אפשר לתעדף. (Clarity ו-Google Analytics מחוברים לסשן, אבל לא לאפליקציה.)
 - [x] **T5. טיפוסים שנוצרים מהסכמה:** `supabase gen types` במקום `api/types.ts` הידני, ובדיקה ב-CI שהם מעודכנים. כבר עכשיו יש `as unknown as` בכמה מקומות.
