@@ -560,7 +560,7 @@ export const en = {
     orderDone: 'Done',
     moveUp: (name: string) => `Move ${name} up`,
     moveDown: (name: string) => `Move ${name} down`,
-    orderFooter: 'The order here is the order on Overview and when adding an expense.',
+    orderFooter: 'Drag by the ≡ handle, or use the arrows. The order here is the order on Overview and when adding an expense.',
     hiddenTitle: 'Hidden',
     translateTitle: 'Category names are in Hebrew',
     translateBody: (n: number) => `Rename ${n} categories that came with the app to English?`,

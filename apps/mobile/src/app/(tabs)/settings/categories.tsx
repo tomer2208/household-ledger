@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useCategories, useHousehold, useOverview, useSaveCategory } from '@/api/queries';
 import type { Category } from '@/api/types';
 import { BudgetRow } from '@/components/budget-row';
+import { DragList } from '@/components/drag-list';
 import { IncomePlanCard } from '@/components/income-plan';
 import { SwipeRow } from '@/components/swipe-row';
 import { Button, CategoryIcon, Icon, Row, Screen, Section } from '@/components/ui';
@@ -23,16 +24,23 @@ export default function CategoriesScreen() {
   const household = useHousehold().data?.household;
   const cur = household?.base_currency ?? 'ILS';
   const capById = new Map((overview.data?.categories ?? []).map((x) => [x.id, x]));
-  const active = (cats.data ?? []).filter((x) => !x.archived_at && !x.hidden);
+  const serverActive = (cats.data ?? []).filter((x) => !x.archived_at && !x.hidden);
+  // While ordering, the new order shows at once instead of waiting for the saves to come back.
+  const [localOrder, setLocalOrder] = useState<string[] | null>(null);
+  const active = localOrder
+    ? [...serverActive].sort((a, b) => (localOrder.indexOf(a.id) + 1 || 999) - (localOrder.indexOf(b.id) + 1 || 999))
+    : serverActive;
   const hiddenOnes = (cats.data ?? []).filter((x) => !x.archived_at && x.hidden);
   const save = useSaveCategory();
   const [ordering, setOrdering] = useState(false);
-  // P2 (WCAG 2.5.7): order with up/down buttons, no dragging needed. Swapping two neighbours
-  // gives every category a fresh, even sort order, so equal numbers never tie.
+  // P2: order by dragging, or with up/down buttons (WCAG 2.5.7: no dragging needed). Every move
+  // gives each category a fresh, even sort order, so equal numbers never tie.
   const move = (from: number, to: number) => {
-    if (!household || to < 0 || to >= active.length) return;
+    if (!household || to < 0 || to >= active.length || from === to) return;
     const next = [...active];
-    [next[from], next[to]] = [next[to], next[from]];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    setLocalOrder(next.map((x) => x.id));
     next.forEach((cat, i) => {
       const order = (i + 1) * 10;
       if (cat.sort_order !== order) save.mutate({ id: cat.id, householdId: household.id, name: cat.name, sfSymbol: cat.sf_symbol, sortOrder: order });
@@ -60,7 +68,11 @@ export default function CategoriesScreen() {
           headerLargeTitle: false,
           headerRight: () => (
             <View style={s.headActions}>
-              <Pressable onPress={() => setOrdering((x) => !x)} hitSlop={8} accessibilityRole="button" accessibilityState={{ selected: ordering }}>
+              <Pressable
+                onPress={() => {
+                  setOrdering((x) => !x);
+                  setLocalOrder(null);
+                }} hitSlop={8} accessibilityRole="button" accessibilityState={{ selected: ordering }}>
                 <Text style={[s.headAction, { color: c.tint }]}>{ordering ? t.categories.orderDone : t.categories.order}</Text>
               </Pressable>
               {ordering ? null : (
@@ -106,8 +118,14 @@ export default function CategoriesScreen() {
       ) : null}
       {ordering ? (
         <Section title={t.categories.order} footer={t.categories.orderFooter}>
-          {active.map((cat, i) => (
-            <View key={cat.id} style={[s.orderRow, i < active.length - 1 && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+          <DragList
+            items={active}
+            keyOf={(cat) => cat.id}
+            onMove={move}
+            liftColor={c.cell}
+            renderItem={(cat, i, handle) => (
+            <View style={[s.orderRow, i < active.length - 1 && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+              {handle}
               <CategoryIcon symbol={cat.sf_symbol} categoryId={cat.id} />
               <Text style={[s.orderName, { color: c.text }]} numberOfLines={1}>
                 {cat.name}
@@ -119,7 +137,8 @@ export default function CategoriesScreen() {
                 <Icon name="chevron.down" size={18} color={c.text} />
               </Pressable>
             </View>
-          ))}
+            )}
+          />
         </Section>
       ) : (
       <Section
@@ -193,7 +212,7 @@ const s = StyleSheet.create({
   translate: { marginHorizontal: 16, marginTop: 16, borderRadius: tokens.radius.envelope, padding: tokens.space[4], gap: tokens.space[1] },
   translateTitle: { ...tokens.type.body, fontWeight: '700' },
   translateBody: { ...tokens.type.secondary },
-  orderRow: { flexDirection: 'row', alignItems: 'center', gap: tokens.space[3], paddingHorizontal: tokens.space[4], minHeight: 56 },
+  orderRow: { flexDirection: 'row', alignItems: 'center', gap: tokens.space[2], paddingStart: tokens.space[1], paddingEnd: tokens.space[4], minHeight: 56 },
   orderName: { ...tokens.type.body, flex: 1 },
   orderBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
 });

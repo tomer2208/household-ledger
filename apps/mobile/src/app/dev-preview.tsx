@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { ADD_BUTTON_SPACE, AddButton } from '@/components/add-button';
 import { BudgetSheet } from '@/components/budget-sheet';
+import { DragList } from '@/components/drag-list';
 import { Envelope, EnvelopeGrid } from '@/components/envelope';
 import { MenuSheet } from '@/components/sheet';
 import { SwipeRow } from '@/components/swipe-row';
@@ -43,6 +44,15 @@ export default function DevPreview() {
   const [spent, setSpent] = useState(() => SAMPLE.map((x) => x.spent));
   const [menu, setMenu] = useState<number | null>(null);
   const [budget, setBudget] = useState<number | null>(null);
+  // P2: drag to reorder, on sample data (nothing is saved).
+  const [order, setOrder] = useState(() => SAMPLE.map((_, i) => i));
+  const reorder = (from: number, to: number) =>
+    setOrder((o) => {
+      const next = [...o];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
   const asOverview = (i: number) => ({
     id: `sample-${i}`, name: SAMPLE[i].name, sf_symbol: SAMPLE[i].symbol, cap: SAMPLE[i].cap, base_cap: SAMPLE[i].cap,
     carry: 0, reserve: 0, funds: [], rollover: false, spent: spent[i], pct: null, no_budget: false,
@@ -107,6 +117,21 @@ export default function DevPreview() {
         <IncomePlanCard income={CAP + 30000} budgeted={CAP} currency="ILS" onPress={() => {}} />
         <IncomePlanCard income={CAP - 60000} budgeted={CAP} currency="ILS" />
         <IncomePlanCard income={null} budgeted={CAP} currency="ILS" onPress={() => {}} />
+        <Section title="Order (drag by ≡)">
+          <DragList
+            items={order}
+            keyOf={(i) => SAMPLE[i].name}
+            onMove={reorder}
+            liftColor={c.cell}
+            renderItem={(i, at, handle) => (
+              <View style={[s.dragRow, at < order.length - 1 && { borderBottomColor: c.separator, borderBottomWidth: StyleSheet.hairlineWidth }]}>
+                {handle}
+                <CategoryIcon symbol={SAMPLE[i].symbol} />
+                <Text style={{ color: c.text, fontSize: 17 }}>{SAMPLE[i].name}</Text>
+              </View>
+            )}
+          />
+        </Section>
         <Section title="Rows and badges">
           <Row left={<CategoryIcon symbol="banknote" />} title="Savings" value={formatMoney(1240000, 'ILS')} onPress={() => {}} />
           <Row left={<CategoryIcon symbol="tray.full" />} title="To Review" right={<Badge text="2" color={c.orange} />} onPress={() => {}} last />
@@ -143,6 +168,7 @@ export default function DevPreview() {
 }
 
 const s = StyleSheet.create({
+  dragRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingEnd: 16, minHeight: 56 },
   hero: { marginHorizontal: 16, marginTop: 12, borderRadius: radius.hero, padding: 20, gap: 8 },
   heroAmount: { fontSize: 40, fontWeight: '700', ...moneyText },
   meta: { fontSize: 14, ...moneyText },

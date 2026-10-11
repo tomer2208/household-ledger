@@ -565,7 +565,7 @@ export const he: Dict = {
     orderDone: 'סיום',
     moveUp: (name: string) => `הזזת ${name} למעלה`,
     moveDown: (name: string) => `הזזת ${name} למטה`,
-    orderFooter: 'הסדר כאן הוא הסדר בסקירה ובהוספת הוצאה.',
+    orderFooter: 'גוררים מהידית ≡, או משתמשים בחיצים. הסדר כאן הוא הסדר בסקירה ובהוספת הוצאה.',
     hiddenTitle: 'מוסתרות',
     translateTitle: 'שמות הקטגוריות באנגלית',
     translateBody: (n: number) => `לשנות לעברית את השמות של ${n} הקטגוריות שהגיעו עם האפליקציה?`,
