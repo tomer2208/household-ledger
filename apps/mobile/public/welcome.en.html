@@ -3,77 +3,105 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>FinPace</title>
+<title>FinPace · What's left this month</title>
 <meta name="description" content="The household budget: an envelope for each category, and what’s left this month. Apple Pay purchases log themselves." />
-<link rel="icon" href="/icons/icon-192.png" />
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+<link rel="icon" href="/icons/icon-192.png?v=envelope" />
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=envelope" />
 <link rel="manifest" href="/manifest.json" />
 <link rel="alternate" hreflang="he" href="/welcome.html" />
 <link rel="stylesheet" href="/legal.css" />
-<style>
-  /* L1-L3: the product in one look: three envelopes, each saying its state in words. */
-  .hero { text-align: center; padding: 28px 0 8px; }
-  .hero img { width: 84px; height: 84px; border-radius: 20px; }
-  .hero h1 { font-size: 38px; margin: 16px 0 8px; }
-  .hero p { color: var(--muted); font-size: 19px; margin: 0 auto 22px; max-width: 30ch; }
-  .cta { display: inline-block; background: var(--tint); color: var(--card); text-decoration: none; font-weight: 700; padding: 15px 30px; border-radius: 999px; font-size: 18px; }
-  .envs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 32px 0 8px; }
-  .env { position: relative; background: var(--card); border-radius: 16px; padding: 24px 12px 12px; overflow: hidden; text-align: start; }
-  .env::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 16px; background: var(--flap); clip-path: polygon(0 0, 100% 0, 50% 100%); }
-  .env b { display: block; font-size: 15px; }
-  .env span { display: block; font: 600 17px Rubik, sans-serif; margin: 2px 0 8px; }
-  .env i { display: block; height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
-  .env i::after { content: ""; display: block; height: 100%; width: var(--w); background: var(--bar); border-radius: 4px; }
-  .env.close { box-shadow: inset 0 0 0 2px #A96001; } .env.close span { color: #884D02; }
-  .env.over { box-shadow: inset 0 0 0 2px #7E221E; } .env.over span { color: #9F332D; }
-  @media (prefers-color-scheme: dark) { .env.close span { color: #FAB87D; } .env.over span { color: #FEB0A7; } }
-  @media (max-width: 420px) { .envs { grid-template-columns: 1fr; } }
-  .features { display: grid; gap: 12px; margin-top: 24px; }
-  .feature { background: var(--card); border-radius: 16px; padding: 16px 18px; }
-  .feature h2 { font-size: 18px; margin: 0 0 4px; }
-  .feature p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.45; }
-  footer { text-align: center; color: var(--muted); font-size: 15px; margin-top: 32px; }
-  footer a { margin: 0 8px; }
-  @media (min-width: 640px) { .features { grid-template-columns: 1fr 1fr; } }
-</style>
+<link rel="stylesheet" href="/landing.css" />
+<script src="/landing.js" defer></script>
 </head>
 <body>
 <main>
   <section class="hero">
-    <img src="/icons/icon-192.png" alt="" />
-    <h1>FinPace</h1>
-    <p>An envelope for each category, and what’s left this month. No charts to decode.</p>
-    <a class="cta" href="/sign-in">Open the app</a>
+    <div>
+      <div class="brand reveal"><img src="/icons/icon-192.png?v=envelope" alt="" />FinPace</div>
+      <h1 class="reveal" style="--d:80ms">What's left this month, <em>at a glance.</em></h1>
+      <p class="lede reveal" style="--d:160ms">An envelope for each category, and what's left in it. No charts to decode, no spreadsheet.</p>
+      <div class="reveal" style="--d:240ms">
+        <a class="cta" href="/sign-in">Open the app
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="phone-wrap reveal" style="--d:200ms">
+      <div class="phone" role="img" aria-label="Demo: type 180 and tap the Groceries envelope, and it updates to '₪1,870 left'. Then 95 on Dining out, and that envelope says 'only ₪90 left'.">
+        <div class="screen" aria-hidden="true">
+          <div class="bar-title">Add expense</div>
+          <div class="amount"><span class="ph">0</span><span class="caret"></span> ₪</div>
+          <div class="prompt">Type an amount, then pick an envelope</div>
+          <div class="mini-envs">
+            <div class="menv" style="--flap:#31A5A5;--bar:#31A5A5;--w:36%"><b>Groceries</b><span>₪2,050 left</span><i></i></div>
+            <div class="menv" style="--flap:#D6BB79;--bar:#D6BB79;--w:68%"><b>Dining out</b><span>₪185 left</span><i></i></div>
+            <div class="menv" style="--flap:#066788;--bar:#066788;--w:52%"><b>Fuel</b><span>₪400 left</span><i></i></div>
+            <div class="menv" style="--flap:#B5694B;--bar:#B5694B;--w:20%"><b>Home</b><span>₪1,600 left</span><i></i></div>
+          </div>
+          <div class="save">Save to Groceries</div>
+          <div class="finger"></div>
+          <div class="toast"><b></b><u>Undo</u></div>
+        </div>
+      </div>
+      <button class="demo-toggle" type="button" aria-pressed="false">Pause the demo</button>
+    </div>
   </section>
 
+  <h2 class="section-title reveal">Three states, in words</h2>
+  <p class="section-sub reveal" style="--d:80ms">Fine, close to the limit, over. Every envelope says exactly where it stands.</p>
   <section class="envs" aria-label="Three sample envelopes">
-    <div class="env" style="--flap:#31A5A5;--bar:#31A5A5;--w:36%"><b>Groceries</b><span>₪2,050 left</span><i></i></div>
-    <div class="env close" style="--flap:#D6BB79;--bar:#A96001;--w:90%"><b>Dining</b><span>Only ₪90 left</span><i></i></div>
-    <div class="env over" style="--flap:#066788;--bar:#7E221E;--w:100%"><b>Fuel</b><span>₪120 over</span><i></i></div>
+    <div class="env reveal" style="--flap:#31A5A5;--bar:#31A5A5;--w:36%"><b>Groceries</b><span data-from="3200" data-to="2050" data-tpl="₪# left">₪2,050 left</span><i></i></div>
+    <div class="env close reveal" style="--d:120ms;--flap:#D6BB79;--bar:#A96001;--w:90%"><b>Dining out</b><span data-from="900" data-to="90" data-tpl="only ₪# left">only ₪90 left</span><i></i></div>
+    <div class="env over reveal" style="--d:240ms;--flap:#066788;--bar:#7E221E;--w:100%"><b>Fuel</b><span data-from="0" data-to="120" data-tpl="₪# over">₪120 over</span><i></i></div>
   </section>
 
+  <h2 class="section-title reveal">What makes the difference</h2>
   <section class="features">
-    <div class="feature">
-      <h2>Add in two taps</h2>
-      <p>Type the amount and tap the envelope. You see at once what it did to the month.</p>
+    <div class="feature reveal">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
+      <h3>Two taps to add</h3>
+      <p>Type the amount and tap the envelope. See right away what it did to your month.</p>
     </div>
-    <div class="feature">
-      <h2>Apple Pay logs itself</h2>
-      <p>A Shortcut records each purchase the moment you pay. A new place asks for a category once; after that it’s silent.</p>
+    <div class="feature reveal" style="--d:100ms">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
+      <h3>Apple Pay logs itself</h3>
+      <p>An iPhone Shortcut records each purchase as you pay. A new place asks once for a category, then stays quiet.</p>
     </div>
-    <div class="feature">
-      <h2>Shared, for real</h2>
+    <div class="feature reveal">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9.5" r="2.4"/><path d="M3.5 19c.8-3 3-4.6 5.5-4.6s4.7 1.6 5.5 4.6M15 14.6c2.2 0 4 1.3 5 3.9"/></svg></span>
+      <h3>Truly together</h3>
       <p>Everyone at home sees the same numbers, live. Invite with a link.</p>
     </div>
-    <div class="feature">
-      <h2>Speaks up when it matters</h2>
-      <p>At 80% an envelope turns amber and says what’s left. Past the budget, red. Nothing else.</p>
+    <div class="feature reveal" style="--d:100ms">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0"/></svg></span>
+      <h3>Speaks up when it matters</h3>
+      <p>An envelope at 80% turns amber and says what's left. Past the budget, red. Nothing else.</p>
     </div>
+  </section>
+
+  <section class="closing reveal">
+    <h2>Up and running in a minute</h2>
+    <p>Sign in with your email, invite your household with a link, and start logging.</p>
+    <a class="cta" href="/sign-in">Open the app</a>
   </section>
 
   <footer>
     <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="/welcome.html" hreflang="he">עברית</a>
   </footer>
 </main>
+
+<script type="application/json" id="demo-script">
+{
+  "prompt": "Type an amount, then pick an envelope",
+  "saveIdle": "Save to Groceries",
+  "pause": "Pause the demo",
+  "play": "Play the demo",
+  "rounds": [
+    { "env": 0, "digits": "180", "prompt": "Groceries: ₪1,870 will be left", "save": "Save to Groceries", "after": "₪1,870 left", "w": "42%", "toast": "₪180 added to Groceries" },
+    { "env": 1, "digits": "95", "prompt": "Dining out: only ₪90 will be left", "close": true, "save": "Save to Dining out", "after": "only ₪90 left", "w": "90%", "toast": "₪95 added to Dining out" }
+  ]
+}
+</script>
 </body>
 </html>

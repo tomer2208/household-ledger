@@ -62,6 +62,25 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Files without a content hash in their name (icons, fonts, the landing and legal pages'
+  // assets) change in place: network first, the cached copy only offline. Serving them from the
+  // cache first kept showing the old logo long after the new one was deployed.
+  const hashed = url.pathname.startsWith('/_expo/') || url.pathname.startsWith('/assets/');
+  if (!hashed) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res.ok && res.type === 'basic') {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
+          return res;
+        })
+        .catch(async () => (await caches.match(req)) ?? Response.error()),
+    );
+    return;
+  }
+
   // Bundles and assets have content hashes in their names, so a cached copy is never stale.
   event.respondWith(
     caches.match(req).then(
