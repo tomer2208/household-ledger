@@ -9,6 +9,7 @@ export type Database = {
                   Row: {
                     "agent_run_id": string | null,"created_at": string,"decided_at": string | null,"decided_by": string | null,"dedupe_key": string,"expires_at": string,"household_id": string,"id": string,"kind": string,"payload": NonNullable<Json>,"rationale": NonNullable<Json>,"result": Json | null,"status": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "agent_run_id"?: string | null,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"dedupe_key": string,"expires_at"?: string,"household_id": string,"id"?: string,"kind": string,"payload": NonNullable<Json>,"rationale": NonNullable<Json>,"result"?: Json | null,"status"?: string
                   }
@@ -34,6 +35,7 @@ isOneToOne: false
                   Row: {
                     "agent": string,"created_at": string,"error": string | null,"household_id": string | null,"id": string,"input_tokens": number | null,"latency_ms": number | null,"model": string,"output_tokens": number | null,"status": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "agent": string,"created_at"?: string,"error"?: string | null,"household_id"?: string | null,"id"?: string,"input_tokens"?: number | null,"latency_ms"?: number | null,"model": string,"output_tokens"?: number | null,"status": string
                   }
@@ -53,6 +55,7 @@ isOneToOne: false
                   Row: {
                     "action": string,"actor_id": string | null,"actor_type": string,"after": Json | null,"at": string,"before": Json | null,"entity": string,"entity_id": string | null,"household_id": string,"id": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "action": string,"actor_id"?: string | null,"actor_type": string,"after"?: Json | null,"at"?: string,"before"?: Json | null,"entity": string,"entity_id"?: string | null,"household_id": string,"id"?: never
                   }
@@ -66,6 +69,7 @@ isOneToOne: false
                   Row: {
                     "budget_month": string,"cap_minor": number,"category_id": string,"fired_at": string,"household_id": string,"push_claimed_at": string | null,"push_status": string,"spent_minor": number,"threshold": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "budget_month": string,"cap_minor": number,"category_id": string,"fired_at"?: string,"household_id": string,"push_claimed_at"?: string | null,"push_status"?: string,"spent_minor": number,"threshold": number
                   }
@@ -91,8 +95,9 @@ isOneToOne: false
                   Row: {
                     "archived_at": string | null,"budget_acknowledged": boolean,"color": string,"created_via": string,"hidden": boolean,"household_id": string,"icon": string,"id": string,"kind": string,"name": string,"rollover": boolean,"rollover_overspend": boolean,"sf_symbol": string,"sort_order": number
                   }
+                  ComputedFields: never
                   Insert: {
-                    "archived_at"?: string | null,"budget_acknowledged"?: boolean,"color"?: string,"created_via"?: string,"hidden"?: boolean,"household_id": string,"icon"?: string,"id"?: string,"kind"?: string,"name": string,"rollover"?: boolean,"rollover_overspend"?: boolean,"sf_symbol"?: string,"sort_order"?: number
+                    "archived_at"?: string | null,"budget_acknowledged"?: boolean,"color": string,"created_via"?: string,"hidden"?: boolean,"household_id": string,"icon": string,"id"?: string,"kind"?: string,"name": string,"rollover"?: boolean,"rollover_overspend"?: boolean,"sf_symbol"?: string,"sort_order"?: number
                   }
                   Update: {
                     "archived_at"?: string | null,"budget_acknowledged"?: boolean,"color"?: string,"created_via"?: string,"hidden"?: boolean,"household_id"?: string,"icon"?: string,"id"?: string,"kind"?: string,"name"?: string,"rollover"?: boolean,"rollover_overspend"?: boolean,"sf_symbol"?: string,"sort_order"?: number
@@ -110,6 +115,7 @@ isOneToOne: false
                   Row: {
                     "cap_minor": number,"category_id": string,"created_at": string,"created_by": string | null,"effective_month": string,"household_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "cap_minor": number,"category_id": string,"created_at"?: string,"created_by"?: string | null,"effective_month": string,"household_id": string
                   }
@@ -135,6 +141,7 @@ isOneToOne: false
                   Row: {
                     "amount_minor": number,"budget_month": string,"category_id": string,"created_at": string,"household_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "amount_minor": number,"budget_month": string,"category_id": string,"created_at"?: string,"household_id": string
                   }
@@ -160,6 +167,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"household_id": string,"id": string,"label": string,"last_used_at": string | null,"revoked_at": string | null,"token_hash": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"household_id": string,"id"?: string,"label": string,"last_used_at"?: string | null,"revoked_at"?: string | null,"token_hash": string,"user_id": string
                   }
@@ -179,6 +187,7 @@ isOneToOne: false
                   Row: {
                     "base": string,"quote": string,"rate": number,"rate_date": string,"source": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "base": string,"quote": string,"rate": number,"rate_date": string,"source": string
                   }
@@ -192,6 +201,7 @@ isOneToOne: false
                   Row: {
                     "amount_minor": number,"created_at": string,"created_by": string | null,"effective_month": string,"household_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "amount_minor": number,"created_at"?: string,"created_by"?: string | null,"effective_month": string,"household_id": string
                   }
@@ -211,6 +221,7 @@ isOneToOne: false
                   Row: {
                     "code_hash": string,"created_by": string | null,"expires_at": string,"household_id": string,"id": string,"used_at": string | null,"used_by": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "code_hash": string,"created_by"?: string | null,"expires_at": string,"household_id": string,"id"?: string,"used_at"?: string | null,"used_by"?: string | null
                   }
@@ -230,6 +241,7 @@ isOneToOne: false
                   Row: {
                     "display_name": string,"household_id": string,"joined_at": string,"language": string,"notify_reports": boolean,"removed_at": string | null,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "display_name": string,"household_id": string,"joined_at"?: string,"language"?: string,"notify_reports"?: boolean,"removed_at"?: string | null,"user_id": string
                   }
@@ -249,6 +261,7 @@ isOneToOne: false
                   Row: {
                     "ai_consent_at": string | null,"base_currency": string,"created_at": string,"deleted_at": string | null,"id": string,"name": string,"settings": NonNullable<Json>,"timezone": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "ai_consent_at"?: string | null,"base_currency"?: string,"created_at"?: string,"deleted_at"?: string | null,"id"?: string,"name": string,"settings"?: NonNullable<Json>,"timezone"?: string
                   }
@@ -262,6 +275,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"household_id": string,"merchant_id": string,"normalized": string,"source": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"household_id": string,"merchant_id": string,"normalized": string,"source": string
                   }
@@ -287,6 +301,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"default_category_id": string | null,"display_name": string,"household_id": string,"id": string,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"default_category_id"?: string | null,"display_name": string,"household_id": string,"id"?: string,"updated_at"?: string
                   }
@@ -312,6 +327,7 @@ isOneToOne: false
                   Row: {
                     "budget_month": string,"carried_minor": number,"closed_at": string,"household_id": string,"net_minor": number,"reserved_minor": number,"snapshot": NonNullable<Json>,"total_cap_minor": number,"total_spent_minor": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "budget_month": string,"carried_minor"?: number,"closed_at"?: string,"household_id": string,"net_minor": number,"reserved_minor"?: number,"snapshot": NonNullable<Json>,"total_cap_minor": number,"total_spent_minor": number
                   }
@@ -331,6 +347,7 @@ isOneToOne: false
                   Row: {
                     "agent_run_id": string | null,"budget_month": string,"claimed_at": string | null,"created_at": string,"household_id": string,"id": string,"metrics": NonNullable<Json>,"narrative": Json | null,"narratives": Json | null,"push_claimed_at": string | null,"push_status": string | null,"status": string,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "agent_run_id"?: string | null,"budget_month": string,"claimed_at"?: string | null,"created_at"?: string,"household_id": string,"id"?: string,"metrics": NonNullable<Json>,"narrative"?: Json | null,"narratives"?: Json | null,"push_claimed_at"?: string | null,"push_status"?: string | null,"status": string,"updated_at"?: string
                   }
@@ -356,6 +373,7 @@ isOneToOne: false
                   Row: {
                     "expo_push_token": string,"updated_at": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "expo_push_token": string,"updated_at"?: string,"user_id": string
                   }
@@ -369,6 +387,7 @@ isOneToOne: false
                   Row: {
                     "amount_minor": number,"budget_month": string,"category_id": string,"created_at": string,"household_id": string,"rule_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "amount_minor": number,"budget_month": string,"category_id": string,"created_at"?: string,"household_id": string,"rule_id": string
                   }
@@ -400,6 +419,7 @@ isOneToOne: false
                   Row: {
                     "amount_kind": string,"amount_minor": number,"category_id": string,"created_at": string,"created_by": string | null,"currency": string,"day_of_month": number,"deleted_at": string | null,"end_date": string | null,"household_id": string,"id": string,"installment_count": number | null,"installment_first": string | null,"interval_months": number,"merchant_id": string | null,"next_run_date": string | null,"paused": boolean,"spread": boolean,"start_date": string,"title": string,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "amount_kind": string,"amount_minor": number,"category_id": string,"created_at"?: string,"created_by"?: string | null,"currency": string,"day_of_month": number,"deleted_at"?: string | null,"end_date"?: string | null,"household_id": string,"id"?: string,"installment_count"?: number | null,"installment_first"?: string | null,"interval_months"?: number,"merchant_id"?: string | null,"next_run_date"?: string | null,"paused"?: boolean,"spread"?: boolean,"start_date": string,"title": string,"updated_at"?: string
                   }
@@ -431,6 +451,7 @@ isOneToOne: false
                   Row: {
                     "amount_minor": number,"created_at": string,"created_by": string | null,"goal_id": string,"household_id": string,"id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "amount_minor": number,"created_at"?: string,"created_by"?: string | null,"goal_id": string,"household_id": string,"id"?: string
                   }
@@ -456,6 +477,7 @@ isOneToOne: false
                   Row: {
                     "closed_at": string | null,"created_at": string,"created_by": string | null,"household_id": string,"id": string,"name": string,"sf_symbol": string,"target_minor": number,"target_month": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "closed_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"household_id": string,"id"?: string,"name": string,"sf_symbol"?: string,"target_minor": number,"target_month"?: string | null
                   }
@@ -475,6 +497,7 @@ isOneToOne: false
                   Row: {
                     "amount_minor": number,"budget_month": string,"created_at": string,"created_by": string | null,"entry_type": string,"household_id": string,"id": string,"reason": string,"transaction_id": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "amount_minor": number,"budget_month": string,"created_at"?: string,"created_by"?: string | null,"entry_type": string,"household_id": string,"id"?: string,"reason": string,"transaction_id"?: string | null
                   }
@@ -500,6 +523,7 @@ isOneToOne: false
                   Row: {
                     "amount_base_minor": number,"amount_minor": number,"budget_month": string,"card_label": string | null,"category_id": string,"classification": Json | null,"created_at": string,"created_by": string | null,"currency": string,"deleted_at": string | null,"fx_rate": number,"fx_source": string,"household_id": string,"id": string,"idempotency_key": string | null,"merchant_id": string | null,"note": string | null,"occurred_at": string,"raw_merchant": string | null,"recurring_period": string | null,"recurring_rule_id": string | null,"source": string,"status": string,"title": string,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "amount_base_minor"?: number,"amount_minor": number,"budget_month"?: string,"card_label"?: string | null,"category_id": string,"classification"?: Json | null,"created_at"?: string,"created_by"?: string | null,"currency": string,"deleted_at"?: string | null,"fx_rate"?: number,"fx_source"?: string,"household_id": string,"id"?: string,"idempotency_key"?: string | null,"merchant_id"?: string | null,"note"?: string | null,"occurred_at"?: string,"raw_merchant"?: string | null,"recurring_period"?: string | null,"recurring_rule_id"?: string | null,"source": string,"status"?: string,"title": string,"updated_at"?: string
                   }
@@ -537,6 +561,7 @@ isOneToOne: false
                   Row: {
                     "auth": string,"created_at": string,"endpoint": string,"p256dh": string,"updated_at": string,"user_agent": string | null,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "auth": string,"created_at"?: string,"endpoint": string,"p256dh": string,"updated_at"?: string,"user_agent"?: string | null,"user_id": string
                   }
@@ -580,6 +605,12 @@ isOneToOne: false
                            },
 "capture_record":
 { Args: { "p": Json }; Returns: Json
+                           },
+"category_color_default":
+{ Args: { "p_household": string,"p_icon": string }; Returns: string
+                           },
+"category_icon_from_sf":
+{ Args: { "p_sf": string }; Returns: string
                            },
 "category_trend":
 { Args: { "p_category": string,"p_months"?: number }; Returns: Json

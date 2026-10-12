@@ -3,6 +3,7 @@ import * as Crypto from 'expo-crypto';
 import { useEffect } from 'react';
 
 import { useSession } from './session';
+import type { TablesInsert } from './database.types';
 import type {
   AgentRun,
   CaptureHealth,
@@ -606,7 +607,16 @@ export const useSaveCategory = () =>
         : must(
             supabase
               .from('categories')
-              .insert({ household_id: v.householdId, name: v.name, sf_symbol: v.sfSymbol, sort_order: v.sortOrder ?? 50, ...(v.color ? { color: v.color } : {}), ...(v.icon ? { icon: v.icon } : {}) })
+              // color and icon are required columns, but a trigger fills in the ones left out
+              // (migration 46), so the row may go without them.
+              .insert({
+                household_id: v.householdId,
+                name: v.name,
+                sf_symbol: v.sfSymbol,
+                sort_order: v.sortOrder ?? 50,
+                ...(v.color ? { color: v.color } : {}),
+                ...(v.icon ? { icon: v.icon } : {}),
+              } as TablesInsert<'categories'>)
               .select('id')
               .single(),
           ),
