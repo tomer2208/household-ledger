@@ -1,4 +1,4 @@
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -15,6 +15,7 @@ import { formatMoney, minorToInput, parseMoneyInput } from '@/lib/money';
 import { moneyText, useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
 import { Pressable } from '@/components/pressable';
+import { goBack } from '@/lib/nav';
 
 const SYMBOLS = ['star', 'airplane', 'car', 'house', 'gift', 'graduationcap', 'heart', 'laptopcomputer', 'figure.and.child.holdinghands', 'cross.case'];
 
@@ -49,7 +50,7 @@ function Editor({ goal, free }: { goal?: Goal; free: number }) {
   async function onSave() {
     if (!targetMinor || !name.trim()) return;
     await save.mutateAsync({ id: goal?.id, name: name.trim(), symbol, targetMinor, targetMonth: month });
-    if (!goal) router.back();
+    if (!goal) goBack('/settings/savings');
     else toast({ message: t.merchants.saved });
   }
 
@@ -66,7 +67,7 @@ function Editor({ goal, free }: { goal?: Goal; free: number }) {
     if (!(await confirm(t.goals.closeTitle(goal.name), t.goals.closeMessage(formatMoney(goal.saved, cur)), t.goals.closeAction))) return;
     await close.mutateAsync(goal.id);
     toast({ message: t.goals.closed(goal.name) });
-    router.back();
+    goBack('/settings/savings');
   }
 
   const chip = (label: string, selected: boolean, onPress: () => void) => (
@@ -110,7 +111,7 @@ function Editor({ goal, free }: { goal?: Goal; free: number }) {
             key={sym}
             onPress={() => setSymbol(sym)}
             accessibilityRole="button"
-            accessibilityLabel={sym}
+            accessibilityLabel={t.goals.symbols[sym] ?? sym}
             accessibilityState={{ selected: symbol === sym }}
             style={[s.symbol, symbol === sym && { backgroundColor: c.fill }]}>
             <CategoryIcon symbol={sym} size={36} />

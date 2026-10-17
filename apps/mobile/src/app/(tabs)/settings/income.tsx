@@ -1,4 +1,4 @@
-import { router, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -9,6 +9,7 @@ import { SAVINGS_TARGET_PCT } from '@/lib/budget';
 import { t } from '@/lib/i18n';
 import { useIncomeActions } from '@/lib/income-actions';
 import { minorToInput, parseMoneyInput } from '@/lib/money';
+import { goBack } from '@/lib/nav';
 
 export default function IncomeScreen() {
   const overview = useOverview();
@@ -56,7 +57,7 @@ function Editor() {
           loading={setIncome.isPending}
           onPress={async () => {
             await setIncome.mutateAsync(typed!);
-            router.back();
+            goBack('/settings');
           }}
         />
       </View>
@@ -67,7 +68,7 @@ function Editor() {
             title={t.income.remove}
             kind="destructive"
             onPress={async () => {
-              if (await actions.remove()) router.back();
+              if (await actions.remove()) goBack('/settings');
             }}
           />
         </View>

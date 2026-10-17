@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useSyncExternalStore, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Svg, { Polygon } from 'react-native-svg';
@@ -34,13 +34,14 @@ import { moneyText, tokens, useColors } from '@/lib/theme';
 import { useScheme } from '@/lib/appearance';
 import { Pressable } from '@/components/pressable';
 import { appDirText, dirProps } from '@/lib/rtl';
+import { goBack } from '@/lib/nav';
 
 const DRAFT_KEY = 'hl-add-draft';
 // How many envelopes show before "More": two rows of four, the ones used most (sort order).
 const FIRST = 8;
 
 // Opened cold from the Shortcut's deep link there is nothing to go back to.
-const close = () => (router.canGoBack() ? router.back() : router.replace('/overview'));
+const close = () => goBack('/overview');
 
 // S1, direction D (docs/design/c4/prototype.html): the amount on our own keypad, so the phone's
 // keyboard never covers the envelopes, and a tap on an envelope saves. "Save to …" at the
@@ -138,7 +139,8 @@ export default function AddExpense() {
       setNudge(true);
       return;
     }
-    if (!id || !hh.data?.household || !hh.data.me || busy) return;
+    // a tap on an envelope saves too, so the same rule as the Save button: every payment at least 1 agora
+    if (!id || !hh.data?.household || !hh.data.me || busy || (count > 1 && minor < count)) return;
     if (!online) return saveDraft(id);
     const categoryName = name(id);
     const fx = currency === base ? effect(id, minor) : null;
@@ -175,8 +177,8 @@ export default function AddExpense() {
     };
     // T7: one payment in the base currency is shown at once and the sheet closes; the save goes
     // on behind it. The draft is kept until the server has it, so a refusal loses nothing.
+    await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify({ amount, title, currency, categoryId: id, day, refund, payments }));
     if (count === 1 && currency === base) {
-      await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify({ amount, title, currency, categoryId: id, day, refund, payments }));
       add
         .mutateAsync(expense)
         .then(() => AsyncStorage.removeItem(DRAFT_KEY))
@@ -184,7 +186,14 @@ export default function AddExpense() {
       return done();
     }
     // Installments need the saved expense, and another currency the server's rate: wait for it.
-    const saved = await add.mutateAsync(expense);
+    // QA-6: a refusal (no rate for that day, say) stays on the sheet and says why, next to Save.
+    let saved: string;
+    try {
+      saved = await add.mutateAsync(expense);
+    } catch (e) {
+      toast({ message: errorMessage(e) });
+      return;
+    }
     if (count > 1) {
       try {
         await split.mutateAsync({ transactionId: saved, count });

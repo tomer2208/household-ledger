@@ -650,6 +650,11 @@ export const en = {
     lateChange: (title: string) => `Late change: ${title}`,
   },
   goals: {
+    // QA-7: what a screen reader says for each goal icon
+    symbols: {
+      star: 'Star', airplane: 'Trip', car: 'Car', house: 'Home', gift: 'Gift', graduationcap: 'Studies', heart: 'Heart',
+      laptopcomputer: 'Computer', 'figure.and.child.holdinghands': 'Family', 'cross.case': 'Health',
+    } as Record<string, string>,
     title: 'Goals',
     footer: 'A goal sets part of your savings aside. The money stays in savings.',
     add: 'New Goal',
@@ -824,6 +829,11 @@ export const en = {
     title: 'You’re already in a household',
     body: (household: string) => `To join another one, leave ${household} first in Settings → Household, then open this link again.`,
     open: 'Open FinPace',
+  },
+  notFound: {
+    title: 'This page doesn’t exist',
+    body: 'The link may be old or mistyped.',
+    home: 'Open FinPace',
   },
   update: {
     title: 'A new version is ready',

@@ -86,7 +86,7 @@ export default function Onboarding() {
             <Section title={t.onboarding.smart} footer={aiDisclosure()}>
               <View style={s.switchRow}>
                 <Text style={[s.switchLabel, { color: c.label }]}>{t.onboarding.useAi}</Text>
-                <Switch value={aiConsent} onValueChange={setAiConsent} />
+                <Switch value={aiConsent} onValueChange={setAiConsent} accessibilityLabel={t.onboarding.useAi} />
               </View>
             </Section>
 

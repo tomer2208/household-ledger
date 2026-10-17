@@ -654,6 +654,11 @@ export const he: Dict = {
     lateChange: (title: string) => `שינוי מאוחר: ${title}`,
   },
   goals: {
+    // QA-7: what a screen reader says for each goal icon
+    symbols: {
+      star: 'כוכב', airplane: 'טיול', car: 'רכב', house: 'בית', gift: 'מתנה', graduationcap: 'לימודים', heart: 'לב',
+      laptopcomputer: 'מחשב', 'figure.and.child.holdinghands': 'משפחה', 'cross.case': 'בריאות',
+    } as Record<string, string>,
     title: 'יעדים',
     footer: 'יעד מסמן חלק מהחיסכון. הכסף נשאר בחיסכון.',
     add: 'יעד חדש',
@@ -827,6 +832,11 @@ export const he: Dict = {
     title: 'כבר יש לך משק בית',
     body: (household: string) => `כדי להצטרף למשק בית אחר, קודם עוזבים את ${household} בהגדרות ← משק בית, ואז פותחים את הקישור שוב.`,
     open: 'פתיחת FinPace',
+  },
+  notFound: {
+    title: 'הדף הזה לא קיים',
+    body: 'אולי הקישור ישן או שנפלה בו טעות.',
+    home: 'פתיחת FinPace',
   },
   update: {
     title: 'יש גרסה חדשה',

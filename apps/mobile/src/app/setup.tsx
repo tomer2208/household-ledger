@@ -39,18 +39,23 @@ export default function Setup() {
   const [incomeText, setIncomeText] = useState('');
   const income = parseMoneyInput(incomeText);
   const categories = useMemo(() => (cats.data ?? []).filter((x) => !x.archived_at), [cats.data]);
-  // One text field per category, filled from the suggestion when the step opens.
+  // What the person typed per category; the rest show the suggestion (capText below).
   const [caps, setCaps] = useState<Record<string, string>>({});
 
+  // opening the step again (after changing the income) starts again from the new suggestion
   const openBudgets = () => {
-    const suggested = suggestBudgets(income, categories.map((x) => x.sf_symbol));
-    setCaps(Object.fromEntries(categories.map((x) => [x.id, suggested[x.sf_symbol] ? minorToInput(suggested[x.sf_symbol]) : ''])));
+    setCaps({});
     setStep('budgets');
   };
+  // QA-12: what was typed, else the suggestion for the income. Worked out on every render, so
+  // categories that load after Next was tapped still get theirs (they used to stay blank).
+  const suggested = useMemo(() => suggestBudgets(income, categories.map((x) => x.sf_symbol)), [income, categories]);
+  const capText = (x: { id: string; sf_symbol: string }) =>
+    caps[x.id] ?? (suggested[x.sf_symbol] ? minorToInput(suggested[x.sf_symbol]) : '');
 
   const entries = categories
     .filter((x) => !off.has(x.id))
-    .map((x) => ({ categoryId: x.id, capMinor: parseMoneyInput(caps[x.id] ?? '') }))
+    .map((x) => ({ categoryId: x.id, capMinor: parseMoneyInput(capText(x)) }))
     .filter((x): x is { categoryId: string; capMinor: number } => x.capMinor != null);
   const total = entries.reduce((a, b) => a + b.capMinor, 0);
   const left = income != null ? income - total : null;
@@ -137,7 +142,7 @@ export default function Setup() {
                   </Text>
                   <TextInput
                     editable={!off.has(x.id)}
-                    value={caps[x.id] ?? ''}
+                    value={capText(x)}
                     onChangeText={(v) => setCaps((m) => ({ ...m, [x.id]: v }))}
                     placeholder={t.overview.noBudget}
                     placeholderTextColor={c.tertiaryLabel as string}

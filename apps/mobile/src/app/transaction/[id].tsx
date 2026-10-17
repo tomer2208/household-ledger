@@ -30,6 +30,7 @@ import { tokens, useColors } from '@/lib/theme';
 import { installmentNo } from '@/lib/installments';
 import { useTransactionActions } from '@/lib/transaction-actions';
 import { fontFamily } from '@/lib/tokens';
+import { goBack } from '@/lib/nav';
 
 export default function TransactionDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -112,7 +113,7 @@ function Editor({ tx }: { tx: Transaction }) {
 
   // R5: deletes at once and offers Undo in a toast on every platform (the PWA had none).
   async function deleteExpense() {
-    if (await actions.remove(tx)) router.back();
+    if (await actions.remove(tx)) goBack('/transactions');
   }
 
   return (

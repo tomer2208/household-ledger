@@ -2,12 +2,12 @@
 -- TEST_ROLLBACK with its findings, so nothing is kept. Makes its own user and household.
 -- Expect: first8=teal,sand,blue,ocean,clay,olive,indigo,sage first8_distinct=8 savings_icon=savings
 --         icons=supermarket,dining,car,fuel other_icon=other new_icon=pets new_color=clay
---         unknown_icon=tag bad_color=check own_color=rose
+--         unknown_icon=tag bad_color=check own_color=rose member_edit=Pets,violet,dog,t
 do $$
 declare
   a uuid := gen_random_uuid(); h uuid; cat uuid;
   first8 text; first8_distinct int; savings_icon text; icons text; other_icon text;
-  new_icon text; new_color text; unknown_icon text; bad_color text; own_color text;
+  new_icon text; new_color text; unknown_icon text; bad_color text; own_color text; member_edit text;
 begin
   insert into auth.users (id, email, aud, role) values (a, a || '@test.local', 'authenticated', 'authenticated');
   perform set_config('request.jwt.claims', json_build_object('sub', a, 'role', 'authenticated')::text, true);
@@ -35,6 +35,12 @@ begin
   insert into public.categories (household_id, name, sf_symbol, color) values (h, 'Mine', 'tag', 'rose') returning id into cat;
   select color into own_color from public.categories where id = cat;
 
-  raise exception 'TEST_ROLLBACK first8=% first8_distinct=% savings_icon=% icons=% other_icon=% new_icon=% new_color=% unknown_icon=% bad_color=% own_color=%',
-    first8, first8_distinct, savings_icon, icons, other_icon, new_icon, new_color, unknown_icon, bad_color, own_color;
+  -- QA-1 (migration 48): a member saves a category the way the app does, look and hidden included
+  set local role authenticated;
+  update public.categories set name = 'Pets', color = 'violet', icon = 'dog', hidden = true where id = cat;
+  reset role;
+  select concat_ws(',', name, color, icon, hidden) into member_edit from public.categories where id = cat;
+
+  raise exception 'TEST_ROLLBACK first8=% first8_distinct=% savings_icon=% icons=% other_icon=% new_icon=% new_color=% unknown_icon=% bad_color=% own_color=% member_edit=%',
+    first8, first8_distinct, savings_icon, icons, other_icon, new_icon, new_color, unknown_icon, bad_color, own_color, member_edit;
 end $$;

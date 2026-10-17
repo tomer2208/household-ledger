@@ -20,6 +20,7 @@ import type { CategoryColor } from '@/lib/tokens/palette.gen';
 import { fontFamily } from '@/lib/tokens';
 import { useScheme } from '@/lib/appearance';
 import { Pressable } from '@/components/pressable';
+import { goBack } from '@/lib/nav';
 
 export default function CategoryEdit() {
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -82,7 +83,7 @@ function Editor({ id }: { id?: string }) {
     if (target && capMinor != null && capMinor !== (id ? baseCap : null)) {
       await setBudget.mutateAsync({ categoryId: target, capMinor });
     }
-    router.back();
+    goBack('/settings/categories');
   }
 
   return (
@@ -234,7 +235,7 @@ function Editor({ id }: { id?: string }) {
               kind="plain"
               onPress={async () => {
                 await save.mutateAsync({ id, householdId: householdId!, name: cat.name, sfSymbol: cat.sf_symbol, archived: false });
-                router.back();
+                goBack('/settings/categories');
               }}
             />
           ) : (
@@ -242,7 +243,7 @@ function Editor({ id }: { id?: string }) {
               title={t.categories.deleteCategory}
               kind="destructive"
               onPress={async () => {
-                if (await actions.remove(cat)) router.back();
+                if (await actions.remove(cat)) goBack('/settings/categories');
               }}
             />
           )}

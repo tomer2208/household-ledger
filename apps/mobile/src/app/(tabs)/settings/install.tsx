@@ -1,4 +1,4 @@
-import { router, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Button, Icon, Screen, Section } from '@/components/ui';
@@ -6,6 +6,7 @@ import { t } from '@/lib/i18n';
 import { isInstalled, isIosBrowser } from '@/lib/install';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
+import { goBack } from '@/lib/nav';
 
 type Step = { icon: string; title: string; body: string };
 
@@ -35,7 +36,7 @@ export default function InstallGuide() {
       )}
       <StepList title={installed ? t.guide.next : t.guide.step2} steps={after} />
       <View style={{ marginHorizontal: 16, marginTop: 24 }}>
-        <Button title={t.common.done} kind="plain" onPress={() => router.back()} />
+        <Button title={t.common.done} kind="plain" onPress={() => goBack('/settings')} />
       </View>
     </Screen>
   );

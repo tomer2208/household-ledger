@@ -4,6 +4,8 @@
 do $$
 declare u uuid := gen_random_uuid(); p uuid := gen_random_uuid(); h uuid; c uuid;
 begin
+  -- QA-8: already there (a second run on the same database) means nothing to do
+  if exists (select 1 from auth.users where email = 'dev-preview@householdledger.test') then return; end if;
   insert into auth.users (id, email, aud, role) values
     (u, 'dev-preview@householdledger.test', 'authenticated', 'authenticated'),
     (p, 'e2e-fixture@test.local', 'authenticated', 'authenticated');

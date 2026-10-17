@@ -6,7 +6,9 @@
 do $$
 declare h uuid; before_tx int; after_rows int;
 begin
-  select id into h from public.households where name = 'Our Home' limit 1;
+  -- the fixture's household, by its owner (other households may share the name 'Our Home')
+  select m.household_id into h from public.household_members m join auth.users u on u.id = m.user_id
+  where u.email = 'dev-preview@householdledger.test' and m.removed_at is null;
   select count(*) into before_tx from public.transactions where household_id = h;
   perform app.purge_household(h);
   select (select count(*) from public.transactions where household_id = h)

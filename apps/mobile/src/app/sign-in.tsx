@@ -122,11 +122,11 @@ export default function SignIn() {
             </View>
             <Text style={[s.legal, { color: c.secondaryLabel }]}>
               {t.signIn.agreeBefore}
-              <Text style={{ color: c.tint }} onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/terms${lang() === 'he' ? '.he' : ''}.html`)}>
+              <Text style={{ color: c.tint }} accessibilityRole="link" onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/terms${lang() === 'he' ? '.he' : ''}.html`)}>
                 {t.settings.terms}
               </Text>
               {t.signIn.agreeAnd}
-              <Text style={{ color: c.tint }} onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/privacy${lang() === 'he' ? '.he' : ''}.html`)}>
+              <Text style={{ color: c.tint }} accessibilityRole="link" onPress={() => WebBrowser.openBrowserAsync(`${APP_URL}/privacy${lang() === 'he' ? '.he' : ''}.html`)}>
                 {t.settings.privacy}
               </Text>
               {t.signIn.agreeAfter}

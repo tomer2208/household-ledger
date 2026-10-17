@@ -1,4 +1,4 @@
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Switch, Text, View } from 'react-native';
 
@@ -13,6 +13,7 @@ import { confirm } from '@/lib/confirm';
 import { t } from '@/lib/i18n';
 import { fontFamily } from '@/lib/tokens';
 import { Pressable } from '@/components/pressable';
+import { goBack } from '@/lib/nav';
 
 const INTERVALS = [1, 2, 3, 6, 12] as const;
 
@@ -62,7 +63,7 @@ function Editor({ id, rule }: { id?: string; rule?: RecurringRule }) {
       paused,
       spread,
     });
-    router.back();
+    goBack('/settings/recurring');
   }
 
   return (
@@ -73,7 +74,7 @@ function Editor({ id, rule }: { id?: string; rule?: RecurringRule }) {
         <Field label={t.detail.amount(currency)} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0" />
         <View style={s.row}>
           <Text style={[s.rowLabel, { color: c.label }]}>{t.recurring.variable}</Text>
-          <Switch value={estimated} onValueChange={setEstimated} />
+          <Switch value={estimated} onValueChange={setEstimated} accessibilityLabel={t.recurring.variable} />
         </View>
         <View style={[s.chips, { paddingBottom: 12 }]}>
           {CURRENCIES.map((cur) => (
@@ -92,7 +93,7 @@ function Editor({ id, rule }: { id?: string; rule?: RecurringRule }) {
         <Field label={t.recurring.starts} value={startDate} onChangeText={setStartDate} placeholder="YYYY-MM-DD" autoCapitalize="none" />
         <View style={s.row}>
           <Text style={[s.rowLabel, { color: c.label }]}>{t.recurring.paused}</Text>
-          <Switch value={paused} onValueChange={setPaused} />
+          <Switch value={paused} onValueChange={setPaused} accessibilityLabel={t.recurring.paused} />
         </View>
       </Section>
 
@@ -124,7 +125,7 @@ function Editor({ id, rule }: { id?: string; rule?: RecurringRule }) {
               )
                 return;
               await del.mutateAsync(id);
-              router.back();
+              goBack('/settings/recurring');
             }}
           />
         ) : null}

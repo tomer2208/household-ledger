@@ -5,7 +5,7 @@
 --         savings_err="the Savings category cannot be deleted" other_hh_err="unknown category"
 do $$
 declare
-  u uuid; h uuid; c_unused uuid; c_used uuid; c_rule uuid; c_sav uuid; c_other uuid;
+  u uuid; stranger uuid := gen_random_uuid(); h uuid; c_unused uuid; c_used uuid; c_rule uuid; c_sav uuid; c_other uuid;
   dry jsonb; after_dry int; r1 jsonb; r2 jsonb; r3 jsonb; e_block text; e_sav text; e_other text;
 begin
   select id into u from auth.users where email = 'dev-preview@householdledger.test';
@@ -15,7 +15,15 @@ begin
   insert into public.categories (household_id, name, sf_symbol, kind) values (h, 'T Used', 'tag', 'expense') returning id into c_used;
   insert into public.categories (household_id, name, sf_symbol, kind) values (h, 'T Rule', 'tag', 'expense') returning id into c_rule;
   select id into c_sav from public.categories where household_id = h and kind = 'savings';
-  select c.id into c_other from public.categories c where c.household_id <> h limit 1;
+  -- QA-8: a household of someone else's, made here, so the cross-household refusal is always
+  -- checked (it used to depend on whatever other households the database happened to hold).
+  insert into auth.users (id, email, aud, role) values (stranger, stranger || '@test.local', 'authenticated', 'authenticated');
+  perform set_config('request.jwt.claims', json_build_object('sub', stranger, 'role', 'authenticated')::text, true);
+  set local role authenticated;
+  perform public.create_household('Stranger', 'ILS', 'S');
+  reset role;
+  select c.id into c_other from public.categories c join public.household_members m on m.household_id = c.household_id
+  where m.user_id = stranger limit 1;
 
   insert into public.category_budgets (category_id, household_id, effective_month, cap_minor)
   values (c_unused, h, app.local_month(h, now()), 50000);

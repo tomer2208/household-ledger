@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useHousehold, useLanguageSync, useRealtimeSync } from '@/api/queries';
 import { SessionProvider, useSession } from '@/api/session';
+import { AppError, RootErrorBoundary } from '@/components/app-error';
 import { ToastProvider } from '@/components/toast';
 import { UpdateBanner } from '@/components/update-banner';
 import { dark, light, type Palette } from '@/lib/colors';
@@ -17,8 +18,12 @@ import { usePushRegistration, useNotificationRouting } from '@/lib/push';
 import { QueryProvider } from '@/lib/query';
 import { bootAppearance, useScheme } from '@/lib/appearance';
 import { useEdgeSwipeBack } from '@/lib/edge-swipe-back';
+import { useNavigationMemory } from '@/lib/nav';
 
 SplashScreen.preventAutoHideAsync();
+
+// QA-4: a screen that throws while drawing shows an error with Try Again, not a blank app.
+export const ErrorBoundary = RootErrorBoundary;
 
 // Headers, back buttons and screen backgrounds take the FinPace palette instead of iOS blue.
 // F3: header titles and back buttons in Assistant, like the rest of the text.
@@ -75,12 +80,15 @@ function Root() {
   usePushRegistration(session?.user.id, !!household);
   useNotificationRouting();
   useEdgeSwipeBack();
+  useNavigationMemory();
 
   const ready = !loading && (!session || !hh.isLoading);
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
   }, [ready]);
   if (!ready) return null;
+  // QA-3: without the household the guards below have nothing to go on; say so and offer a retry.
+  if (session && hh.error && !hh.data) return <AppError error={hh.error} onRetry={() => hh.refetch()} retrying={hh.isFetching} />;
 
   const signedIn = !!session;
   const direction = isRTL() ? 'rtl' : 'ltr';

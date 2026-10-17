@@ -1,4 +1,4 @@
-import { router, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
@@ -10,6 +10,7 @@ import { incomePlan } from '@/lib/budget';
 import { isRTL, t } from '@/lib/i18n';
 import { minorToInput, parseMoneyInput } from '@/lib/money';
 import { tokens, useColors } from '@/lib/theme';
+import { goBack } from '@/lib/nav';
 
 // P3 (D3: five budgets used to cost twenty taps and ten scrolls; D4: YNAB's assign-all): every
 // envelope's budget on one screen, with the total against income as it's typed, saved in one
@@ -96,7 +97,7 @@ function Editor() {
               {
                 onSuccess: () => {
                   toast({ message: t.budgets.saved });
-                  router.back();
+                  goBack('/settings');
                 },
               },
             )

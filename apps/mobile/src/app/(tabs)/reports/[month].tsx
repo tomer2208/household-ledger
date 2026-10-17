@@ -1,4 +1,4 @@
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { Redirect, router, Stack, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { useHousehold, useMonthCloses, useMonthlyReport, useRequestReport } from '@/api/queries';
@@ -18,8 +18,16 @@ const TONE_ICON = { positive: 'checkmark.circle.fill', warning: 'exclamationmark
 // US-A1: SQL numbers + charts always; the AI's words when they passed validation,
 // otherwise the template written from the same numbers.
 export default function MonthReport() {
-  const c = useColors();
   const { month } = useLocalSearchParams<{ month: string }>();
+  // QA-4: the month comes from the address, so a typed or old link may not be one. 2026-10 means
+  // the month; anything else goes to the list instead of breaking the date functions.
+  const m = /^\d{4}-(0[1-9]|1[0-2])(-01)?$/.test(month ?? '') ? month.slice(0, 7) + '-01' : null;
+  if (!m) return <Redirect href="/reports" />;
+  return <Report month={m} />;
+}
+
+function Report({ month }: { month: string }) {
+  const c = useColors();
   const cur = useHousehold().data?.household?.base_currency ?? 'ILS';
   const report = useMonthlyReport(month);
   const close = useMonthCloses().data?.find((x) => x.budget_month === month);
@@ -142,15 +150,20 @@ export default function MonthReport() {
         <Text style={[s.hint, { color: c.secondaryLabel }]}>{t.reports.none}</Text>
       ) : null}
 
-      <View style={s.actions}>
-        <Button
-          title={r ? t.reports.rewrite : t.reports.write}
-          kind="plain"
-          loading={regenerate.isPending}
-          disabled={!!writing}
-          onPress={() => regenerate.mutate(month)}
-        />
-      </View>
+      {/* QA-11: the server writes reports only for closed months; before the 1st, say when instead. */}
+      {close || r ? (
+        <View style={s.actions}>
+          <Button
+            title={r ? t.reports.rewrite : t.reports.write}
+            kind="plain"
+            loading={regenerate.isPending}
+            disabled={!!writing}
+            onPress={() => regenerate.mutate(month)}
+          />
+        </View>
+      ) : (
+        <Text style={[s.hint, { color: c.secondaryLabel }]}>{t.reports.inProgressFooter}</Text>
+      )}
     </Screen>
   );
 }
