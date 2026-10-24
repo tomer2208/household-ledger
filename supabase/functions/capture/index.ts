@@ -1,8 +1,10 @@
 // POST /capture          ← iOS Shortcut, at the register (BLUEPRINT §3.6)
 // POST /capture/confirm  ← same Shortcut, after the category menu
 //
-// verify_jwt is off: a Shortcut cannot hold a Supabase session, so it sends a per-device
-// token and this function checks its hash. All DB work goes through service-role RPCs.
+// verify_jwt is off: a Shortcut cannot hold a Supabase session, so it sends a token and this
+// function checks its hash. All DB work goes through service-role RPCs. The token is the
+// household's key (hl_hh_…, one Shortcut for everyone, shared by AirDrop) with the iPhone's
+// name in `device`, or an older per-device token (hl_dev_…).
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { parseAmount } from "./amount.ts";
@@ -28,7 +30,8 @@ const LIMITS = { devicePerMinute: 20, householdPerDay: 300 };
 type Device = {
   device_id: string;
   household_id: string;
-  user_id: string;
+  // null until someone says whose iPhone it is (household key only)
+  user_id: string | null;
   base_currency: string;
   ai_enabled: boolean;
   language?: Lang;
@@ -81,7 +84,7 @@ async function authenticate(req: Request, body: Record<string, unknown> | null):
   const token = [req.headers.get("authorization"), req.headers.get("x-device-token"), body?.token]
     .map(clean)
     .find((t) => t.length > 0) ?? "";
-  if (!/^hl_dev_[0-9a-f]{48}$/.test(token)) {
+  if (!/^hl_(dev|hh)_[0-9a-f]{48}$/.test(token)) {
     // Shape only, never the value: enough to tell "nothing arrived" from "cut short".
     console.warn("CAPTURE_BAD_TOKEN_SHAPE", {
       length: token.length,
@@ -91,7 +94,12 @@ async function authenticate(req: Request, body: Record<string, unknown> | null):
     });
     return null;
   }
-  const { data, error } = await db.rpc("capture_auth", { p_token_hash: await sha256Hex(token) });
+  // With the household key, the iPhone's name tells the household's phones apart.
+  const device = typeof body?.device === "string" ? body.device : req.headers.get("x-device-name");
+  const { data, error } = await db.rpc("capture_auth", {
+    p_token_hash: await sha256Hex(token),
+    ...(token.startsWith("hl_hh_") ? { p_device_name: device ?? "" } : {}),
+  });
   if (error) throw error;
   return (data as Device[] | null)?.[0] ?? null;
 }

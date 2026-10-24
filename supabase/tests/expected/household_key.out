@@ -1,0 +1,1 @@
+ERROR:  TEST_ROLLBACK same_device=t two_devices=t unowned=true,true moved=1,1 owners=t lang=he,en no_name=iPhone revoked_phone=0 old_key=0 new_key=1 own_token_still=t stranger_assign="unknown device" not_member="that person is not in this household" read_keys=42501 call_auth=42501 key_shape=t

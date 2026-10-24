@@ -165,14 +165,14 @@ isOneToOne: false
                   ]
                 },"device_tokens": {
                   Row: {
-                    "created_at": string,"household_id": string,"id": string,"label": string,"last_used_at": string | null,"revoked_at": string | null,"token_hash": string,"user_id": string
+                    "created_at": string,"device_name": string | null,"household_id": string,"id": string,"label": string,"last_used_at": string | null,"revoked_at": string | null,"token_hash": string | null,"user_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"household_id": string,"id"?: string,"label": string,"last_used_at"?: string | null,"revoked_at"?: string | null,"token_hash": string,"user_id": string
+                    "created_at"?: string,"device_name"?: string | null,"household_id": string,"id"?: string,"label": string,"last_used_at"?: string | null,"revoked_at"?: string | null,"token_hash"?: string | null,"user_id"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"household_id"?: string,"id"?: string,"label"?: string,"last_used_at"?: string | null,"revoked_at"?: string | null,"token_hash"?: string,"user_id"?: string
+                    "created_at"?: string,"device_name"?: string | null,"household_id"?: string,"id"?: string,"label"?: string,"last_used_at"?: string | null,"revoked_at"?: string | null,"token_hash"?: string | null,"user_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -196,6 +196,26 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"household_capture_keys": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"household_id": string,"last_used_at": string | null,"token_hash": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"household_id": string,"last_used_at"?: string | null,"token_hash": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"household_id"?: string,"last_used_at"?: string | null,"token_hash"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "household_capture_keys_household_id_fkey"
+      columns: ["household_id"]
+isOneToOne: true
+      referencedRelation: "households"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"household_income": {
                   Row: {
@@ -589,8 +609,11 @@ isOneToOne: false
 "ai_under_cap":
 { Args: { "p_household": string }; Returns: boolean
                            },
+"assign_device":
+{ Args: { "p_device_id": string,"p_user_id": string }; Returns: number
+                           },
 "capture_auth":
-{ Args: { "p_token_hash": string }; Returns: {
+{ Args: { "p_device_name"?: string,"p_token_hash": string }; Returns: {
               "ai_enabled": boolean,"base_currency": string,"device_id": string,"household_id": string,"language": string,"user_id": string
             }[]
                            },
@@ -632,6 +655,9 @@ isOneToOne: false
 "create_household":
 { Args: { "p_base_currency": string,"p_display_name": string,"p_language"?: string,"p_name": string }; Returns: string
                            },
+"create_household_key":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
 "create_installments":
 { Args: { "p_count": number,"p_transaction_id": string }; Returns: Json
                            },
@@ -649,6 +675,9 @@ isOneToOne: false
                            },
 "finish_push_alerts":
 { Args: { "p_dead_endpoints"?: (string)[],"p_dead_tokens": (string)[],"p_results": Json }; Returns: undefined
+                           },
+"household_key":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "join_household":
 { Args: { "p_code": string,"p_display_name": string }; Returns: string

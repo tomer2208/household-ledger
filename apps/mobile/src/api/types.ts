@@ -124,7 +124,12 @@ export type RecurringRule = Narrow<
   { amount_kind: 'fixed' | 'estimated' }
 > & { categories: Pick<Tables<'categories'>, 'name' | 'sf_symbol'> | null };
 
-export type Device = Pick<Tables<'device_tokens'>, 'id' | 'user_id' | 'label' | 'created_at' | 'last_used_at' | 'revoked_at'>;
+// device_name: an iPhone that came in with the household key; user_id null until someone says
+// whose it is.
+export type Device = Pick<Tables<'device_tokens'>, 'id' | 'user_id' | 'label' | 'device_name' | 'created_at' | 'last_used_at' | 'revoked_at'>;
+
+// The household's key for the FinPace Shortcut (null: none yet). The key itself is shown once.
+export type HouseholdKey = { created_at: string; last_used_at: string | null; created_by: string | null } | null;
 
 export type SavingsEntry = Narrow<
   Pick<Tables<'savings_ledger'>, 'id' | 'entry_type' | 'budget_month' | 'amount_minor' | 'reason' | 'created_at'>,

@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import { batchChanges, keysFor, SYNC_TABLES, TABLE_KEYS } from './cache-sync';
 
 test('a change refreshes only the screens that read its table', () => {
-  assert.deepEqual(keysFor(['device_tokens']), ['devices', 'capture_health']);
+  assert.deepEqual(keysFor(['device_tokens']), ['devices', 'capture_health', 'capture_key']);
   assert.deepEqual(keysFor(['agent_proposals']), ['proposals']);
   const tx = keysFor(['transactions'])!;
   for (const k of ['transactions', 'transaction', 'overview', 'pending']) assert.ok(tx.includes(k), k);

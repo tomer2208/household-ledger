@@ -20,7 +20,7 @@ function need(name: string) {
 
 // supabase-js keeps the web session in localStorage under sb-<first label of the host>-auth-token
 const SESSION_KEY = `sb-${new URL(API_URL).hostname.split('.')[0]}-auth-token`;
-const admin = createClient(API_URL, SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+export const admin = createClient(API_URL, SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 
 // The app wraps amounts and names in direction isolates (U+2068/U+2069) and Hebrew amounts carry
 // direction marks; spaces can be no-break ones. A test matches the words regardless.

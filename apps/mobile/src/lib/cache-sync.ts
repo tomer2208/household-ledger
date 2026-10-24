@@ -19,7 +19,8 @@ export const TABLE_KEYS = {
   // P1-15: what goals hold, and what's free
   savings_goals: ['goals'],
   savings_goal_moves: ['goals'],
-  device_tokens: ['devices', 'capture_health'],
+  // a Shortcut's purchase touches its device row, so the key's "last used" follows it
+  device_tokens: ['devices', 'capture_health', 'capture_key'],
   agent_proposals: ['proposals'],
   monthly_reports: ['report', 'closes'],
 } as const satisfies Record<string, readonly string[]>;

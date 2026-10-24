@@ -12,6 +12,7 @@ import type {
   MonthlyReport,
   Proposal,
   Device,
+  HouseholdKey,
   Household,
   Member,
   MerchantSummary,
@@ -200,7 +201,7 @@ export function useDevices() {
       (await must(
         supabase
           .from('device_tokens')
-          .select('id,user_id,label,created_at,last_used_at,revoked_at')
+          .select('id,user_id,label,device_name,created_at,last_used_at,revoked_at')
           .order('created_at', { ascending: false }),
       )) as Device[],
   });
@@ -663,11 +664,20 @@ export const useDeleteRecurring = () =>
     ['recurring_rules'],
   );
 
-export const useCreateDeviceToken = () =>
-  useHHMutation(async (label: string) => {
-    const rows = (await must(rpc('create_device_token', { p_label: label }))) as { id: string; token: string }[];
-    return rows[0];
-  });
+// One key for the household's FinPace Shortcut (migration 49). Creating one replaces the last.
+export function useHouseholdKey() {
+  return useQuery({ queryKey: [HH, 'capture_key'], queryFn: async () => (await must(rpc('household_key'))) as HouseholdKey });
+}
+
+export const useCreateHouseholdKey = () =>
+  useHHMutation(async () => (await must(rpc('create_household_key'))) as string, ['device_tokens']);
+
+// Whose iPhone this is; its purchases so far move to that person too.
+export const useAssignDevice = () =>
+  useHHMutation(
+    (v: { deviceId: string; userId: string }) => must(rpc('assign_device', { p_device_id: v.deviceId, p_user_id: v.userId })),
+    ['device_tokens', 'transactions'],
+  );
 
 export const useRevokeDevice = () =>
   useHHMutation((id: string) => must(rpc('revoke_device_token', { p_id: id })), ['device_tokens']);

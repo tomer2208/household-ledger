@@ -81,3 +81,27 @@ Otherwise
     If status is not logged → Show notification "FinPace couldn't log this purchase. Add it in the app."   (D2, option 1)
 End If
 ```
+
+## מפתח אחד לבית ושורטקאט משותף (24.10, migration 49)
+
+**הבעיה:** כל אייפון קיבל טוקן אישי (`hl_dev_…`), והאוטומציה נבנתה ישירות ב-Automation. שורטקאט ששותף באיירדרופ רשם הכול על מי שבנה אותו, ולכן כל אחד בנה מאפס.
+
+**המבנה החדש:**
+- **מפתח אחד לבית** (`hl_hh_…`), נוצר ב"שורטקאט ומכשירים". יצירה מחדש מחליפה את הקודם. טוקנים אישיים ישנים ממשיכים לעבוד.
+- **שורטקאט רגיל בשם FinPace** שמכיל את כל הלוגיקה, עם המפתח בפנים. הוא מקבל Dictionary כקלט ושולח גם `device` = Get Device Details › Device Name, בשתי הבקשות (`/capture` ו-`/capture/confirm`).
+- **בכל אייפון** בונים אוטומציית Transaction קטנה, כי את אוטומציות ה-Wallet אי אפשר לשתף: `Dictionary` (merchant, amount, card, name ← Shortcut Input), ואז `Run Shortcut` FinPace עם ה-Dictionary כקלט.
+- **אייפון חדש** נוסף ל-`device_tokens` (עם `device_name` ובלי טוקן) בקנייה הראשונה, בלי בעלים. "של מי האייפון הזה?" משייך אותו לבן משפחה, יחד עם הקניות שכבר רשם (`assign_device`, דרך `audit_log`).
+
+```
+FinPace (שורטקאט רגיל, משותף באיירדרופ)
+Get Device Details: Device Name
+Get contents of …/capture          JSON: token=מפתח הבית, device=Device Name,
+                                         merchant, amount, card, name ← Shortcut Input (Dictionary)
+… (status / needs_input / confirm כמו קודם, ובבקשת confirm גם device=Device Name)
+
+אוטומציה בכל אייפון: Transaction → Run Immediately
+Dictionary: merchant, amount, card, name ← Shortcut Input › Merchant, Amount, Card or Pass, Name
+Run Shortcut: FinPace (Input: Dictionary)
+```
+
+**טרם נבדק באייפון אמיתי:** שה-Dictionary עובר ל-FinPace כקלט ואפשר לקרוא ממנו את השדות, ושלכל אייפון יש Device Name ייחודי (אם שניים מחזירים "iPhone", משנים את שם אחד מהם בהגדרות ← כללי ← אודות).
