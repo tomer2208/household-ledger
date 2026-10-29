@@ -105,3 +105,13 @@ Run Shortcut: FinPace (Input: Dictionary)
 ```
 
 **טרם נבדק באייפון אמיתי:** שה-Dictionary עובר ל-FinPace כקלט ואפשר לקרוא ממנו את השדות, ושלכל אייפון יש Device Name ייחודי (אם שניים מחזירים "iPhone", משנים את שם אחד מהם בהגדרות ← כללי ← אודות).
+
+## הודעה לכל קנייה (29.10, migration 50)
+
+- **כל תשובה של `/capture` ו-`/capture/confirm` היא HTTP 200 עם `status` ו-`message`.** בתשובת 4xx, Shortcuts לא מעביר את הגוף, וזה מה שהשאיר התראה ריקה "FinPace:".
+- `message` כתוב בשפה של בעל האייפון, ומוכן להצגה כמו שהוא:
+  - `logged` / אחרי `confirm`: `✓ Aroma · ‏25 ₪ ← אוכל בחוץ · נשארו ‏475 ₪` (כמה נשאר כולל העברה מחודש קודם וחיסכון לתשלומים, `capture_left`).
+  - `ready`: ▶ בלי קנייה, "FinPace מחובר ✓".
+  - `error`: משפט שאומר מה לעשות (מפתח לא תקין, סכום לא נקרא, אין שם מקום ועוד).
+- **השורטקאט:** ב-Otherwise הראשי ובסוף ענף `needs_input`: `Get Dictionary Value: message` ← `Show Notification`. במקום ה-If "status is not logged".
+- **קלט:** השדות אפשר לשלוח ברמה העליונה (merchant, amount, card, name), או בתוך `wallet` (ה-Dictionary מהאוטומציה, בשורטקאט המשותף).

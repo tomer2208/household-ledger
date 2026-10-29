@@ -623,6 +623,9 @@ isOneToOne: false
 "capture_health":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"capture_left":
+{ Args: { "p_category": string,"p_household": string }; Returns: number
+                           },
 "capture_match":
 { Args: { "p_household": string,"p_raw": string }; Returns: Json
                            },
