@@ -115,3 +115,11 @@ Run Shortcut: FinPace (Input: Dictionary)
   - `error`: משפט שאומר מה לעשות (מפתח לא תקין, סכום לא נקרא, אין שם מקום ועוד).
 - **השורטקאט:** ב-Otherwise הראשי ובסוף ענף `needs_input`: `Get Dictionary Value: message` ← `Show Notification`. במקום ה-If "status is not logged".
 - **קלט:** השדות אפשר לשלוח ברמה העליונה (merchant, amount, card, name), או בתוך `wallet` (ה-Dictionary מהאוטומציה, בשורטקאט המשותף).
+
+## השורטקאט נבנה מקוד (29.10)
+
+- `shortcuts/build_finpace.py` כותב את FinPace כקובץ ומחתים אותו (`shortcuts sign --mode anyone`, דורש macOS). הקובץ נשמר ב-`shortcuts/FinPace.shortcut` וב-`apps/mobile/public/FinPace.shortcut`, וממנו כפתור ההורדה במסך "שורטקאט ומכשירים".
+- הקובץ לא מכיל מפתח. בהתקנה iOS שואל על מפתח הבית (Import Question על פעולת ה-Text הראשונה), ולכן אותו קובץ משרת כל משק בית.
+- `--key … --name "FinPace Test"` בונה עותק עם מפתח בפנים ובלי שאלה, לבדיקה עם `shortcuts run "FinPace Test" --input-path purchase.json` (קובץ JSON עם merchant, amount, card, name).
+- **נבדק במק (29.10):** ▶ ← `ready`; קנייה במקום מוכר נרשמה בקטגוריה הנכונה עם `wallet` שהגיע כטקסט JSON; שם המכשיר הגיע. תנאי "contains New category" צריך המרה של Chosen Item לטקסט, אחרת הוא נפתח ריק.
+- **עוד לא נבדק באייפון:** תפריט הקטגוריות במקום חדש, ההתראות, והקריאה מאוטומציית Transaction עם Dictionary.

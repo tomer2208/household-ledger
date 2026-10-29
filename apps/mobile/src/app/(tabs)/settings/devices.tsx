@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import { Stack } from 'expo-router';
 import { useState } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { useAssignDevice, useCaptureHealth, useCreateHouseholdKey, useDevices, useHousehold, useHouseholdKey, useRevokeDevice } from '@/api/queries';
 import { silentDays } from '@/components/capture-banner';
@@ -9,18 +9,16 @@ import { Badge, Button, ErrorText, Row, Screen, Section } from '@/components/ui'
 import { shortDate } from '@/lib/dates';
 import { appDirText } from '@/lib/rtl';
 import { t } from '@/lib/i18n';
-import { FUNCTIONS_URL } from '@/lib/supabase';
+import { APP_URL } from '@/lib/supabase';
 import { confirm } from '@/lib/confirm';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
-import { Pressable } from '@/components/pressable';
 
 // US-C5 + Shortcut setup (BLUEPRINT §3.11, shortcuts/SPEC.md). The household has one key for one
 // FinPace Shortcut, built once and shared by AirDrop (migration 49); each iPhone adds a small
 // Wallet automation that runs it, since Apple doesn't let those be shared. An iPhone shows up
 // below after its first purchase, and someone says whose it is. The key is shown exactly once.
-const CAPTURE_URL = `${FUNCTIONS_URL}/capture`;
-const CONFIRM_URL = `${FUNCTIONS_URL}/capture/confirm`;
+const SHORTCUT_URL = `${APP_URL}/FinPace.shortcut`;
 
 export default function DevicesScreen() {
   const c = useColors();
@@ -120,13 +118,13 @@ export default function DevicesScreen() {
       )}
       <ErrorText error={createKey.error ?? assign.error ?? revoke.error} />
 
+      {/* The FinPace Shortcut is built in code (shortcuts/build_finpace.py) and served with the app;
+          on install, iOS asks for the household key. */}
       <Section title={t.devices.buildTitle} footer={t.devices.buildFooter}>
         {t.devices.build.map((text, i, all) => (
           <Step key={i} n={i + 1} text={text} last={i === all.length - 1}>
-            {i === 2 ? (
-              <CopyRow label={t.devices.captureAddress} value={CAPTURE_URL} copied={copied === 'capture'} onCopy={() => copy('capture', CAPTURE_URL)} />
-            ) : i === 7 ? (
-              <CopyRow label={t.devices.confirmAddress} value={CONFIRM_URL} copied={copied === 'confirm'} onCopy={() => copy('confirm', CONFIRM_URL)} />
+            {i === 1 ? (
+              <Button title={t.devices.download} onPress={() => Linking.openURL(SHORTCUT_URL)} />
             ) : null}
           </Step>
         ))}
@@ -181,19 +179,6 @@ function Step({ n, text, last, children }: { n: number; text: string; last?: boo
         {children}
       </View>
     </View>
-  );
-}
-
-function CopyRow({ label, value, copied, onCopy }: { label: string; value: string; copied: boolean; onCopy: () => void }) {
-  const c = useColors();
-  return (
-    <Pressable onPress={onCopy} style={[s.copy, { backgroundColor: c.fill }]} accessibilityRole="button" accessibilityLabel={t.devices.copyA11y(label)}>
-      {/* The path is what tells the two addresses apart; Copy still takes the full URL. */}
-      <Text numberOfLines={1} style={[s.copyValue, { color: c.secondaryLabel }]}>
-        {value.replace(/^https:\/\/[^/]+/, '…')}
-      </Text>
-      <Text style={{ fontFamily: fontFamily.body, color: c.tint, fontSize: 15, fontWeight: '600' }}>{copied ? t.devices.copied : t.devices.copy}</Text>
-    </Pressable>
   );
 }
 
