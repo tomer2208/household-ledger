@@ -176,10 +176,24 @@ async function authenticate(req: Request, body: Record<string, unknown> | null):
   return (data as Device[] | null)?.[0] ?? null;
 }
 
+function walletFields(w: unknown): Record<string, unknown> {
+  if (w && typeof w === "object" && !Array.isArray(w)) return w as Record<string, unknown>;
+  if (typeof w === "string" && w.trim().startsWith("{")) {
+    try {
+      const parsed = JSON.parse(w);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed;
+    } catch {
+      // not JSON: ignore it, as if it weren't sent
+    }
+  }
+  return {};
+}
+
 async function capture(input: Record<string, any> | null, dev: Device): Promise<Response> {
   const lang: Lang = dev.language === "he" ? "he" : "en";
-  // the shared Shortcut sends the automation's Dictionary as `wallet`
-  const body = { ...(input ?? {}), ...(input?.wallet && typeof input.wallet === "object" ? input.wallet : {}) };
+  // the shared Shortcut sends the automation's Dictionary as `wallet`: an object, or the same as
+  // JSON text when the field is a Text one (Shortcuts writes a Dictionary out as JSON)
+  const body = { ...(input ?? {}), ...walletFields(input?.wallet) };
   const rawMerchant = typeof body.merchant === "string" ? body.merchant.trim() : "";
   if (!rawMerchant) {
     // ▶ in the Shortcut, with no purchase at all: the key works
