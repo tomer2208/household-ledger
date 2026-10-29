@@ -12,6 +12,8 @@ test('create a category with a budget', async ({ page, t, lang }) => {
   await page.getByPlaceholder(t.categories.namePlaceholder).fill(name);
   await page.getByPlaceholder(t.overview.noBudget).fill('500');
   await page.getByRole('button', { name: t.common.save, exact: true }).click();
+  // saving closes the screen
+  await expect(page.getByPlaceholder(t.categories.namePlaceholder)).toHaveCount(0);
 
   // saved on the server with its budget
   await expect
