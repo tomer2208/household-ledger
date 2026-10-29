@@ -5,12 +5,13 @@
 -- Expect: same_device=t two_devices=t unowned=true,true moved=1,1 owners=t lang=he,en no_name=iPhone
 --         revoked_phone=0 old_key=0 new_key=1 own_token_still=t stranger_assign="unknown device"
 --         not_member="that person is not in this household" read_keys=42501 call_auth=42501 key_shape=t
+--         partner_sees_key=t stranger_sees_key=null
 do $$
 declare
   u uuid := gen_random_uuid(); p uuid := gen_random_uuid(); s uuid := gen_random_uuid(); h uuid; code text;
   k text; k2 text; own text; c uuid; d1 uuid; d1b uuid; d2 uuid; d2b uuid; t1 uuid; t2 uuid; r record; m1 int; m2 int;
   unowned text; owners boolean; lang text; no_name text; revoked int; old_key int; new_key int; own_ok boolean;
-  stranger_assign text; not_member text; read_keys text; call_auth text;
+  stranger_assign text; not_member text; read_keys text; call_auth text; partner_sees boolean; stranger_sees text;
 begin
   insert into auth.users (id, email, aud, role) values
     (u, u || '@test.local', 'authenticated', 'authenticated'), (p, p || '@test.local', 'authenticated', 'authenticated'),
@@ -61,6 +62,9 @@ begin
   perform set_config('request.jwt.claims', json_build_object('sub', u, 'role', 'authenticated')::text, true);
   set local role authenticated;
   k2 := public.create_household_key();
+  -- the partner can copy the key on their own phone (migration 51)
+  perform set_config('request.jwt.claims', json_build_object('sub', p, 'role', 'authenticated')::text, true);
+  partner_sees := public.household_key()->>'key' = k2;
   reset role;
   select count(*) into old_key from public.capture_auth(app.sha256_hex(k), 'Tomer''s iPhone');
   select count(*) into new_key from public.capture_auth(app.sha256_hex(k2), 'Tomer''s iPhone');
@@ -72,9 +76,10 @@ begin
   begin perform public.assign_device(d1, s); exception when others then stranger_assign := sqlerrm; end;
   begin perform 1 from public.household_capture_keys; exception when others then read_keys := sqlstate; end;
   begin perform public.capture_auth(app.sha256_hex(k2), 'x'); exception when others then call_auth := sqlstate; end;
+  stranger_sees := coalesce(public.household_key()->>'key', 'null');
   reset role;
 
-  raise exception 'TEST_ROLLBACK same_device=% two_devices=% unowned=% moved=%,% owners=% lang=% no_name=% revoked_phone=% old_key=% new_key=% own_token_still=% stranger_assign="%" not_member="%" read_keys=% call_auth=% key_shape=%',
+  raise exception 'TEST_ROLLBACK same_device=% two_devices=% unowned=% moved=%,% owners=% lang=% no_name=% revoked_phone=% old_key=% new_key=% own_token_still=% stranger_assign="%" not_member="%" read_keys=% call_auth=% key_shape=% partner_sees_key=% stranger_sees_key=%',
     d1 = d1b, d1 <> d2, unowned, m1, m2, owners, lang, no_name, revoked, old_key, new_key, own_ok,
-    stranger_assign, not_member, read_keys, call_auth, k ~ '^hl_hh_[0-9a-f]{48}$';
+    stranger_assign, not_member, read_keys, call_auth, k ~ '^hl_hh_[0-9a-f]{48}$', partner_sees, stranger_sees;
 end $$;

@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard';
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { useState } from 'react';
 import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
 
@@ -65,6 +65,11 @@ export default function DevicesScreen() {
           ))}
         </Section>
       ) : null}
+
+      {/* The guided setup, one step a screen; what follows is for managing it afterwards. */}
+      <Section footer={t.connect.entryBody}>
+        <Row title={t.connect.entry} onPress={() => router.push('/settings/connect')} />
+      </Section>
 
       {/* A new iPhone's purchases wait here for an owner. */}
       {unowned.map((d) => (

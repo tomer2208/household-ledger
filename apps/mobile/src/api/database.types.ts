@@ -199,14 +199,14 @@ isOneToOne: false
                   ]
                 },"household_capture_keys": {
                   Row: {
-                    "created_at": string,"created_by": string | null,"household_id": string,"last_used_at": string | null,"token_hash": string
+                    "created_at": string,"created_by": string | null,"household_id": string,"last_used_at": string | null,"token": string | null,"token_hash": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"household_id": string,"last_used_at"?: string | null,"token_hash": string
+                    "created_at"?: string,"created_by"?: string | null,"household_id": string,"last_used_at"?: string | null,"token"?: string | null,"token_hash": string
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string | null,"household_id"?: string,"last_used_at"?: string | null,"token_hash"?: string
+                    "created_at"?: string,"created_by"?: string | null,"household_id"?: string,"last_used_at"?: string | null,"token"?: string | null,"token_hash"?: string
                   }
                   Relationships: [
                     {

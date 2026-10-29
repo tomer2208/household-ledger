@@ -200,7 +200,7 @@ function ShareStep() {
       {card('iphone.gen3', t.setup.applePay, t.setup.applePayBody, t.setup.setUp, async () => {
         await clearSetupPending();
         router.replace('/overview');
-        router.push('/settings/devices');
+        router.push('/settings/connect');
       })}
       {link ? (
         <Text selectable style={[s.hint, { color: c.secondaryLabel, marginTop: 8 }]}>

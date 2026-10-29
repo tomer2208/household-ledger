@@ -218,7 +218,7 @@ export default function TransactionsScreen() {
                   ? { label: t.expenses.showAll, kind: 'plain', onPress: clearFilters }
                   : query
                     ? undefined
-                    : { label: t.expenses.setUpShortcut, kind: 'plain', onPress: () => router.push('/settings/devices') }
+                    : { label: t.expenses.setUpShortcut, kind: 'plain', onPress: () => router.push('/settings/connect') }
               }
             />
           )

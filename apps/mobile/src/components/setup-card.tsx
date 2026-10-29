@@ -28,7 +28,7 @@ export function SetupCard() {
   const items: { done: boolean; title: string; href: Href }[] = [
     { done: overview.data.categories.some((x) => (x.cap ?? 0) > 0), title: t.setup.cardBudgets, href: '/settings/categories' },
     { done: hh.data.members.length > 1, title: t.setup.invite, href: '/settings/household' },
-    { done: devices.data.some((d) => !d.revoked_at), title: t.setup.cardApplePay, href: '/settings/devices' },
+    { done: devices.data.some((d) => !d.revoked_at), title: t.setup.cardApplePay, href: '/settings/connect' },
   ];
   const doneCount = items.filter((x) => x.done).length;
   if (doneCount === items.length) return null;
