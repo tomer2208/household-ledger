@@ -34,7 +34,7 @@ test('connect Apple Pay, step by step', async ({ page, t, lang }) => {
   await page.getByRole('button', { name: t.connect.next }).click();
 
   // 4 the automation, made on the iPhone
-  await expect(page.getByText(t.connect.autoSteps[0])).toBeVisible();
+  await expect(page.getByText(t.connect.guide[0].text)).toBeVisible();
   await page.getByRole('button', { name: t.connect.automationDone }).click();
 
   // 5 the first purchase comes in; whose iPhone it is, then done

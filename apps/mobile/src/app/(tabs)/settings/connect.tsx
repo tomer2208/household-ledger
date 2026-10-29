@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Linking, Share, StyleSheet, Text, View } from 'react-native';
 
 import { useAssignDevice, useCaptureHealth, useCreateHouseholdKey, useDevices, useHousehold, useHouseholdKey } from '@/api/queries';
+import { AutomationGuide, GuideStep } from '@/components/automation-guide';
 import { IosMock } from '@/components/ios-mock';
 import { Button, ErrorText, Screen } from '@/components/ui';
 import { t } from '@/lib/i18n';
@@ -81,19 +82,6 @@ function Card({ title, body, children }: { title: string; body?: string; childre
   );
 }
 
-// "1  Tap this." A numbered line, the number in a circle.
-function Line({ n, text }: { n: number; text: string }) {
-  const c = useColors();
-  return (
-    <View style={s.line}>
-      <View style={[s.num, { backgroundColor: c.tint }]}>
-        <Text style={[s.numText, { color: c.onTint }]}>{n}</Text>
-      </View>
-      <Text {...appDirText()} style={[s.lineText, { color: c.label }]}>{text}</Text>
-    </View>
-  );
-}
-
 function Status({ ok, text }: { ok: boolean; text: string }) {
   const c = useColors();
   return (
@@ -146,18 +134,14 @@ function KeyStep({ onNext }: { onNext: () => void }) {
 }
 
 function InstallStep({ onNext }: { onNext: () => void }) {
+  const [first, setup] = t.connect.installGuide;
   return (
     <Card title={t.connect.installTitle}>
-      {t.connect.install.map((line, i) => (
-        <Line key={i} n={i + 1} text={line} />
-      ))}
-      <IosMock
-        title="FinPace"
-        rows={[{ label: t.connect.mockKeyField, tap: true }]}
-        button={{ label: 'Add Shortcut', tap: false }}
-      />
-      <Button title={t.connect.getShortcut} onPress={() => Linking.openURL(SHORTCUT_URL)} />
-      <Button title={t.connect.next} kind="plain" onPress={onNext} />
+      <GuideStep n={1} {...first}>
+        <Button title={t.connect.getShortcut} onPress={() => Linking.openURL(SHORTCUT_URL)} />
+      </GuideStep>
+      <GuideStep n={2} {...setup} mock={{ title: 'FinPace', rows: [{ label: t.connect.mockKeyField, tap: true }], bottom: 'Add Shortcut' }} />
+      <Button title={t.connect.next} onPress={onNext} />
     </Card>
   );
 }
@@ -188,33 +172,9 @@ function TestStep({ onNext }: { onNext: () => void }) {
 }
 
 function AutomationStep({ onNext }: { onNext: () => void }) {
-  const mocks = [
-    <IosMock key="a" rows={[{ label: 'Shortcuts' }, { label: 'Automation', tap: true }, { label: '+', tap: true }]} />,
-    <IosMock
-      key="b"
-      title="New Automation"
-      rows={[{ label: 'Transaction', hint: 'Wallet', tap: true }, { label: 'Run Immediately', toggle: true, tap: true }, { label: 'Next' }]}
-    />,
-    <IosMock
-      key="c"
-      title="Dictionary"
-      rows={[
-        { label: 'merchant', value: 'Merchant' },
-        { label: 'amount', value: 'Amount' },
-        { label: 'card', value: 'Card or Pass' },
-        { label: 'name', value: 'Name' },
-      ]}
-    />,
-    <IosMock key="d" title="Run Shortcut" rows={[{ label: 'FinPace', tap: true }, { label: 'Input', value: 'Dictionary', tap: true }]} button={{ label: 'Done' }} />,
-  ];
   return (
     <Card title={t.connect.automationTitle} body={t.connect.automationBody}>
-      {t.connect.autoSteps.map((line, i) => (
-        <View key={i} style={{ gap: 8 }}>
-          <Line n={i + 1} text={line} />
-          {mocks[i]}
-        </View>
-      ))}
+      <AutomationGuide />
       <Button title={t.connect.openShortcuts} kind="plain" onPress={() => Linking.openURL('shortcuts://')} />
       <Button title={t.connect.automationDone} onPress={onNext} />
     </Card>
@@ -280,10 +240,6 @@ const s = StyleSheet.create({
   title: { fontFamily: fontFamily.body, fontSize: 22, fontWeight: '700' },
   body: { fontFamily: fontFamily.body, fontSize: 15, lineHeight: 21 },
   small: { fontFamily: fontFamily.body, fontSize: 13, lineHeight: 18, color: '#8E8E93' },
-  line: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
-  num: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
-  numText: { fontFamily: fontFamily.body, fontWeight: '700', fontSize: 13 },
-  lineText: { flex: 1, fontFamily: fontFamily.body, fontSize: 15, lineHeight: 21 },
   status: { flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: 12, padding: 12 },
   statusText: { flex: 1, fontFamily: fontFamily.body, fontSize: 15, fontWeight: '600' },
   owners: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

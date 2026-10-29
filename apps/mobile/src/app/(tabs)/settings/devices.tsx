@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { useAssignDevice, useCaptureHealth, useCreateHouseholdKey, useDevices, useHousehold, useHouseholdKey, useRevokeDevice } from '@/api/queries';
+import { AutomationGuide, GuideStep } from '@/components/automation-guide';
 import { silentDays } from '@/components/capture-banner';
 import { Badge, Button, ErrorText, Row, Screen, Section } from '@/components/ui';
 import { shortDate } from '@/lib/dates';
@@ -125,21 +126,21 @@ export default function DevicesScreen() {
 
       {/* The FinPace Shortcut is built in code (shortcuts/build_finpace.py) and served with the app;
           on install, iOS asks for the household key. */}
-      <Section title={t.devices.buildTitle} footer={t.devices.buildFooter}>
-        {t.devices.build.map((text, i, all) => (
-          <Step key={i} n={i + 1} text={text} last={i === all.length - 1}>
-            {i === 1 ? (
-              <Button title={t.devices.download} onPress={() => Linking.openURL(SHORTCUT_URL)} />
-            ) : null}
-          </Step>
+      <View style={s.group}>
+        <Text {...appDirText()} style={[s.groupTitle, { color: c.label }]}>{t.devices.buildTitle}</Text>
+        <Text {...appDirText()} style={[s.groupBody, { color: c.secondaryLabel }]}>{t.devices.buildFooter}</Text>
+        {t.connect.installGuide.map((step, i) => (
+          <GuideStep key={i} n={i + 1} {...step}>
+            {i === 0 ? <Button title={t.devices.download} onPress={() => Linking.openURL(SHORTCUT_URL)} /> : null}
+          </GuideStep>
         ))}
-      </Section>
+      </View>
 
-      <Section title={t.devices.phoneTitle} footer={t.devices.phoneFooter}>
-        {t.devices.phone.map((text, i, all) => (
-          <Step key={i} n={i + 1} text={text} last={i === all.length - 1} />
-        ))}
-      </Section>
+      <View style={s.group}>
+        <Text {...appDirText()} style={[s.groupTitle, { color: c.label }]}>{t.devices.phoneTitle}</Text>
+        <Text {...appDirText()} style={[s.groupBody, { color: c.secondaryLabel }]}>{t.devices.phoneFooter}</Text>
+        <AutomationGuide />
+      </View>
 
       {list.length > 0 ? (
         <Section title={t.devices.devices}>
@@ -190,6 +191,9 @@ function Step({ n, text, last, children }: { n: number; text: string; last?: boo
 const s = StyleSheet.create({
   tokenBox: { padding: 16 },
   token: { fontFamily: Platform.select({ ios: 'Menlo', default: 'monospace' }), fontSize: 14 },
+  group: { marginHorizontal: 16, marginTop: 28, gap: 10 },
+  groupTitle: { fontFamily: fontFamily.body, fontSize: 20, fontWeight: '700' },
+  groupBody: { fontFamily: fontFamily.body, fontSize: 14, lineHeight: 20, marginBottom: 4 },
   whose: { fontFamily: fontFamily.body, fontSize: 17, paddingHorizontal: 16, paddingTop: 14 },
   owners: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, padding: 12 },
   step: { flexDirection: 'row', gap: 12, padding: 16, alignItems: 'flex-start' },

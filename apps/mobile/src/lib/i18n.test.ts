@@ -35,16 +35,16 @@ test('no Hebrew text is empty, English, or broken by a missing argument', () => 
       const s = out as string;
       assert.ok(s.trim().length > 0, `${k} is empty`);
       assert.ok(!/undefined|NaN|\[object/.test(s), `${k} renders "${s}"`);
-      if (!SAME.has(k) && s.length > 2) assert.ok(/[֐-׿]/.test(s), `${k} has no Hebrew: "${s}"`);
+      // the iPhone's own button names in the Apple Pay guide (connect.guide.*.taps) are iOS's
+      const ios = /\.(taps|then)\.\d+$/.test(k);
+      if (!SAME.has(k) && !ios && s.length > 2) assert.ok(/[֐-׿]/.test(s), `${k} has no Hebrew: "${s}"`);
     }
   }
 });
 
 test('Hebrew arrows point the way Hebrew reads', () => {
-  // "Shortcut Input › Merchant" is the iOS menu path, written as iOS shows it.
   for (const [k, v] of leaves(he)) {
     const s = String(render(v));
-    if (k === 'devices.build.3') continue;
     assert.ok(!/[›→]/.test(s), `${k} points left-to-right: "${s}"`);
   }
 });

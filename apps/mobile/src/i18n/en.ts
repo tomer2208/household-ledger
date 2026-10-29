@@ -686,6 +686,37 @@ export const en = {
   },
   // The Apple Pay setup wizard (settings/connect): one step a screen, each checked by the app.
   connect: {
+    // The Wallet automation, one card a step: a plain sentence, then the iPhone's buttons
+    // (their own names, as chips), then a drawing. `then`: buttons for the note under them.
+    guide: [
+      { text: 'Open the Shortcuts app. At the bottom, tap the Automation tab, then the + at the top.', taps: ['Automation', '+'] },
+      { text: 'In the list, find the Wallet option and tap it.', taps: ['Transaction'] },
+      {
+        text: 'Choose the cards you pay with, choose to run it without asking, and go on.',
+        taps: ['Card', 'Run Immediately', 'Next'],
+      },
+      {
+        text: 'Start an empty automation and add a Dictionary with four rows, like in the picture.',
+        taps: ['New Blank Automation', 'Search Actions', 'Dictionary', 'Add New Item', 'Text'],
+        note: 'In Key, type the word in small English letters (merchant, amount, card, name). In Value: tap the field, choose Shortcut Input from the bar above the keyboard, tap the blue Shortcut Input that appears in the field, and pick the matching detail. Do it for each row, as in the picture.',
+        then: ['Shortcut Input', 'Shortcut Input', 'Merchant · Amount · Card or Pass · Name'],
+      },
+      {
+        text: 'Add the action that runs FinPace, give it the Dictionary, and save.',
+        taps: ['Search Actions', 'Run Shortcut', 'Shortcut', 'FinPace', 'Done'],
+        note: 'It should read “Run FinPace with Dictionary”. If it doesn’t say with Dictionary, tap the arrow next to it and set Input to Dictionary.',
+      },
+    ],
+    // Getting the Shortcut itself (Shortcut & Devices, and the wizard)
+    installGuide: [
+      { text: 'Get the FinPace Shortcut with the button below. The Shortcuts app opens.' },
+      {
+        text: 'Set it up and paste the household key when it asks.',
+        taps: ['Set Up Shortcut', 'Paste', 'Add Shortcut'],
+        note: 'To paste: touch and hold the empty field.',
+      },
+      { text: 'Check it: in Shortcuts, tap the FinPace tile once. A notification should say: FinPace is connected ✓', taps: ['FinPace'] },
+    ],
     title: 'Connect Apple Pay',
     entry: 'Connect Apple Pay',
     entryBody: 'Every Apple Pay purchase logged by itself, in about 5 minutes.',
@@ -706,12 +737,6 @@ export const en = {
     remakeNote: 'Your household’s key was made before it could be copied here. A new one replaces it; a Shortcut that has the old one will need the new one.',
     copied: '✓ Copied. You’ll paste it in the next step.',
     installTitle: 'Add the FinPace Shortcut',
-    install: [
-      'Tap “Get FinPace” below. The Shortcuts app opens with FinPace.',
-      'Tap “Set Up Shortcut”.',
-      'Tap the empty field and choose Paste: that’s the key you copied.',
-      'Tap “Add Shortcut”. Then come back here.',
-    ],
     getShortcut: 'Get FinPace',
     mockKeyField: 'Paste your household key…',
     testTitle: 'Check the connection',
@@ -723,12 +748,6 @@ export const en = {
     connected: '✓ Connected. The key works.',
     automationTitle: 'Make the purchase automation',
     automationBody: 'This tells the iPhone to run FinPace after every Apple Pay payment. Apple doesn’t let it be shared, so each iPhone makes its own: four short steps.',
-    autoSteps: [
-      'Open Shortcuts and tap “Automation” at the bottom, then “+” (or “New Automation”).',
-      'Scroll to “Transaction” and tap it. Pick your cards, choose “Run Immediately”, then tap “Next” and “New Blank Automation”.',
-      'Search for “Dictionary” and add it. Tap “Add New Item” → “Text” four times, and fill in the four keys. For each value, tap it → “Shortcut Input” → the field shown here.',
-      'Search for “Run Shortcut”, add it and choose FinPace. Tap the arrow next to it and set “Input” to “Dictionary”. Tap “Done”.',
-    ],
     openShortcuts: 'Open Shortcuts',
     automationDone: 'I Made the Automation',
     firstTitle: 'One purchase to finish',
@@ -772,22 +791,11 @@ export const en = {
     replace: 'Replace',
     copied: 'Copied ✓',
     copy: 'Copy',
-    buildTitle: 'Get the FinPace Shortcut',
+    buildTitle: 'The FinPace Shortcut',
     buildFooter: 'One Shortcut for everyone at home, ready-made. Each iPhone then adds the small automation below.',
     download: 'Get the FinPace Shortcut',
-    build: [
-      'Create the household key above and copy it.',
-      'Get the FinPace Shortcut and tap Add Shortcut. When it asks for the household key, paste it.',
-      'Open FinPace in Shortcuts and tap ▶: the notification should say “FinPace is connected ✓”. Then share it with your partner: touch and hold FinPace → Share → AirDrop.',
-    ],
     phoneTitle: 'On each iPhone',
     phoneFooter: 'About 2 minutes. Apple doesn’t let Wallet automations be shared, so each phone makes this small one itself.',
-    phone: [
-      'Get the FinPace Shortcut: whoever built it opens Shortcuts, touches and holds FinPace → Share → AirDrop. Open it on this iPhone and tap Add Shortcut.',
-      'Shortcuts → Automation → + → Transaction. Pick your cards, choose Run Immediately, then Next → New Blank Automation.',
-      'Add “Dictionary” with Text fields merchant, amount, card, name = Shortcut Input › Merchant, Amount, Card or Pass, Name.',
-      'Add “Run Shortcut” → FinPace, with Dictionary as its input. Done: after the first purchase this iPhone shows up below, and you say whose it is.',
-    ],
     devices: 'Devices',
     whoseTitle: 'Whose iPhone is this?',
     whoseFooter: 'Its purchases are the household’s until you choose. Choosing also gives it the ones it already logged.',
