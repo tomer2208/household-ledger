@@ -40,9 +40,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # pinned: resolving "latest" asks GitHub's API, which rate-limits and failed a run
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.122.0
       - name: Start Postgres and apply every migration
         run: supabase db start
       - name: SQL tests
@@ -62,9 +63,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # pinned: resolving "latest" asks GitHub's API, which rate-limits and failed a run
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.122.0
       - uses: actions/setup-node@v4
         with:
           node-version: 24
