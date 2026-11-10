@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams } from 'expo-router';
-import { useEffect, useSyncExternalStore, useState } from 'react';
+import { useEffect, useRef, useSyncExternalStore, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Svg, { Polygon } from 'react-native-svg';
 
@@ -85,6 +85,11 @@ export default function AddExpense() {
   const [details, setDetails] = useState(false);
   const [allEnvelopes, setAllEnvelopes] = useState(false);
   const [nudge, setNudge] = useState(false);
+  // Name first: "Shufersal" brings back its envelope (and, from a repeat expense, its amount).
+  // Opened with a name already (Duplicate, the Shortcut's deep link), it starts on the amount.
+  const [startOnName] = useState(() => !(params.title || params.merchant));
+  const nameRef = useRef<TextInput>(null);
+  const amountRef = useRef<TextInput>(null);
 
   // Restore a draft saved while offline, unless the deep link brought fresh data.
   useEffect(() => {
@@ -114,11 +119,15 @@ export default function AddExpense() {
   const suggestedId = suggestion && envelopes.some((x) => x.id === suggestion.category_id) ? suggestion.category_id : null;
   // Marked for "Save to …": the one picked, else the suggestion, else the first envelope.
   const selected = categoryId ?? suggestedId ?? envelopes[0]?.id ?? null;
+  // While the name is typed, the repeat expenses that match it stay one tap away.
+  const typed = title.trim().toLocaleLowerCase();
+  const matches = (templates.data ?? []).filter((tpl) => !typed || (tpl.title.toLocaleLowerCase().includes(typed) && tpl.title.toLocaleLowerCase() !== typed));
   const applyTemplate = (tpl: { title: string; category_id: string; amount_minor: number; currency: string }) => {
     setTitle(tpl.title);
     setCategoryId(tpl.category_id);
     setAmount(minorToInput(tpl.amount_minor));
     setCurrency(tpl.currency);
+    amountRef.current?.focus();
   };
 
   const minor = parseMoneyInput(amount);
@@ -266,14 +275,60 @@ export default function AddExpense() {
       </View>
 
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={s.scroll}>
+        {/* Name first, so an expense isn't saved under its envelope's name; the amount is next. */}
+        <View style={[s.nameBox, { backgroundColor: c.bg, borderColor: title.trim() ? c.line : 'transparent' }]}>
+          <Icon name="pencil" size={16} color={c.text3 as string} />
+          <TextInput
+            ref={nameRef}
+            value={title}
+            onChangeText={setTitle}
+            autoFocus={startOnName}
+            placeholder={t.add.namePlaceholder}
+            placeholderTextColor={c.text3 as string}
+            accessibilityLabel={t.add.nameA11y}
+            nativeID="title"
+            maxLength={80}
+            autoCorrect={false}
+            returnKeyType="next"
+            submitBehavior="submit"
+            onSubmitEditing={() => amountRef.current?.focus()}
+            {...appDirText()}
+            style={[s.nameInput, { color: c.text }]}
+          />
+          {title ? (
+            <Pressable onPress={() => setTitle('')} hitSlop={10} accessibilityRole="button" accessibilityLabel={t.common.remove}>
+              <Icon name="xmark.circle.fill" size={18} color={c.text3 as string} />
+            </Pressable>
+          ) : null}
+        </View>
+
+        {!amount && matches.length > 0 ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.recents} keyboardShouldPersistTaps="handled">
+            {matches.map((tpl) => (
+              <Pressable
+                key={tpl.title}
+                onPress={() => applyTemplate(tpl)}
+                accessibilityRole="button"
+                accessibilityLabel={t.add.fillIn(tpl.title, formatMoney(tpl.amount_minor, tpl.currency))}
+                style={[s.recent, { backgroundColor: c.bg }]}>
+                <Text style={[s.recentTitle, { color: c.text }]} numberOfLines={1}>
+                  {tpl.title}
+                </Text>
+                <Text style={[s.recentMeta, { color: c.text2 }]}>{formatMoney(tpl.amount_minor, tpl.currency)}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        ) : null}
+
         {/* The number ends at the middle and the currency starts there, in both languages. */}
         <View style={s.amountRow} {...dirProps('ltr')}>
           <TextInput
+            ref={amountRef}
             value={amount}
             onChangeText={typeAmount}
             inputMode="decimal"
             keyboardType="decimal-pad"
-            autoFocus
+            autoFocus={!startOnName}
             placeholder="0"
             placeholderTextColor={c.text3 as string}
             onSubmitEditing={() => save()}
@@ -294,24 +349,6 @@ export default function AddExpense() {
           <Chip label={t.add.moreDetails} icon="slider.horizontal.3" selected={details} onPress={() => setDetails((x) => !x)} />
         </View>
 
-        {!title.trim() && !amount && (templates.data ?? []).length > 0 ? (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.recents} keyboardShouldPersistTaps="handled">
-            {(templates.data ?? []).map((tpl) => (
-              <Pressable
-                key={tpl.title}
-                onPress={() => applyTemplate(tpl)}
-                accessibilityRole="button"
-                accessibilityLabel={t.add.fillIn(tpl.title, formatMoney(tpl.amount_minor, tpl.currency))}
-                style={[s.recent, { backgroundColor: c.bg }]}>
-                <Text style={[s.recentTitle, { color: c.text }]} numberOfLines={1}>
-                  {tpl.title}
-                </Text>
-                <Text style={[s.recentMeta, { color: c.text2 }]}>{formatMoney(tpl.amount_minor, tpl.currency)}</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-        ) : null}
-
         {details ? (
           <View style={s.details}>
             <KindToggle refund={refund} onChange={setRefund} />
@@ -324,7 +361,6 @@ export default function AddExpense() {
             {currency !== base ? <Text style={[s.hint, { color: c.text2 }]}>{t.add.converted(base)}</Text> : null}
             {!refund ? <InstallmentPicker value={payments} onChange={setPayments} totalMinor={minor} currency={currency} /> : null}
             <Section>
-              <Field label={t.add.titleLabel} value={title} onChangeText={setTitle} placeholder={name(selected) || t.common.optional} />
               <Field label={t.add.note} value={note} onChangeText={setNote} placeholder={t.common.optional} last />
             </Section>
           </View>
@@ -443,6 +479,18 @@ const s = StyleSheet.create({
   amountInput: { flex: 1, textAlign: 'right', padding: 0, minWidth: 0 },
   currency: { flex: 1, textAlign: 'left' },
   prompt: { ...type.secondary, fontWeight: '600', textAlign: 'center', marginTop: -space[2], marginHorizontal: space[4] },
+  nameBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[2],
+    marginHorizontal: space[4],
+    minHeight: 48,
+    paddingHorizontal: 14,
+    borderRadius: radius.tile,
+    borderWidth: 1,
+  },
+  // 16px or more, or iOS Safari zooms the page in on focus.
+  nameInput: { flex: 1, fontFamily: type.body.fontFamily, fontSize: 17, paddingVertical: 10, minWidth: 0 },
   chips: { flexDirection: 'row', justifyContent: 'center', gap: space[2], flexWrap: 'wrap' },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 36, paddingHorizontal: 16, borderRadius: radius.pill, borderWidth: 1 },
   chipText: { ...type.secondary },

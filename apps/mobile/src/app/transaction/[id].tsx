@@ -224,7 +224,7 @@ function Editor({ tx }: { tx: Transaction }) {
           title={t.detail.duplicate}
           kind="plain"
           onPress={() => {
-            primeKeyboard();
+            primeKeyboard('decimal');
             router.push({
               pathname: '/add',
               params: {

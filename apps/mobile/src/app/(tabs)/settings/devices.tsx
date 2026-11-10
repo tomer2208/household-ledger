@@ -10,7 +10,7 @@ import { Badge, Button, ErrorText, Row, Screen, Section } from '@/components/ui'
 import { shortDate } from '@/lib/dates';
 import { appDirText } from '@/lib/rtl';
 import { t } from '@/lib/i18n';
-import { APP_URL } from '@/lib/supabase';
+import { SHORTCUT_URL } from '@/lib/shortcut';
 import { confirm } from '@/lib/confirm';
 import { useColors } from '@/lib/theme';
 import { fontFamily } from '@/lib/tokens';
@@ -19,7 +19,6 @@ import { fontFamily } from '@/lib/tokens';
 // FinPace Shortcut, built once and shared by AirDrop (migration 49); each iPhone adds a small
 // Wallet automation that runs it, since Apple doesn't let those be shared. An iPhone shows up
 // below after its first purchase, and someone says whose it is. The key is shown exactly once.
-const SHORTCUT_URL = `${APP_URL}/FinPace.shortcut`;
 
 export default function DevicesScreen() {
   const c = useColors();

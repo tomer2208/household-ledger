@@ -64,9 +64,13 @@ export default function OverviewScreen() {
   const [menuFor, setMenuFor] = useState<OverviewCategory | null>(null);
   const [budgetFor, setBudgetFor] = useState<OverviewCategory | null>(null);
 
-  // K1 / O1: a category as an envelope. This month: tap to add an expense to it (C4), long press
-  // for the category (its budget, trend and expenses). A past month is history: tap shows that
-  // month's expenses.
+  // K1 / O1: a category as an envelope. A tap opens its expenses for the month on screen; this
+  // month, a long press opens its menu (add an expense here, budget, look, delete).
+  const openExpenses = (id: string) => router.push({ pathname: '/transactions', params: { category: id, month: o?.month ?? thisMonth } });
+  const addTo = (id: string) => {
+    primeKeyboard();
+    router.push({ pathname: '/add', params: { category: id } });
+  };
   const envelopeFor = (cat: OverviewCategory, cap: number | null) => {
     const out = past ? null : runsOutOn(cap, cat.spent, today.day, today.days);
     return (
@@ -80,19 +84,16 @@ export default function OverviewScreen() {
         spent={cat.spent}
         currency={cur}
         hint={out ? t.envelope.runsOut(out) : null}
-        onPress={() =>
-          past && o
-            ? router.push({ pathname: '/transactions', params: { category: cat.id, month: o.month } })
-            : (primeKeyboard(), router.push({ pathname: '/add', params: { category: cat.id } }))
-        }
+        onPress={() => (o ? openExpenses(cat.id) : undefined)}
+        pressHint={t.envelope.openExpenses}
         onLongPress={past ? undefined : () => setMenuFor(cat)}
         actions={
           past
             ? undefined
             : [
+                { name: 'add', label: t.envelope.addHere, run: () => addTo(cat.id) },
                 { name: 'budget', label: t.envelope.editBudget, run: () => setBudgetFor(cat) },
-                { name: 'expenses', label: t.envelope.expenses, run: () => router.push({ pathname: '/transactions', params: { category: cat.id } }) },
-                { name: 'edit', label: t.envelope.editEnvelope, run: () => actions.edit(cat) },
+                                { name: 'edit', label: t.envelope.editEnvelope, run: () => actions.edit(cat) },
                 { name: 'delete', label: t.common.delete, run: () => actions.remove(cat) },
               ]
         }
@@ -314,8 +315,8 @@ export default function OverviewScreen() {
         items={
           menuFor
             ? [
+                { label: t.envelope.addHere, icon: 'plus', onPress: () => addTo(menuFor.id) },
                 { label: t.envelope.editBudget, icon: 'pencil', onPress: () => setBudgetFor(menuFor) },
-                { label: t.envelope.expenses, icon: 'list.bullet', onPress: () => router.push({ pathname: '/transactions', params: { category: menuFor.id } }) },
                 { label: t.envelope.editEnvelope, icon: 'tag', onPress: () => actions.edit(menuFor) },
                 { label: t.common.delete, icon: 'trash', destructive: true, onPress: () => actions.remove(menuFor) },
               ]

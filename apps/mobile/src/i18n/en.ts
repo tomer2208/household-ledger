@@ -168,6 +168,8 @@ export const en = {
       state === 'over' ? `${name}, over budget by ${amount}, budget ${cap}` : state === 'close' ? `${name}, close to the limit, ${amount} left of ${cap}` : `${name}, ${amount} left of ${cap}`,
     a11yNone: (name: string, spent: string) => `${name}, ${spent} spent, no budget`,
     addTo: 'Add an expense to this envelope',
+    addHere: 'Add an expense here',
+    openExpenses: 'Shows this envelope’s expenses this month',
     monthFine: 'The month is on track',
     monthClose: (pct: number) => `Close to the limit: ${pct}% of the budget spent`,
     monthOver: (amount: string) => `Over this month's budget by ${amount}`,
@@ -268,6 +270,9 @@ export const en = {
     payments: 'PAYMENTS',
     details: 'Details',
     titleLabel: 'Title',
+    // The name sits under the amount, so an expense isn't saved under its envelope's name by default.
+    namePlaceholder: 'What was it? (e.g. Shufersal)',
+    nameA11y: 'Expense name',
     note: 'Note',
     offline: 'You’re offline. The draft stays on this phone until you save it.',
     // S1 (direction D): amount on our own keypad, a tap on an envelope saves.

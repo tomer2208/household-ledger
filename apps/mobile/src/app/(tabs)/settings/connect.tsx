@@ -9,6 +9,7 @@ import { AutomationGuide, GuideStep } from '@/components/automation-guide';
 import { IosMock } from '@/components/ios-mock';
 import { Button, ErrorText, Screen } from '@/components/ui';
 import { t } from '@/lib/i18n';
+import { SHORTCUT_URL } from '@/lib/shortcut';
 import { appDirText } from '@/lib/rtl';
 import { APP_URL } from '@/lib/supabase';
 import { useColors } from '@/lib/theme';
@@ -18,7 +19,6 @@ import { fontFamily } from '@/lib/tokens';
 // automation, a first purchase), each checked by the app where it can be: the test and the first
 // purchase show up on the server, so the screen moves on by itself. The FinPace Shortcut is
 // built in code (shortcuts/build_finpace.py) and asks for the household key on install.
-const SHORTCUT_URL = `${APP_URL}/FinPace.shortcut`;
 const RUN_TEST = 'shortcuts://run-shortcut?name=FinPace';
 const STEPS = ['intro', 'key', 'install', 'test', 'automation', 'first', 'done'] as const;
 type Step = (typeof STEPS)[number];

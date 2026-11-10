@@ -28,6 +28,7 @@ export function Envelope({
   currency,
   hint,
   onPress,
+  pressHint,
   onLongPress,
   actions,
 }: {
@@ -41,6 +42,8 @@ export function Envelope({
   // One quiet line under the amounts, e.g. "At this rate it runs out on the 18th".
   hint?: string | null;
   onPress?: () => void;
+  // What a tap does, for VoiceOver/TalkBack. Defaults to adding an expense.
+  pressHint?: string;
   onLongPress?: () => void;
   // Offered to VoiceOver/TalkBack as custom actions, so long-press actions stay reachable.
   actions?: { name: string; label: string; run: () => void }[];
@@ -93,7 +96,7 @@ export function Envelope({
       disabled={!onPress && !onLongPress}
       accessibilityRole={onPress ? 'button' : undefined}
       accessibilityLabel={label}
-      accessibilityHint={onPress ? t.envelope.addTo : undefined}
+      accessibilityHint={onPress ? (pressHint ?? t.envelope.addTo) : undefined}
       accessibilityActions={actions?.map(({ name: n, label: l }) => ({ name: n, label: l }))}
       onAccessibilityAction={(e) => actions?.find((x) => x.name === e.nativeEvent.actionName)?.run()}
       style={({ pressed }) => [
